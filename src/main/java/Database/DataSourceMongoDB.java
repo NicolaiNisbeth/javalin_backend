@@ -13,9 +13,9 @@ import java.util.List;
 
 public class DataSourceMongoDB {
 
-    private static HikariConfig config = new HikariConfig();
-    private static HikariDataSource hikari;
-
+    //Mongo db admin: admin
+    //password: admin123
+    //Der er ingen security
     public static void main(String[] args) {
         try {
             // MongoClient mongoClient = new MongoClient("", 27017);
