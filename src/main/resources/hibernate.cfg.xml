@@ -28,7 +28,7 @@
 
         <!-- List of XML mapping files -->
         <mapping resource = "Employee.hbm.xml"/>
-        <mapping resource = "Playground.hbm.xml"/>
+        <mapping resource = "PlaygroundDum.hbm.xml"/>
 
     </session-factory>
 </hibernate-configuration>

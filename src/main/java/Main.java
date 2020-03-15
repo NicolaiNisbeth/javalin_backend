@@ -1,6 +1,7 @@
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import resources.GalgelegResource;
+import resources.PlaygroundResource;
 import resources.UserLogin;
 
 public class Main {
@@ -19,7 +20,11 @@ public class Main {
     public static void start() throws Exception {
         if (app != null) return;
 
-        app = Javalin.create().start(8088);
+        app = Javalin.create(config -> {
+            config.enableCorsForAllOrigins();
+        }).start(8088);
+
+
         app.before(ctx -> {
             System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());
         });
@@ -33,7 +38,6 @@ public class Main {
         app.get("/formular", ctx -> formular(ctx));
 
         // REST endpoints
-        app.config.enableCorsForAllOrigins();
         app.get("/rest/hej", ctx -> ctx.result("Hejsa, godt at møde dig!"));
         app.get("/rest/hej/:fornavn", ctx -> ctx.result("Hej " + ctx.queryParam("fornavn") + ", godt at møde dig!"));
         //  app.get("/rest/bruger/:brugernavn", ctx -> bruger(ctx));
@@ -46,6 +50,11 @@ public class Main {
                 ctx.result(GalgelegResource.startGame(ctx.pathParam("username"))).contentType("json"));
         app.get("rest/galgeleg/:username/:guess", ctx ->
                 ctx.result(GalgelegResource.makeGuess(ctx.pathParam("username"), ctx.pathParam("guess"))).contentType("json"));
+
+
+        app.get("rest/playgrounds", ctx ->
+                ctx.json(PlaygroundResource.getPlaygoundsList()).contentType("json"));
+
 
     }
 

@@ -1,5 +1,6 @@
-package Database;
+package Database.DTOs;
 
+import Database.Interfaces.IHighscoreDTO;
 import org.json.JSONObject;
 
 public class HighscoreDTO implements IHighscoreDTO {

@@ -1,4 +1,4 @@
-package Database;
+package Database.Interfaces;
 
 import java.rmi.Remote;
 import java.sql.ResultSet;

@@ -1,0 +1,28 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name = "Database.DTOs.PlaygroundDTODum" table = "PLAYGROUND">
+
+        <meta attribute = "class-description">
+            This class contains the playground detail.
+        </meta>
+
+        <id name = "id" type = "int" column = "id">
+            <generator class="native"/>
+        </id>
+
+        <property name = "name" column = "name" type = "string"/>
+        <property name = "streetName" column = "addressStreet" type = "string"/>
+        <property name = "streetNumber" column = "addressNumber" type = "int"/>
+        <property name = "commune" column = "commune" type = "string"/>
+        <property name = "zipCode" column = "zip_code" type = "int"/>
+        <property name = "toiletPossibilities" column = "toiletPossibilities" type = "boolean"/>
+        <property name = "imagePath" column = "image_path" type = "string"/>
+
+
+
+    </class>
+</hibernate-mapping>

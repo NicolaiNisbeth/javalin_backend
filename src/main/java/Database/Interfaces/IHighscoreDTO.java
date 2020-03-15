@@ -1,4 +1,4 @@
-package Database;
+package Database.Interfaces;
 
 public interface IHighscoreDTO {
 

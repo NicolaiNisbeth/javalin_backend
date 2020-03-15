@@ -10,14 +10,28 @@ import java.sql.SQLException;
 public class BuildDB {
 
     public static void main(String[] args) {
+        new BuildDB().dropDatabase();
+        new BuildDB().initializeDataBase();
+    }
+
+    private void dropDatabase() {
+        Connection conn = null;
         try {
-            new BuildDB().initializeDataBase();
-        } catch (DALException e) {
+            conn = DataSource.getHikari().getConnection();
+            PreparedStatement dropTableCommodityBatch = conn.prepareStatement(
+                    "DROP TABLE IF EXISTS PLAYGROUND;");
+            dropTableCommodityBatch.execute();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void initializeDataBase() throws DALException {
+/*
+    PreparedStatement pstmtDeleteProductbatch = conn.prepareStatement("delete from productbatch;");
+*/
+
+
+    public void initializeDataBase() {
         Connection conn = null;
         try {
             conn = DataSource.getHikari().getConnection();
@@ -37,6 +51,27 @@ public class BuildDB {
                             ");"
             );
             createTableUser.execute();
+            conn.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            conn.setAutoCommit(false);
+            PreparedStatement createTablePlayground = conn.prepareStatement(
+                    "CREATE TABLE IF NOT EXISTS PLAYGROUND(" +
+                            "id INT NOT NULL auto_increment," +
+                            "name VARCHAR(40) default NULL," +
+                            "addressStreet  VARCHAR(40) default NULL," +
+                            "addressNumber     INT  default NULL," +
+                            "commune  VARCHAR(40) default NULL," +
+                            "zip_code     INT  default NULL," +
+                            "toiletPossibilities bool  default NULL," +
+                            "image_path  VARCHAR(200) default NULL," +
+                            "PRIMARY KEY (id)" +
+                            ");"
+            );
+            createTablePlayground.execute();
             conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();

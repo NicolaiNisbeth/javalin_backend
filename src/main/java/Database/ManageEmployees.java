@@ -4,6 +4,7 @@ package Database;
 import java.util.List;
 import java.util.Iterator;
 
+import Database.DTOs.Employee;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;

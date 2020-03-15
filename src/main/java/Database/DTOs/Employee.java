@@ -1,4 +1,4 @@
-package Database;
+package Database.DTOs;
 
 public class Employee {
     private int id;

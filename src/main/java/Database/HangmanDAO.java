@@ -1,5 +1,9 @@
 package Database;
 
+import Database.DTOs.HighscoreDTO;
+import Database.Interfaces.IHangmanDAO;
+import Database.Interfaces.IHighscoreDTO;
+
 import java.sql.*;
 import java.util.ArrayList;
 
