@@ -1,4 +1,3 @@
-
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import resources.GalgelegResource;
@@ -20,7 +19,7 @@ public class Main {
     public static void start() throws Exception {
         if (app != null) return;
 
-        app = Javalin.create().start(8080);
+        app = Javalin.create().start(8088);
         app.before(ctx -> {
             System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());
         });
