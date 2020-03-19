@@ -1,4 +1,3 @@
-/*
 package Database.collections;
 
 
@@ -17,11 +16,20 @@ public class User {
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String authorId;
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "authorId='" + authorId + '\'' +
+                ", authorName='" + authorName + '\'' +
+                ", playground=" + playground +
+                '}';
+    }
+
     private String authorName;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
-    private Set<Playground> playgroundAdmin = new HashSet<>();
-
+    // todo lav many to many
+    @OneToOne
+    private PlaygroundDum playground;
     // constructors, getters and setters...
 
     public User() {
@@ -47,22 +55,4 @@ public class User {
         this.authorName = authorName;
     }
 
-*/
-/*    public Editor getEditor() {
-        return editor;
-    }
-
-    public void setEditor(Editor editor) {
-        this.editor = editor;
-    }*//*
-
-
-    public Set<Playground> getPlaygroundAdmin() {
-        return playgroundAdmin;
-    }
-
-    public void setPlaygroundAdmin(Set<Playground> playgroundAdmin) {
-        this.playgroundAdmin = playgroundAdmin;
-    }
 }
-*/

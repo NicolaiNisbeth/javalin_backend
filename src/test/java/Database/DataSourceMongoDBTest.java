@@ -3,6 +3,7 @@ package Database;
 import Database.DTOs.PlaygroundDTODum;
 import Database.collections.Event;
 import Database.collections.PlaygroundDum;
+import Database.collections.User;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,14 +31,19 @@ class DataSourceMongoDBTest {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         PlaygroundDum playground = new PlaygroundDum();
-        playground.name = "DTU";
-        playground.streetName = "Anker Engelunds Vej";
-        playground.streetNumber = 1;
-        playground.zipCode = 2800;
-        playground.commune = "Kongens Lyngby";
+        playground.setName("DTU");
+        playground.setStreetName("Anker Engelunds Vej");
+        playground.setStreetNumber(1);
+        playground.setZipCode(2800);
+        playground.setCommune("Kongens Lyngby");
+
+        User user = new User();
+        user.setAuthorName("Lars");
+        playground.setAssignedUser(user);
+
         persistTestData(entityManagerFactory, playground);
         transactionManager.begin();
-        PlaygroundDum loadedEditor = entityManager.find(PlaygroundDum.class, playground.id);
+        PlaygroundDum loadedEditor = entityManager.find(PlaygroundDum.class, playground.getId());
         System.out.println(loadedEditor.toString());
         //asset(loadedEditor).isNotNull();
 // Other assertions to verify the entities and relations
@@ -53,12 +59,12 @@ class DataSourceMongoDBTest {
         persistTestData(entityManagerFactory, event);
         transactionManager.begin();
         Event loadedEditor = entityManager.find(Event.class, event.getEditorId());
-        System.out.println(loadedEditor.getEditorName());
+        System.out.println(loadedEditor);
         //asset(loadedEditor).isNotNull();
 // Other assertions to verify the entities and relations
     }
 
-   /* @Test
+    @Test
     public void addAndPrintUser() throws Exception {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("ogm-mongodb");
         TransactionManager transactionManager = com.arjuna.ats.jta.TransactionManager.transactionManager();
@@ -72,15 +78,13 @@ class DataSourceMongoDBTest {
         System.out.println(loadedEditor.getAuthorId());
         //asset(loadedEditor).isNotNull();
 // Other assertions to verify the entities and relations
-    }*/
+    }
 
     private static void persistTestData(EntityManagerFactory entityManagerFactory, Object object)
             throws Exception {
-        TransactionManager transactionManager =
-                com.arjuna.ats.jta.TransactionManager.transactionManager();
+        TransactionManager transactionManager = com.arjuna.ats.jta.TransactionManager.transactionManager();
         transactionManager.begin();
         EntityManager entityManager = entityManagerFactory.createEntityManager();
-
         entityManager.persist(object);
         entityManager.close();
         transactionManager.commit();

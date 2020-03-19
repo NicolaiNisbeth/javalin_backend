@@ -1,33 +1,32 @@
 package Database.collections;
 
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-
-
-import java.io.Serializable;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-public class PlaygroundDum implements Serializable {
-
-    private static final long serialVersionUID = 12345;
-
+public class PlaygroundDum {
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
-    public String id;
+    private String id;
+    private String name;
+    private String imagePath;
+    private boolean toiletPossibilities;
+    private String streetName;
+    private int streetNumber;
+    private String commune;
+    private int zipCode;
 
-    public String name;
-    public String imagePath;
-    public boolean toiletPossibilities;
-    public String streetName;
-    public int streetNumber;
-    public String commune;
-    public int zipCode;
+    @OneToOne
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    private User assignedUser;
 
+    //@OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
+    //private Set<User> assignedUsers = new HashSet<>();
 
     public PlaygroundDum(String name, String imagePath, boolean toiletPossibilities, String streetName, int streetNumber, String commune, int zipCode) {
         this.name = name;
@@ -42,7 +41,7 @@ public class PlaygroundDum implements Serializable {
     @Override
     public String toString() {
         return "PlaygroundDum{" +
-                "id=" + id +
+                "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", imagePath='" + imagePath + '\'' +
                 ", toiletPossibilities=" + toiletPossibilities +
@@ -50,12 +49,28 @@ public class PlaygroundDum implements Serializable {
                 ", streetNumber=" + streetNumber +
                 ", commune='" + commune + '\'' +
                 ", zipCode=" + zipCode +
+                ", assignedUser=" + assignedUser +
                 '}';
     }
 
     public PlaygroundDum() {
     }
 
+    public User getAssignedUser() {
+        return assignedUser;
+    }
+
+    public void setAssignedUser(User assignedUser) {
+        this.assignedUser = assignedUser;
+    }
+
+    /*    public Set<User> getAssignedUsers() {
+            return assignedUsers;
+        }
+
+        public void setAssignedUsers(Set<User> assignedUsers) {
+            this.assignedUsers = assignedUsers;
+        }*/
     public String getId() {
         return id;
     }

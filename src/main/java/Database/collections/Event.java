@@ -9,15 +9,15 @@ import java.util.Set;
 @Entity
 public class Event {
 
-   /* @Override
+    @Override
     public String toString() {
         return "Event{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", numOfParticipants=" + numOfParticipants +
-                ", assignedUsers=" + assignedUsers +
+                ", assignedUsers=" + assignedUser +
                 '}';
-    }*/
+    }
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -26,10 +26,44 @@ public class Event {
     private String name;
     private int numOfParticipants;
 
-   /* @OneToMany(mappedBy = "event", cascade = CascadeType.PERSIST)
+  /*  @OneToMany(mappedBy = "Event", cascade = CascadeType.PERSIST)
     private Set<User> assignedUsers = new HashSet<>();*/
 
-    // constructors, getters and setters...
+    @OneToOne
+    private User assignedUser;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getNumOfParticipants() {
+        return numOfParticipants;
+    }
+
+    public void setNumOfParticipants(int numOfParticipants) {
+        this.numOfParticipants = numOfParticipants;
+    }
+
+    public User getAssignedUser() {
+        return assignedUser;
+    }
+
+    public void setAssignedUser(User assignedUser) {
+        this.assignedUser = assignedUser;
+    }
+// constructors, getters and setters...
 
     public Event() {
     }
