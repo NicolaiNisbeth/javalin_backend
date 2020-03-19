@@ -1,4 +1,5 @@
 package Database.collections;
+
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -10,8 +11,6 @@ import java.util.Set;
 @Entity
 public class Event {
 
-
-
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
@@ -22,12 +21,12 @@ public class Event {
     /*@OneToMany(mappedBy = "event", cascade = CascadeType.PERSIST)
     private Set<User> assignedUsers = new HashSet<>();*/
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.PERSIST)
+    /*@ManyToMany(mappedBy = "events", cascade = CascadeType.PERSIST)
     private Set<User> assignedUsers = new HashSet<>();
-
-    @OneToOne
+*/
+/*    @OneToOne
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private User assignedUser;
+    private User assignedUser;*/
 
     public String getId() {
         return id;
@@ -41,6 +40,7 @@ public class Event {
         return name;
     }
 
+
     public void setName(String name) {
         this.name = name;
     }
@@ -53,13 +53,13 @@ public class Event {
         this.numOfParticipants = numOfParticipants;
     }
 
-    public User getAssignedUser() {
+   /* public User getAssignedUser() {
         return assignedUser;
     }
 
     public void setAssignedUser(User assignedUser) {
         this.assignedUser = assignedUser;
-    }
+    }*/
 // constructors, getters and setters...
 
     public Event() {
@@ -84,13 +84,28 @@ public class Event {
     public void setEditorName(String editorName) {
         this.name = editorName;
     }
+
+    /*public void addUserToSet(User user) {
+        assignedUsers.add(user);
+    }
+
     public Set<User> getAssignedUsers() {
         return assignedUsers;
     }
 
     public void setAssignedUsers(Set<User> assignedAuthors) {
         this.assignedUsers = assignedAuthors;
-    }
+    }*/
+
+   /* @Override
+    public String toString() {
+        return "Event{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", numOfParticipants=" + numOfParticipants +
+                "\n, assignedUsers=" + assignedUsers +
+                '}';
+    }*/
 
     @Override
     public String toString() {
@@ -98,7 +113,6 @@ public class Event {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", numOfParticipants=" + numOfParticipants +
-                "\n, assignedUsers=" + assignedUser +
                 '}';
     }
 }

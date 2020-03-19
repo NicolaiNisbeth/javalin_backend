@@ -35,7 +35,10 @@ class DataSourceMongoDBTest {
 
         User user = new User();
         user.setAuthorName("Lars");
-        playground.setAssignedUser(user);
+        playground.addUserToSet(user);
+        User user2 = new User();
+        user2.setAuthorName("Svend");
+        playground.addUserToSet(user2);
 
         persistTestData(entityManagerFactory, playground);
         transactionManager.begin();
@@ -54,7 +57,7 @@ class DataSourceMongoDBTest {
         Event event = new Event("Fodbold");
         User user = new User();
         user.setAuthorName("Snapsak");
-        event.setAssignedUser(user);
+        //event.addUserToSet(user);
         persistTestData(entityManagerFactory, event);
         transactionManager.begin();
         Event loadedEditor = entityManager.find(Event.class, event.getEditorId());

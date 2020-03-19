@@ -1,13 +1,13 @@
 package Database.collections;
 
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
+@Entity(name = "Playground")
+@Table(name = "playground")
 public class Playground {
     @Id
     @GeneratedValue(generator = "uuid")
@@ -21,9 +21,12 @@ public class Playground {
     private String commune;
     private int zipCode;
 
-    @OneToOne
+   /* @OneToOne
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private User assignedUser;
+    private User assignedUser;*/
+
+    @ManyToMany(mappedBy = "playgrounds", cascade = CascadeType.PERSIST)
+    private Set<User> connectedUsers = new HashSet<>();
 
     //@OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
     //private Set<User> assignedUsers = new HashSet<>();
@@ -40,6 +43,10 @@ public class Playground {
 
     @Override
     public String toString() {
+        for (User user : connectedUsers) {
+            System.out.println(user);
+        }
+
         return "Playground{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
@@ -49,28 +56,34 @@ public class Playground {
                 ", streetNumber=" + streetNumber +
                 ", commune='" + commune + '\'' +
                 ", zipCode=" + zipCode +
-                ", assignedUser=" + assignedUser +
+                "\n, assignedUser=" + connectedUsers +
                 '}';
     }
+
 
     public Playground() {
     }
 
-    public User getAssignedUser() {
+    /*public User getAssignedUser() {
         return assignedUser;
     }
 
     public void setAssignedUser(User assignedUser) {
         this.assignedUser = assignedUser;
+    }*/
+
+    public Set<User> getConnectedUsers() {
+        return connectedUsers;
     }
 
-    /*    public Set<User> getAssignedUsers() {
-            return assignedUsers;
-        }
+    public void setConnectedUsers(Set<User> assignedUsers) {
+        this.connectedUsers = assignedUsers;
+    }
 
-        public void setAssignedUsers(Set<User> assignedUsers) {
-            this.assignedUsers = assignedUsers;
-        }*/
+    public void addUserToSet(User user) {
+        connectedUsers.add(user);
+    }
+
     public String getId() {
         return id;
     }
