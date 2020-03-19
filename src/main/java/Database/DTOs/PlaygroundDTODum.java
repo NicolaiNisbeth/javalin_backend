@@ -3,11 +3,8 @@ package Database.DTOs;
 import java.io.Serializable;
 
 public class PlaygroundDTODum implements Serializable {
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
-    }
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 12345;
     public int id;
     public String name;
     public String imagePath;
