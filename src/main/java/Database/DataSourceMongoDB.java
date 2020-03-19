@@ -1,22 +1,14 @@
 package Database;
 
-import Database.DTOs.PlaygroundDTO;
 import Database.DTOs.PlaygroundDTODum;
 import Database.collections.User;
+import com.google.gson.Gson;
 import com.mongodb.*;
-import com.mongodb.util.JSON;
-import org.json.JSONObject;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.transaction.NotSupportedException;
-import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
-import java.net.UnknownHostException;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Set;
+import java.util.ArrayList;
 
 public class DataSourceMongoDB {
 
@@ -44,13 +36,12 @@ public class DataSourceMongoDB {
         try {
             MongoClient mongoClient = new MongoClient("130.225.170.204", 27027);
             DB database = mongoClient.getDB("cphPlaygroundsDB");
-
+            Gson gson = new Gson();
 
             // srping hibernate mongodb
-
             // javalin mongo
 
-            EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("ogm-mongodb");
+          /*  EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("ogm-mongodb");
             User user = new User("Hans");
             persistTestData(entityManagerFactory, user);
             TransactionManager transactionManager = com.arjuna.ats.jta.TransactionManager.transactionManager();
@@ -58,65 +49,62 @@ public class DataSourceMongoDB {
             EntityManager entityManager = entityManagerFactory.createEntityManager();
             User loadedEditor = entityManager.find(User.class, user.getAuthorId());
             System.out.println(loadedEditor.getAuthorName());
-
-
+*/
 
             //  System.out.pri ntln(database.getName());
             //database.createCollection("customers", null);
             //boolean auth = database.authenticate("admin", "admin123".toCharArray());
 
-          /*  DBCollection collection = database.getCollection("Playground");
-            BasicDBObject document = new BasicDBObject();
-            document.append("name", "vandlegepladsen");
-            document.append("imagePath", "https://berlingske.bmcdn.dk/media/cache/resolve/embedded_image_600x/image/29/297771/17762859-vandlegepladsen1.jpg");
-            document.append("toiletPosibilities", "false");
-            document.append("streetName", "Fælledparken ved Edel Sauntes Allé");
-            document.append("streetNumber", "1");
-            document.append("commune", "København Ø");
-            document.append("zipCode", "2100");
-            collection.insert(document);*/
-/*
-            document = new BasicDBObject();
-            playground = new PlaygroundDTODum(
-                    "Trafiklegepladsen",
+            DBCollection collection = database.getCollection("playground");
+
+            PlaygroundDTODum playground = new PlaygroundDTODum(
+                    "wert",
                     "https://berlingske.bmcdn.dk/media/cache/resolve/embedded_image_600x/image/29/297772/17762891-.jpg",
-                    false,
+                    true,
                     "Gunnar Nu Hansens Plads 10,",
                     3,
                     "København Ø",
                     2100);
-            document.append("playground", playground);
-            collection.insert(document);*/
 
-            System.out.println(database.getCollection("Playground")
-            );
+            /*JSONObject rat = exRat.getJSONObject("fieldfromJson");
+            String newrat = rat.toString();*/
+            //Indsæt java objekt direkte i dm
+           /* BasicDBObject doc = BasicDBObject.parse(gson.toJson(playground) );
+            collection.insert(doc);*/
+           // collection.insert(pojoToDoc(playground));
+
+            Cursor cursor = collection.find();
+            ArrayList<PlaygroundDTODum> playgrounds = new ArrayList<>();
+            PlaygroundDTODum playgroundFromDB = null;
+
+            while (cursor.hasNext()) {
+                playgroundFromDB = gson.fromJson(cursor.next().toString(), PlaygroundDTODum.class);
+                playgrounds.add(playgroundFromDB);
+            }
+
+            for (PlaygroundDTODum play: playgrounds) {
+                System.out.println(play);
+            }
 
             /*List<String> dbs = mongoClient.getDatabaseNames();
             for (String db : dbs) {
                 System.out.println(db);
             }*/
 
-
-           /* BasicDBObject searchQuery = new BasicDBObject();
-            searchQuery.put("playground", "");
-            DBCursor cursor = collection.find(searchQuery);
-            while (cursor.hasNext()) {
-                System.out.println(cursor.next());
-            }*/
-
-
-
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (SystemException e) {
-            e.printStackTrace();
-        } catch (NotSupportedException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
-
+    private static BasicDBObject pojoToDoc(PlaygroundDTODum pojo) {
+        BasicDBObject document = new BasicDBObject();
+        document.append("name", pojo.getName());
+        document.append("imagePath", pojo.getImagePath());
+        document.append("toiletPosibilities", pojo.getIsToiletPossibilities());
+        document.append("streetName", pojo.getStreetName());
+        document.append("streetNumber", pojo.getStreetNumber());
+        document.append("commune", pojo.getCommune());
+        document.append("zipCode", pojo.getZipCode());
+        return document;
+    }
 }

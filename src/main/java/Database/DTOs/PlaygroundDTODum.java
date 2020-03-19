@@ -25,6 +25,20 @@ public class PlaygroundDTODum implements Serializable {
         this.zipCode = zipCode;
     }
 
+    @Override
+    public String toString() {
+        return "PlaygroundDTODum{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", imagePath='" + imagePath + '\'' +
+                ", toiletPossibilities=" + toiletPossibilities +
+                ", streetName='" + streetName + '\'' +
+                ", streetNumber=" + streetNumber +
+                ", commune='" + commune + '\'' +
+                ", zipCode=" + zipCode +
+                '}';
+    }
+
     public PlaygroundDTODum() {
     }
 
@@ -52,7 +66,7 @@ public class PlaygroundDTODum implements Serializable {
         this.imagePath = imagePath;
     }
 
-    public boolean isToiletPossibilities() {
+    public boolean getIsToiletPossibilities() {
         return toiletPossibilities;
     }
 

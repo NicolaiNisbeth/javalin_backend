@@ -1,3 +1,4 @@
+/*
 package Database;
 
 import Database.DTOs.HighscoreDTO;
@@ -110,4 +111,4 @@ public class HangmanDAO implements IHangmanDAO {
         highscoreDAL.setScore(resultset.getInt("score"));
         return highscoreDAL;
     }
-}
+}*/

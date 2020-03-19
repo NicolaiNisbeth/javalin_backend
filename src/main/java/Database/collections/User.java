@@ -18,9 +18,6 @@ public class User {
 
     private String authorName;
 
-    @OneToMany
-    private User user;
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
     private Set<Playground> playgroundAdmin = new HashSet<>();
 

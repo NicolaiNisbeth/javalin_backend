@@ -24,6 +24,7 @@ class DataSourceMongoDBTest {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         User loadedEditor = entityManager.find(User.class, user.getAuthorId());
         System.out.println(loadedEditor.getAuthorName());
+        System.out.println(loadedEditor.getAuthorId());
         //asset(loadedEditor).isNotNull();
 // Other assertions to verify the entities and relations
     }
