@@ -9,6 +9,9 @@ import org.json.JSONObject;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.transaction.NotSupportedException;
+import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
@@ -22,6 +25,18 @@ public class DataSourceMongoDB {
 	DB db = mongoClient.getDB("database name");
 	boolean auth = db.authenticate("username", "password".toCharArray());*/
 
+    private static void persistTestData(EntityManagerFactory entityManagerFactory, User user)
+            throws Exception {
+        TransactionManager transactionManager =
+                com.arjuna.ats.jta.TransactionManager.transactionManager();
+        transactionManager.begin();
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+        entityManager.persist(user);
+        entityManager.close();
+        transactionManager.commit();
+    }
+
     //Mongo db admin: admin
     //password: admin123
     //Der er ingen security
@@ -29,6 +44,23 @@ public class DataSourceMongoDB {
         try {
             MongoClient mongoClient = new MongoClient("130.225.170.204", 27027);
             DB database = mongoClient.getDB("cphPlaygroundsDB");
+
+
+            // srping hibernate mongodb
+
+            // javalin mongo
+
+            EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("ogm-mongodb");
+            User user = new User("Hans");
+            persistTestData(entityManagerFactory, user);
+            TransactionManager transactionManager = com.arjuna.ats.jta.TransactionManager.transactionManager();
+            transactionManager.begin();
+            EntityManager entityManager = entityManagerFactory.createEntityManager();
+            User loadedEditor = entityManager.find(User.class, user.getAuthorId());
+            System.out.println(loadedEditor.getAuthorName());
+
+
+
             //  System.out.pri ntln(database.getName());
             //database.createCollection("customers", null);
             //boolean auth = database.authenticate("admin", "admin123".toCharArray());
@@ -75,6 +107,12 @@ public class DataSourceMongoDB {
 
 
         } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (SystemException e) {
+            e.printStackTrace();
+        } catch (NotSupportedException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
