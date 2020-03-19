@@ -1,11 +1,25 @@
-package Database.DTOs;
+package Database.collections;
+
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
 
 import java.io.Serializable;
 
-public class PlaygroundDTODum implements Serializable {
+@Entity
+public class PlaygroundDum implements Serializable {
 
     private static final long serialVersionUID = 12345;
-    public int id;
+
+    @Id
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    public String id;
+
     public String name;
     public String imagePath;
     public boolean toiletPossibilities;
@@ -15,7 +29,7 @@ public class PlaygroundDTODum implements Serializable {
     public int zipCode;
 
 
-    public PlaygroundDTODum(String name, String imagePath, boolean toiletPossibilities, String streetName, int streetNumber, String commune, int zipCode) {
+    public PlaygroundDum(String name, String imagePath, boolean toiletPossibilities, String streetName, int streetNumber, String commune, int zipCode) {
         this.name = name;
         this.imagePath = imagePath;
         this.toiletPossibilities = toiletPossibilities;
@@ -39,14 +53,14 @@ public class PlaygroundDTODum implements Serializable {
                 '}';
     }
 
-    public PlaygroundDTODum() {
+    public PlaygroundDum() {
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -1,3 +1,4 @@
+/*
 package Database.collections;
 
 
@@ -23,7 +24,7 @@ public class User {
 
     // constructors, getters and setters...
 
-    User() {
+    public User() {
     }
 
     public User(String authorName) {
@@ -46,13 +47,15 @@ public class User {
         this.authorName = authorName;
     }
 
+*/
 /*    public Editor getEditor() {
         return editor;
     }
 
     public void setEditor(Editor editor) {
         this.editor = editor;
-    }*/
+    }*//*
+
 
     public Set<Playground> getPlaygroundAdmin() {
         return playgroundAdmin;
@@ -62,3 +65,4 @@ public class User {
         this.playgroundAdmin = playgroundAdmin;
     }
 }
+*/

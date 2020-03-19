@@ -17,13 +17,13 @@ public class Playground {
     private String articleId;
 
     private String articleTitle;
-
+/*
     @ManyToOne
-    private User user;
+    private User user;*/
 
     // constructors, getters and setters...
 
-    Playground() {
+    public Playground() {
     }
 
     public Playground(String articleTitle) {
@@ -46,11 +46,11 @@ public class Playground {
         this.articleTitle = articleTitle;
     }
 
-    public User getUser() {
+   /* public User getUser() {
         return user;
     }
 
     public void setUser(User user) {
         this.user = user;
-    }
+    }*/
 }

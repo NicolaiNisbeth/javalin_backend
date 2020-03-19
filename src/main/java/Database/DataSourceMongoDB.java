@@ -1,7 +1,6 @@
 package Database;
 
 import Database.DTOs.PlaygroundDTODum;
-import Database.collections.User;
 import com.google.gson.Gson;
 import com.mongodb.*;
 
@@ -17,7 +16,7 @@ public class DataSourceMongoDB {
 	DB db = mongoClient.getDB("database name");
 	boolean auth = db.authenticate("username", "password".toCharArray());*/
 
-    private static void persistTestData(EntityManagerFactory entityManagerFactory, User user)
+   /* private static void persistTestData(EntityManagerFactory entityManagerFactory, User user)
             throws Exception {
         TransactionManager transactionManager =
                 com.arjuna.ats.jta.TransactionManager.transactionManager();
@@ -27,7 +26,7 @@ public class DataSourceMongoDB {
         entityManager.persist(user);
         entityManager.close();
         transactionManager.commit();
-    }
+    }*/
 
     //Mongo db admin: admin
     //password: admin123
