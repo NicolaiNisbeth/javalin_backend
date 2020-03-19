@@ -20,6 +20,11 @@ public class User {
     private Playground playground;
     // constructors, getters and setters...
 
+    @ManyToOne
+    private Event event;
+    // constructors, getters and setters...
+
+
     public User() {
     }
 

@@ -19,8 +19,11 @@ public class Event {
     private String name;
     private int numOfParticipants;
 
-  /*  @OneToMany(mappedBy = "Event", cascade = CascadeType.PERSIST)
+    /*@OneToMany(mappedBy = "event", cascade = CascadeType.PERSIST)
     private Set<User> assignedUsers = new HashSet<>();*/
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.PERSIST)
+    private Set<User> assignedUsers = new HashSet<>();
 
     @OneToOne
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
@@ -81,14 +84,13 @@ public class Event {
     public void setEditorName(String editorName) {
         this.name = editorName;
     }
-/*
     public Set<User> getAssignedUsers() {
         return assignedUsers;
     }
 
     public void setAssignedUsers(Set<User> assignedAuthors) {
         this.assignedUsers = assignedAuthors;
-    }*/
+    }
 
     @Override
     public String toString() {
