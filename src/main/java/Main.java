@@ -52,6 +52,7 @@ public class Main {
                 ctx.result(GalgelegResource.makeGuess(ctx.pathParam("username"), ctx.pathParam("guess"))).contentType("json"));
         app.get("rest/Playground", ctx ->
                 ctx.json(PlaygroundResource.getPlaygoundsList()).contentType("json"));
+        app.post("rest/snap", ctx -> ctx.result("snap"));
     }
 
     private static void formular(Context ctx) {
