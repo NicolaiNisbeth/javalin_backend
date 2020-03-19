@@ -27,7 +27,7 @@ public class PlaygroundDTODum implements Serializable {
 
     @Override
     public String toString() {
-        return "PlaygroundDum{" +
+        return "Playground{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", imagePath='" + imagePath + '\'' +

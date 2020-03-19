@@ -1,9 +1,6 @@
 package Database.collections;
 
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.persistence.*;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -16,20 +13,11 @@ public class User {
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String authorId;
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "authorId='" + authorId + '\'' +
-                ", authorName='" + authorName + '\'' +
-                ", playground=" + playground +
-                '}';
-    }
-
     private String authorName;
 
     // todo lav many to many
     @OneToOne
-    private PlaygroundDum playground;
+    private Playground playground;
     // constructors, getters and setters...
 
     public User() {
@@ -53,6 +41,15 @@ public class User {
 
     public void setAuthorName(String authorName) {
         this.authorName = authorName;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "authorId='" + authorId + '\'' +
+                ", authorName='" + authorName + '\'' +
+                "\n, playground=" + playground +
+                '}';
     }
 
 }

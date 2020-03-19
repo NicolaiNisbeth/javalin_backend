@@ -1,10 +1,8 @@
 package Database;
 
-import Database.DTOs.PlaygroundDTODum;
 import Database.collections.Event;
-import Database.collections.PlaygroundDum;
+import Database.collections.Playground;
 import Database.collections.User;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,8 +10,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.transaction.TransactionManager;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class DataSourceMongoDBTest {
 
@@ -30,7 +26,7 @@ class DataSourceMongoDBTest {
         TransactionManager transactionManager = com.arjuna.ats.jta.TransactionManager.transactionManager();
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-        PlaygroundDum playground = new PlaygroundDum();
+        Playground playground = new Playground();
         playground.setName("DTU");
         playground.setStreetName("Anker Engelunds Vej");
         playground.setStreetNumber(1);
@@ -43,7 +39,7 @@ class DataSourceMongoDBTest {
 
         persistTestData(entityManagerFactory, playground);
         transactionManager.begin();
-        PlaygroundDum loadedEditor = entityManager.find(PlaygroundDum.class, playground.getId());
+        Playground loadedEditor = entityManager.find(Playground.class, playground.getId());
         System.out.println(loadedEditor.toString());
         //asset(loadedEditor).isNotNull();
 // Other assertions to verify the entities and relations
@@ -56,6 +52,9 @@ class DataSourceMongoDBTest {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         Event event = new Event("Fodbold");
+        User user = new User();
+        user.setAuthorName("Snapsak");
+        event.setAssignedUser(user);
         persistTestData(entityManagerFactory, event);
         transactionManager.begin();
         Event loadedEditor = entityManager.find(Event.class, event.getEditorId());

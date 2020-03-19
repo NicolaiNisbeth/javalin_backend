@@ -1,4 +1,5 @@
 package Database.collections;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -9,15 +10,7 @@ import java.util.Set;
 @Entity
 public class Event {
 
-    @Override
-    public String toString() {
-        return "Event{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", numOfParticipants=" + numOfParticipants +
-                ", assignedUsers=" + assignedUser +
-                '}';
-    }
+
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -30,6 +23,7 @@ public class Event {
     private Set<User> assignedUsers = new HashSet<>();*/
 
     @OneToOne
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private User assignedUser;
 
     public String getId() {
@@ -95,4 +89,14 @@ public class Event {
     public void setAssignedUsers(Set<User> assignedAuthors) {
         this.assignedUsers = assignedAuthors;
     }*/
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", numOfParticipants=" + numOfParticipants +
+                "\n, assignedUsers=" + assignedUser +
+                '}';
+    }
 }
