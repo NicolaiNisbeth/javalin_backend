@@ -39,77 +39,73 @@ public class User {
     public User() {
     }
 
-    public User(String name, String status, String imagePath, String email, String password, List<PhoneNumber> phoneNumbers){
-        this.name = name;
-        this.status = status;
-        this.imagePath = imagePath;
-        this.email = email;
-        this.password = password;
-        this.phoneNumbers = phoneNumbers;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public User setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public User setStatus(String status) {
         this.status = status;
+        return this;
     }
 
     public String getImagePath() {
         return imagePath;
     }
 
-    public void setImagePath(String photo_url) {
+    public User setImagePath(String photo_url) {
         this.imagePath = photo_url;
+        return this;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    public User setEmail(String email) {
         this.email = email;
+        return this;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
+    public User setPassword(String password) {
         this.password = password;
+        return this;
     }
 
     public List<PhoneNumber> getPhoneNumbers() {
         return phoneNumbers;
     }
 
-    public void setPhoneNumbers(List<PhoneNumber> sections) {
+    public User setPhoneNumbers(List<PhoneNumber> sections) {
         this.phoneNumbers = sections;
+        return this;
     }
 
     public Set<Event> getEvents() {
         return events;
     }
 
-    public void setEvents(Set<Event> events) {
+    public User setEvents(Set<Event> events) {
         this.events = events;
+        return this;
     }
 
-    public Playground getPlayground() {
-        return playground;
-    }
 
-    public void setPlayground(Playground playground) {
+    public User setPlayground(Playground playground) {
         this.playground = playground;
+        return this;
     }
 
     public String getId() {

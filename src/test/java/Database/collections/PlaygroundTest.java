@@ -36,15 +36,27 @@ class PlaygroundTest {
         Event event1 = new Event("Football", "2k3j2k323.jpg", 20, "Football near the bay...", details1);
         Event event2 = new Event("Boardgames", "a9sd8sa9d89as8d.jpg", 3, "Boardgames near the bay...", details2);
 
-        List<PhoneNumber> numbers1 = new ArrayList<>();
-        numbers1.add(new PhoneNumber("+45 23 12 23 45"));
-        numbers1.add(new PhoneNumber("+45 23 45 12 32"));
-        User user1 = new User("Nicolai", "Admin", "qwe123", "nicolai.nisbeth@yahoo.com", "asdasd97asdasd.jpg", numbers1);
+        List<PhoneNumber> phoneNumbers = new ArrayList<>();
+        phoneNumbers.add(new PhoneNumber("+45 23 12 23 45"));
+        phoneNumbers.add(new PhoneNumber("+45 23 45 12 32"));
+        User user1 = new User()
+                .setName("Nicolai")
+                .setStatus("Admin")
+                .setPassword("qwe123")
+                .setEmail("nicolai.nisbeth@yahoo.com")
+                .setImagePath("asdasd7asdas98da.jpg")
+                .setPhoneNumbers(phoneNumbers);
 
-        List<PhoneNumber> numbers2 = new ArrayList<>();
-        numbers2.add(new PhoneNumber("+45 89 76 78 34"));
-        numbers2.add(new PhoneNumber("+45 75 23 12 32"));
-        User user2 = new User("Peter", "Admin", "gkgkdl123", "awqds.pavlidi@google.com", "as23dasd97asd23asd.jpg", numbers2);
+        List<PhoneNumber> phoneNumbers2 = new ArrayList<>();
+        phoneNumbers2.add(new PhoneNumber("+45 89 76 78 34"));
+        phoneNumbers2.add(new PhoneNumber("+45 75 23 12 32"));
+        User user2 = new User()
+                .setName("Peter")
+                .setStatus("Admin")
+                .setPassword("lksædjkf23")
+                .setEmail("awq.pavlidi@google.com")
+                .setImagePath("asdas33d732asddadds98da.jpg")
+                .setPhoneNumbers(phoneNumbers2);
 
         event1.getAssignedUsers().add(user1);
         event1.getAssignedUsers().add(user2);

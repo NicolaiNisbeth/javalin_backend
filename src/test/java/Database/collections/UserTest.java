@@ -28,12 +28,13 @@ class UserTest {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         entityManager.getTransaction().begin();
-        User user = new User();
-        user.setName("Nicolai");
-        user.setStatus("Admin");
-        user.setPassword("kode123");
-        user.setEmail("nicolai.nisbeth@yahoo.com");
-        user.setImagePath("asddasdasd27a6sd78.jpg");
+        User user = new User()
+                .setName("Nicolai")
+                .setStatus("Admin")
+                .setPassword("kode123")
+                .setEmail("nicolai.nisbeth@yahoo.com")
+                .setImagePath("asddasdasd27a6sd78.jpg");
+
         List<PhoneNumber> numbers = new ArrayList<>();
         numbers.add(new PhoneNumber("+45 23 12 23 45"));
         numbers.add(new PhoneNumber("+45 23 45 12 32"));
