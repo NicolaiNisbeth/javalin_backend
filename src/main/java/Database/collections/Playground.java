@@ -16,6 +16,10 @@ public class Playground {
         private String name;
         private String imagePath;
         private boolean toiletPossibilities;
+
+
+        private boolean hasSoccerField;
+
         private String streetName;
         private int streetNumber;
         private String commune;
@@ -42,6 +46,14 @@ public class Playground {
 
         public Builder setName(String name) {
             this.name = name;
+            return this;
+        }
+        public boolean isHasSoccerField() {
+            return hasSoccerField;
+        }
+
+        public Builder setHasSoccerField(boolean hasSoccerField) {
+            this.hasSoccerField = hasSoccerField;
             return this;
         }
 
@@ -141,12 +153,22 @@ public class Playground {
 
     private String imagePath;
     private boolean toiletPossibilities;
+    private boolean hasSoccerField;
+
     private String streetName;
     private int streetNumber;
     private String commune;
     private int zipCode;
     private Set<User> assignedUsers = new HashSet<>();
     private Set<Event> events = new TreeSet<>();
+
+    public boolean isHasSoccerField() {
+        return hasSoccerField;
+    }
+
+    public void setHasSoccerField(boolean hasSoccerField) {
+        this.hasSoccerField = hasSoccerField;
+    }
 
     @Override
     public String toString() {

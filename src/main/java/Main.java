@@ -1,7 +1,7 @@
+import Database.dao.Controller;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import resources.GalgelegResource;
-import resources.PlaygroundResource;
 import resources.UserLogin;
 
 public class Main {
@@ -10,6 +10,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         start();
+
     }
 
     public static void stop() {
@@ -50,11 +51,13 @@ public class Main {
                 ctx.result(GalgelegResource.startGame(ctx.pathParam("username"))).contentType("json"));
         app.get("rest/galgeleg/:username/:guess", ctx ->
                 ctx.result(GalgelegResource.makeGuess(ctx.pathParam("username"), ctx.pathParam("guess"))).contentType("json"));
-        app.get("rest/Playground", ctx ->
+        /*app.get("rest/Playground", ctx ->
                 ctx.json(PlaygroundResource.getPlaygoundsList()).contentType("json"));
+*/
+
 
         app.get("rest/playground_list", ctx ->
-                ctx.json(PlaygroundResource.getPlaygoundsList()).contentType("json"));
+                ctx.json(Controller.getController().getAllPlaygrounds()).contentType("json"));
 
         app.post("rest/snap", ctx -> ctx.result("snap"));
     }

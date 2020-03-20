@@ -75,8 +75,8 @@ public class PlaygroundDAO implements IPlaygroundDAO {
     public boolean deleteAllPlaygrounds() {
         Jongo jongo = new Jongo(DataSource.getDB());
         try {
-            jongo.getCollection(COLLECTION)
-                    .remove("{}");
+            System.out.println(jongo.getCollection(COLLECTION)
+                    .remove("{}"));
             return true;
         } catch (Exception e) {
             e.printStackTrace();
