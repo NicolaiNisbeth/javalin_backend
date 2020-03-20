@@ -1,12 +1,6 @@
 package Database;
 
-import Database.collections.Playground;
-import Database.collections.User;
-import Database.collections.Event;
-import com.google.gson.Gson;
 import com.mongodb.*;
-
-import java.util.ArrayList;
 
 public class DataSource {
     private static DB database;
