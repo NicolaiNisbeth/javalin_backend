@@ -1,3 +1,4 @@
+/*
 package Database.ogm_collections;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -110,6 +111,7 @@ public class Event implements Comparable<Event>{
         return this.details.getDate().compareTo(event.getDetails().getDate());
     }
 
+*/
 /*
     @Id
     @GeneratedValue(generator = "uuid")
@@ -118,16 +120,24 @@ public class Event implements Comparable<Event>{
     private String name;
     private int numOfParticipants;
 
- */
-    /*@OneToMany(mappedBy = "event", cascade = CascadeType.PERSIST)
-    private Set<User> assignedUsers = new HashSet<>();*/
+ *//*
 
-    /*@ManyToMany(mappedBy = "events", cascade = CascadeType.PERSIST)
+    */
+/*@OneToMany(mappedBy = "event", cascade = CascadeType.PERSIST)
+    private Set<User> assignedUsers = new HashSet<>();*//*
+
+
+    */
+/*@ManyToMany(mappedBy = "events", cascade = CascadeType.PERSIST)
     private Set<User> assignedUsers = new HashSet<>();
+*//*
+
 */
 /*    @OneToOne
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private User assignedUser;*/
+    private User assignedUser;*//*
+
+*/
 /*
 
    /* @Override
@@ -138,9 +148,11 @@ public class Event implements Comparable<Event>{
                 ", numOfParticipants=" + numOfParticipants +
                 "\n, assignedUsers=" + assignedUsers +
                 '}';
-    }*/
+    }*//*
 
-   /*
+
+   */
+/*
     @Override
     public String toString() {
         return "Event{" +
@@ -150,6 +162,8 @@ public class Event implements Comparable<Event>{
                 '}';
     }
 
-    */
+    *//*
+
 
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package Database.ogm_collections;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -42,9 +43,11 @@ public class Playground {
         this.zipCode = zipCode;
     }
 
-   /* @OneToOne
+   */
+/* @OneToOne
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private User assignedUser;*/
+    private User assignedUser;*//*
+
 
     //@ManyToMany(mappedBy = "playgrounds", cascade = CascadeType.PERSIST)
     //private Set<User> connectedUsers = new HashSet<>();
@@ -150,3 +153,4 @@ public class Playground {
         this.futureEvents = futureEvents;
     }
 }
+*/

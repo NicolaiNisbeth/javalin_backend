@@ -1,3 +1,4 @@
+/*
 package Database.ogm_collections;
 
 import javax.persistence.Embeddable;
@@ -16,3 +17,4 @@ public class PhoneNumber {
         this.number = number;
     }
 }
+*/
