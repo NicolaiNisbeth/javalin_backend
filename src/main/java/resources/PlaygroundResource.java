@@ -1,7 +1,7 @@
 package resources;
 
 
-import Database.collections.Playground;
+import database.collections.Playground;
 
 import java.util.ArrayList;
 
