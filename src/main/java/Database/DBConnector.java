@@ -1,5 +1,7 @@
 package Database;
 
+import com.mongodb.MongoClient;
+
 public class DBConnector {
     static DBConnector instance;
     private final static String database = "GalgeLeg";

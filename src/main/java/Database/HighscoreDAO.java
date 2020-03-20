@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class HighschoreDAO {
+public class HighscoreDAO {
 
     private final String COLLECTION = "Test1";
     private final String MongoQueryTag = "wordToGuess";
