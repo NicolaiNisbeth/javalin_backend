@@ -1,7 +1,8 @@
 package Database;
 
-import Database.ogm_collections.Playground;
-import Database.ogm_collections.User;
+import Database.collections.Playground;
+import Database.collections.User;
+import Database.collections.Event;
 import com.google.gson.Gson;
 import com.mongodb.*;
 
@@ -9,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.transaction.TransactionManager;
+import java.util.ArrayList;
 
 public class DataSource {
     private static DB database;
@@ -17,24 +19,34 @@ public class DataSource {
 	DB db = mongoClient.getDB("database name");
 	boolean auth = db.authenticate("username", "password".toCharArray());*/
 
-    private static void persistTestData(EntityManagerFactory entityManagerFactory, User user)
-            throws Exception {
-        TransactionManager transactionManager =
-                com.arjuna.ats.jta.TransactionManager.transactionManager();
-        transactionManager.begin();
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-
-        entityManager.persist(user);
-        entityManager.close();
-        transactionManager.commit();
-    }
-
     public static DB getDB() {
         if (database == null) {
             MongoClient mongoClient = new MongoClient("130.225.170.204", 27027);
             database = mongoClient.getDB("cphPlaygroundsDB");
         }
         return database;
+    }
+
+
+    public static ArrayList<Playground> getPlaygrounds() {
+        ArrayList<Playground> playgroundsFromDB = null;
+        DBCollection collection = getDB().getCollection("playgrounds");
+        Gson gson = new Gson();
+        try {
+            Cursor cursor = collection.find();
+           playgroundsFromDB = new ArrayList<>();
+            Playground playgroundFromDB = null;
+
+            while (cursor.hasNext()) {
+                playgroundFromDB = gson.fromJson(cursor.next().toString(), Playground.class);
+                playgroundsFromDB.add(playgroundFromDB);
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return playgroundsFromDB;
     }
 
     //Mongo db admin: admin
@@ -46,30 +58,7 @@ public class DataSource {
             DB database = mongoClient.getDB("cphPlaygroundsDB");
             Gson gson = new Gson();
 
-            // srping hibernate mongodb
-            // javalin mongo
 
-          /*  EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("ogm-mongodb");
-            User user = new User();
-            user.setName("Hans");
-            persistTestData(entityManagerFactory, user);
-            TransactionManager transactionManager = com.arjuna.ats.jta.TransactionManager.transactionManager();
-            transactionManager.begin();
-            EntityManager entityManager = entityManagerFactory.createEntityManager();
-           */
-            /*
-            User loadedEditor = entityManager.find(User.class, user.getId());
-            System.out.println(loadedEditor.getName());
-
-*/
-            EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("ogm-mongodb");
-            TransactionManager transactionManager = com.arjuna.ats.jta.TransactionManager.transactionManager();
-            transactionManager.begin();
-            EntityManager entityManager = entityManagerFactory.createEntityManager();
-
-
-
-            entityManager.find(Playground.class, "playgrounds");
             //  System.out.pri ntln(database.getName());
             //database.createCollection("customers", null);
             //boolean auth = database.authenticate("admin", "admin123".toCharArray());

@@ -8,31 +8,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Entity
-@Table(name="users")
 public class User {
 
-    @Id
-    @GeneratedValue(generator="uuid")
-    @GenericGenerator(name="uuid", strategy="uuid2")
     private String id;
-
     private String name;
     private String status;
     private String imagePath;
     private String email;
     private String password;
 
-    @ElementCollection
     private List<PhoneNumber> phoneNumbers;
-
-    @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name="users_events",
-               joinColumns=@JoinColumn(name="event_id"),
-               inverseJoinColumns=@JoinColumn(name="user_id"))
     private Set<Database.collections.Event> events =  new HashSet<>();
-
-    @ManyToOne
     private Playground playground;
 
     public User() {

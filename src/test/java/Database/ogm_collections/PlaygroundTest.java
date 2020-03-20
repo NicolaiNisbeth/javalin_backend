@@ -1,3 +1,4 @@
+/*
 package Database.ogm_collections;
 
 import org.junit.jupiter.api.AfterEach;
@@ -89,4 +90,4 @@ class PlaygroundTest {
 
         entityManager.close();
     }
-}
+}*/

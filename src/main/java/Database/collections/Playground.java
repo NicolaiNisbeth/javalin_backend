@@ -1,56 +1,145 @@
 package Database.collections;
 
-import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-@Entity
-@Table(name="playgrounds")
 public class Playground {
 
-    @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
-    private String id;
+    public static class Builder {
+        private String name;
+        private String id;
+        private String imagePath;
+        private boolean toiletPossibilities;
+        private String streetName;
+        private int streetNumber;
+        private String commune;
+        private int zipCode;
+        private Set<User> assignedUsers = new HashSet<>();
+        private Set<Event> events = new TreeSet<>();
+
+        public Builder(String name) {
+            this.name = name;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public Builder setId(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Builder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public String getImagePath() {
+            return imagePath;
+        }
+
+        public Builder setImagePath(String imagePath) {
+            this.imagePath = imagePath;
+            return this;
+        }
+
+        public boolean isToiletPossibilities() {
+            return toiletPossibilities;
+        }
+
+        public Builder setToiletPossibilities(boolean toiletPossibilities) {
+            this.toiletPossibilities = toiletPossibilities;
+            return this;
+        }
+
+        public String getStreetName() {
+            return streetName;
+        }
+
+        public Builder setStreetName(String streetName) {
+            this.streetName = streetName;
+            return this;
+        }
+
+        public int getStreetNumber() {
+            return streetNumber;
+        }
+
+        public Builder setStreetNumber(int streetNumber) {
+            this.streetNumber = streetNumber;
+            return this;
+        }
+
+        public String getCommune() {
+            return commune;
+        }
+
+        public Builder setCommune(String commune) {
+            this.commune = commune;
+            return this;
+        }
+
+        public int getZipCode() {
+            return zipCode;
+        }
+
+        public Builder setZipCode(int zipCode) {
+            this.zipCode = zipCode;
+            return this;
+        }
+
+        public Set<User> getAssignedUsers() {
+            return assignedUsers;
+        }
+
+        public Builder setAssignedUsers(Set<User> assignedUsers) {
+            this.assignedUsers = assignedUsers;
+            return this;
+        }
+
+        public Set<Event> getEvents() {
+            return events;
+        }
+
+        public Builder setEvents(Set<Event> events) {
+            this.events = events;
+            return this;
+        }
+
+        public Playground build() {
+            //Here we create the actual playground object, which is always in a fully initialised state when it's returned.
+            Playground playground = new Playground();  //Since the builder is in the class, we can invoke its private constructor.
+            playground.id = this.id;
+            playground.name = this.name;
+            playground.imagePath = this.imagePath;
+            playground.toiletPossibilities = this.toiletPossibilities;
+            playground.streetName = this.streetName;
+            playground.streetNumber = this.streetNumber;
+            playground.commune = this.commune;
+            playground.zipCode = this.zipCode;
+            playground.assignedUsers = this.assignedUsers;
+            playground.events = this.events;
+            return playground;
+        }
+    }
 
     private String name;
+    private String id;
     private String imagePath;
     private boolean toiletPossibilities;
     private String streetName;
     private int streetNumber;
     private String commune;
     private int zipCode;
-
-    @OneToMany(mappedBy="playground", cascade=CascadeType.PERSIST)
     private Set<User> assignedUsers = new HashSet<>();
+    private Set<Event> events = new TreeSet<>();
 
-    @OneToMany(mappedBy="playground", cascade=CascadeType.PERSIST)
-    private Set<Event> futureEvents = new TreeSet<>();
-
-    public Playground(){ }
-
-    public Playground(String name, String imagePath, boolean toiletPossibilities, String streetName, int streetNumber, String commune, int zipCode) {
-        this.name = name;
-        this.imagePath = imagePath;
-        this.toiletPossibilities = toiletPossibilities;
-        this.streetName = streetName;
-        this.streetNumber = streetNumber;
-        this.commune = commune;
-        this.zipCode = zipCode;
-    }
-
-   /* @OneToOne
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private User assignedUser;*/
-
-    //@ManyToMany(mappedBy = "playgrounds", cascade = CascadeType.PERSIST)
-    //private Set<User> connectedUsers = new HashSet<>();
-
-    //@OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
-    //private Set<User> assignedUsers = new HashSet<>();
     @Override
     public String toString() {
         for (User user : assignedUsers) {
@@ -142,11 +231,15 @@ public class Playground {
         this.assignedUsers = assignedUsers;
     }
 
-    public Set<Event> getFutureEvents() {
-        return futureEvents;
+    public Set<Event> getEvents() {
+        return events;
     }
 
-    public void setFutureEvents(Set<Event> futureEvents) {
-        this.futureEvents = futureEvents;
+    public void setEvents(Set<Event> events) {
+        this.events = events;
+    }
+
+
+    private Playground() {
     }
 }

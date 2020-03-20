@@ -8,28 +8,30 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-@Entity
-@Table(name="events")
 public class Event implements Comparable<Event>{
 
-    @Id
-    @GeneratedValue(generator="uuid")
-    @GenericGenerator(name="uuid", strategy="uuid2")
     private String id;
-
     private String title;
     private String imagePath;
     private int participants;
     private String description;
-
-    @Embedded
     private Details details;
-
-    @ManyToMany(mappedBy="events", cascade=CascadeType.PERSIST)
     private Set<User> assignedUsers = new HashSet<>();
-
-    @ManyToOne
     private Playground playground;
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", imagePath='" + imagePath + '\'' +
+                ", participants=" + participants +
+                ", description='" + description + '\'' +
+                ", details=" + details +
+                ", assignedUsers=" + assignedUsers +
+                ", playground=" + playground +
+                '}';
+    }
 
     public Event(){}
 
@@ -110,46 +112,5 @@ public class Event implements Comparable<Event>{
         return this.details.getDate().compareTo(event.getDetails().getDate());
     }
 
-/*
-    @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
-    private String id;
-    private String name;
-    private int numOfParticipants;
-
- */
-    /*@OneToMany(mappedBy = "event", cascade = CascadeType.PERSIST)
-    private Set<User> assignedUsers = new HashSet<>();*/
-
-    /*@ManyToMany(mappedBy = "events", cascade = CascadeType.PERSIST)
-    private Set<User> assignedUsers = new HashSet<>();
-*/
-/*    @OneToOne
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private User assignedUser;*/
-/*
-
-   /* @Override
-    public String toString() {
-        return "Event{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", numOfParticipants=" + numOfParticipants +
-                "\n, assignedUsers=" + assignedUsers +
-                '}';
-    }*/
-
-   /*
-    @Override
-    public String toString() {
-        return "Event{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", numOfParticipants=" + numOfParticipants +
-                '}';
-    }
-
-    */
 
 }
