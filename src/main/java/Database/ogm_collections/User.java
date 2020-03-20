@@ -40,7 +40,7 @@ public class User {
     public User() {
     }
 
-    public String getName() {
+    public String getCategory() {
         return name;
     }
 
@@ -58,7 +58,7 @@ public class User {
         return this;
     }
 
-    public String getImagePath() {
+    public String getIcon() {
         return imagePath;
     }
 

@@ -4,17 +4,17 @@
              http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
              version="2.0">
 
-    <persistence-unit name="ogm-mongodb" transaction-type="JTA">
+    <persistence-unit category="ogm-mongodb" transaction-type="JTA">
         <provider>org.hibernate.ogm.jpa.HibernateOgmPersistence</provider>
         <class>Database.ogm_collections.Event</class>
         <class>Database.ogm_collections.User</class>
         <properties>
-            <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.JBossStandAloneJtaPlatform"/>
-            <property name="hibernate.ogm.datastore.provider" value="org.hibernate.ogm.datastore.mongodb.impl.MongoDBDatastoreProvider"/>
-            <property name="hibernate.ogm.datastore.grid_dialect" value="org.hibernate.ogm.datastore.mongodb.MongoDBDialect"/>
-            <property name="hibernate.ogm.datastore.database" value="test"/>
-            <property name="hibernate.ogm.mongodb.host" value="localhost"/>
-            <property name="hibernate.ogm.mongodb.port" value="27027"/>
+            <property category="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.JBossStandAloneJtaPlatform"/>
+            <property category="hibernate.ogm.datastore.provider" value="org.hibernate.ogm.datastore.mongodb.impl.MongoDBDatastoreProvider"/>
+            <property category="hibernate.ogm.datastore.grid_dialect" value="org.hibernate.ogm.datastore.mongodb.MongoDBDialect"/>
+            <property category="hibernate.ogm.datastore.database" value="test"/>
+            <property category="hibernate.ogm.mongodb.host" value="localhost"/>
+            <property category="hibernate.ogm.mongodb.port" value="27027"/>
         </properties>
     </persistence-unit>
 </persistence>

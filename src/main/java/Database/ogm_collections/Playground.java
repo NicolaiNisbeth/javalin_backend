@@ -81,7 +81,7 @@ public class Playground {
         this.id = id;
     }
 
-    public String getName() {
+    public String getCategory() {
         return name;
     }
 
@@ -89,7 +89,7 @@ public class Playground {
         this.name = name;
     }
 
-    public String getImagePath() {
+    public String getIcon() {
         return imagePath;
     }
 
@@ -97,7 +97,7 @@ public class Playground {
         this.imagePath = imagePath;
     }
 
-    public boolean isToiletPossibilities() {
+    public boolean isOutDated() {
         return toiletPossibilities;
     }
 

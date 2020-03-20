@@ -43,23 +43,21 @@ public class Main {
         app.get("/rest/hej/:fornavn", ctx -> ctx.result("Hej " + ctx.queryParam("fornavn") + ", godt at møde dig!"));
         //  app.get("/rest/bruger/:brugernavn", ctx -> bruger(ctx));
         //app.post("/rest/sendGlemtAdgangskodeEmail", ctx -> sendGlemtAdgangskodeEmail(ctx));
-        app.post("rest/brugerLogin", ctx ->
-                ctx.json(UserLogin.verificerLogin(ctx.body())).contentType("json"));
+
         app.get("rest/galgeleg/highscore", ctx ->
                 ctx.json(GalgelegResource.getHighscoreListe()).contentType("json"));
         app.post("rest/galgeleg/:username", ctx ->
                 ctx.result(GalgelegResource.startGame(ctx.pathParam("username"))).contentType("json"));
         app.get("rest/galgeleg/:username/:guess", ctx ->
                 ctx.result(GalgelegResource.makeGuess(ctx.pathParam("username"), ctx.pathParam("guess"))).contentType("json"));
-        /*app.get("rest/Playground", ctx ->
-                ctx.json(PlaygroundResource.getPlaygoundsList()).contentType("json"));
-*/
-
-
-        app.get("rest/playground_list", ctx ->
-                ctx.json(Controller.getController().getAllPlaygrounds()).contentType("json"));
 
         app.post("rest/snap", ctx -> ctx.result("snap"));
+        app.get("rest/playground_list", ctx ->
+                ctx.json(Controller.getController().getAllPlaygrounds()).contentType("json"));
+        app.post("rest/user_login", ctx ->
+                ctx.json(UserLogin.verificerLogin(ctx.body())).contentType("json"));
+
+
     }
 
     private static void formular(Context ctx) {

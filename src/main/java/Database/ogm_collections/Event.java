@@ -58,7 +58,7 @@ public class Event implements Comparable<Event>{
         this.title = title;
     }
 
-    public String getImagePath() {
+    public String getIcon() {
         return imagePath;
     }
 
