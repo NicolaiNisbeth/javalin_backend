@@ -5,7 +5,7 @@ import database.collections.Playground;
 
 import java.util.List;
 
-public class Controller {
+public class Controller implements IController{
     private PlaygroundDAO playgroundDAO;
 
     private static Controller controller;

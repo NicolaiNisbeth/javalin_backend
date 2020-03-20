@@ -10,8 +10,7 @@ import org.jongo.MongoCollection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventDAO implements Database.dao.IEventDAO{
-
+public class EventDAO implements IEventDAO{
 
     /**
      * Create event in events collection
