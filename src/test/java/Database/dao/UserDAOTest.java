@@ -2,10 +2,12 @@ package Database.dao;
 
 import Database.DALException;
 import Database.collections.User;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.jongo.Jongo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -24,7 +26,7 @@ class UserDAOTest {
     }
 
     @Test
-    void createUserAndDeleteUser() throws DALException {
+    void createUser_DeleteUser() throws DALException {
         User user = new User.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
@@ -40,16 +42,15 @@ class UserDAOTest {
 
         userDAO.deleteUser(user.getId());
 
+        // try to fetch deleted user and confirm that exception is thrown with msg: no event
         DALException thrown = Assertions.assertThrows(
                 DALException.class, () -> userDAO.getUser(user.getId())
         );
-
         Assertions.assertTrue(thrown.getMessage().contains("No user"));
-
     }
 
     @Test
-    void getUserList() throws DALException {
+    void createUsers_GetUserList_DeleteUsers() throws DALException {
         User user1 = new User.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
@@ -80,8 +81,8 @@ class UserDAOTest {
     }
 
     @Test
-    void updateUser() throws DALException {
-        User user1 = new User.Builder("Nicolai")
+    void createUser_UpdateUser_deleteUser() throws DALException {
+        User event = new User.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
                 .email("nicolai.nisbeth@yahoo.com")
@@ -89,19 +90,18 @@ class UserDAOTest {
                 .phoneNumbers("+45 12 34 23 12", "+45 45 74 56 32")
                 .build();
 
-        userDAO.createUser(user1);
+        userDAO.createUser(event);
 
-        user1.setPassword("123456789");
-        userDAO.updateUser(user1);
+        event.setPassword("123456789");
+        userDAO.updateUser(event);
 
-        User updatedUser = userDAO.getUser(user1.getId());
-
+        User updatedUser = userDAO.getUser(event.getId());
         Assertions.assertEquals("123456789", updatedUser.getPassword());
 
-        userDAO.deleteUser(user1.getId());
+        userDAO.deleteUser(event.getId());
     }
 
-
+    @Disabled("This test is disabled because it deletes all users in collection")
     @Test
     void deleteAllUsersInCollection() throws DALException {
         for (User i: userDAO.getUserList()) {

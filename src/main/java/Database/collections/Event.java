@@ -1,30 +1,37 @@
 package Database.collections;
 
 import org.jetbrains.annotations.NotNull;
+import org.jongo.marshall.jackson.oid.MongoId;
+import org.jongo.marshall.jackson.oid.MongoObjectId;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 
 public class Event implements Comparable<Event>{
 
+    @MongoObjectId
+    @MongoId
     private String id;
     private String name;
-    private String imagePath;
+    private String imagepath;
     private int participants;
     private String description;
     private Details details;
-    private Set<User> assignedUsers = new HashSet<>();
+    private Set<User> assignedusers = new HashSet<>();
     private Playground playground;
 
+    //This constructor is used for MongoDB mapping
+    private Event(){}
+
     private Event(Builder builder){
-        this.id = builder.id;
         this.name = builder.name;
-        this.imagePath = builder.imagePath;
+        this.imagepath = builder.imagePath;
         this.participants = builder.participants;
         this.description = builder.description;
         this.details = builder.details;
-        this.assignedUsers = builder.assignedUsers;
+        this.assignedusers = builder.assignedUsers;
         this.playground = builder.playground;
     }
 
@@ -44,12 +51,12 @@ public class Event implements Comparable<Event>{
         this.name = name;
     }
 
-    public String getImagePath() {
-        return imagePath;
+    public String getImagepath() {
+        return imagepath;
     }
 
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
+    public void setImagepath(String imagepath) {
+        this.imagepath = imagepath;
     }
 
     public int getParticipants() {
@@ -76,12 +83,12 @@ public class Event implements Comparable<Event>{
         this.details = details;
     }
 
-    public Set<User> getAssignedUsers() {
-        return assignedUsers;
+    public Set<User> getAssignedusers() {
+        return assignedusers;
     }
 
-    public void setAssignedUsers(Set<User> assignedUsers) {
-        this.assignedUsers = assignedUsers;
+    public void setAssignedusers(Set<User> assignedusers) {
+        this.assignedusers = assignedusers;
     }
 
     public Playground getPlayground() {
@@ -93,15 +100,26 @@ public class Event implements Comparable<Event>{
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Event event = (Event) o;
+        return participants == event.participants &&
+                Objects.equals(id, event.id) &&
+                Objects.equals(name, event.name) &&
+                Objects.equals(imagepath, event.imagepath) &&
+                Objects.equals(description, event.description);
+    }
+
+    @Override
     public String toString() {
         return "Event{" +
                 "id='" + id + '\'' +
                 ", title='" + name + '\'' +
-                ", imagePath='" + imagePath + '\'' +
+                ", imagePath='" + imagepath + '\'' +
                 ", participants=" + participants +
                 ", description='" + description + '\'' +
                 ", details=" + details +
-                ", assignedUsers=" + assignedUsers +
+                ", assignedUsers=" + assignedusers +
                 ", playground=" + playground +
                 '}';
     }
@@ -112,7 +130,6 @@ public class Event implements Comparable<Event>{
     }
 
     public static class Builder {
-        private String id;
         private String name;
         private String imagePath;
         private int participants;
@@ -123,11 +140,6 @@ public class Event implements Comparable<Event>{
 
         public Builder(String name){
             this.name = name;
-        }
-
-        public Builder id(String id) {
-            this.id = id;
-            return this;
         }
 
         public Builder name(String name) {
