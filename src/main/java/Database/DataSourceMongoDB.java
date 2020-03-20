@@ -1,11 +1,13 @@
 package Database;
 
 import Database.DTOs.PlaygroundDTODum;
+import Database.collections.User;
 import com.google.gson.Gson;
 import com.mongodb.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.transaction.TransactionManager;
 import java.util.ArrayList;
 
@@ -16,7 +18,7 @@ public class DataSourceMongoDB {
 	DB db = mongoClient.getDB("database name");
 	boolean auth = db.authenticate("username", "password".toCharArray());*/
 
-   /* private static void persistTestData(EntityManagerFactory entityManagerFactory, User user)
+   private static void persistTestData(EntityManagerFactory entityManagerFactory, User user)
             throws Exception {
         TransactionManager transactionManager =
                 com.arjuna.ats.jta.TransactionManager.transactionManager();
@@ -26,7 +28,7 @@ public class DataSourceMongoDB {
         entityManager.persist(user);
         entityManager.close();
         transactionManager.commit();
-    }*/
+    }
 
     //Mongo db admin: admin
     //password: admin123
@@ -40,20 +42,21 @@ public class DataSourceMongoDB {
             // srping hibernate mongodb
             // javalin mongo
 
-          /*  EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("ogm-mongodb");
-            User user = new User("Hans");
+          EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("ogm-mongodb");
+            User user = new User();
+            user.setName("Hans");
             persistTestData(entityManagerFactory, user);
             TransactionManager transactionManager = com.arjuna.ats.jta.TransactionManager.transactionManager();
             transactionManager.begin();
             EntityManager entityManager = entityManagerFactory.createEntityManager();
-            User loadedEditor = entityManager.find(User.class, user.getAuthorId());
-            System.out.println(loadedEditor.getAuthorName());
-*/
+            User loadedEditor = entityManager.find(User.class, user.getId());
+            System.out.println(loadedEditor.getName());
+
 
             //  System.out.pri ntln(database.getName());
             //database.createCollection("customers", null);
             //boolean auth = database.authenticate("admin", "admin123".toCharArray());
-
+/*
             DBCollection collection = database.getCollection("playground");
 
             PlaygroundDTODum playground = new PlaygroundDTODum(
@@ -65,13 +68,15 @@ public class DataSourceMongoDB {
                     "København Ø",
                     2100);
 
+ */
+
             /*JSONObject rat = exRat.getJSONObject("fieldfromJson");
             String newrat = rat.toString();*/
             //Indsæt java objekt direkte i dm
            /* BasicDBObject doc = BasicDBObject.parse(gson.toJson(playground) );
             collection.insert(doc);*/
            // collection.insert(pojoToDoc(playground));
-
+/*
             Cursor cursor = collection.find();
             ArrayList<PlaygroundDTODum> playgrounds = new ArrayList<>();
             PlaygroundDTODum playgroundFromDB = null;
@@ -84,6 +89,8 @@ public class DataSourceMongoDB {
             for (PlaygroundDTODum play: playgrounds) {
                 System.out.println(play);
             }
+
+ */
 
             /*List<String> dbs = mongoClient.getDatabaseNames();
             for (String db : dbs) {

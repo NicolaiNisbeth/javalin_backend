@@ -1,7 +1,7 @@
 package Database.collections;
 
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.GenericGenerator;
+import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -9,24 +9,37 @@ import java.util.Set;
 
 
 @Entity
-public class Event {
+@Table(name="events")
+public class Event implements Comparable<Event>{
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @GeneratedValue(generator="uuid")
+    @GenericGenerator(name="uuid", strategy="uuid2")
     private String id;
-    private String name;
-    private int numOfParticipants;
 
-    /*@OneToMany(mappedBy = "event", cascade = CascadeType.PERSIST)
-    private Set<User> assignedUsers = new HashSet<>();*/
+    private String title;
+    private String imagePath;
+    private int participants;
+    private String description;
 
-    /*@ManyToMany(mappedBy = "events", cascade = CascadeType.PERSIST)
+    @Embedded
+    private Details details;
+
+    @ManyToMany(mappedBy="events", cascade=CascadeType.PERSIST)
     private Set<User> assignedUsers = new HashSet<>();
-*/
-/*    @OneToOne
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private User assignedUser;*/
+
+    @ManyToOne
+    private Playground playground;
+
+    public Event(){}
+
+    public Event(String title, String photoUrl, int participants, String description, Details details){
+        this.title = title;
+        this.imagePath = photoUrl;
+        this.participants = participants;
+        this.description = description;
+        this.details = details;
+    }
 
     public String getId() {
         return id;
@@ -36,66 +49,86 @@ public class Event {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public int getNumOfParticipants() {
-        return numOfParticipants;
+    public String getImagePath() {
+        return imagePath;
     }
 
-    public void setNumOfParticipants(int numOfParticipants) {
-        this.numOfParticipants = numOfParticipants;
+    public void setImagePath(String photo_url) {
+        this.imagePath = photo_url;
     }
 
-   /* public User getAssignedUser() {
-        return assignedUser;
+    public int getParticipants() {
+        return participants;
     }
 
-    public void setAssignedUser(User assignedUser) {
-        this.assignedUser = assignedUser;
-    }*/
-// constructors, getters and setters...
-
-    public Event() {
+    public void setParticipants(int participants) {
+        this.participants = participants;
     }
 
-    public Event(String name) {
-        this.name = name;
+    public String getDescription() {
+        return description;
     }
 
-    public String getEditorId() {
-        return id;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public void setEditorId(String editorId) {
-        this.id = editorId;
+    public Details getDetails() {
+        return details;
     }
 
-    public String getEditorName() {
-        return name;
-    }
-
-    public void setEditorName(String editorName) {
-        this.name = editorName;
-    }
-
-    /*public void addUserToSet(User user) {
-        assignedUsers.add(user);
+    public void setDetails(Details details) {
+        this.details = details;
     }
 
     public Set<User> getAssignedUsers() {
         return assignedUsers;
     }
 
-    public void setAssignedUsers(Set<User> assignedAuthors) {
-        this.assignedUsers = assignedAuthors;
-    }*/
+    public void setAssignedUsers(Set<User> assignedUsers) {
+        this.assignedUsers = assignedUsers;
+    }
+
+    public Playground getPlayground() {
+        return playground;
+    }
+
+    public void setPlayground(Playground playground) {
+        this.playground = playground;
+    }
+
+    @Override
+    public int compareTo(@NotNull Event event) {
+        return this.details.getDate().compareTo(event.getDetails().getDate());
+    }
+
+/*
+    @Id
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    private String id;
+    private String name;
+    private int numOfParticipants;
+
+ */
+    /*@OneToMany(mappedBy = "event", cascade = CascadeType.PERSIST)
+    private Set<User> assignedUsers = new HashSet<>();*/
+
+    /*@ManyToMany(mappedBy = "events", cascade = CascadeType.PERSIST)
+    private Set<User> assignedUsers = new HashSet<>();
+*/
+/*    @OneToOne
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    private User assignedUser;*/
+/*
 
    /* @Override
     public String toString() {
@@ -107,6 +140,7 @@ public class Event {
                 '}';
     }*/
 
+   /*
     @Override
     public String toString() {
         return "Event{" +
@@ -115,4 +149,7 @@ public class Event {
                 ", numOfParticipants=" + numOfParticipants +
                 '}';
     }
+
+    */
+
 }

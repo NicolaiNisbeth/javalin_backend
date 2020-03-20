@@ -5,14 +5,17 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
-@Entity(name = "Playground")
-@Table(name = "playground")
+@Entity
+@Table(name="playgrounds")
 public class Playground {
+
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
+
     private String name;
     private String imagePath;
     private boolean toiletPossibilities;
@@ -21,15 +24,13 @@ public class Playground {
     private String commune;
     private int zipCode;
 
-   /* @OneToOne
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private User assignedUser;*/
+    @OneToMany(mappedBy="playground", cascade=CascadeType.PERSIST)
+    private Set<User> assignedUsers = new HashSet<>();
 
-    @ManyToMany(mappedBy = "playgrounds", cascade = CascadeType.PERSIST)
-    private Set<User> connectedUsers = new HashSet<>();
+    @OneToMany(mappedBy="playground", cascade=CascadeType.PERSIST)
+    private Set<Event> futureEvents = new TreeSet<>();
 
-    //@OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
-    //private Set<User> assignedUsers = new HashSet<>();
+    public Playground(){ }
 
     public Playground(String name, String imagePath, boolean toiletPossibilities, String streetName, int streetNumber, String commune, int zipCode) {
         this.name = name;
@@ -41,6 +42,16 @@ public class Playground {
         this.zipCode = zipCode;
     }
 
+   /* @OneToOne
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    private User assignedUser;*/
+
+    //@ManyToMany(mappedBy = "playgrounds", cascade = CascadeType.PERSIST)
+    //private Set<User> connectedUsers = new HashSet<>();
+
+    //@OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST)
+    //private Set<User> assignedUsers = new HashSet<>();
+/*
     @Override
     public String toString() {
         for (User user : connectedUsers) {
@@ -60,29 +71,7 @@ public class Playground {
                 '}';
     }
 
-
-    public Playground() {
-    }
-
-    /*public User getAssignedUser() {
-        return assignedUser;
-    }
-
-    public void setAssignedUser(User assignedUser) {
-        this.assignedUser = assignedUser;
-    }*/
-
-    public Set<User> getConnectedUsers() {
-        return connectedUsers;
-    }
-
-    public void setConnectedUsers(Set<User> assignedUsers) {
-        this.connectedUsers = assignedUsers;
-    }
-
-    public void addUserToSet(User user) {
-        connectedUsers.add(user);
-    }
+ */
 
     public String getId() {
         return id;
@@ -108,7 +97,7 @@ public class Playground {
         this.imagePath = imagePath;
     }
 
-    public boolean getIsToiletPossibilities() {
+    public boolean isToiletPossibilities() {
         return toiletPossibilities;
     }
 
@@ -146,5 +135,21 @@ public class Playground {
 
     public void setZipCode(int zipCode) {
         this.zipCode = zipCode;
+    }
+
+    public Set<User> getAssignedUsers() {
+        return assignedUsers;
+    }
+
+    public void setAssignedUsers(Set<User> assignedUsers) {
+        this.assignedUsers = assignedUsers;
+    }
+
+    public Set<Event> getFutureEvents() {
+        return futureEvents;
+    }
+
+    public void setFutureEvents(Set<Event> futureEvents) {
+        this.futureEvents = futureEvents;
     }
 }
