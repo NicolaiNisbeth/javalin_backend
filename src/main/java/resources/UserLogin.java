@@ -17,8 +17,8 @@ public class UserLogin {
     public static Bruger verificerLogin(String request) {
 
         JSONObject jsonObject = new JSONObject(request);
-        String brugernavn = jsonObject.getString("brugernavn");
-        String adgangskode = jsonObject.getString("adgangskode");
+        String username = jsonObject.getString("username");
+        String password = jsonObject.getString("password");
         try {
             ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
         } catch (NotBoundException e) {
@@ -28,13 +28,18 @@ public class UserLogin {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-        Bruger bruger = null;
+        Bruger user = null;
         try {
-            bruger = ba.hentBruger(brugernavn, adgangskode);
+            user = ba.hentBruger(username, password);
+
+            if (user != null){
+                //todo kald til controller
+            }
+
         } catch (RemoteException e) {
             e.printStackTrace();
         }
 
-        return bruger;
+        return user;
     }
 }

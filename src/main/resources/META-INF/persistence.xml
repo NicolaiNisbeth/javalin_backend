@@ -6,8 +6,8 @@
 
     <persistence-unit category="ogm-mongodb" transaction-type="JTA">
         <provider>org.hibernate.ogm.jpa.HibernateOgmPersistence</provider>
-        <class>Database.ogm_collections.Event</class>
-        <class>Database.ogm_collections.User</class>
+        <class>database.ogm_collections.Event</class>
+        <class>database.ogm_collections.User</class>
         <properties>
             <property category="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.JBossStandAloneJtaPlatform"/>
             <property category="hibernate.ogm.datastore.provider" value="org.hibernate.ogm.datastore.mongodb.impl.MongoDBDatastoreProvider"/>

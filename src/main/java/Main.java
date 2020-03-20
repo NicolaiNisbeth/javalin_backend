@@ -1,4 +1,4 @@
-import Database.dao.Controller;
+import database.dao.Controller;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import resources.GalgelegResource;
