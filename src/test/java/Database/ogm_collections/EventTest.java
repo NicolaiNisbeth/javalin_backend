@@ -81,11 +81,11 @@ class EventTest {
         // load it back
         entityManager.getTransaction().begin();
 
-        Event loadedEvent = entityManager.find(Event.class, event1.getId());
-        Event loadedEvent2 = entityManager.find(Event.class, event2.getId());
+        Event loadedEvent = entityManager.find(Event.class, event1.get_id());
+        Event loadedEvent2 = entityManager.find(Event.class, event2.get_id());
 
-        User loadedUser = entityManager.find(User.class, user1.getId());
-        User loadedUser2 = entityManager.find(User.class, user2.getId());
+        User loadedUser = entityManager.find(User.class, user1.get_id());
+        User loadedUser2 = entityManager.find(User.class, user2.get_id());
 
 
 

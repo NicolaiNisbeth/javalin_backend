@@ -84,7 +84,7 @@ class PlaygroundTest {
         // load it back
         entityManager.getTransaction().begin();
 
-        Playground loadPlayground = entityManager.find(Playground.class, playground.getId());
+        Playground loadPlayground = entityManager.find(Playground.class, playground.get_id());
 
         entityManager.getTransaction().commit();
 
