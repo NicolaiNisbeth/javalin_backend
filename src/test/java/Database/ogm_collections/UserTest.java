@@ -1,4 +1,4 @@
-package Database.collections;
+package Database.ogm_collections;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

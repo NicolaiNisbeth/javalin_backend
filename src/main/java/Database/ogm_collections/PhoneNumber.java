@@ -1,4 +1,4 @@
-package Database.collections;
+package Database.ogm_collections;
 
 import javax.persistence.Embeddable;
 

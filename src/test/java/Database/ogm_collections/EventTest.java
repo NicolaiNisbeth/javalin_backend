@@ -1,4 +1,4 @@
-package Database.collections;
+package Database.ogm_collections;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,13 +8,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.transaction.*;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class PlaygroundTest {
+class EventTest {
 
     @BeforeEach
     void setUp() {
@@ -25,11 +24,12 @@ class PlaygroundTest {
     }
 
     @Test
-    public void insertUserAndRetrieveUser() throws SystemException, NotSupportedException, HeuristicRollbackException, HeuristicMixedException, RollbackException {
+    public void insertEventAndRetrieveEvent() throws SystemException, NotSupportedException, HeuristicRollbackException, HeuristicMixedException, RollbackException {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("ogm-mongodb");
+        TransactionManager transactionManager = com.arjuna.ats.jta.TransactionManager.transactionManager();
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-        entityManager.getTransaction().begin();
+        transactionManager.begin();
 
         Details details1 = new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()));
         Details details2 = new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()));
@@ -66,17 +66,12 @@ class PlaygroundTest {
         event2.getAssignedUsers().add(user1);
         user1.getEvents().add(event2);
 
-        Playground playground = new Playground("Slyngerparken", "asdd8as8da9d.jpg", true, "Agervænget", 34, "Ølstykke", 3650);
-        playground.getAssignedUsers().add(user1);
-        playground.getFutureEvents().add(event2);
-        playground.getFutureEvents().add(event1);
 
-        user1.setPlayground(playground);
-        event2.setPlayground(playground);
-        event1.setPlayground(playground);
 
-        entityManager.persist(playground);
-        entityManager.getTransaction().commit();
+        entityManager.persist(event1);
+        entityManager.persist(event2);
+
+        transactionManager.commit();
 
         // get a new EM to make sure data is actually retrieved from the store and not Hibernate's internal cache
         entityManager.close();
@@ -85,10 +80,17 @@ class PlaygroundTest {
         // load it back
         entityManager.getTransaction().begin();
 
-        Playground loadPlayground = entityManager.find(Playground.class, playground.getId());
+        Event loadedEvent = entityManager.find(Event.class, event1.getId());
+        Event loadedEvent2 = entityManager.find(Event.class, event2.getId());
+
+        User loadedUser = entityManager.find(User.class, user1.getId());
+        User loadedUser2 = entityManager.find(User.class, user2.getId());
+
+
 
         entityManager.getTransaction().commit();
-
         entityManager.close();
+
+
     }
 }
