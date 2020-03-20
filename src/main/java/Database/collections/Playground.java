@@ -1,5 +1,8 @@
 package Database.collections;
 
+import org.jongo.marshall.jackson.oid.MongoId;
+import org.jongo.marshall.jackson.oid.MongoObjectId;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -7,8 +10,10 @@ import java.util.TreeSet;
 public class Playground {
 
     public static class Builder {
+        @MongoId // auto
+        @MongoObjectId
+        private String _id;
         private String name;
-        private String id;
         private String imagePath;
         private boolean toiletPossibilities;
         private String streetName;
@@ -22,12 +27,12 @@ public class Playground {
             this.name = name;
         }
 
-        public String getId() {
-            return id;
+        public String get_id() {
+            return _id;
         }
 
-        public Builder setId(String id) {
-            this.id = id;
+        public Builder set_id(String _id) {
+            this._id = _id;
             return this;
         }
 
@@ -115,7 +120,7 @@ public class Playground {
         public Playground build() {
             //Here we create the actual playground object, which is always in a fully initialised state when it's returned.
             Playground playground = new Playground();  //Since the builder is in the class, we can invoke its private constructor.
-            playground.id = this.id;
+            playground.id = this._id;
             playground.name = this.name;
             playground.imagePath = this.imagePath;
             playground.toiletPossibilities = this.toiletPossibilities;
@@ -129,8 +134,11 @@ public class Playground {
         }
     }
 
-    private String name;
+    @MongoId // auto
+    @MongoObjectId
     private String id;
+    private String name;
+
     private String imagePath;
     private boolean toiletPossibilities;
     private String streetName;
@@ -147,7 +155,7 @@ public class Playground {
         }
 
         return "Playground{" +
-                "id='" + id + '\'' +
+                "_id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", imagePath='" + imagePath + '\'' +
                 ", toiletPossibilities=" + toiletPossibilities +

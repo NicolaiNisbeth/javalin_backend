@@ -10,9 +10,9 @@
             This class contains the employee detail.
         </meta>
 
-        <id name = "id" type = "int" column = "id">
+        <_id name = "_id" type = "int" column = "_id">
             <generator class="native"/>
-        </id>
+        </_id>
 
         <property name = "firstName" column = "first_name" type = "string"/>
         <property name = "lastName" column = "last_name" type = "string"/>

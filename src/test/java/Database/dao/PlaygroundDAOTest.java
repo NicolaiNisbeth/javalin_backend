@@ -17,7 +17,7 @@ class PlaygroundDAOTest {
 
     @Test
     void createPlayground() throws DALException {
-        Playground playground = new Playground.Builder("Trafiklegepladsen Fælledparken")
+        Playground playground = new Playground.Builder("Vandlegepladsen")
                 .setCommune("København Ø")
                 .setZipCode(2100)
                 .setStreetName("Gunnar Nu Hansens Plads")
@@ -27,8 +27,8 @@ class PlaygroundDAOTest {
     }
 
     @Test
-    void getPlayground() {
-
+    void getPlayground() throws DALException {
+        System.out.println(playgroundDAO.getPlayground("5e7500a29c55065cb293b635"));
     }
 
     @Test
@@ -39,12 +39,20 @@ class PlaygroundDAOTest {
     }
 
     @Test
-    void updatePlayground() {
-
+    void updatePlayground() throws DALException {
+        Playground playground = playgroundDAO.getPlayground("5e7500a29c55065cb293b635");
+        System.out.println(playground);
+        playground.setName("Ny plads");
+        playground.setCommune("SNaps");
+        playgroundDAO.updatePlayground(playground);
+        System.out.println(playgroundDAO.getPlayground("5e7500a29c55065cb293b635"));
     }
 
     @Test
-    void deletePlayground() {
+    void deletePlayground() throws DALException {
+            playgroundDAO.deletePlayground("5e7500a29c55065cb293b635");
 
+        /*playgroundDAO.deleteAllPlaygrounds();
+        getPlaygroundList();*/
     }
 }

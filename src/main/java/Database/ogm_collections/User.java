@@ -109,7 +109,7 @@ public class User {
         return this;
     }
 
-    public String getId() {
+    public String get_id() {
         return id;
     }
 

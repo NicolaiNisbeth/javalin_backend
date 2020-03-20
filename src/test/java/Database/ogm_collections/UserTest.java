@@ -50,7 +50,7 @@ class UserTest {
         // load it back
         entityManager.getTransaction().begin();
 
-        User loadedUser = entityManager.find( User.class, user.getId() );
+        User loadedUser = entityManager.find( User.class, user.get_id() );
         System.out.println(loadedUser);
 
 

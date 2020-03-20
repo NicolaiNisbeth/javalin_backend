@@ -1,7 +1,7 @@
 package Database.dao;
 
 import Database.DALException;
-import Database.DBConnector;
+import Database.DataSource;
 import Database.collections.User;
 import com.mongodb.WriteResult;
 import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
@@ -24,7 +24,7 @@ public class UserDAO implements IUserDAO {
         if (user == null)
             throw new DALException(String.format("Can't create user in %s collection when user is null.", UserDAO.COLLECTION));
 
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+        Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(UserDAO.COLLECTION);
 
         boolean isUserCreated = collection.save(user).isUpdateOfExisting();
@@ -43,7 +43,7 @@ public class UserDAO implements IUserDAO {
      */
     @Override
     public User getUser(String id) throws DALException {
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+        Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(UserDAO.COLLECTION);
 
         String query = String.format("{id : %s}", id);
@@ -62,7 +62,7 @@ public class UserDAO implements IUserDAO {
      */
     @Override
     public List<User> getUserList() throws DALException {
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+        Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(UserDAO.COLLECTION);
 
         List<User> userList = new ArrayList<>();
@@ -80,7 +80,7 @@ public class UserDAO implements IUserDAO {
         if (user == null)
             throw new DALException(String.format("Can't update user in %s collection when input user is null.", UserDAO.COLLECTION));
 
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+        Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(UserDAO.COLLECTION);
 
         boolean isUserUpdated = collection
@@ -103,7 +103,7 @@ public class UserDAO implements IUserDAO {
      */
     @Override
     public boolean deleteUser(int id) throws DALException {
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+        Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(UserDAO.COLLECTION);
 
         boolean isUserDeleted = collection

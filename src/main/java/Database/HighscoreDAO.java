@@ -18,12 +18,11 @@ public class HighscoreDAO {
 
     }
 
-    */
-/**
+*
      * Retreve the highscore from a specified word.
      * @param wordToGuess
      * @return
-     *//*
+
 
     public Score getHighScoreWord(String wordToGuess){
 
@@ -37,11 +36,10 @@ public class HighscoreDAO {
 
     }
 
-    */
-/**
+*
      * Delete a score from the database
      * @param wordToGuess
-     *//*
+
 
 
     public void deleteHighScoreWord(String wordToGuess){
@@ -53,11 +51,10 @@ public class HighscoreDAO {
     }
 
 
-    */
-/**
+*
      * Returns all highscores from the database
      * @return List<Data.Score></Data.Score>
-     *//*
+
 
 
     public List<Score> getAllHighScoreWords(){

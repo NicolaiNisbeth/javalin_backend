@@ -3,61 +3,84 @@ package Database.dao;
 import Database.DALException;
 import Database.DataSource;
 import Database.collections.Playground;
-import com.google.gson.Gson;
-import com.mongodb.Cursor;
-import com.mongodb.DBCollection;
+import com.mongodb.*;
+import org.bson.types.ObjectId;
 import org.jongo.Jongo;
-import org.jongo.MongoCollection;
+import org.jongo.MongoCursor;
+
+import static org.jongo.Oid.withOid;
+
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PlaygroundDAO implements IPlaygroundDAO {
+    private final String COLLECTION = IPlaygroundDAO.COLLECTION;
+    private String MongoQueryTag = "_id";
 
     @Override
     public void createPlayground(Playground playground) throws DALException {
         Jongo jongo = new Jongo(DataSource.getDB());
-        MongoCollection test =  jongo.getCollection(COLLECTION);
-        test.save(playground);
+        System.out.println(jongo.getCollection(COLLECTION).save(playground));
     }
 
     @Override
     public Playground getPlayground(String id) throws DALException {
-
-
-        return null;
+        Jongo jongo = new Jongo(DataSource.getDB());
+        return jongo.getCollection(COLLECTION).findOne(withOid(id)).as(Playground.class);
     }
 
     @Override
     public List<Playground> getPlaygroundList() throws DALException {
-        List<Playground> playgroundsFromDB = null;
-        DBCollection collection = DataSource.getDB().getCollection("playgrounds");
-        Gson gson = new Gson();
+        List<Playground> playgrounds = null;
+        Jongo jongo = new Jongo(DataSource.getDB());
+        MongoCursor<Playground> all = jongo.getCollection(COLLECTION).find("{}").as(Playground.class);
         try {
-            Cursor cursor = collection.find();
-            playgroundsFromDB = new ArrayList<>();
-            Playground playgroundFromDB = null;
-
-            while (cursor.hasNext()) {
-                playgroundFromDB = gson.fromJson(cursor.next().toString(), Playground.class);
-                playgroundsFromDB.add(playgroundFromDB);
+            playgrounds = new ArrayList<>();
+            while (all.hasNext()) {
+                playgrounds.add(all.next());
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return playgroundsFromDB;
+        return playgrounds;
     }
-
 
     @Override
     public boolean updatePlayground(Playground playground) throws DALException {
+        Jongo jongo = new Jongo(DataSource.getDB());
+        try {
+            WriteResult result = jongo.getCollection(COLLECTION).save(playground);
+            System.out.println(result);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return false;
     }
 
     @Override
     public boolean deletePlayground(String id) throws DALException {
+        Jongo jongo = new Jongo(DataSource.getDB());
+        try {
+            System.out.println(jongo.getCollection(COLLECTION)
+                    .remove(new ObjectId(id)));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return false;
     }
 
+    public boolean deleteAllPlaygrounds() {
+        Jongo jongo = new Jongo(DataSource.getDB());
+        try {
+            jongo.getCollection(COLLECTION)
+                    .remove("{}");
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
