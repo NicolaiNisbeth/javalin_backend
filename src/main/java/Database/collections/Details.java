@@ -1,6 +1,5 @@
 package Database.collections;
 
-import javax.persistence.Embeddable;
 import java.util.Date;
 
 public class Details {

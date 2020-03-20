@@ -1,7 +1,7 @@
 package resources;
 
 
-import Database.ogm_collections.Playground;
+import Database.collections.Playground;
 
 import java.util.ArrayList;
 

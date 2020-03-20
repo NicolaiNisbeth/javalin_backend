@@ -15,10 +15,5 @@ class DataSourceTest {
 
     }
 
-    @Test
-    void getPlaygrounds() {
-        for (Playground play : DataSource.getPlaygrounds()) {
-            System.out.println(play);
-        }
-    }
+
 }

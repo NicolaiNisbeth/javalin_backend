@@ -1,3 +1,4 @@
+/*
 package Database.ogm_collections;
 
 
@@ -113,7 +114,8 @@ public class User {
     }
 
 
-    /*
+    */
+/*
     @ManyToMany(cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE
@@ -122,18 +124,26 @@ public class User {
             joinColumns = @JoinColumn(name = "playground_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<Playground> playgrounds =  new HashSet<>();
-     */
-
-   /* @ManyToMany(mappedBy = "connectedUsers", cascade = CascadeType.PERSIST)
-    private Set<Playground> playgrounds = new HashSet<>();*/
+     *//*
 
 
-   /* @ManyToMany(mappedBy = "assignedUsers", cascade = CascadeType.PERSIST)
+   */
+/* @ManyToMany(mappedBy = "connectedUsers", cascade = CascadeType.PERSIST)
+    private Set<Playground> playgrounds = new HashSet<>();*//*
+
+
+
+   */
+/* @ManyToMany(mappedBy = "assignedUsers", cascade = CascadeType.PERSIST)
     private Set<Event> events = new HashSet<>();
-*/
+*//*
 
-    /* @OneToOne
+
+    */
+/* @OneToOne
         private Playground playground;
         // constructors, getters and setters...
-    */
+    *//*
+
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package Database;
 
 import java.util.ArrayList;
@@ -10,21 +11,23 @@ public class HighscoreDAO {
     private final String MongoQueryTag = "wordToGuess";
 
     public void addHighScoreName(Score score){
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+        Jongo jongo = new Jongo(DataSource2.getInstance());
 
         MongoCollection test =  jongo.getCollection(COLLECTION);
         test.save(score);
 
     }
 
-    /**
+    */
+/**
      * Retreve the highscore from a specified word.
      * @param wordToGuess
      * @return
-     */
+     *//*
+
     public Score getHighScoreWord(String wordToGuess){
 
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+        Jongo jongo = new Jongo(DataSource2.getInstance());
 
         MongoCollection test =  jongo.getCollection(COLLECTION);
 
@@ -34,27 +37,31 @@ public class HighscoreDAO {
 
     }
 
-    /**
+    */
+/**
      * Delete a score from the database
      * @param wordToGuess
-     */
+     *//*
+
 
     public void deleteHighScoreWord(String wordToGuess){
 
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+        Jongo jongo = new Jongo(DataSource2.getInstance());
 
         MongoCollection test =  jongo.getCollection(COLLECTION);
         test.remove("{'"+MongoQueryTag+"': '" + wordToGuess + "'}");
     }
 
 
-    /**
+    */
+/**
      * Returns all highscores from the database
      * @return List<Data.Score></Data.Score>
-     */
+     *//*
+
 
     public List<Score> getAllHighScoreWords(){
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+        Jongo jongo = new Jongo(DataSource2.getInstance());
 
         MongoCollection test =  jongo.getCollection(COLLECTION);
 
@@ -70,7 +77,7 @@ public class HighscoreDAO {
     }
 
     public void clearDatabase(){
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+        Jongo jongo = new Jongo(DataSource2.getInstance());
         MongoCollection test =  jongo.getCollection(COLLECTION);
 
         for (Score i: getAllHighScoreWords()) {
@@ -81,3 +88,4 @@ public class HighscoreDAO {
 
 
 }
+*/
