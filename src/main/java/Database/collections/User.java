@@ -25,8 +25,8 @@ public class User {
     private String password;
 
     private String[] phonenumbers;
-    private Set<Event> events = new HashSet<>();
-    private Playground playground;
+    private Set<Event> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
+    private Playground playground;                  // many-to-1
 
     //This constructor is used for MongoDB mapping
     private User(){}
@@ -155,11 +155,6 @@ public class User {
 
         public Builder(String name) {
             this.name = name;
-        }
-
-        public Builder name(String name) {
-            this.name = name;
-            return this;
         }
 
         public Builder status(String status) {

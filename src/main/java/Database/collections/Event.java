@@ -19,8 +19,8 @@ public class Event implements Comparable<Event>{
     private int participants;
     private String description;
     private Details details;
-    private Set<User> assignedusers = new HashSet<>();
-    private Playground playground;
+    private Set<User> assignedusers = new HashSet<>();  // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
+    private Playground playground;                      // 1-to-many
 
     //This constructor is used for MongoDB mapping
     private Event(){}
@@ -140,11 +140,6 @@ public class Event implements Comparable<Event>{
 
         public Builder(String name){
             this.name = name;
-        }
-
-        public Builder name(String name) {
-            this.name = name;
-            return this;
         }
 
         public Builder imagePath(String imagePath) {
