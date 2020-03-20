@@ -9,7 +9,7 @@ import java.util.Set;
 public class Event implements Comparable<Event>{
 
     private String id;
-    private String title;
+    private String name;
     private String imagePath;
     private int participants;
     private String description;
@@ -17,28 +17,15 @@ public class Event implements Comparable<Event>{
     private Set<User> assignedUsers = new HashSet<>();
     private Playground playground;
 
-    @Override
-    public String toString() {
-        return "Event{" +
-                "id='" + id + '\'' +
-                ", title='" + title + '\'' +
-                ", imagePath='" + imagePath + '\'' +
-                ", participants=" + participants +
-                ", description='" + description + '\'' +
-                ", details=" + details +
-                ", assignedUsers=" + assignedUsers +
-                ", playground=" + playground +
-                '}';
-    }
-
-    public Event(){}
-
-    public Event(String title, String photoUrl, int participants, String description, Details details){
-        this.title = title;
-        this.imagePath = photoUrl;
-        this.participants = participants;
-        this.description = description;
-        this.details = details;
+    private Event(Builder builder){
+        this.id = builder.id;
+        this.name = builder.name;
+        this.imagePath = builder.imagePath;
+        this.participants = builder.participants;
+        this.description = builder.description;
+        this.details = builder.details;
+        this.assignedUsers = builder.assignedUsers;
+        this.playground = builder.playground;
     }
 
     public String getId() {
@@ -49,20 +36,20 @@ public class Event implements Comparable<Event>{
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getImagePath() {
         return imagePath;
     }
 
-    public void setImagePath(String photo_url) {
-        this.imagePath = photo_url;
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public int getParticipants() {
@@ -106,9 +93,80 @@ public class Event implements Comparable<Event>{
     }
 
     @Override
+    public String toString() {
+        return "Event{" +
+                "id='" + id + '\'' +
+                ", title='" + name + '\'' +
+                ", imagePath='" + imagePath + '\'' +
+                ", participants=" + participants +
+                ", description='" + description + '\'' +
+                ", details=" + details +
+                ", assignedUsers=" + assignedUsers +
+                ", playground=" + playground +
+                '}';
+    }
+
+    @Override
     public int compareTo(@NotNull Event event) {
         return this.details.getDate().compareTo(event.getDetails().getDate());
     }
 
+    public static class Builder {
+        private String id;
+        private String name;
+        private String imagePath;
+        private int participants;
+        private String description;
+        private Details details;
+        private Set<User> assignedUsers;
+        private Playground playground;
 
+        public Builder(String name){
+            this.name = name;
+        }
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder imagePath(String imagePath) {
+            this.imagePath = imagePath;
+            return this;
+        }
+
+        public Builder participants(int participants) {
+            this.participants = participants;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder details(Details details) {
+            this.details = details;
+            return this;
+        }
+
+        public Builder assignedUsers(Set<User> assignedUsers) {
+            this.assignedUsers = assignedUsers;
+            return this;
+        }
+
+        public Builder playground(Playground playground) {
+            this.playground = playground;
+            return this;
+        }
+
+        public Event build(){
+            return new Event(this);
+        }
+    }
 }

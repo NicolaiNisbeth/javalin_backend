@@ -13,8 +13,12 @@ public class DALException extends Exception {
     }
     */
 
-    public DALException(String message){
-        super(message);
+    public DALException(String msg){
+        super(msg);
+    }
+
+    public DALException(String msg, Throwable e){
+        super(msg, e);
     }
 
 }

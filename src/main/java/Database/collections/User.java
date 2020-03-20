@@ -2,121 +2,203 @@ package Database.collections;
 
 
 
+
+
+import org.jongo.marshall.jackson.oid.MongoId;
+import org.jongo.marshall.jackson.oid.MongoObjectId;
+
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
-public class User {
+public class User implements Serializable {
 
+    @MongoObjectId
+    @MongoId
     private String id;
     private String name;
     private String status;
-    private String imagePath;
+    private String imagepath;
     private String email;
     private String password;
 
-    private List<PhoneNumber> phoneNumbers;
-    private Set<Database.collections.Event> events =  new HashSet<>();
+    private String[] phonenumbers;
+    private Set<Event> events = new HashSet<>();
     private Playground playground;
 
-    public User() {
-    }
+    //This constructor is used for MongoDB mapping
+    private User(){}
 
-    public String getName() {
-        return name;
-    }
-
-    public User setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public User setStatus(String status) {
-        this.status = status;
-        return this;
-    }
-
-    public String getImagePath() {
-        return imagePath;
-    }
-
-    public User setImagePath(String photo_url) {
-        this.imagePath = photo_url;
-        return this;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public User setEmail(String email) {
-        this.email = email;
-        return this;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public User setPassword(String password) {
-        this.password = password;
-        return this;
-    }
-
-    public List<PhoneNumber> getPhoneNumbers() {
-        return phoneNumbers;
-    }
-
-    public User setPhoneNumbers(List<PhoneNumber> sections) {
-        this.phoneNumbers = sections;
-        return this;
-    }
-
-    public Set<Event> getEvents() {
-        return events;
-    }
-
-    public User setEvents(Set<Event> events) {
-        this.events = events;
-        return this;
-    }
-
-
-    public User setPlayground(Playground playground) {
-        this.playground = playground;
-        return this;
+    private User(Builder builder) {
+        this.name = builder.name;
+        this.status = builder.status;
+        this.imagepath = builder.imagePath;
+        this.email = builder.email;
+        this.password = builder.password;
+        this.phonenumbers = builder.phonenumbers;
+        this.events = builder.events;
+        this.playground = builder.playground;
     }
 
     public String getId() {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    /*
-    @ManyToMany(cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
-    })
-    @JoinTable(name = "user_playground",
-            joinColumns = @JoinColumn(name = "playground_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<Playground> playgrounds =  new HashSet<>();
-     */
+    public String getName() {
+        return name;
+    }
 
-   /* @ManyToMany(mappedBy = "connectedUsers", cascade = CascadeType.PERSIST)
-    private Set<Playground> playgrounds = new HashSet<>();*/
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getImagepath() {
+        return imagepath;
+    }
+
+    public void setImagepath(String imagepath) {
+        this.imagepath = imagepath;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String[] getPhonenumbers() {
+        return phonenumbers;
+    }
+
+    public void setPhonenumbers(String[] phonenumbers) {
+        this.phonenumbers = phonenumbers;
+    }
+
+    public Set<Event> getEvents() {
+        return events;
+    }
+
+    public void setEvents(Set<Event> events) {
+        this.events = events;
+    }
+
+    public Playground getPlayground() {
+        return playground;
+    }
+
+    public void setPlayground(Playground playground) {
+        this.playground = playground;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) &&
+                Objects.equals(name, user.name) &&
+                Objects.equals(status, user.status) &&
+                Objects.equals(imagepath, user.imagepath) &&
+                Objects.equals(email, user.email) &&
+                Objects.equals(password, user.password) &&
+                Arrays.equals(phonenumbers, user.phonenumbers);
+    }
 
 
-   /* @ManyToMany(mappedBy = "assignedUsers", cascade = CascadeType.PERSIST)
-    private Set<Event> events = new HashSet<>();
-*/
+    @Override
+    public String toString() {
+        return "User{" +
+                ", name='" + name + '\'' +
+                ", status='" + status + '\'' +
+                ", imagePath='" + imagepath + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", phoneNumbers=" + Arrays.toString(phonenumbers) +
+                ", events=" + events +
+                ", playground=" + playground +
+                '}';
+    }
 
-    /* @OneToOne
+    public static class Builder {
+        private String name;
+        private String status;
+        private String imagePath;
+        private String email;
+        private String password;
+
+        private String[] phonenumbers;
+        private Set<Database.collections.Event> events = new HashSet<>();
         private Playground playground;
-        // constructors, getters and setters...
-    */
+
+        public Builder(String name) {
+            this.name = name;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder status(String status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder imagePath(String imagePath) {
+            this.imagePath = imagePath;
+            return this;
+        }
+
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder phoneNumbers(String... phoneNumbers) {
+            this.phonenumbers = phoneNumbers;
+            return this;
+        }
+
+        public Builder events(Set<Event> events) {
+            this.events = events;
+            return this;
+        }
+
+        public Builder playground(Playground playground) {
+            this.playground = playground;
+            return this;
+        }
+
+        public User build(){
+            return new User(this);
+        }
+    }
 }

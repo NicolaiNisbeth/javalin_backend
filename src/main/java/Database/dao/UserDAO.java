@@ -1,15 +1,12 @@
 package Database.dao;
 
 import Database.DALException;
-import Database.DBConnector;
+import Database.DataSource;
 import Database.collections.User;
-import com.mongodb.WriteResult;
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
-
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class UserDAO implements IUserDAO {
@@ -22,15 +19,15 @@ public class UserDAO implements IUserDAO {
     @Override
     public boolean createUser(User user) throws DALException {
         if (user == null)
-            throw new DALException(String.format("Can't create user in %s collection when user is null.", UserDAO.COLLECTION));
+            throw new DALException(String.format("Can't create user in %s collection when user is null", UserDAO.COLLECTION));
 
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+        Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(UserDAO.COLLECTION);
 
-        boolean isUserCreated = collection.save(user).isUpdateOfExisting();
+        boolean isUserCreated = collection.save(user).wasAcknowledged();
 
         if (!isUserCreated)
-            throw new DALException(String.format("User can't be created %s collection.", UserDAO.COLLECTION));
+            throw new DALException(String.format("User can't be created in %s collection", UserDAO.COLLECTION));
 
         return true;
     }
@@ -43,14 +40,13 @@ public class UserDAO implements IUserDAO {
      */
     @Override
     public User getUser(String id) throws DALException {
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+        Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(UserDAO.COLLECTION);
 
-        String query = String.format("{id : %s}", id);
-        User user = collection.findOne(query).as(User.class);
+        User user = collection.findOne(new ObjectId(id)).as(User.class);
 
         if (user == null)
-            throw new DALException(String.format("No user in %s collection with id %s.", UserDAO.COLLECTION, id));
+            throw new DALException(String.format("No user in %s collection with id %s", UserDAO.COLLECTION, id));
 
         return user;
     }
@@ -62,38 +58,42 @@ public class UserDAO implements IUserDAO {
      */
     @Override
     public List<User> getUserList() throws DALException {
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+        Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(UserDAO.COLLECTION);
 
         List<User> userList = new ArrayList<>();
-        for (User user : collection.find().as(User.class))
+
+        for (User user : collection.find().as(User.class)) {
             userList.add(user);
+        }
 
         if (userList.isEmpty())
-            throw new DALException(String.format("No users in %s collection.", UserDAO.COLLECTION));
+            throw new DALException(String.format("No users in %s collection", UserDAO.COLLECTION));
 
         return userList;
     }
 
     @Override
     public boolean updateUser(User user) throws DALException {
-        if (user == null)
-            throw new DALException(String.format("Can't update user in %s collection when input user is null.", UserDAO.COLLECTION));
 
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+        if (user == null)
+            throw new DALException(String.format("Can't update user in %s collection when input user is null", UserDAO.COLLECTION));
+
+        Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(UserDAO.COLLECTION);
 
         boolean isUserUpdated = collection
-                .update(String.format("{id : %s}", user.getId()))
+                .update(new ObjectId(user.getId()))
                 .with(user)
-                .isUpdateOfExisting();
+                .wasAcknowledged();
 
         if (!isUserUpdated)
-            throw new DALException(String.format("No user in %s collection with id %s.", UserDAO.COLLECTION, user.getId()));
+            throw new DALException(String.format("No user in %s collection with id %s", UserDAO.COLLECTION, user.getId()));
 
         return true;
-    }
 
+
+    }
 
     /**
      * Delete user with given id
@@ -102,16 +102,16 @@ public class UserDAO implements IUserDAO {
      * @throws DALException
      */
     @Override
-    public boolean deleteUser(int id) throws DALException {
-        Jongo jongo = new Jongo(DBConnector.getInstance());
+    public boolean deleteUser(String id) throws DALException {
+        Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(UserDAO.COLLECTION);
 
         boolean isUserDeleted = collection
-                .remove(String.format("{id : %s}", id))
-                .isUpdateOfExisting();
+                .remove(new ObjectId(id))
+                .wasAcknowledged();
 
         if (!isUserDeleted)
-            throw new DALException(String.format("No user in %s collection with id %s.", UserDAO.COLLECTION, id));
+            throw new DALException(String.format("No user in %s collection with id %s", UserDAO.COLLECTION, id));
 
         return true;
     }

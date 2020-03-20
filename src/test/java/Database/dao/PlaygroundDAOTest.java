@@ -18,11 +18,12 @@ class PlaygroundDAOTest {
     @Test
     void createPlayground() throws DALException {
         Playground playground = new Playground.Builder("Trafiklegepladsen Fælledparken")
-                .setCommune("København Ø")
-                .setZipCode(2100)
-                .setStreetName("Gunnar Nu Hansens Plads")
-                .setStreetNumber(10)
+                .commune("København Ø")
+                .zipCode(2100)
+                .streetName("Gunnar Nu Hansens Plads")
+                .streetNumber(10)
                 .build();
+
         playgroundDAO.createPlayground(playground);
     }
 
