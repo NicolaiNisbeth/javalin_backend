@@ -1,32 +1,38 @@
 package database.dao;
 
+import database.DALException;
+import database.collections.Event;
+import database.collections.Message;
+import database.collections.Playground;
+import database.collections.User;
+
+import java.util.List;
+
 public interface IController {
 
     // PLAYGROUND, playgroundName must be unique!
-    // getAllPlaygrounds()
-    // createPlayground(activeUser, playground)
-    // assignUserToPlayground(activeUser, playgroundName, userID) // only for pædagoger
-    // updateUserInPlayground(activeUser, playgroundName, updatedUser)
-    // retractUserFromPlayground(activeUser, playgroundName, userID)
+    List<Playground> getAllPlaygrounds() throws DALException;
+    void createPlayground(User activeUser, Playground playgroundToBeCreated) throws DALException;
+    void assignUserToPlayground(User activeUser, String playgroundName, String userID) throws DALException;
+    void updateUserInPlayground(User activeUser, String playgroundName, User updatedUser) throws DALException;
+    void removeAssignedUserFromPlayground(User activeUser, String playgroundName, String userID) throws DALException;
 
     // PLAYGROUND EVENTS
-    // getEventsInPlayground(playgroundName) // differentiate between upcoming and past events?
-    // addEventToPlayground(activeUser, playgroundName, eventToBeAdded)
-    // updateEventInPlayground(activeUser, playgroundName, updatedEvent)
-    // deleteEventInPlayground(activeUser, playgroundName, eventID)
-    // signupForEventInPlaygound(playgroundName, userID)
-
+    List<Event> getEventsInPlayground(String playgroundName) throws DALException;
+    void addEventToPlayground(User activeUser, String playgroundName, Event eventToBeAdded) throws DALException;
+    void updateEventInPlayground(User activeUser, String playgroundName, Event updatedEvent) throws DALException;
+    void deleteEventInPlayground(User activeUser, String playgroundName, String eventID) throws DALException;
+    void signupForEventInPlayground(String playgroundName, String userID) throws DALException;
 
     // PLAYGROUND MESSAGES
-    // getPlaygroundMessage(playgroundName) // maybe Date as 2nd argument?
-    // createPlaygroundMessage(activeUser, playgroundName)
-    // updatePlaygroundMessage(activeUser, playgroundName)
-    // deletePlaygroundMessage(activeUser, playgroundName)
+    List<Message> getPlaygroundMessage(String playgroundName) throws DALException;
+    void createPlaygroundMessage(User activeUser, String playgroundName) throws DALException;
+    void updatePlaygroundMessage(User activeUser, String playgroundName) throws DALException;
+    void deletePlaygroundMessage(User activeUser, String playgroundName) throws DALException;
 
-
-    // USER, username/email is unique?
-    // createUser(activeUser, userToBeCreated) // for admin to setup users with privileges
-    // updateUser(activeUser, updatedUser) // do we allow updates on all fields? switch case ladder maybe?
-    // deleteUser(activeUser, userID)
-    // getUser(activeUser, ...userID) // is information sentitive?
+    // USER, username/email is unique, since we dont know id at all times
+    User getUser(User activeUser, String userID) throws DALException;
+    void createUser(User activeUser, User userToBeCreated) throws DALException;
+    void updateUser(User activeUser, User updatedUser) throws DALException;
+    void deleteUser(User activeUser, String userID) throws DALException;
 }
