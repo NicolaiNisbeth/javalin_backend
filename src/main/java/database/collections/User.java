@@ -25,7 +25,7 @@ public class User {
 
     private String[] phonenumbers;
     private Set<Event> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
-    private Playground playground;                  // many-to-1
+    private String playgroundID;                  // many-to-1
 
     //This constructor is used for MongoDB mapping
     private User(){}
@@ -38,7 +38,7 @@ public class User {
         this.password = builder.password;
         this.phonenumbers = builder.phonenumbers;
         this.events = builder.events;
-        this.playground = builder.playground;
+        this.playgroundID = builder.playgroundID;
     }
 
     public String getId() {
@@ -105,12 +105,12 @@ public class User {
         this.events = events;
     }
 
-    public Playground getPlayground() {
-        return playground;
+    public String getPlaygroundID() {
+        return playgroundID;
     }
 
-    public void setPlayground(Playground playground) {
-        this.playground = playground;
+    public void setPlaygroundID(String playgroundID) {
+        this.playgroundID = playgroundID;
     }
 
     @Override
@@ -137,7 +137,7 @@ public class User {
                 ", password='" + password + '\'' +
                 ", phoneNumbers=" + Arrays.toString(phonenumbers) +
                 ", events=" + events +
-                ", playground=" + playground +
+                ", playground=" + playgroundID +
                 '}';
     }
 
@@ -150,7 +150,7 @@ public class User {
 
         private String[] phonenumbers;
         private Set<Event> events = new HashSet<>();
-        private Playground playground;
+        private String playgroundID;
 
         public Builder(String name) {
             this.name = name;
@@ -186,8 +186,8 @@ public class User {
             return this;
         }
 
-        public Builder playground(Playground playground) {
-            this.playground = playground;
+        public Builder playground(String playground) {
+            this.playgroundID = playground;
             return this;
         }
 

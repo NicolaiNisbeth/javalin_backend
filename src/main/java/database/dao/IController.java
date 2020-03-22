@@ -17,14 +17,13 @@ public interface IController {
     // PLAYGROUND, playgroundName must be unique!
     List<Playground> getAllPlaygrounds() throws DALException;
     void createPlayground(User activeUser, Playground playgroundToBeCreated) throws DALException;
-    void assignPedagogueToPlayground(User activeUser, String playgroundName, String userID) throws DALException;
-    void updatePedagogueInPlayground(User activeUser, String playgroundName, User updatedUser) throws DALException;
-    void removePedagogueFromPlayground(User activeUser, String playgroundName, String userID) throws DALException;
+    boolean addPedagogueToPlayground(User activeUser, String playgroundName, String userID) throws DALException;
+    boolean removePedagogueFromPlayground(User activeUser, String playgroundName, String userID) throws DALException;
 
     // PLAYGROUND EVENTS, eventDAO has to be associated with playground id
     Set<Event> getEventsInPlayground(String playgroundName) throws DALException;
     void addEventToPlayground(User activeUser, String playgroundName, Event eventToBeAdded) throws DALException;
-    void updateEventInPlayground(User activeUser, String playgroundName, Event updatedEvent) throws DALException;
+    void updateEvent(User activeUser, String playgroundName, Event updatedEvent) throws DALException;
     void deleteEventInPlayground(User activeUser, String playgroundName, String eventID) throws DALException;
     void signupForEventInPlayground(String playgroundName, String eventID, String userID) throws DALException;
 

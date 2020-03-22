@@ -16,8 +16,6 @@ public class Playground {
         private String name;
         private String imagePath;
         private boolean toiletPossibilities;
-
-
         private boolean hasSoccerField;
 
         private String streetName;
