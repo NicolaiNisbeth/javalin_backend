@@ -18,6 +18,7 @@ public class Message implements Comparable<Message> {
         private boolean outDated;
         private String writtenByID;
         private String messageString;
+        private String playgroundID;
         private Date date;
 
         public String getMessageString() {
@@ -38,6 +39,15 @@ public class Message implements Comparable<Message> {
 
         public Builder set_id(String _id) {
             this._id = _id;
+            return this;
+        }
+
+        public String getPlaygroundID(){
+            return playgroundID;
+        }
+
+        public Builder setPlaygroundID(String playgroundID){
+            this.playgroundID = playgroundID;
             return this;
         }
 
@@ -130,6 +140,7 @@ public class Message implements Comparable<Message> {
     private boolean outDated;
     private String writtenByID;
     private String messageString;
+    private String playgroundID;
     private Date date;
 
     public String getMessageString() {
@@ -138,6 +149,14 @@ public class Message implements Comparable<Message> {
 
     public void setMessageString(String messageString) {
         this.messageString = messageString;
+    }
+
+    public String getPlaygroundID(){
+        return playgroundID;
+    }
+
+    public void setPlaygroundID(String playgroundID){
+        this.playgroundID = playgroundID;
     }
 
     public String getCategory() {

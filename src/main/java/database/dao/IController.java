@@ -22,16 +22,16 @@ public interface IController {
 
     // PLAYGROUND EVENTS, eventDAO has to be associated with playground id
     Set<Event> getEventsInPlayground(String playgroundName) throws DALException;
-    void addEventToPlayground(User activeUser, String playgroundName, Event eventToBeAdded) throws DALException;
-    void updateEvent(User activeUser, String playgroundName, Event updatedEvent) throws DALException;
-    void deleteEventInPlayground(User activeUser, String playgroundName, String eventID) throws DALException;
-    void signupForEventInPlayground(String playgroundName, String eventID, String userID) throws DALException;
+    boolean addEventToPlayground(User activeUser, String playgroundName, Event eventToBeAdded) throws DALException;
+    boolean updateEvent(User activeUser, String playgroundName, Event updatedEvent) throws DALException;
+    boolean deleteEventInPlayground(User activeUser, String playgroundName, String eventID) throws DALException;
+    boolean signupForEventInPlayground(String playgroundName, String eventID, String userID) throws DALException;
 
     // PLAYGROUND MESSAGES, messageDAO has to associated with playground id
     Set<Message> getPlaygroundMessage(String playgroundName) throws DALException;
-    void createPlaygroundMessage(User activeUser, String playgroundName, Message message) throws DALException;
-    void updatePlaygroundMessage(User activeUser, String playgroundName, Message updatedMessage) throws DALException;
-    void deletePlaygroundMessage(User activeUser, String playgroundName, String messageID) throws DALException;
+    boolean createPlaygroundMessage(User activeUser, String playgroundName, Message message) throws DALException;
+    boolean updatePlaygroundMessage(User activeUser, String playgroundName, Message updatedMessage) throws DALException;
+    boolean deletePlaygroundMessage(User activeUser, String playgroundName, String messageID) throws DALException;
 
     // USER, username/email is unique, since we dont know id at all times
     User getUser(User activeUser, String userID) throws DALException;
