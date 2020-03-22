@@ -24,8 +24,9 @@ public class Playground {
         private int streetNumber;
         private String commune;
         private int zipCode;
-        private Set<User> assignedUsers = new HashSet<>();
+        private Set<User> assignedPedagogue = new HashSet<>();
         private Set<Event> events = new TreeSet<>();
+        private Set<Message> messages = new TreeSet<>();
 
         public Builder(String name) {
             this.name = name;
@@ -111,12 +112,12 @@ public class Playground {
             return this;
         }
 
-        public Set<User> getAssignedUsers() {
-            return assignedUsers;
+        public Set<User> getAssignedPedagogue() {
+            return assignedPedagogue;
         }
 
-        public Builder setAssignedUsers(Set<User> assignedUsers) {
-            this.assignedUsers = assignedUsers;
+        public Builder setAssignedPedagogue(Set<User> assignedPedagogue) {
+            this.assignedPedagogue = assignedPedagogue;
             return this;
         }
 
@@ -126,6 +127,15 @@ public class Playground {
 
         public Builder setEvents(Set<Event> events) {
             this.events = events;
+            return this;
+        }
+
+        public Set<Message> getMessages() {
+            return messages;
+        }
+
+        public Builder setMessages(Set<Message> messages) {
+            this.messages = messages;
             return this;
         }
 
@@ -140,7 +150,7 @@ public class Playground {
             playground.streetNumber = this.streetNumber;
             playground.commune = this.commune;
             playground.zipCode = this.zipCode;
-            playground.assignedUsers = this.assignedUsers;
+            playground.assignedPedagogue = this.assignedPedagogue;
             playground.events = this.events;
             return playground;
         }
@@ -159,8 +169,10 @@ public class Playground {
     private int streetNumber;
     private String commune;
     private int zipCode;
-    private Set<User> assignedUsers = new HashSet<>();
+    private Set<User> assignedPedagogue = new HashSet<>();
     private Set<Event> events = new TreeSet<>();
+    private Set<Message> messages = new TreeSet<>();
+
 
     public boolean isHasSoccerField() {
         return hasSoccerField;
@@ -172,7 +184,7 @@ public class Playground {
 
     @Override
     public String toString() {
-        for (User user : assignedUsers) {
+        for (User user : assignedPedagogue) {
             System.out.println(user);
         }
 
@@ -253,12 +265,12 @@ public class Playground {
         this.zipCode = zipCode;
     }
 
-    public Set<User> getAssignedUsers() {
-        return assignedUsers;
+    public Set<User> getAssignedPedagogue() {
+        return assignedPedagogue;
     }
 
-    public void setAssignedUsers(Set<User> assignedUsers) {
-        this.assignedUsers = assignedUsers;
+    public void setAssignedPedagogue(Set<User> assignedPedagogue) {
+        this.assignedPedagogue = assignedPedagogue;
     }
 
     public Set<Event> getEvents() {
@@ -269,6 +281,13 @@ public class Playground {
         this.events = events;
     }
 
+    public Set<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(Set<Message> messages) {
+        this.messages = messages;
+    }
 
     private Playground() {
     }

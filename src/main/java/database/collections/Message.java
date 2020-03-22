@@ -1,9 +1,13 @@
 package database.collections;
 
+import org.jetbrains.annotations.NotNull;
 import org.jongo.marshall.jackson.oid.MongoId;
 import org.jongo.marshall.jackson.oid.MongoObjectId;
 
-public class Message {
+import java.util.Date;
+
+public class Message implements Comparable<Message> {
+
 
     public static class Builder {
         @MongoId // auto
@@ -14,6 +18,7 @@ public class Message {
         private boolean outDated;
         private String writtenByID;
         private String messageString;
+        private Date date;
 
         public String getMessageString() {
             return messageString;
@@ -33,6 +38,15 @@ public class Message {
 
         public Builder set_id(String _id) {
             this._id = _id;
+            return this;
+        }
+
+        public Date getDate() {
+            return date;
+        }
+
+        public Builder setDate(Date date) {
+            this.date = date;
             return this;
         }
 
@@ -90,7 +104,6 @@ public class Message {
 
         }
 
-
         public Message build() {
             //Here we create the actual playground object, which is always in a fully initialised state when it's returned.
             Message message = new Message();  //Since the builder is in the class, we can invoke its private constructor.
@@ -103,6 +116,7 @@ public class Message {
             message.outDated = this.outDated;
             message.writtenByID = this.writtenByID;
             message.messageString = this.messageString;
+            message.date = this.date;
 
             return message;
         }
@@ -116,6 +130,7 @@ public class Message {
     private boolean outDated;
     private String writtenByID;
     private String messageString;
+    private Date date;
 
     public String getMessageString() {
         return messageString;
@@ -161,6 +176,14 @@ public class Message {
         return id;
     }
 
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
     @Override
     public String toString() {
         return "Message{" +
@@ -178,5 +201,10 @@ public class Message {
 
 
     private Message() {
+    }
+
+    @Override
+    public int compareTo(@NotNull Message o) {
+        return date.compareTo(o.date);
     }
 }

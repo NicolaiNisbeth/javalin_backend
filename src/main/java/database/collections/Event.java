@@ -19,7 +19,7 @@ public class Event implements Comparable<Event>{
     private int participants;
     private String description;
     private Details details;
-    private Set<User> assignedusers = new HashSet<>();  // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
+    private Set<User> assignedUsers = new HashSet<>();  // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
     private Playground playground;                      // 1-to-many
 
     //This constructor is used for MongoDB mapping
@@ -31,7 +31,7 @@ public class Event implements Comparable<Event>{
         this.participants = builder.participants;
         this.description = builder.description;
         this.details = builder.details;
-        this.assignedusers = builder.assignedUsers;
+        this.assignedUsers = builder.assignedUsers;
         this.playground = builder.playground;
     }
 
@@ -83,12 +83,12 @@ public class Event implements Comparable<Event>{
         this.details = details;
     }
 
-    public Set<User> getAssignedusers() {
-        return assignedusers;
+    public Set<User> getAssignedUsers() {
+        return assignedUsers;
     }
 
-    public void setAssignedusers(Set<User> assignedusers) {
-        this.assignedusers = assignedusers;
+    public void setAssignedUsers(Set<User> assignedUsers) {
+        this.assignedUsers = assignedUsers;
     }
 
     public Playground getPlayground() {
@@ -119,7 +119,7 @@ public class Event implements Comparable<Event>{
                 ", participants=" + participants +
                 ", description='" + description + '\'' +
                 ", details=" + details +
-                ", assignedUsers=" + assignedusers +
+                ", assignedUsers=" + assignedUsers +
                 ", playground=" + playground +
                 '}';
     }
