@@ -270,6 +270,11 @@ public class Controller implements IController{
         //do we allow to fetch all user information like password etc?
         return userDAO.getUser(userID);
     }
+    //todo arbejder også her
+    public User getUserWithUserName(String userName) throws DALException {
+        //do we allow to fetch all user information like password etc?
+        return userDAO.getUserWithUserName(userName);
+    }
 
     @Override
     public void createUser(User activeUser, User userToBeCreated) throws DALException {
@@ -286,7 +291,7 @@ public class Controller implements IController{
             throw new DALException(String.format("User %s does not have the required privileges", activeUser.getId()));
         }
 
-        // do we allow updates on all fields?
+        // do we allow updates on all fields? godt spørgsmål :)
         userDAO.updateUser(updatedUser);
     }
 

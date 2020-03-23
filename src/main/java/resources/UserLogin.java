@@ -2,6 +2,8 @@ package resources;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
+import database.DALException;
+import database.dao.Controller;
 import org.json.JSONObject;
 
 import io.javalin.http.Context;
@@ -14,20 +16,22 @@ import java.rmi.RemoteException;
 public class UserLogin {
     private static Brugeradmin ba;
 
-    // @Path("brugerLogin")
+    public static void isUserInDB(String userName){
+        try {
+            Controller.getController().getUserWithUserName(userName);
+            System.out.println("han er admin");
+        } catch (DALException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static Bruger verificerLogin(String request, Context ctx) {
-
         JSONObject jsonObject = new JSONObject(request);
         String username = jsonObject.getString("username");
         String password = jsonObject.getString("password");
         try {
             ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
-        } catch (NotBoundException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (RemoteException e) {
+        } catch (NotBoundException | MalformedURLException | RemoteException e) {
             e.printStackTrace();
         }
         Bruger user = null;
@@ -41,32 +45,8 @@ public class UserLogin {
         } catch (Exception e) {
             ctx.status(401).result("Unauthorized");
         }
-
+        System.out.println(user.brugernavn);
+       isUserInDB(user.brugernavn.toString());
         return user;
     }
 }
-
-   /* private static void bruger(Context ctx) throws Exception {
-        String brugernavn = ctx.pathParam("brugernavn");    // del af path  /bruger/s123456
-        String adgangskode = ctx.queryParam("adgangskode"); // del af query  ?adgangskode=kode1xyz
-        Brugeradmin ba = (Brugeradmin) Naming.lookup("server.rmi://javabog.dk/brugeradmin");
-        if (adgangskode == null) {
-            Bruger bruger = ba.hentBrugerOffentligt(brugernavn);
-            ctx.json(bruger);
-        } else try {
-            Bruger bruger = ba.hentBruger(brugernavn, adgangskode);
-            ctx.json(bruger);
-        } catch (Exception e) {
-            ctx.status(401).result("Unauthorized");
-        }*/
-
-
-/*    private static void sendGlemtAdgangskodeEmail(Context ctx) throws Exception {
-        Brugeradmin ba = (Brugeradmin) Naming.lookup("server.rmi://javabog.dk/brugeradmin");
-        String brugernavn = ctx.formParam("brugernavn");
-        String følgetekst = ctx.formParam("foelgetekst");
-        if (brugernavn == null) brugernavn = ctx.queryParam("brugernavn");
-        ba.sendGlemtAdgangskodeEmail(brugernavn, følgetekst);
-        ctx.result("Der blev sendt en mail til " + brugernavn + " med teksten " + følgetekst);
-    }*/
-

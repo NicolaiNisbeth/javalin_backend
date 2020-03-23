@@ -6,13 +6,17 @@ import database.collections.User;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.jongo.Oid.withOid;
 
 public class UserDAO implements IUserDAO {
 
     /**
      * Create user in users collection
+     *
      * @param user
      * @return true if created else false
      * @throws DALException
@@ -35,6 +39,7 @@ public class UserDAO implements IUserDAO {
 
     /**
      * Get user with given id
+     *
      * @param id
      * @return user
      * @throws DALException
@@ -52,8 +57,21 @@ public class UserDAO implements IUserDAO {
         return user;
     }
 
+    // todo arbejder her
+    public User getUserWithUserName(String name) throws DALException {
+        Jongo jongo = new Jongo(DataSource.getDB());
+        MongoCollection collection = jongo.getCollection(COLLECTION);
+        User user = collection.findOne("{userName: '" + name + "'}").as(User.class);
+
+        if (user == null)
+            throw new DALException(String.format("No user in %s collection with username %s", COLLECTION, name));
+        return user;
+    }
+
+
     /**
      * Get all users in collection
+     *
      * @return list of users
      * @throws DALException
      */
@@ -75,6 +93,7 @@ public class UserDAO implements IUserDAO {
 
     /**
      * Replace user with same id
+     *
      * @param user
      * @return true if updated else false
      * @throws DALException
@@ -103,6 +122,7 @@ public class UserDAO implements IUserDAO {
 
     /**
      * Delete user with given id
+     *
      * @param id
      * @return true if deleted else false
      * @throws DALException

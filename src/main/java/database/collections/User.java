@@ -22,16 +22,19 @@ public class User {
     private String imagepath;
     private String email;
     private String password;
+    private String userName;
 
     private String[] phonenumbers;
     private Set<Event> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
     private String playgroundID;                  // many-to-1
+
 
     //This constructor is used for MongoDB mapping
     private User(){}
 
     private User(Builder builder) {
         this.name = builder.name;
+        this.userName = builder.userName;
         this.status = builder.status;
         this.imagepath = builder.imagePath;
         this.email = builder.email;
@@ -47,6 +50,14 @@ public class User {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getName() {
@@ -131,6 +142,7 @@ public class User {
     public String toString() {
         return "Bruger{" +
                 ", name='" + name + '\'' +
+                ", username='" + userName + '\'' +
                 ", status='" + status + '\'' +
                 ", imagePath='" + imagepath + '\'' +
                 ", email='" + email + '\'' +
@@ -143,6 +155,7 @@ public class User {
 
     public static class Builder {
         private String name;
+        private String userName;
         private String status;
         private String imagePath;
         private String email;
@@ -188,6 +201,15 @@ public class User {
 
         public Builder playground(String playground) {
             this.playgroundID = playground;
+            return this;
+        }
+
+        public String getUserName() {
+            return userName;
+        }
+
+        public Builder setUserName(String userName) {
+            this.userName = userName;
             return this;
         }
 

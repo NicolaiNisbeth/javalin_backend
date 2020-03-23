@@ -48,6 +48,23 @@ class UserDAOTest {
     }
 
     @Test
+    void getUserWithName() throws DALException {
+       /* User user1 = new User.Builder("Nicolai L")
+                .status("admin")
+                .password("123")
+                .setUserName("s185020")
+                .build();
+
+        userDAO.createUser(user1);*/
+
+        for (User user : userDAO.getUserList()) {
+            System.out.println(user);
+        }
+        System.out.println(userDAO.getUserWithUserName("s185020") );
+    }
+
+
+    @Test
     void createUsers_GetUserList_DeleteUsers() throws DALException {
         User user1 = new User.Builder("Nicolai")
                 .status("Admin")
@@ -102,7 +119,7 @@ class UserDAOTest {
     @Disabled("This test is disabled because it deletes all users in collection")
     @Test
     void deleteAllUsersInCollection() throws DALException {
-        for (User i: userDAO.getUserList()) {
+        for (User i : userDAO.getUserList()) {
             userDAO.deleteUser(i.getId());
         }
     }
