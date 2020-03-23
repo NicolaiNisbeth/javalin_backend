@@ -22,9 +22,7 @@ public class Main {
         if (app != null) return;
 
         app = Javalin.create(config -> {
-            config
-                    .enableCorsForAllOrigins()
-                    .enforceSsl = true;
+            config.enableCorsForAllOrigins();
         }).start(8088);
 
 

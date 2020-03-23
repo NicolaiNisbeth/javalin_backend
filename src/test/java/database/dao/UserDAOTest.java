@@ -49,13 +49,12 @@ class UserDAOTest {
 
     @Test
     void getUserWithName() throws DALException {
-      /*  User user1 = new User.Builder("Nicolai L")
+        User user1 = new User.Builder("s185020")
                 .status("admin")
                 .password("123")
-                .setUsername("s185020")
+                .setFirstname("NicolaiL")
                 .build();
-
-        userDAO.createUser(user1);*/
+        userDAO.createUser(user1);
 
         for (User user : userDAO.getUserList()) {
             System.out.println(user);

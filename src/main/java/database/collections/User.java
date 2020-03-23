@@ -29,6 +29,16 @@ public class User implements Serializable {
     private Set<Event> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
     private String playgroundID;                  // many-to-1
 
+    public Set<String> getPlaygroundsIDs() {
+        return playgroundsIDs;
+    }
+
+    public void setPlaygroundsIDs(Set<String> playgroundsIDs) {
+        this.playgroundsIDs = playgroundsIDs;
+    }
+
+    private Set<String> playgroundsIDs = new HashSet<>();
+
 
     //This constructor is used for MongoDB mapping
     private User() {
@@ -62,6 +72,7 @@ public class User implements Serializable {
         this.phonenumbers = builder.phonenumbers;
         this.events = builder.events;
         this.playgroundID = builder.playgroundID;
+        this.playgroundsIDs = builder.playgroundsIDs;
     }
 
     public String getId() {
@@ -174,6 +185,7 @@ public class User implements Serializable {
         private String password;
         private String[] phonenumbers;
         private Set<Event> events = new HashSet<>();
+        private Set<String> playgroundsIDs = new HashSet<>();
         private String playgroundID;
         private String firstname;
         private String lastname;
@@ -187,6 +199,14 @@ public class User implements Serializable {
         public Builder status(String status) {
             this.status = status;
             return this;
+        }
+
+        public Set<String> getPlaygroundsIDs() {
+            return playgroundsIDs;
+        }
+
+        public void setPlaygroundsIDs(Set<String> playgroundsIDs) {
+            this.playgroundsIDs = playgroundsIDs;
         }
 
         public Builder imagePath(String imagePath) {
