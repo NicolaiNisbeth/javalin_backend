@@ -281,7 +281,10 @@ public class Controller implements IController{
         if(!hasStatus(activeUser, Controller.ADMIN)) {
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.ADMIN));
         }
-
+        userDAO.createUser(userToBeCreated);
+    }
+    // todo - Overloading
+    public void createUser(User userToBeCreated) throws DALException {
         userDAO.createUser(userToBeCreated);
     }
 

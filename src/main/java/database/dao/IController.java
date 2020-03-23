@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Set;
 
 public interface IController {
-    String ADMIN = "Admin";
-    String PEDAGOGUE = "Pedagogue";
-    String CLIENT = "Client";
+    String ADMIN = "admin";
+    String PEDAGOGUE = "pedagogue";
+    String CLIENT = "client";
 
     // PLAYGROUND, playgroundName must be unique!
     List<Playground> getAllPlaygrounds() throws DALException;

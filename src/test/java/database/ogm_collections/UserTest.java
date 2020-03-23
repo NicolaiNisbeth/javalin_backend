@@ -33,7 +33,7 @@ class UserTest {
                 .setName("Nicolai")
                 .setStatus("Admin")
                 .setPassword("kode123")
-                .setEmail("nicolai.nisbeth@yahoo.com")
+                .email("nicolai.nisbeth@yahoo.com")
                 .setImagePath("asddasdasd27a6sd78.jpg");
 
         List<PhoneNumber> numbers = new ArrayList<>();

@@ -71,7 +71,7 @@ public class Bruger {
         return email;
     }
 
-    public Bruger setEmail(String email) {
+    public Bruger email(String email) {
         this.email = email;
         return this;
     }

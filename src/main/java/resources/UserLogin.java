@@ -3,6 +3,7 @@ package resources;
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import database.DALException;
+import database.collections.User;
 import database.dao.Controller;
 import org.json.JSONObject;
 
@@ -16,16 +17,30 @@ import java.rmi.RemoteException;
 public class UserLogin {
     private static Brugeradmin ba;
 
-    public static void isUserInDB(String userName){
+    public static User isUserInDB(Bruger bruger) {
+        User user = null;
         try {
-            Controller.getController().getUserWithUserName(userName);
-            System.out.println("han er admin");
+           user = Controller.getController().getUserWithUserName(bruger.brugernavn);
         } catch (DALException e) {
-            e.printStackTrace();
+            System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");
+
+            user = new User.Builder(bruger.brugernavn)
+                    .setFirstname(bruger.fornavn)
+                    .setLastname(bruger.efternavn)
+                    .email(bruger.email)
+                    .password(bruger.adgangskode)
+                    .status("pedagogue")
+                    .build();
+            try {
+                Controller.getController().createUser(user);
+            } catch (DALException e1) {
+                e1.printStackTrace();
+            }
         }
+        return user;
     }
 
-    public static Bruger verificerLogin(String request, Context ctx) {
+    public static User verificerLogin(String request, Context ctx) {
         JSONObject jsonObject = new JSONObject(request);
         String username = jsonObject.getString("username");
         String password = jsonObject.getString("password");
@@ -45,8 +60,6 @@ public class UserLogin {
         } catch (Exception e) {
             ctx.status(401).result("Unauthorized");
         }
-        System.out.println(user.brugernavn);
-       isUserInDB(user.brugernavn.toString());
-        return user;
+        return isUserInDB(user);
     }
 }

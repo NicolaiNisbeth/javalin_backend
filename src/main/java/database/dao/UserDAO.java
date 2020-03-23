@@ -61,7 +61,7 @@ public class UserDAO implements IUserDAO {
     public User getUserWithUserName(String name) throws DALException {
         Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(COLLECTION);
-        User user = collection.findOne("{userName: '" + name + "'}").as(User.class);
+        User user = collection.findOne("{username: '" + name + "'}").as(User.class);
 
         if (user == null)
             throw new DALException(String.format("No user in %s collection with username %s", COLLECTION, name));

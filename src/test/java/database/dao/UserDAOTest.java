@@ -49,10 +49,10 @@ class UserDAOTest {
 
     @Test
     void getUserWithName() throws DALException {
-       /* User user1 = new User.Builder("Nicolai L")
+      /*  User user1 = new User.Builder("Nicolai L")
                 .status("admin")
                 .password("123")
-                .setUserName("s185020")
+                .setUsername("s185020")
                 .build();
 
         userDAO.createUser(user1);*/
@@ -60,7 +60,9 @@ class UserDAOTest {
         for (User user : userDAO.getUserList()) {
             System.out.println(user);
         }
-        System.out.println(userDAO.getUserWithUserName("s185020") );
+
+        //userDAO.deleteUser("5e78a7ad8e38fd0fe1f01321");
+        //System.out.println(userDAO.getUserWithUserName("s185020") );
     }
 
 

@@ -44,7 +44,7 @@ class EventTest {
                 .setName("Nicolai")
                 .setStatus("Admin")
                 .setPassword("qwe123")
-                .setEmail("nicolai.nisbeth@yahoo.com")
+                .email("nicolai.nisbeth@yahoo.com")
                 .setImagePath("asdasd7asdas98da.jpg")
                 .setPhoneNumbers(phoneNumbers);
 
@@ -55,7 +55,7 @@ class EventTest {
                 .setName("Peter")
                 .setStatus("Admin")
                 .setPassword("lksædjkf23")
-                .setEmail("awq.pavlidi@google.com")
+                .email("awq.pavlidi@google.com")
                 .setImagePath("asdas33d732asddadds98da.jpg")
                 .setPhoneNumbers(phoneNumbers2);
 
