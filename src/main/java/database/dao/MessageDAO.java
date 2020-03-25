@@ -83,6 +83,7 @@ public class MessageDAO implements IMessageDAO {
         return false;
     }
 
+    @Override
     public boolean deleteAllMessages() {
         Jongo jongo = new Jongo(DataSource.getDB());
         try {

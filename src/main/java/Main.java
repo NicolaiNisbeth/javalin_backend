@@ -1,6 +1,5 @@
 import database.dao.Controller;
 import io.javalin.Javalin;
-import io.javalin.http.Context;
 import resources.GalgelegResource;
 import resources.UserLogin;
 
@@ -46,7 +45,7 @@ public class Main {
                 ctx.result(GalgelegResource.makeGuess(ctx.pathParam("username"), ctx.pathParam("guess"))).contentType("json"));
 
         app.get("rest/playground_list", ctx ->
-                ctx.json(Controller.getController().getAllPlaygrounds()).contentType("json"));
+                ctx.json(Controller.getInstance().getAllPlaygrounds()).contentType("json"));
         app.post("rest/user_login", ctx ->
                 ctx.json(UserLogin.verificerLogin(ctx.body(), ctx)).contentType("json"));
     }

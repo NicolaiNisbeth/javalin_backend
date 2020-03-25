@@ -6,6 +6,7 @@ import database.collections.Event;
 import database.collections.Message;
 import database.collections.Playground;
 import database.collections.User;
+import javafx.util.Pair;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 
@@ -28,7 +29,7 @@ public class Controller implements IController{
         this.eventDAO = new EventDAO();
     }
 
-    public static Controller getController() {
+    public static Controller getInstance() {
         if (controller == null) {
             controller = new Controller();
         }
@@ -43,6 +44,17 @@ public class Controller implements IController{
             e.printStackTrace();
         }
         return playgrounds;
+    }
+
+    public Playground getPlayground(String playgroundName){
+        Playground playground = null;
+        try {
+            playground =  playgroundDAO.getPlayground(playgroundName);
+        } catch (DALException e){
+            e.printStackTrace();
+        }
+        return playground;
+
     }
 
     @Override
@@ -66,7 +78,7 @@ public class Controller implements IController{
         try {
             // add playground id to user
             User user = userDAO.getUser(pedagogueID);
-            user.setPlaygroundID(playgroundName);
+            user.getPlaygroundsIDs().add(playgroundName);
             isUserUpdated = userDAO.updateUser(user);
 
             // add user id to playground
@@ -74,7 +86,7 @@ public class Controller implements IController{
             MongoCollection playgrounds = jongo.getCollection(IPlaygroundDAO.COLLECTION);
             isPedagogueAdded = playgrounds
                     .update("{name : #}", playgroundName)
-                    .with("{$push: {assignedPedagogue : #}}", withOid(pedagogueID))
+                    .with("{$push: {assignedPedagogue : #}}", pedagogueID)
                     .wasAcknowledged();
 
         } catch (DALException e){
@@ -86,15 +98,15 @@ public class Controller implements IController{
     }
 
     @Override
-    public boolean removePedagogueFromPlayground(User activeUser, String playgroundName, String pedagogueID) throws DALException {
+    public boolean removePedagogueFromPlayground(User activeUser, String playgroundName, String pedagogueUsername) throws DALException {
         if(!hasStatus(activeUser, Controller.ADMIN))
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.ADMIN));
 
         boolean isUserUpdated = false, isPedagogueRemoved = false;
         try {
             // remove playground id from user
-            User user = userDAO.getUser(pedagogueID);
-            user.setPlaygroundID(null);
+            User user = userDAO.getUser(pedagogueUsername);
+            user.getPlaygroundsIDs().remove(playgroundName);
             isUserUpdated = userDAO.updateUser(user);
 
             // remove user id from playground
@@ -102,7 +114,7 @@ public class Controller implements IController{
             MongoCollection playgrounds = jongo.getCollection(IPlaygroundDAO.COLLECTION);
             isPedagogueRemoved = playgrounds
                     .update("{name : #}", playgroundName)
-                    .with("{$pull: {assignedUsers : {_id : #}}}", withOid(pedagogueID))
+                    .with("{$pull: {assignedPedagogue : #}}", pedagogueUsername)
                     .wasAcknowledged();
 
         } catch (DALException e){
@@ -112,14 +124,23 @@ public class Controller implements IController{
         return isUserUpdated && isPedagogueRemoved;
     }
 
+
+    private boolean removeInstanceFromField(MongoCollection collection, Pair<String, String> keyInstance, Pair<String, String> fieldRemove){
+        return collection
+                .update("{" +keyInstance.getKey()+ " : #}", keyInstance.getValue())
+                .with("{$pull : {" + fieldRemove.getKey()+ " : #}}", fieldRemove.getValue())
+                .wasAcknowledged();
+    }
+
     @Override
     public Set<Event> getEventsInPlayground(String playgroundName) throws DALException {
-        return playgroundDAO.getPlayground(playgroundName).getEvents();
+        //return playgroundDAO.getPlayground(playgroundName).getEvents();
+        return null;
     }
 
     @Override
     public boolean addEventToPlayground(User activeUser, String playgroundName, Event eventToBeAdded) throws DALException {
-        if(!hasStatus(activeUser, Controller.PEDAGOGUE))
+        if(!hasStatus(activeUser, Controller.PEDAGOGUE) && !hasStatus(activeUser, Controller.ADMIN))
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.PEDAGOGUE));
 
 
@@ -133,8 +154,8 @@ public class Controller implements IController{
             Jongo jongo = new Jongo(DataSource.getDB());
             MongoCollection playgrounds = jongo.getCollection(IPlaygroundDAO.COLLECTION);
             isPlaygroundUpdated = playgrounds
-                    .update("{name : #", playgroundName)
-                    .with("{$push: {events : #}}", withOid(eventToBeAdded.getId()))
+                    .update("{name : #}", playgroundName)
+                    .with("{$push: {events : #}}", eventToBeAdded.getId())
                     .wasAcknowledged();
 
         }catch (DALException e){
@@ -193,7 +214,8 @@ public class Controller implements IController{
     @Override
     public Set<Message> getPlaygroundMessage(String playgroundName) throws DALException {
         // maybe optional Date as 2nd param
-        return playgroundDAO.getPlayground(playgroundName).getMessages();
+        //return playgroundDAO.getPlayground(playgroundName).getMessages();
+        return null;
     }
 
     @Override
@@ -262,30 +284,32 @@ public class Controller implements IController{
     }
 
     @Override
-    public User getUser(User activeUser, String userID) throws DALException {
-        if(!hasStatus(activeUser, Controller.ADMIN, Controller.PEDAGOGUE) || activeUser.getId().equals(userID)) {
+    public User getUser(User activeUser, String username) throws DALException {
+        if(!hasStatus(activeUser, Controller.ADMIN, Controller.PEDAGOGUE) || activeUser.getId().equals(username)) {
             throw new DALException(String.format("User %s does not have the required privileges", activeUser.getId()));
         }
 
         //do we allow to fetch all user information like password etc?
-        return userDAO.getUser(userID);
+        return getUser(username);
     }
     //todo arbejder også her
-    public User getUserWithUserName(String userName) throws DALException {
+    @Override
+    public User getUser(String username) throws DALException {
         //do we allow to fetch all user information like password etc?
-        return userDAO.getUserWithUserName(userName);
+        return userDAO.getUser(username);
     }
 
     @Override
-    public void createUser(User activeUser, User userToBeCreated) throws DALException {
+    public void createAdminUsers(User activeUser, User userToBeCreated) throws DALException {
         if(!hasStatus(activeUser, Controller.ADMIN)) {
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.ADMIN));
         }
-        userDAO.createUser(userToBeCreated);
+        registerUser(userToBeCreated);
     }
-    // todo - Overloading
-    public void createUser(User userToBeCreated) throws DALException {
-        userDAO.createUser(userToBeCreated);
+
+    @Override
+    public void registerUser(User userToBeRegistered) throws DALException {
+        userDAO.createUser(userToBeRegistered);
     }
 
     @Override
@@ -299,12 +323,25 @@ public class Controller implements IController{
     }
 
     @Override
-    public void deleteUser(User activeUser, String userID) throws DALException {
+    public void deleteUser(User activeUser, String username) throws DALException {
         if(!hasStatus(activeUser, Controller.ADMIN)) {
             throw new DALException(String.format("User %s does not have the required privileges", activeUser.getId()));
         }
 
-        userDAO.deleteUser(userID);
+        User user = userDAO.getUser(username);
+
+        if (!user.getPlaygroundsIDs().isEmpty()){
+            for (String id : user.getPlaygroundsIDs()){
+                removePedagogueFromPlayground(activeUser, id, username);
+            }
+        }
+
+        if (!user.getEvents().isEmpty())
+            for (String id : user.getEvents())
+
+
+
+        userDAO.deleteUser(username);
     }
 
     private boolean hasStatus(User activeUser, String... types){

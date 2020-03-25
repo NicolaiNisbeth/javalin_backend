@@ -44,27 +44,36 @@ public class UserDAO implements IUserDAO {
      * @return user
      * @throws DALException
      */
+    /*
     @Override
     public User getUser(String id) throws DALException {
         Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(COLLECTION);
 
-        User user = collection.findOne(new ObjectId(id)).as(User.class);
+        User user = collection.findOne("{}").as(User.class);
 
         if (user == null)
             throw new DALException(String.format("No user in %s collection with id %s", COLLECTION, id));
 
         return user;
     }
+     */
 
-    // todo arbejder her
-    public User getUserWithUserName(String name) throws DALException {
+    /**
+     * Get user with given id
+     *
+     * @param username
+     * @return user
+     * @throws DALException
+     */
+    @Override
+    public User getUser(String username) throws DALException {
         Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(COLLECTION);
-        User user = collection.findOne("{username: '" + name + "'}").as(User.class);
+        User user = collection.findOne("{username: #}", username).as(User.class);
 
         if (user == null)
-            throw new DALException(String.format("No user in %s collection with username %s", COLLECTION, name));
+            throw new DALException(String.format("No user in %s collection with username %s", COLLECTION, username));
         return user;
     }
 
@@ -123,22 +132,35 @@ public class UserDAO implements IUserDAO {
     /**
      * Delete user with given id
      *
-     * @param id
+     * @param username
      * @return true if deleted else false
      * @throws DALException
      */
     @Override
-    public boolean deleteUser(String id) throws DALException {
+    public boolean deleteUser(String username) throws DALException {
         Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(COLLECTION);
 
         boolean isUserDeleted = collection
-                .remove(new ObjectId(id))
+                .remove("{username : #}", username)
                 .wasAcknowledged();
 
         if (!isUserDeleted)
-            throw new DALException(String.format("No user in %s collection with id %s", COLLECTION, id));
+            throw new DALException(String.format("No user in %s collection with id %s", COLLECTION, username));
 
         return true;
+    }
+
+    @Override
+    public boolean deleteAllUsers() throws DALException {
+        Jongo jongo = new Jongo(DataSource.getDB());
+        try {
+            System.out.println(jongo.getCollection(COLLECTION)
+                    .remove("{}"));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

@@ -20,7 +20,7 @@ public class UserLogin {
     public static User isUserInDB(Bruger bruger) {
         User user = null;
         try {
-           user = Controller.getController().getUserWithUserName(bruger.brugernavn);
+           user = Controller.getInstance().getUser(bruger.brugernavn);
         } catch (DALException e) {
             System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");
 
@@ -32,7 +32,7 @@ public class UserLogin {
                     .status("pedagogue")
                     .build();
             try {
-                Controller.getController().createUser(user);
+                Controller.getInstance().registerUser(user);
             } catch (DALException e1) {
                 e1.printStackTrace();
             }

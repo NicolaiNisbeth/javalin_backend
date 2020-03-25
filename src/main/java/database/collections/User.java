@@ -26,8 +26,9 @@ public class User implements Serializable {
     private String username;
 
     private String[] phonenumbers;
-    private Set<Event> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
-    private String playgroundID;                  // many-to-1
+    private Set<String> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
+    private Set<String> playgroundsIDs = new HashSet<>();
+
 
     public Set<String> getPlaygroundsIDs() {
         return playgroundsIDs;
@@ -36,8 +37,6 @@ public class User implements Serializable {
     public void setPlaygroundsIDs(Set<String> playgroundsIDs) {
         this.playgroundsIDs = playgroundsIDs;
     }
-
-    private Set<String> playgroundsIDs = new HashSet<>();
 
 
     //This constructor is used for MongoDB mapping
@@ -71,7 +70,6 @@ public class User implements Serializable {
         this.password = builder.password;
         this.phonenumbers = builder.phonenumbers;
         this.events = builder.events;
-        this.playgroundID = builder.playgroundID;
         this.playgroundsIDs = builder.playgroundsIDs;
     }
 
@@ -131,20 +129,12 @@ public class User implements Serializable {
         this.phonenumbers = phonenumbers;
     }
 
-    public Set<Event> getEvents() {
+    public Set<String> getEvents() {
         return events;
     }
 
-    public void setEvents(Set<Event> events) {
+    public void setEvents(Set<String> events) {
         this.events = events;
-    }
-
-    public String getPlaygroundID() {
-        return playgroundID;
-    }
-
-    public void setPlaygroundID(String playgroundID) {
-        this.playgroundID = playgroundID;
     }
 
     @Override
@@ -173,7 +163,6 @@ public class User implements Serializable {
                 ", password='" + password + '\'' +
                 ", phoneNumbers=" + Arrays.toString(phonenumbers) +
                 ", events=" + events +
-                ", playground=" + playgroundID +
                 '}';
     }
 
@@ -184,9 +173,8 @@ public class User implements Serializable {
         private String email;
         private String password;
         private String[] phonenumbers;
-        private Set<Event> events = new HashSet<>();
+        private Set<String> events = new HashSet<>();
         private Set<String> playgroundsIDs = new HashSet<>();
-        private String playgroundID;
         private String firstname;
         private String lastname;
         private String id;
@@ -256,22 +244,12 @@ public class User implements Serializable {
 
         }
 
-        public Set<Event> getEvents() {
+        public Set<String> getEvents() {
             return events;
         }
 
-        public Builder setEvents(Set<Event> events) {
+        public Builder setEvents(Set<String> events) {
             this.events = events;
-            return this;
-
-        }
-
-        public String getPlaygroundID() {
-            return playgroundID;
-        }
-
-        public Builder setPlaygroundID(String playgroundID) {
-            this.playgroundID = playgroundID;
             return this;
 
         }
@@ -301,13 +279,8 @@ public class User implements Serializable {
             return this;
         }
 
-        public Builder events(Set<Event> events) {
+        public Builder events(Set<String> events) {
             this.events = events;
-            return this;
-        }
-
-        public Builder playground(String playground) {
-            this.playgroundID = playground;
             return this;
         }
 

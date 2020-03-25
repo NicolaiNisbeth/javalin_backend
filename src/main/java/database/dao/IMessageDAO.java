@@ -13,4 +13,6 @@ public interface IMessageDAO {
     List<Message> getMessageList()          throws DALException;
     boolean updateMessage(Message message)    throws DALException;
     boolean deleteMessage(String id)      throws DALException;
+
+    boolean deleteAllMessages() throws DALException;
 }

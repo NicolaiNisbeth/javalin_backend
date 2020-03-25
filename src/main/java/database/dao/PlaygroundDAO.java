@@ -6,12 +6,14 @@ import database.collections.Playground;
 import com.mongodb.*;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
+import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
 
 import static org.jongo.Oid.withOid;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class PlaygroundDAO implements IPlaygroundDAO {
@@ -25,9 +27,11 @@ public class PlaygroundDAO implements IPlaygroundDAO {
     }
 
     @Override
-    public Playground getPlayground(String id) throws DALException {
+    public Playground getPlayground(String playgroundName) throws DALException {
         Jongo jongo = new Jongo(DataSource.getDB());
-        return jongo.getCollection(COLLECTION).findOne(withOid(id)).as(Playground.class);
+        MongoCollection collection = jongo.getCollection(COLLECTION);
+        Playground playground = collection.findOne("{name : #}", playgroundName).as(Playground.class);
+        return playground;
     }
 
     @Override
@@ -60,11 +64,11 @@ public class PlaygroundDAO implements IPlaygroundDAO {
     }
 
     @Override
-    public boolean deletePlayground(String id) throws DALException {
+    public boolean deletePlayground(String playgroundName) throws DALException {
         Jongo jongo = new Jongo(DataSource.getDB());
         try {
             System.out.println(jongo.getCollection(COLLECTION)
-                    .remove(new ObjectId(id)));
+                    .remove("{name : #}", playgroundName));
             return true;
         } catch (Exception e) {
             e.printStackTrace();

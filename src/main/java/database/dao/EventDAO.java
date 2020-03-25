@@ -122,4 +122,17 @@ public class EventDAO implements IEventDAO{
 
         return true;
     }
+
+    @Override
+    public boolean deleteAllEvents() throws DALException {
+        Jongo jongo = new Jongo(DataSource.getDB());
+        try {
+            System.out.println(jongo.getCollection(COLLECTION)
+                    .remove("{}"));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

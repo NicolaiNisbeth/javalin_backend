@@ -22,9 +22,9 @@ public class Playground {
         private int streetNumber;
         private String commune;
         private int zipCode;
-        private Set<User> assignedPedagogue = new HashSet<>();
-        private Set<Event> events = new TreeSet<>();
-        private Set<Message> messages = new TreeSet<>();
+        private Set<String> assignedPedagogue = new HashSet<>();
+        private Set<String> events = new HashSet<>();
+        private Set<String> messages = new HashSet<>();
 
         public Builder(String name) {
             this.name = name;
@@ -110,29 +110,29 @@ public class Playground {
             return this;
         }
 
-        public Set<User> getAssignedPedagogue() {
+        public Set<String> getAssignedPedagogue() {
             return assignedPedagogue;
         }
 
-        public Builder setAssignedPedagogue(Set<User> assignedPedagogue) {
+        public Builder setAssignedPedagogue(Set<String> assignedPedagogue) {
             this.assignedPedagogue = assignedPedagogue;
             return this;
         }
 
-        public Set<Event> getEvents() {
+        public Set<String> getEvents() {
             return events;
         }
 
-        public Builder setEvents(Set<Event> events) {
+        public Builder setEvents(Set<String> events) {
             this.events = events;
             return this;
         }
 
-        public Set<Message> getMessages() {
+        public Set<String> getMessages() {
             return messages;
         }
 
-        public Builder setMessages(Set<Message> messages) {
+        public Builder setMessages(Set<String> messages) {
             this.messages = messages;
             return this;
         }
@@ -144,6 +144,7 @@ public class Playground {
             playground.name = this.name;
             playground.imagePath = this.imagePath;
             playground.toiletPossibilities = this.toiletPossibilities;
+            playground.hasSoccerField = this.hasSoccerField;
             playground.streetName = this.streetName;
             playground.streetNumber = this.streetNumber;
             playground.commune = this.commune;
@@ -167,9 +168,9 @@ public class Playground {
     private int streetNumber;
     private String commune;
     private int zipCode;
-    private Set<User> assignedPedagogue = new HashSet<>();
-    private Set<Event> events = new TreeSet<>();
-    private Set<Message> messages = new TreeSet<>();
+    private Set<String> assignedPedagogue = new HashSet<>();
+    private Set<String> events = new HashSet<>();
+    private Set<String> messages = new HashSet<>();
 
 
     public boolean isHasSoccerField() {
@@ -182,22 +183,21 @@ public class Playground {
 
     @Override
     public String toString() {
-        for (User user : assignedPedagogue) {
-            System.out.println(user);
-        }
-
         return "Playground{" +
-                "_id='" + id + '\'' +
+                "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", imagePath='" + imagePath + '\'' +
                 ", toiletPossibilities=" + toiletPossibilities +
+                ", hasSoccerField=" + hasSoccerField +
                 ", streetName='" + streetName + '\'' +
                 ", streetNumber=" + streetNumber +
                 ", commune='" + commune + '\'' +
                 ", zipCode=" + zipCode +
+                ", assignedPedagogue=" + assignedPedagogue +
+                ", events=" + events +
+                ", messages=" + messages +
                 '}';
     }
-
 
     public String getId() {
         return id;
@@ -263,27 +263,27 @@ public class Playground {
         this.zipCode = zipCode;
     }
 
-    public Set<User> getAssignedPedagogue() {
+    public Set<String> getAssignedPedagogue() {
         return assignedPedagogue;
     }
 
-    public void setAssignedPedagogue(Set<User> assignedPedagogue) {
+    public void setAssignedPedagogue(Set<String> assignedPedagogue) {
         this.assignedPedagogue = assignedPedagogue;
     }
 
-    public Set<Event> getEvents() {
+    public Set<String> getEvents() {
         return events;
     }
 
-    public void setEvents(Set<Event> events) {
+    public void setEvents(Set<String> events) {
         this.events = events;
     }
 
-    public Set<Message> getMessages() {
+    public Set<String> getMessages() {
         return messages;
     }
 
-    public void setMessages(Set<Message> messages) {
+    public void setMessages(Set<String> messages) {
         this.messages = messages;
     }
 

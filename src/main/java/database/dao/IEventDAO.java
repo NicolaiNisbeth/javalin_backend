@@ -13,4 +13,6 @@ public interface IEventDAO {
     List<Event> getEventList()          throws DALException;
     boolean updateEvent(Event event)    throws DALException;
     boolean deleteEvent(String id)      throws DALException;
+
+    boolean deleteAllEvents() throws DALException;
 }

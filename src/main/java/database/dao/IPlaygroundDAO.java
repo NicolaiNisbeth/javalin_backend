@@ -13,4 +13,5 @@ public interface IPlaygroundDAO {
     List<Playground> getPlaygroundList()                throws DALException;
     boolean updatePlayground(Playground playground)     throws DALException;
     boolean deletePlayground(String id)                 throws DALException;
+    boolean deleteAllPlaygrounds()                      throws DALException;
 }
