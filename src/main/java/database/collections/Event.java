@@ -130,6 +130,7 @@ public class Event implements Comparable<Event>{
     }
 
     public static class Builder {
+        private String id;
         private String name;
         private String imagePath;
         private int participants;
@@ -138,8 +139,14 @@ public class Event implements Comparable<Event>{
         private Set<User> assignedUsers;
         private String playground;
 
-        public Builder(String name){
+        public Builder(String id){
+            this.id = id;
+        }
+
+
+        public Builder name(String name){
             this.name = name;
+            return this;
         }
 
         public Builder imagePath(String imagePath) {

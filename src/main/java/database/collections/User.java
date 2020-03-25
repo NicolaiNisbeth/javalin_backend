@@ -26,11 +26,11 @@ public class User implements Serializable {
     private String username;
 
     private String[] phonenumbers;
-    private Set<String> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
+    private Set<Event> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
     private Set<String> playgroundsIDs = new HashSet<>();
 
 
-    public Set<String> getPlaygroundsIDs() {
+    public Set<String> getPlaygroundNames() {
         return playgroundsIDs;
     }
 
@@ -129,11 +129,11 @@ public class User implements Serializable {
         this.phonenumbers = phonenumbers;
     }
 
-    public Set<String> getEvents() {
+    public Set<Event> getEvents() {
         return events;
     }
 
-    public void setEvents(Set<String> events) {
+    public void setEvents(Set<Event> events) {
         this.events = events;
     }
 
@@ -173,7 +173,7 @@ public class User implements Serializable {
         private String email;
         private String password;
         private String[] phonenumbers;
-        private Set<String> events = new HashSet<>();
+        private Set<Event> events = new HashSet<>();
         private Set<String> playgroundsIDs = new HashSet<>();
         private String firstname;
         private String lastname;
@@ -244,11 +244,11 @@ public class User implements Serializable {
 
         }
 
-        public Set<String> getEvents() {
+        public Set<Event> getEvents() {
             return events;
         }
 
-        public Builder setEvents(Set<String> events) {
+        public Builder setEvents(Set<Event> events) {
             this.events = events;
             return this;
 
@@ -279,7 +279,7 @@ public class User implements Serializable {
             return this;
         }
 
-        public Builder events(Set<String> events) {
+        public Builder events(Set<Event> events) {
             this.events = events;
             return this;
         }

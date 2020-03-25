@@ -6,7 +6,6 @@ import database.collections.Event;
 import database.collections.Message;
 import database.collections.Playground;
 import database.collections.User;
-import javafx.util.Pair;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 
@@ -78,7 +77,7 @@ public class Controller implements IController{
         try {
             // add playground id to user
             User user = userDAO.getUser(pedagogueID);
-            user.getPlaygroundsIDs().add(playgroundName);
+            user.getPlaygroundNames().add(playgroundName);
             isUserUpdated = userDAO.updateUser(user);
 
             // add user id to playground
@@ -106,7 +105,7 @@ public class Controller implements IController{
         try {
             // remove playground id from user
             User user = userDAO.getUser(pedagogueUsername);
-            user.getPlaygroundsIDs().remove(playgroundName);
+            user.getPlaygroundNames().remove(playgroundName);
             isUserUpdated = userDAO.updateUser(user);
 
             // remove user id from playground
@@ -125,12 +124,15 @@ public class Controller implements IController{
     }
 
 
+    /*
     private boolean removeInstanceFromField(MongoCollection collection, Pair<String, String> keyInstance, Pair<String, String> fieldRemove){
         return collection
                 .update("{" +keyInstance.getKey()+ " : #}", keyInstance.getValue())
                 .with("{$pull : {" + fieldRemove.getKey()+ " : #}}", fieldRemove.getValue())
                 .wasAcknowledged();
     }
+
+     */
 
     @Override
     public Set<Event> getEventsInPlayground(String playgroundName) throws DALException {
@@ -330,16 +332,11 @@ public class Controller implements IController{
 
         User user = userDAO.getUser(username);
 
-        if (!user.getPlaygroundsIDs().isEmpty()){
-            for (String id : user.getPlaygroundsIDs()){
+        if (!user.getPlaygroundNames().isEmpty()){
+            for (String id : user.getPlaygroundNames()){
                 removePedagogueFromPlayground(activeUser, id, username);
             }
         }
-
-        if (!user.getEvents().isEmpty())
-            for (String id : user.getEvents())
-
-
 
         userDAO.deleteUser(username);
     }

@@ -22,9 +22,9 @@ public class Playground {
         private int streetNumber;
         private String commune;
         private int zipCode;
-        private Set<String> assignedPedagogue = new HashSet<>();
-        private Set<String> events = new HashSet<>();
-        private Set<String> messages = new HashSet<>();
+        private Set<User> assignedPedagogue = new HashSet<>();
+        private Set<Event> events = new HashSet<>();
+        private Set<Message> messages = new HashSet<>();
 
         public Builder(String name) {
             this.name = name;
@@ -110,29 +110,29 @@ public class Playground {
             return this;
         }
 
-        public Set<String> getAssignedPedagogue() {
+        public Set<User> getAssignedPedagogue() {
             return assignedPedagogue;
         }
 
-        public Builder setAssignedPedagogue(Set<String> assignedPedagogue) {
+        public Builder setAssignedPedagogue(Set<User> assignedPedagogue) {
             this.assignedPedagogue = assignedPedagogue;
             return this;
         }
 
-        public Set<String> getEvents() {
+        public Set<Event> getEvents() {
             return events;
         }
 
-        public Builder setEvents(Set<String> events) {
+        public Builder setEvents(Set<Event> events) {
             this.events = events;
             return this;
         }
 
-        public Set<String> getMessages() {
+        public Set<Message> getMessages() {
             return messages;
         }
 
-        public Builder setMessages(Set<String> messages) {
+        public Builder setMessages(Set<Message> messages) {
             this.messages = messages;
             return this;
         }
@@ -168,9 +168,9 @@ public class Playground {
     private int streetNumber;
     private String commune;
     private int zipCode;
-    private Set<String> assignedPedagogue = new HashSet<>();
-    private Set<String> events = new HashSet<>();
-    private Set<String> messages = new HashSet<>();
+    private Set<User> assignedPedagogue = new HashSet<>();
+    private Set<Event> events = new HashSet<>();
+    private Set<Message> messages = new HashSet<>();
 
 
     public boolean isHasSoccerField() {
@@ -263,27 +263,27 @@ public class Playground {
         this.zipCode = zipCode;
     }
 
-    public Set<String> getAssignedPedagogue() {
+    public Set<User> getAssignedPedagogue() {
         return assignedPedagogue;
     }
 
-    public void setAssignedPedagogue(Set<String> assignedPedagogue) {
+    public void setAssignedPedagogue(Set<User> assignedPedagogue) {
         this.assignedPedagogue = assignedPedagogue;
     }
 
-    public Set<String> getEvents() {
+    public Set<Event> getEvents() {
         return events;
     }
 
-    public void setEvents(Set<String> events) {
+    public void setEvents(Set<Event> events) {
         this.events = events;
     }
 
-    public Set<String> getMessages() {
+    public Set<Message> getMessages() {
         return messages;
     }
 
-    public void setMessages(Set<String> messages) {
+    public void setMessages(Set<Message> messages) {
         this.messages = messages;
     }
 
