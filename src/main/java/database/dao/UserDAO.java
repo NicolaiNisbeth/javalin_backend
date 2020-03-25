@@ -110,7 +110,7 @@ public class UserDAO implements IUserDAO {
     @Override
     public boolean updateUser(User user) throws DALException {
         if (user == null)
-            throw new DALException(String.format("Can't update user in %s collection when input user is null", COLLECTION));
+            throw new DALException(String.format("Can't update user in %s collection when param is null", COLLECTION));
 
         if (user.getId() == null)
             throw new DALException(String.format("Can't find user to be updated in %s collection when id is null", COLLECTION));

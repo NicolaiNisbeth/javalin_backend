@@ -4,6 +4,7 @@ import org.jongo.marshall.jackson.oid.MongoId;
 import org.jongo.marshall.jackson.oid.MongoObjectId;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -172,6 +173,9 @@ public class Playground {
     private Set<Event> events = new HashSet<>();
     private Set<Message> messages = new HashSet<>();
 
+    private Playground() {
+    }
+
 
     public boolean isHasSoccerField() {
         return hasSoccerField;
@@ -287,6 +291,27 @@ public class Playground {
         this.messages = messages;
     }
 
-    private Playground() {
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Playground that = (Playground) o;
+
+        if (toiletPossibilities != that.toiletPossibilities) return false;
+        if (hasSoccerField != that.hasSoccerField) return false;
+        if (streetNumber != that.streetNumber) return false;
+        if (zipCode != that.zipCode) return false;
+        if (!Objects.equals(id, that.id)) return false;
+        if (!Objects.equals(name, that.name)) return false;
+        if (!Objects.equals(imagePath, that.imagePath)) return false;
+        if (!Objects.equals(streetName, that.streetName)) return false;
+        if (!Objects.equals(commune, that.commune)) return false;
+        if (!Objects.equals(assignedPedagogue, that.assignedPedagogue))
+            return false;
+        if (!Objects.equals(events, that.events)) return false;
+        return Objects.equals(messages, that.messages);
     }
 }

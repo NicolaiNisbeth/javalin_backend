@@ -15,15 +15,15 @@ public interface IBeta {
 
 
     // READ
-    List<Playground> getPlaygrounds();
-    List<User> getUsers();
-    List<Event> getPlaygroundEvents(String playgroundName);
-    List<Message> getPlaygroundMessages(String playgroundName);
-
     Playground getPlayground(String playgroundName);
     User getUser(String username);
     Event getEvent(String eventID);
     Message getMessage(String messageID);
+
+    List<Playground> getPlaygrounds();
+    List<User> getUsers();
+    List<Event> getPlaygroundEvents(String playgroundName);
+    List<Message> getPlaygroundMessages(String playgroundName);
 
 
     // UPDATE
