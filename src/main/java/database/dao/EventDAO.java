@@ -1,5 +1,6 @@
 package database.dao;
 
+import com.mongodb.WriteResult;
 import database.DALException;
 import database.DataSource;
 import database.collections.Event;
@@ -19,19 +20,19 @@ public class EventDAO implements IEventDAO{
      * @throws DALException
      */
     @Override
-    public boolean createEvent(Event event) throws DALException {
+    public WriteResult createEvent(Event event) throws DALException {
         if (event == null)
             throw new DALException(String.format("Can't create event in %s collection when event is null", COLLECTION));
 
         Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(COLLECTION);
 
-        boolean isEventCreated = collection.save(event).wasAcknowledged();
+        WriteResult ws = collection.save(event);
 
-        if (!isEventCreated)
+        if (ws.getN() == 0)
             throw new DALException(String.format("Event can't be created in %s collection", COLLECTION));
 
-        return true;
+        return ws;
     }
 
     /**

@@ -26,6 +26,7 @@ public class Event implements Comparable<Event>{
     public Event(){}
 
     private Event(Builder builder){
+        this.id = builder.id;
         this.name = builder.name;
         this.imagepath = builder.imagepath;
         this.participants = builder.participants;
@@ -139,10 +140,13 @@ public class Event implements Comparable<Event>{
         private Set<User> assignedUsers = new HashSet<>();  // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
         private String playground;                      // 1-to-many
 
-        public Builder(String id){
-            this.id = id;
+        public Builder(){
         }
 
+        public Builder id(String id){
+            this.id = id;
+            return this;
+        }
 
         public Builder name(String name){
             this.name = name;

@@ -27,7 +27,8 @@ class EventDAOTest {
 
     @Test
     void createEvent_DeleteEvent() throws DALException {
-        Event event = new Event.Builder("Football")
+        Event event = new Event.Builder()
+                .name("Football")
                 .imagePath("asdasd9asdsad.jpg")
                 .participants(20)
                 .description("Football near the bay...")
@@ -50,14 +51,16 @@ class EventDAOTest {
 
     @Test
     void createEvents_getEventList_deleteEvents() throws DALException {
-        Event event1 = new Event.Builder("Football")
+        Event event1 = new Event.Builder()
+                .name("Football")
                 .imagePath("asdasd9asdsad.jpg")
                 .participants(20)
                 .description("Football near the bay...")
                 .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
-        Event event2 = new Event.Builder("Boardgames")
+        Event event2 = new Event.Builder()
+                .name("Boardgames")
                 .imagePath("asd23asd9asds23ad.jpg")
                 .participants(3)
                 .description("Boardgames in library...")
@@ -79,7 +82,8 @@ class EventDAOTest {
 
     @Test
     void createEvent_UpdateEvent_deleteEvent() throws DALException {
-        Event event = new Event.Builder("Football")
+        Event event = new Event.Builder()
+                .name("Football")
                 .imagePath("asdasd9asdsad.jpg")
                 .participants(20)
                 .description("Football near the bay...")

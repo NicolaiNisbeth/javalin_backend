@@ -1,5 +1,6 @@
 package database.dao;
 
+import com.mongodb.WriteResult;
 import database.collections.Event;
 import database.collections.Message;
 import database.collections.Playground;
@@ -41,7 +42,7 @@ public interface IBeta {
     // ASSOCIATIONS
     boolean addPedagogueToPlayground(String plagroundName, String username);
     boolean addUserToPlaygroundEvent(String eventID, String username);
-    boolean addPlaygroundEvent(String playgroundName, Event event);
+    WriteResult addPlaygroundEvent(String playgroundName, Event event);
     boolean addPlaygroundMessage(String playgroundName, Message message);
 
     boolean removePedagogueFromPlayground(String playgroundName, String username);

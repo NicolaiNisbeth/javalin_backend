@@ -1,5 +1,6 @@
 package database.dao;
 
+import com.mongodb.WriteResult;
 import database.DALException;
 import database.DataSource;
 import database.collections.Event;
@@ -146,11 +147,11 @@ public class Controller implements IController{
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.PEDAGOGUE));
 
 
-        boolean isEventCreated = false, isPlaygroundUpdated = false;
+        boolean isPlaygroundUpdated = false;
         try {
             // create event with playground reference
             eventToBeAdded.setPlayground(playgroundName);
-            isEventCreated = eventDAO.createEvent(eventToBeAdded); // TODO: make Result.class with {Success, ID} or Failure
+            WriteResult ws = eventDAO.createEvent(eventToBeAdded);
 
             // update existing playground with event reference
             Jongo jongo = new Jongo(DataSource.getDB());
@@ -164,7 +165,7 @@ public class Controller implements IController{
             e.printStackTrace();
         }
 
-        return isEventCreated && isPlaygroundUpdated;
+        return isPlaygroundUpdated;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package database.dao;
 
+import com.mongodb.WriteResult;
 import database.collections.*;
 import org.junit.jupiter.api.*;
 
@@ -223,7 +224,7 @@ class BetaTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        Event playgroundEvent = new Event.Builder("")
+        Event playgroundEvent = new Event.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
                 .participants(30)
@@ -329,7 +330,7 @@ class BetaTest {
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
 
-        Event playgroundEvent = new Event.Builder("")
+        Event playgroundEvent = new Event.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
                 .participants(30)
@@ -383,6 +384,60 @@ class BetaTest {
 
     @Test
     void deleteUser() {
+        Playground playground = new Playground.Builder("Vandlegeparken")
+                .setStreetName("Agervænget")
+                .setStreetNumber(34)
+                .setZipCode(3650)
+                .setCommune("Egedal")
+                .setToiletPossibilities(true)
+                .setHasSoccerField(true)
+                .setImagePath("asd97a9s8d89asd.jpg")
+                .build();
+
+        User user = new User.Builder("s175565")
+                .setFirstname("Nicolai")
+                .setLastname("Nisbeth")
+                .status("admin")
+                .email("s175565@student.dtu.dk")
+                .password("nicolai123456789")
+                .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
+                .imagePath("asd9as9d8a89sd.jpg")
+                .build();
+
+        Event playgroundEvent = new Event.Builder()
+                .name("Fodbold og snobrød")
+                .description("Fodbold i lystrup park")
+                .participants(30)
+                .imagePath("asd98asd89asd.jpg")
+                .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
+                .build();
+
+        beta.createPlayground(playground);
+        beta.createUser(user);
+
+        // add references
+        beta.addPedagogueToPlayground(playground.getName(), user.getUsername());
+
+        WriteResult eventResult = beta.addPlaygroundEvent(playground.getName(), playgroundEvent);
+        String eventID = eventResult.getUpsertedId().toString();
+        beta.addUserToPlaygroundEvent(eventID, user.getUsername());
+
+
+        // confirm the different references
+        User fetchedUser = beta.getUser(user.getUsername());
+        Playground fetchedPlayground = beta.getPlayground(playground.getName());
+        Event fetchedEvent = beta.getEvent(eventID);
+
+        Assertions.assertAll(
+                () -> assertEquals(eventID, fetchedUser.getEvents().iterator().next().getId()),
+                () -> assertEquals(playground.getName(), fetchedUser.getPlaygroundNames().iterator().next()),
+                () ->
+        );
+
+
+
+
+        // check that user reference is removed from playground and event
     }
 
     @Test
@@ -406,7 +461,7 @@ class BetaTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        Event playgroundEvent = new Event.Builder("")
+        Event playgroundEvent = new Event.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
                 .participants(30)
