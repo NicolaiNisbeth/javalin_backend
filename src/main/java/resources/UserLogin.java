@@ -18,12 +18,10 @@ public class UserLogin {
     private static Brugeradmin ba;
 
     public static User isUserInDB(Bruger bruger) {
-        User user = null;
-        try {
-           user = Controller.getInstance().getUser(bruger.brugernavn);
-        } catch (DALException e) {
-            System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");
+        User user = Controller.getInstance().getUser(bruger.brugernavn);
 
+        if (user == null){
+            System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");
             user = new User.Builder(bruger.brugernavn)
                     .setFirstname(bruger.fornavn)
                     .setLastname(bruger.efternavn)
@@ -31,12 +29,10 @@ public class UserLogin {
                     .password(bruger.adgangskode)
                     .status("pedagogue")
                     .build();
-            try {
-                Controller.getInstance().registerUser(user);
-            } catch (DALException e1) {
-                e1.printStackTrace();
-            }
+
+            Controller.getInstance().createUser(user);
         }
+
         return user;
     }
 

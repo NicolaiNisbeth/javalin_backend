@@ -46,7 +46,7 @@ public class Main {
 
         //NJL - er i brug
         app.get("rest/playground_list", ctx ->
-                ctx.json(Controller.getInstance().getAllPlaygrounds()).contentType("json"));
+                ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json"));
         app.post("rest/user_login", ctx ->
                 ctx.json(UserAdminResource.verifyLogin(ctx.body(), ctx)).contentType("json"));
         app.post("rest/create_user", ctx ->
@@ -54,7 +54,7 @@ public class Main {
         app.put("rest/update_user", ctx ->
                 ctx.result(UserAdminResource.createUser(ctx.body(), ctx)));
         app.get("rest/user_list", ctx ->
-                ctx.json(Controller.getController().getAllUsers()).contentType("json"));
+                ctx.json(Controller.getInstance().getUsers()).contentType("json"));
         app.post("rest/remove_user", ctx ->
                 ctx.result(UserAdminResource.deleteUser(ctx.body(), ctx)));
 
