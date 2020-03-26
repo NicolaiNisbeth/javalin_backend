@@ -73,8 +73,8 @@ class PlaygroundDAOTest {
     @Test
     void flereTing() throws DALException {
         Playground playground =
-        playgroundDAO.getPlayground("5e75205dd466d77198dda9f1");
-        String im =  "https://scontent-amt2-1.xx.fbcdn.net/v/t1.0-9/67077432_101575182585" +
+                playgroundDAO.getPlayground("5e75205dd466d77198dda9f1");
+        String im = "https://scontent-amt2-1.xx.fbcdn.net/v/t1.0-9/67077432_101575182585" +
                 "57915_6578597722201260032_n.jpg?_nc_cat=108&_nc_sid=110474&_nc_ohc=" +
                 "uPMRVS0UttoAX8LRLn0&_nc_ht=scontent-amt2-1.xx&oh=afd" +
                 "560c10b71f35881c2552475615e4e&oe=5E9E4B50";
@@ -85,9 +85,6 @@ class PlaygroundDAOTest {
 
     @Test
     void updatePlayground() throws DALException {
-
-
-
         Playground playground = playgroundDAO.getPlayground("5e7500a29c55065cb293b635");
         System.out.println(playground);
         playground.setName("Ny plads");

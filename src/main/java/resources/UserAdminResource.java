@@ -5,6 +5,7 @@ import brugerautorisation.transport.rmi.Brugeradmin;
 import database.DALException;
 import database.collections.User;
 import database.dao.Controller;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import io.javalin.http.Context;
@@ -13,9 +14,33 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class UserLogin {
+public class UserAdminResource {
     private static Brugeradmin ba;
+
+    public static User verifyLogin(String request, Context ctx) {
+        JSONObject jsonObject = new JSONObject(request);
+        String username = jsonObject.getString("username");
+        String password = jsonObject.getString("password");
+        try {
+            ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
+        } catch (NotBoundException | MalformedURLException | RemoteException e) {
+            e.printStackTrace();
+        }
+        Bruger bruger = null;
+        try {
+            bruger = ba.hentBruger(username, password);
+            if (bruger != null) {
+                return findUserInDB(bruger);
+            }
+
+        } catch (Exception e) {
+            ctx.status(401).result("Unauthorized");
+        }
+        return null;
+    }
 
     // Metoden opretter brugeren i databasen, hvis han ikke allerede findes.
     public static User findUserInDB(Bruger bruger) {
@@ -42,12 +67,14 @@ public class UserLogin {
 
         //Brugeren har ikke selv logget ind før og skal derfor ikke oprettes i DB men opdateres
         if (!user.isLoggedIn()) {
+
             user.setFirstname(bruger.fornavn);
             user.setLastname(bruger.efternavn);
             user.setEmail(bruger.email);
             user.setPassword(bruger.adgangskode);
             user.setStatus(user.getStatus());
             user.setWebsite(bruger.ekstraFelter.get("webside").toString());
+            user.setLoggedIn(true);
 
             try {
                 Controller.getController().updateUser(user);
@@ -58,60 +85,17 @@ public class UserLogin {
         return user;
     }
 
-
-    public static User verificerLogin(String request, Context ctx) {
-        JSONObject jsonObject = new JSONObject(request);
-        String username = jsonObject.getString("username");
-        String password = jsonObject.getString("password");
-        try {
-            ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
-        } catch (NotBoundException | MalformedURLException | RemoteException e) {
-            e.printStackTrace();
-        }
-        Bruger bruger = null;
-        try {
-            bruger = ba.hentBruger(username, password);
-            if (bruger != null) {
-                return findUserInDB(bruger);
-            }
-
-        } catch (Exception e) {
-            ctx.status(401).result("Unauthorized");
-        }
-        return null;
-    }
-
- /*   public static User verificerLogin(String request, Context ctx) {
-        JSONObject jsonObject = new JSONObject(request);
-        String username = jsonObject.getString("username");
-        String password = jsonObject.getString("password");
-        try {
-            ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
-        } catch (NotBoundException | MalformedURLException | RemoteException e) {
-            e.printStackTrace();
-        }
-        Bruger user = null;
-        try {
-            user = ba.hentBruger(username, password);
-
-            if (user != null) {
-                //todo kald til controller
-            }
-
-        } catch (Exception e) {
-            ctx.status(401).result("Unauthorized");
-        }
-        return findUserInDB(user);
-    }*/
-
     //todo få sat nogle ordentlige status koder på
+    //bruges af admins til at give brugere rettigheder - INDEN de selv er logget på første gang
     public static String createUser(String request, Context ctx) {
-
         JSONObject jsonObject = new JSONObject(request);
         String username = jsonObject.getString("username");
         String password = jsonObject.getString("password");
         String usernameOfNewUser = jsonObject.getString("usernameOfNewUser");
         String statusOfNewUser = jsonObject.getString("statusOfNewUser");
+        JSONArray adminRightsOfNewUser = jsonObject.getJSONArray("userAdminRights");
+
+        //List<Object> adminRightsOfNewUser = jsonObject.getJSONArray("userAdminRights").toList();
 
         User admin = null;
         User newUser = null;
@@ -126,6 +110,9 @@ public class UserLogin {
                 newUser = new User.Builder(usernameOfNewUser)
                         .status(statusOfNewUser)
                         .build();
+                for (Object id : adminRightsOfNewUser) {
+                    newUser.getPlaygroundsIDs().add(id.toString());
+                }
                 if (Controller.getController().createUser(admin, newUser)) {
                     ctx.status(401).result("User was created");
                 } else {
@@ -141,15 +128,49 @@ public class UserLogin {
         return "oprettet";
     }
 
+    //todo få sat nogle ordentlige status koder på
+    //bruges af admins til at give brugere rettigheder - EFTER de selv er logget på første gang
+    public static String updateUser(String request, Context ctx) {
+        JSONObject jsonObject = new JSONObject(request);
+        String adminUsername = jsonObject.getString("username");
+        String password = jsonObject.getString("password");
+        String usernameOfNewUser = jsonObject.getString("usernameOfNewUser");
+        String statusOfNewUser = jsonObject.getString("statusOfNewUser");
+        JSONArray adminRightsOfNewUser = jsonObject.getJSONArray("userAdminRights");
+
+        User admin = null;
+        User userToUpdate = null;
+
+        try {
+            admin = Controller.getController().getUserWithUserName(adminUsername);
+            if (!admin.getPassword().equalsIgnoreCase(password)) {
+                ctx.status(401).result("Unauthorized - password er ikke korrekt");
+                return "ikke updated";
+            } else {
+                admin = Controller.getController().getUserWithUserName(adminUsername);
+                userToUpdate = new User.Builder(usernameOfNewUser)
+                        .status(statusOfNewUser)
+                        .build();
+                for (Object id : adminRightsOfNewUser) {
+                    userToUpdate.getPlaygroundsIDs().add(id.toString());
+                }
+                if (Controller.getController().updateUser(admin, userToUpdate)) {
+                    ctx.status(401).result("User was updated");
+                } else {
+                    ctx.status(401).result("User was not updated");
+                    return "ikke updated";
+                }
+            }
+        } catch (DALException e) {
+            e.printStackTrace();
+            ctx.status(401).result("Unauthorized");
+            return "ikke updated";
+        }
+        return "updated";
+    }
 
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
-        Bruger user;
-        ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
-        try {
-            user = ba.hentBruger("s185020", "njl_nykode");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
     }
 }
 

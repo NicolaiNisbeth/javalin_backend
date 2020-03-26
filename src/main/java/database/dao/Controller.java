@@ -292,13 +292,14 @@ public class Controller implements IController {
     }
 
     @Override
-    public void updateUser(User activeUser, User updatedUser) throws DALException {
+    public boolean updateUser(User activeUser, User updatedUser) throws DALException {
         if (!hasStatus(activeUser, Controller.ADMIN) || activeUser.getId().equals(updatedUser.getId())) {
             throw new DALException(String.format("User %s does not have the required privileges", activeUser.getId()));
         }
 
         // do we allow updates on all fields? godt spørgsmål :)
         userDAO.updateUser(updatedUser);
+        return true;
     }
 
     //todo NJL
@@ -322,5 +323,15 @@ public class Controller implements IController {
                 return true;
 
         return false;
+    }
+
+    public List <User> getAllUsers() {
+        List<User> users = null;
+        try {
+            users = userDAO.getUserList();
+        } catch (DALException e) {
+            e.printStackTrace();
+        }
+        return users;
     }
 }

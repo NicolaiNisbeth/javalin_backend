@@ -95,7 +95,6 @@ class UserDAOTest {
 
         event.setPassword("123456789");
         userDAO.updateUser(event);
-
         User updatedUser = userDAO.getUser(event.getId());
         Assertions.assertEquals("123456789", updatedUser.getPassword());
 
@@ -113,21 +112,29 @@ class UserDAOTest {
     //Larsens test
     @Test
     void getUserWithName() throws DALException {
-       /* User user1 = new User.Builder("s185020")
-                .status("admin")
+
+        User user1 = new User.Builder("s123")
+                .status("pedagog")
                 .password("123")
-                .setFirstname("Nicolai")
-                .setLastname("Larsen")
+                .setFirstname("Lars")
+                .setLastname("Jensen")
                 .build();
-        userDAO.createUser(user1);*/
+        userDAO.createUser(user1);
+        user1 = new User.Builder("s123")
+                .status("pedagog")
+                .password("123")
+                .setFirstname("Svend")
+                .setLastname("Blåtand")
+                .build();
+        userDAO.createUser(user1);
      /*  User user = userDAO.getUserWithUserName("s185020");
        user.setStatus("admin");
         userDAO.updateUser(user);*/
 
-        for (User user2 : userDAO.getUserList()) {
+        /*for (User user2 : userDAO.getUserList()) {
             //userDAO.deleteUser(user.getId());
             System.out.println(user2);
-        }
+        }*/
 
         //userDAO.deleteUser("5e78a7ad8e38fd0fe1f01321");
         //System.out.println(userDAO.getUserWithUserName("s185020") );
