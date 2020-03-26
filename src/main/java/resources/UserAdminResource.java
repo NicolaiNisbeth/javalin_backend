@@ -169,8 +169,34 @@ public class UserAdminResource {
         return "updated";
     }
 
-    public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
+    public static String deleteUser(String body, Context ctx) {
+        JSONObject jsonObject = new JSONObject(body);
+        String adminUsername = jsonObject.getString("username");
+        String password = jsonObject.getString("password");
+        String usernameOfNewUser = jsonObject.getString("usernameToBeDeleted");
+        // todo slet ham fra legeplader også
+        //  JSONArray adminRightsOfNewUser = jsonObject.getJSONArray("userAdminRights");
 
+        User admin = null;
+        User userToUpdate = null;
+
+        try {
+            admin = Controller.getController().getUserWithUserName(adminUsername);
+            if (!admin.getPassword().equalsIgnoreCase(password)) {
+                ctx.status(401).result("Unauthorized - password er ikke korrekt");
+                return "ikke updated";
+            } else {
+                admin = Controller.getController().getUserWithUserName(adminUsername);
+
+                String usName = Controller.getController().getUserWithUserName(usernameOfNewUser).getId();
+                Controller.getController().deleteUser(admin, usName);
+            }
+        } catch (DALException e) {
+            e.printStackTrace();
+            ctx.status(401).result("Unauthorized");
+            return "ikke updated";
+        }
+        return "updated";
     }
 }
 

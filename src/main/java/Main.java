@@ -55,6 +55,9 @@ public class Main {
                 ctx.result(UserAdminResource.createUser(ctx.body(), ctx)));
         app.get("rest/user_list", ctx ->
                 ctx.json(Controller.getController().getAllUsers()).contentType("json"));
+        app.post("rest/remove_user", ctx ->
+                ctx.result(UserAdminResource.deleteUser(ctx.body(), ctx)));
+
 
     }
 }
