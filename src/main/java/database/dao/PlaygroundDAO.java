@@ -21,9 +21,18 @@ public class PlaygroundDAO implements IPlaygroundDAO {
     private String MongoQueryTag = "_id";
 
     @Override
-    public void createPlayground(Playground playground) throws DALException {
+    public WriteResult createPlayground(Playground playground) throws DALException {
+        if (playground == null)
+            throw new DALException(String.format("Can't create playground in %s collection when playground is null", COLLECTION));
+
         Jongo jongo = new Jongo(DataSource.getDB());
-        System.out.println(jongo.getCollection(COLLECTION).save(playground));
+        MongoCollection collection = jongo.getCollection(COLLECTION);
+        WriteResult wr = collection.save(playground);
+
+        if (wr.getN() == 0)
+            throw new DALException(String.format("Playground can't be created in %s collection", COLLECTION));
+
+        return wr;
     }
 
     @Override

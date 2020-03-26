@@ -226,11 +226,11 @@ public class Controller implements IController{
         if(!hasStatus(activeUser, Controller.PEDAGOGUE))
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.PEDAGOGUE));
 
-        boolean isMessageCreated = false, isPlaygroundUpdated = false;
+        boolean isPlaygroundUpdated = false;
         try {
             // create message with playground id
             message.setPlaygroundID(playgroundName);
-            isMessageCreated = messageDAO.createMessage(message);
+           messageDAO.createMessage(message);
 
             // update existing playground with message reference
             Jongo jongo = new Jongo(DataSource.getDB());
@@ -244,7 +244,7 @@ public class Controller implements IController{
             e.printStackTrace();
         }
 
-        return isMessageCreated && isPlaygroundUpdated;
+        return isPlaygroundUpdated;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package database.dao;
 
+import com.mongodb.WriteResult;
 import database.DALException;
 import database.DataSource;
 import database.collections.User;
@@ -18,49 +19,26 @@ public class UserDAO implements IUserDAO {
      * Create user in users collection
      *
      * @param user
-     * @return true if created else false
+     * @return write result
      * @throws DALException
      */
     @Override
-    public boolean createUser(User user) throws DALException {
+    public WriteResult createUser(User user) throws DALException {
         if (user == null)
             throw new DALException(String.format("Can't create user in %s collection when user is null", COLLECTION));
 
         Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(COLLECTION);
+        WriteResult wr = collection.save(user);
 
-        boolean isUserCreated = collection.save(user).wasAcknowledged();
+        if (wr.getN() == 0)
+            throw new DALException(String.format("User can't be created in %s collection", COLLECTION));
 
-        if (!isUserCreated)
-            throw new DALException(String.format("Bruger can't be created in %s collection", COLLECTION));
-
-        return true;
+        return wr;
     }
 
     /**
-     * Get user with given id
-     *
-     * @param id
-     * @return user
-     * @throws DALException
-     */
-    /*
-    @Override
-    public User getUser(String id) throws DALException {
-        Jongo jongo = new Jongo(DataSource.getDB());
-        MongoCollection collection = jongo.getCollection(COLLECTION);
-
-        User user = collection.findOne("{}").as(User.class);
-
-        if (user == null)
-            throw new DALException(String.format("No user in %s collection with id %s", COLLECTION, id));
-
-        return user;
-    }
-     */
-
-    /**
-     * Get user with given id
+     * Get user with given username
      *
      * @param username
      * @return user
@@ -74,6 +52,7 @@ public class UserDAO implements IUserDAO {
 
         if (user == null)
             throw new DALException(String.format("No user in %s collection with username %s", COLLECTION, username));
+
         return user;
     }
 
