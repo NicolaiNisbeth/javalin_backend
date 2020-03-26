@@ -24,10 +24,29 @@ public class User implements Serializable {
     private String email;
     private String password;
     private String username;
-
+    private String website;
+    private boolean loggedIn;
     private String[] phonenumbers;
     private Set<Event> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
     private Set<String> playgroundsIDs = new HashSet<>();
+
+
+    public boolean isLoggedIn() {
+        return loggedIn;
+    }
+
+    public void setLoggedIn(boolean loggedIn) {
+        this.loggedIn = loggedIn;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
 
 
     public Set<String> getPlaygroundNames() {
@@ -71,6 +90,8 @@ public class User implements Serializable {
         this.phonenumbers = builder.phonenumbers;
         this.events = builder.events;
         this.playgroundsIDs = builder.playgroundsIDs;
+        this.website = builder.website;
+        this.loggedIn = builder.loggedIn;
     }
 
     public String getId() {
@@ -167,6 +188,7 @@ public class User implements Serializable {
     }
 
     public static class Builder {
+        public boolean loggedIn;
         private String username;
         private String status;
         private String imagePath;
@@ -178,10 +200,19 @@ public class User implements Serializable {
         private String firstname;
         private String lastname;
         private String id;
-
+        private String website;
 
         public Builder(String username) {
             this.username = username;
+        }
+
+        public boolean isLoggedIn() {
+            return loggedIn;
+        }
+
+        public Builder setLoggedIn(boolean loggedIn) {
+            this.loggedIn = loggedIn;
+            return this;
         }
 
         public Builder status(String status) {
@@ -254,6 +285,10 @@ public class User implements Serializable {
 
         }
 
+        public Set<String> getPlaygroundID2() {
+            return playgroundsIDs;
+        }
+
         public String getId() {
             return id;
         }
@@ -313,6 +348,15 @@ public class User implements Serializable {
 
         public User build() {
             return new User(this);
+        }
+
+        public String getWebsite() {
+            return website;
+        }
+
+        public Builder setWebsite(String website) {
+            this.website = website;
+            return this;
         }
     }
 }

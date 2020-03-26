@@ -1,7 +1,7 @@
 import database.dao.Controller;
 import io.javalin.Javalin;
 import resources.GalgelegResource;
-import resources.UserLogin;
+import resources.UserAdminResource;
 
 public class Main {
     public static Javalin app;
@@ -44,9 +44,20 @@ public class Main {
         app.get("rest/galgeleg/:username/:guess", ctx ->
                 ctx.result(GalgelegResource.makeGuess(ctx.pathParam("username"), ctx.pathParam("guess"))).contentType("json"));
 
+        //NJL - er i brug
         app.get("rest/playground_list", ctx ->
                 ctx.json(Controller.getInstance().getAllPlaygrounds()).contentType("json"));
         app.post("rest/user_login", ctx ->
-                ctx.json(UserLogin.verificerLogin(ctx.body(), ctx)).contentType("json"));
+                ctx.json(UserAdminResource.verifyLogin(ctx.body(), ctx)).contentType("json"));
+        app.post("rest/create_user", ctx ->
+                ctx.result(UserAdminResource.createUser(ctx.body(), ctx)));
+        app.put("rest/update_user", ctx ->
+                ctx.result(UserAdminResource.createUser(ctx.body(), ctx)));
+        app.get("rest/user_list", ctx ->
+                ctx.json(Controller.getController().getAllUsers()).contentType("json"));
+        app.post("rest/remove_user", ctx ->
+                ctx.result(UserAdminResource.deleteUser(ctx.body(), ctx)));
+
+
     }
 }
