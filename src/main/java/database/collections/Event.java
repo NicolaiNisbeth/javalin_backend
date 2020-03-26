@@ -92,7 +92,7 @@ public class Event implements Comparable<Event>{
         this.assignedUsers = assignedUsers;
     }
 
-    public String getPlayground() {
+    public String getPlaygroundName() {
         return playground;
     }
 
