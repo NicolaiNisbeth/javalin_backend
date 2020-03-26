@@ -35,7 +35,7 @@ public interface IController {
 
     // USER, username/email is unique, since we dont know id at all times
     User getUser(User activeUser, String userID) throws DALException;
-    void createUser(User activeUser, User userToBeCreated) throws DALException;
+    boolean createUser(User activeUser, User userToBeCreated) throws DALException;
     void updateUser(User activeUser, User updatedUser) throws DALException;
     void deleteUser(User activeUser, String userID) throws DALException;
 }

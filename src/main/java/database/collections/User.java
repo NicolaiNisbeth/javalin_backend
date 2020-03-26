@@ -25,6 +25,15 @@ public class User implements Serializable {
     private String password;
     private String username;
     private String website;
+    private boolean loggedIn;
+
+    public boolean isLoggedIn() {
+        return loggedIn;
+    }
+
+    public void setLoggedIn(boolean loggedIn) {
+        this.loggedIn = loggedIn;
+    }
 
     public String getWebsite() {
         return website;
@@ -82,6 +91,8 @@ public class User implements Serializable {
         this.events = builder.events;
         this.playgroundID = builder.playgroundID;
         this.playgroundsIDs = builder.playgroundsIDs;
+        this.website = builder.website;
+        this.loggedIn = builder.loggedIn;
     }
 
     public String getId() {
@@ -187,6 +198,16 @@ public class User implements Serializable {
     }
 
     public static class Builder {
+        public boolean isLoggedIn() {
+            return loggedIn;
+        }
+
+        public Builder setLoggedIn(boolean loggedIn) {
+            this.loggedIn = loggedIn;
+            return this;
+        }
+
+        public boolean loggedIn;
         private String username;
         private String status;
         private String imagePath;
@@ -200,7 +221,6 @@ public class User implements Serializable {
         private String lastname;
         private String id;
         private String website;
-
 
 
         public Builder(String username) {

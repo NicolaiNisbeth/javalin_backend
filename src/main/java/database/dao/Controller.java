@@ -14,7 +14,7 @@ import java.util.Set;
 
 import static org.jongo.Oid.withOid;
 
-public class Controller implements IController{
+public class Controller implements IController {
     private static Controller controller;
     private PlaygroundDAO playgroundDAO;
     private UserDAO userDAO;
@@ -47,19 +47,19 @@ public class Controller implements IController{
 
     @Override
     public void createPlayground(User activeUser, Playground playgroundToBeCreated) throws DALException {
-        if(!hasStatus(activeUser, Controller.ADMIN))
+        if (!hasStatus(activeUser, Controller.ADMIN))
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.ADMIN));
 
         try {
             playgroundDAO.createPlayground(playgroundToBeCreated);
-        } catch (DALException e){
+        } catch (DALException e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public boolean addPedagogueToPlayground(User activeUser, String playgroundName, String pedagogueID) throws DALException {
-        if(!hasStatus(activeUser, Controller.ADMIN))
+        if (!hasStatus(activeUser, Controller.ADMIN))
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.ADMIN));
 
         boolean isUserUpdated = false, isPedagogueAdded = false;
@@ -77,7 +77,7 @@ public class Controller implements IController{
                     .with("{$push: {assignedPedagogue : #}}", withOid(pedagogueID))
                     .wasAcknowledged();
 
-        } catch (DALException e){
+        } catch (DALException e) {
             e.printStackTrace();
             // TODO: how do we handle if user is updated successfully but playground is not?
         }
@@ -87,7 +87,7 @@ public class Controller implements IController{
 
     @Override
     public boolean removePedagogueFromPlayground(User activeUser, String playgroundName, String pedagogueID) throws DALException {
-        if(!hasStatus(activeUser, Controller.ADMIN))
+        if (!hasStatus(activeUser, Controller.ADMIN))
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.ADMIN));
 
         boolean isUserUpdated = false, isPedagogueRemoved = false;
@@ -105,7 +105,7 @@ public class Controller implements IController{
                     .with("{$pull: {assignedUsers : {_id : #}}}", withOid(pedagogueID))
                     .wasAcknowledged();
 
-        } catch (DALException e){
+        } catch (DALException e) {
             e.printStackTrace();
         }
 
@@ -119,7 +119,7 @@ public class Controller implements IController{
 
     @Override
     public boolean addEventToPlayground(User activeUser, String playgroundName, Event eventToBeAdded) throws DALException {
-        if(!hasStatus(activeUser, Controller.PEDAGOGUE))
+        if (!hasStatus(activeUser, Controller.PEDAGOGUE))
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.PEDAGOGUE));
 
 
@@ -137,7 +137,7 @@ public class Controller implements IController{
                     .with("{$push: {events : #}}", withOid(eventToBeAdded.getId()))
                     .wasAcknowledged();
 
-        }catch (DALException e){
+        } catch (DALException e) {
             e.printStackTrace();
         }
 
@@ -146,13 +146,13 @@ public class Controller implements IController{
 
     @Override
     public boolean updateEvent(User activeUser, String playgroundName, Event updatedEvent) throws DALException {
-        if(!hasStatus(activeUser, Controller.PEDAGOGUE))
+        if (!hasStatus(activeUser, Controller.PEDAGOGUE))
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.PEDAGOGUE));
 
         boolean isEventUpdated = false;
         try {
             isEventUpdated = eventDAO.updateEvent(updatedEvent);
-        } catch (DALException e){
+        } catch (DALException e) {
             e.printStackTrace();
         }
 
@@ -161,7 +161,7 @@ public class Controller implements IController{
 
     @Override
     public boolean deleteEventInPlayground(User activeUser, String playgroundName, String eventID) throws DALException {
-        if(!hasStatus(activeUser, Controller.PEDAGOGUE))
+        if (!hasStatus(activeUser, Controller.PEDAGOGUE))
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.PEDAGOGUE));
 
         // TODO: is it enough to only remove event from event collection?
@@ -198,7 +198,7 @@ public class Controller implements IController{
 
     @Override
     public boolean createPlaygroundMessage(User activeUser, String playgroundName, Message message) throws DALException {
-        if(!hasStatus(activeUser, Controller.PEDAGOGUE))
+        if (!hasStatus(activeUser, Controller.PEDAGOGUE))
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.PEDAGOGUE));
 
         boolean isMessageCreated = false, isPlaygroundUpdated = false;
@@ -215,7 +215,7 @@ public class Controller implements IController{
                     .with("{$push: {messages : #}}", withOid(message.getId()))
                     .wasAcknowledged();
 
-        } catch (DALException e){
+        } catch (DALException e) {
             e.printStackTrace();
         }
 
@@ -224,13 +224,13 @@ public class Controller implements IController{
 
     @Override
     public boolean updatePlaygroundMessage(User activeUser, String playgroundName, Message updatedMessage) throws DALException {
-        if(!hasStatus(activeUser, Controller.PEDAGOGUE))
+        if (!hasStatus(activeUser, Controller.PEDAGOGUE))
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.PEDAGOGUE));
 
         boolean isMessageUpdated = false;
         try {
             isMessageUpdated = messageDAO.updateMessage(updatedMessage);
-        } catch (DALException e){
+        } catch (DALException e) {
             e.printStackTrace();
         }
         return isMessageUpdated;
@@ -254,7 +254,7 @@ public class Controller implements IController{
                     .with("{$pull: {messages : {_id : #}}}", withOid(messageID))
                     .wasAcknowledged();
 
-        } catch (DALException e){
+        } catch (DALException e) {
             e.printStackTrace();
         }
 
@@ -263,13 +263,14 @@ public class Controller implements IController{
 
     @Override
     public User getUser(User activeUser, String userID) throws DALException {
-        if(!hasStatus(activeUser, Controller.ADMIN, Controller.PEDAGOGUE) || activeUser.getId().equals(userID)) {
+        if (!hasStatus(activeUser, Controller.ADMIN, Controller.PEDAGOGUE) || activeUser.getId().equals(userID)) {
             throw new DALException(String.format("User %s does not have the required privileges", activeUser.getId()));
         }
 
         //do we allow to fetch all user information like password etc?
         return userDAO.getUser(userID);
     }
+
     //todo arbejder også her
     public User getUserWithUserName(String userName) throws DALException {
         //do we allow to fetch all user information like password etc?
@@ -277,12 +278,14 @@ public class Controller implements IController{
     }
 
     @Override
-    public void createUser(User activeUser, User userToBeCreated) throws DALException {
-        if(!hasStatus(activeUser, Controller.ADMIN)) {
+    public boolean createUser(User activeUser, User userToBeCreated) throws DALException {
+        if (!hasStatus(activeUser, Controller.ADMIN)) {
             throw new DALException(String.format("User %s does not have %s privileges", activeUser.getId(), Controller.ADMIN));
         }
         userDAO.createUser(userToBeCreated);
+        return true;
     }
+
     // todo - Overloading
     public void createUser(User userToBeCreated) throws DALException {
         userDAO.createUser(userToBeCreated);
@@ -290,7 +293,7 @@ public class Controller implements IController{
 
     @Override
     public void updateUser(User activeUser, User updatedUser) throws DALException {
-        if(!hasStatus(activeUser, Controller.ADMIN) || activeUser.getId().equals(updatedUser.getId())) {
+        if (!hasStatus(activeUser, Controller.ADMIN) || activeUser.getId().equals(updatedUser.getId())) {
             throw new DALException(String.format("User %s does not have the required privileges", activeUser.getId()));
         }
 
@@ -298,16 +301,22 @@ public class Controller implements IController{
         userDAO.updateUser(updatedUser);
     }
 
+    //todo NJL
+    public void updateUser(User updatedUser) throws DALException {
+        userDAO.updateUser(updatedUser);
+    }
+
+
     @Override
     public void deleteUser(User activeUser, String userID) throws DALException {
-        if(!hasStatus(activeUser, Controller.ADMIN)) {
+        if (!hasStatus(activeUser, Controller.ADMIN)) {
             throw new DALException(String.format("User %s does not have the required privileges", activeUser.getId()));
         }
 
         userDAO.deleteUser(userID);
     }
 
-    private boolean hasStatus(User activeUser, String... types){
+    private boolean hasStatus(User activeUser, String... types) {
         for (String type : types)
             if (activeUser.getStatus().equalsIgnoreCase(type))
                 return true;

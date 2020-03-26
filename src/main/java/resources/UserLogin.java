@@ -9,28 +9,22 @@ import org.json.JSONObject;
 
 import io.javalin.http.Context;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.List;
-import java.util.Map;
 
 public class UserLogin {
     private static Brugeradmin ba;
 
     // Metoden opretter brugeren i databasen, hvis han ikke allerede findes.
-    public static User isUserInDB(Bruger bruger) {
+    public static User findUserInDB(Bruger bruger) {
         User user = null;
+
         try {
             user = Controller.getController().getUserWithUserName(bruger.brugernavn);
-
         } catch (DALException e) {
             System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");
-
-            System.out.println(bruger.ekstraFelter.get("webside").toString());
-
             user = new User.Builder(bruger.brugernavn)
                     .setFirstname(bruger.fornavn)
                     .setLastname(bruger.efternavn)
@@ -45,10 +39,49 @@ public class UserLogin {
                 e1.printStackTrace();
             }
         }
+
+        //Brugeren har ikke selv logget ind før og skal derfor ikke oprettes i DB men opdateres
+        if (!user.isLoggedIn()) {
+            user.setFirstname(bruger.fornavn);
+            user.setLastname(bruger.efternavn);
+            user.setEmail(bruger.email);
+            user.setPassword(bruger.adgangskode);
+            user.setStatus(user.getStatus());
+            user.setWebsite(bruger.ekstraFelter.get("webside").toString());
+
+            try {
+                Controller.getController().updateUser(user);
+            } catch (DALException e1) {
+                e1.printStackTrace();
+            }
+        }
         return user;
     }
 
+
     public static User verificerLogin(String request, Context ctx) {
+        JSONObject jsonObject = new JSONObject(request);
+        String username = jsonObject.getString("username");
+        String password = jsonObject.getString("password");
+        try {
+            ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
+        } catch (NotBoundException | MalformedURLException | RemoteException e) {
+            e.printStackTrace();
+        }
+        Bruger bruger = null;
+        try {
+            bruger = ba.hentBruger(username, password);
+            if (bruger != null) {
+                return findUserInDB(bruger);
+            }
+
+        } catch (Exception e) {
+            ctx.status(401).result("Unauthorized");
+        }
+        return null;
+    }
+
+ /*   public static User verificerLogin(String request, Context ctx) {
         JSONObject jsonObject = new JSONObject(request);
         String username = jsonObject.getString("username");
         String password = jsonObject.getString("password");
@@ -68,8 +101,46 @@ public class UserLogin {
         } catch (Exception e) {
             ctx.status(401).result("Unauthorized");
         }
-        return isUserInDB(user);
+        return findUserInDB(user);
+    }*/
+
+    //todo få sat nogle ordentlige status koder på
+    public static String createUser(String request, Context ctx) {
+
+        JSONObject jsonObject = new JSONObject(request);
+        String username = jsonObject.getString("username");
+        String password = jsonObject.getString("password");
+        String usernameOfNewUser = jsonObject.getString("usernameOfNewUser");
+        String statusOfNewUser = jsonObject.getString("statusOfNewUser");
+
+        User admin = null;
+        User newUser = null;
+
+        try {
+            admin = Controller.getController().getUserWithUserName(username);
+            if (!admin.getPassword().equalsIgnoreCase(password)) {
+                ctx.status(401).result("Unauthorized - password er ikke korrekt");
+                return "ikke oprettet";
+            } else {
+                admin = Controller.getController().getUserWithUserName(username);
+                newUser = new User.Builder(usernameOfNewUser)
+                        .status(statusOfNewUser)
+                        .build();
+                if (Controller.getController().createUser(admin, newUser)) {
+                    ctx.status(401).result("User was created");
+                } else {
+                    ctx.status(401).result("User was not created");
+                    return "ikke oprettet";
+                }
+            }
+        } catch (DALException e) {
+            e.printStackTrace();
+            ctx.status(401).result("Unauthorized");
+            return "ikke oprettet";
+        }
+        return "oprettet";
     }
+
 
     public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
         Bruger user;

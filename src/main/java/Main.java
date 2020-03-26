@@ -45,9 +45,12 @@ public class Main {
         app.get("rest/galgeleg/:username/:guess", ctx ->
                 ctx.result(GalgelegResource.makeGuess(ctx.pathParam("username"), ctx.pathParam("guess"))).contentType("json"));
 
+
         app.get("rest/playground_list", ctx ->
                 ctx.json(Controller.getController().getAllPlaygrounds()).contentType("json"));
         app.post("rest/user_login", ctx ->
                 ctx.json(UserLogin.verificerLogin(ctx.body(), ctx)).contentType("json"));
+        app.post("rest/create_user", ctx ->
+                ctx.result(UserLogin.createUser(ctx.body(), ctx)));
     }
 }

@@ -120,10 +120,13 @@ class UserDAOTest {
                 .setLastname("Larsen")
                 .build();
         userDAO.createUser(user1);*/
+     /*  User user = userDAO.getUserWithUserName("s185020");
+       user.setStatus("admin");
+        userDAO.updateUser(user);*/
 
-        for (User user : userDAO.getUserList()) {
+        for (User user2 : userDAO.getUserList()) {
             //userDAO.deleteUser(user.getId());
-            System.out.println(user);
+            System.out.println(user2);
         }
 
         //userDAO.deleteUser("5e78a7ad8e38fd0fe1f01321");
