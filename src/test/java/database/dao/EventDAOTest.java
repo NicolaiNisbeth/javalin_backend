@@ -1,5 +1,6 @@
 package database.dao;
 
+import com.mongodb.WriteResult;
 import database.DALException;
 import database.collections.Details;
 import database.collections.Event;
@@ -35,16 +36,16 @@ class EventDAOTest {
                 .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
-        eventDAO.createEvent(event);
+        WriteResult ws = eventDAO.createEvent(event);
 
-        Event fetchedEvent = eventDAO.getEvent(event.getId());
+        Event fetchedEvent = eventDAO.getEvent(ws.getUpsertedId().toString());
         Assertions.assertEquals(event, fetchedEvent);
 
-        eventDAO.deleteEvent(event.getId());
+        eventDAO.deleteEvent(ws.getUpsertedId().toString());
 
         // try to fetch deleted event and confirm that exception is thrown with msg: no event
         DALException thrown = Assertions.assertThrows(
-                DALException.class, () -> eventDAO.getEvent(event.getId())
+                DALException.class, () -> eventDAO.getEvent(ws.getUpsertedId().toString())
         );
         Assertions.assertTrue(thrown.getMessage().contains("No event"));
     }
@@ -67,8 +68,8 @@ class EventDAOTest {
                 .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
-        eventDAO.createEvent(event1);
-        eventDAO.createEvent(event2);
+        WriteResult ws1 = eventDAO.createEvent(event1);
+        WriteResult ws2 = eventDAO.createEvent(event2);
 
         List<Event> eventList = eventDAO.getEventList();
         Assertions.assertEquals(eventList.size(), 2);
@@ -76,8 +77,8 @@ class EventDAOTest {
         Assertions.assertEquals(eventList.get(0), event1);
         Assertions.assertEquals(eventList.get(1), event2);
 
-        eventDAO.deleteEvent(event1.getId());
-        eventDAO.deleteEvent(event2.getId());
+        eventDAO.deleteEvent(ws1.getUpsertedId().toString());
+        eventDAO.deleteEvent(ws2.getUpsertedId().toString());
     }
 
     @Test
@@ -90,15 +91,15 @@ class EventDAOTest {
                 .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
-        eventDAO.createEvent(event);
+        WriteResult ws = eventDAO.createEvent(event);
 
         event.setParticipants(40);
         eventDAO.updateEvent(event);
 
-        Event updatedEvent = eventDAO.getEvent(event.getId());
+        Event updatedEvent = eventDAO.getEvent(ws.getUpsertedId().toString());
         Assertions.assertEquals(40, updatedEvent.getParticipants());
 
-        eventDAO.deleteEvent(event.getId());
+        eventDAO.deleteEvent(ws.getUpsertedId().toString());
     }
 
     @Disabled("This test is disabled because it deletes all events in collection")
