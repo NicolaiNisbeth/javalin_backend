@@ -47,22 +47,7 @@ class UserDAOTest {
         Assertions.assertTrue(thrown.getMessage().contains("No user"));
     }
 
-    @Test
-    void getUserWithName() throws DALException {
-        User user1 = new User.Builder("s185020")
-                .status("admin")
-                .password("123")
-                .setFirstname("NicolaiL")
-                .build();
-        userDAO.createUser(user1);
 
-        for (User user : userDAO.getUserList()) {
-            System.out.println(user);
-        }
-
-        //userDAO.deleteUser("5e78a7ad8e38fd0fe1f01321");
-        //System.out.println(userDAO.getUserWithUserName("s185020") );
-    }
 
 
     @Test
@@ -123,5 +108,27 @@ class UserDAOTest {
         for (User i : userDAO.getUserList()) {
             userDAO.deleteUser(i.getId());
         }
+    }
+
+    //Larsens test
+    @Test
+    void getUserWithName() throws DALException {
+       /* User user1 = new User.Builder("s185020")
+                .status("admin")
+                .password("123")
+                .setFirstname("Nicolai")
+                .setLastname("Larsen")
+                .build();
+        userDAO.createUser(user1);*/
+
+        for (User user : userDAO.getUserList()) {
+            //userDAO.deleteUser(user.getId());
+            System.out.println(user);
+        }
+
+        //userDAO.deleteUser("5e78a7ad8e38fd0fe1f01321");
+        //System.out.println(userDAO.getUserWithUserName("s185020") );
+
+
     }
 }

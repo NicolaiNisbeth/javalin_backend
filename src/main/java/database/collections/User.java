@@ -24,6 +24,15 @@ public class User implements Serializable {
     private String email;
     private String password;
     private String username;
+    private String website;
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
 
     private String[] phonenumbers;
     private Set<Event> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
@@ -190,6 +199,8 @@ public class User implements Serializable {
         private String firstname;
         private String lastname;
         private String id;
+        private String website;
+
 
 
         public Builder(String username) {
@@ -340,6 +351,15 @@ public class User implements Serializable {
 
         public User build() {
             return new User(this);
+        }
+
+        public String getWebsite() {
+            return website;
+        }
+
+        public Builder setWebsite(String website) {
+            this.website = website;
+            return this;
         }
     }
 }
