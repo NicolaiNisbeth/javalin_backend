@@ -1,8 +1,16 @@
+import database.DALException;
+import database.collections.User;
 import database.dao.Controller;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import resources.GalgelegResource;
+import resources.PlaygroundResource;
 import resources.UserLogin;
+import util.Path;
+
+import javax.naming.ldap.Control;
+
+import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Main {
     public static Javalin app;
@@ -10,7 +18,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         start();
-
+        usermethods();
     }
 
     public static void stop() {
@@ -45,9 +53,45 @@ public class Main {
         app.get("rest/galgeleg/:username/:guess", ctx ->
                 ctx.result(GalgelegResource.makeGuess(ctx.pathParam("username"), ctx.pathParam("guess"))).contentType("json"));
 
-        app.get("rest/playground_list", ctx ->
+        app.get("playground_list", ctx ->
                 ctx.json(Controller.getController().getAllPlaygrounds()).contentType("json"));
-        app.post("rest/user_login", ctx ->
+        app.post("user_login", ctx ->
                 ctx.json(UserLogin.verificerLogin(ctx.body(), ctx)).contentType("json"));
+
+        app.routes(() -> {
+         before(UserLogin.confirmlogin);
+         get(Path.Playground.PLAYGROUND_ALL, PlaygroundResource.AllPlaygroundsHandlerGet);
+         get(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.OnePlaygroundHandlerGet);
+
+        });
+    }
+
+    public static void usermethods() throws Exception {
+        /*
+        User getUser(User activeUser, String userID) throws DALException;
+
+        void createUser(User activeUser, User userToBeCreated) throws DALException;
+        void updateUser(User activeUser, User updatedUser) throws DALException;
+        void deleteUser(User activeUser, String userID) throws DALException;
+        */
+
+
+        // username og password er den bruger der selv er logget på.
+        app.get("users/:id/:username/:password", ctx -> {
+            User user = UserLogin.verificerLogin(ctx.body(),ctx);
+            if (user != null) {
+            ctx.json(Controller.getController().getUser(user,ctx.pathParam("id"))).contentType("json");
+            ctx.status(200);
+            }
+            else
+                // 401 is status code for unauthorized .
+                ctx.status(401);
+        });
+
+        //app.post("users/:id/:username", ctx -> ctx.json(Controller.getController().createUser(ctx.pathParam())))
+
+        //app.routes(() -> { crud("users/:id", Controller.getController().get); });
+
+        //app.post("users/:id", () -> { })
     }
 }

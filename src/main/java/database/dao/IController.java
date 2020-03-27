@@ -5,7 +5,9 @@ import database.collections.Event;
 import database.collections.Message;
 import database.collections.Playground;
 import database.collections.User;
+import io.javalin.apibuilder.CrudHandler;
 
+import javax.naming.Context;
 import java.util.List;
 import java.util.Set;
 
@@ -34,8 +36,8 @@ public interface IController {
     boolean deletePlaygroundMessage(User activeUser, String playgroundName, String messageID) throws DALException;
 
     // USER, username/email is unique, since we dont know id at all times
-    User getUser(User activeUser, String userID) throws DALException;
-    void createUser(User activeUser, User userToBeCreated) throws DALException;
-    void updateUser(User activeUser, User updatedUser) throws DALException;
-    void deleteUser(User activeUser, String userID) throws DALException;
+    User getUser(String userID) throws DALException;
+    void createUser(User userToBeCreated) throws DALException;
+    void updateUser(User updatedUser) throws DALException;
+    void deleteUser(String userID) throws DALException;
 }

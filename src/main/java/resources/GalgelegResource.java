@@ -46,6 +46,7 @@ public class GalgelegResource {
     }
 
     public static ArrayList<String> getHighscoreListe() {
+
         ArrayList<String> highscore = null;
         try {
             if (server == null) connectToServer();

@@ -1,6 +1,7 @@
 package database.collections;
 
 
+import io.javalin.apibuilder.CrudHandler;
 import org.jongo.marshall.jackson.oid.MongoId;
 import org.jongo.marshall.jackson.oid.MongoObjectId;
 

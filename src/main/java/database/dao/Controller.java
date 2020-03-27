@@ -262,7 +262,7 @@ public class Controller implements IController{
     }
 
     @Override
-    public User getUser(User activeUser, String userID) throws DALException {
+    public User getUser(String userID) throws DALException {
         if(!hasStatus(activeUser, Controller.ADMIN, Controller.PEDAGOGUE) || activeUser.getId().equals(userID)) {
             throw new DALException(String.format("User %s does not have the required privileges", activeUser.getId()));
         }
