@@ -6,12 +6,14 @@ import database.collections.Playground;
 import com.mongodb.*;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
+import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
 
 import static org.jongo.Oid.withOid;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class PlaygroundDAO implements IPlaygroundDAO {
@@ -19,35 +21,56 @@ public class PlaygroundDAO implements IPlaygroundDAO {
     private String MongoQueryTag = "_id";
 
     @Override
-    public void createPlayground(Playground playground) throws DALException {
+    public WriteResult createPlayground(Playground playground) throws DALException {
+        if (playground == null)
+            throw new DALException(String.format("Can't create playground in %s collection when playground is null", COLLECTION));
+
         Jongo jongo = new Jongo(DataSource.getDB());
-        System.out.println(jongo.getCollection(COLLECTION).save(playground));
+        MongoCollection collection = jongo.getCollection(COLLECTION);
+        WriteResult wr = collection.save(playground);
+
+        if (wr.getN() == 0)
+            throw new DALException(String.format("Playground can't be created in %s collection", COLLECTION));
+
+        return wr;
     }
 
     @Override
-    public Playground getPlayground(String id) throws DALException {
+    public Playground getPlayground(String playgroundName) throws DALException {
         Jongo jongo = new Jongo(DataSource.getDB());
-        return jongo.getCollection(COLLECTION).findOne(withOid(id)).as(Playground.class);
+        MongoCollection collection = jongo.getCollection(COLLECTION);
+        Playground playground = collection.findOne("{name : #}", playgroundName).as(Playground.class);
+
+        if (playground == null)
+            throw new DALException(String.format("No playground in %s collection with playgroundname %s", COLLECTION, playgroundName));
+
+        return playground;
     }
 
     @Override
     public List<Playground> getPlaygroundList() throws DALException {
-        List<Playground> playgrounds = null;
+        List<Playground> playgrounds = new ArrayList<>();
         Jongo jongo = new Jongo(DataSource.getDB());
         MongoCursor<Playground> all = jongo.getCollection(COLLECTION).find("{}").as(Playground.class);
-        try {
-            playgrounds = new ArrayList<>();
-            while (all.hasNext()) {
-                playgrounds.add(all.next());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        while (all.hasNext()) {
+            playgrounds.add(all.next());
         }
+
+        if (playgrounds.isEmpty())
+            throw new DALException(String.format("No playgrounds in %s collection", COLLECTION));
+
         return playgrounds;
     }
 
     @Override
     public boolean updatePlayground(Playground playground) throws DALException {
+        if (playground == null)
+            throw new DALException(String.format("Can't update playground in %s collection when param is null", COLLECTION));
+
+        if (playground.getName() == null)
+            throw new DALException(String.format("Can't find playground to be updated in %s collection when playgroundname is null", COLLECTION));
+
         Jongo jongo = new Jongo(DataSource.getDB());
         try {
             WriteResult result = jongo.getCollection(COLLECTION).save(playground);
@@ -60,11 +83,11 @@ public class PlaygroundDAO implements IPlaygroundDAO {
     }
 
     @Override
-    public boolean deletePlayground(String id) throws DALException {
+    public boolean deletePlayground(String playgroundName) throws DALException {
         Jongo jongo = new Jongo(DataSource.getDB());
         try {
             System.out.println(jongo.getCollection(COLLECTION)
-                    .remove(new ObjectId(id)));
+                    .remove("{name : #}", playgroundName));
             return true;
         } catch (Exception e) {
             e.printStackTrace();

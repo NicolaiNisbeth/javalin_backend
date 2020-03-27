@@ -26,6 +26,10 @@ public class User implements Serializable {
     private String username;
     private String website;
     private boolean loggedIn;
+    private String[] phonenumbers;
+    private Set<Event> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
+    private Set<String> playgroundsIDs = new HashSet<>();
+
 
     public boolean isLoggedIn() {
         return loggedIn;
@@ -43,19 +47,15 @@ public class User implements Serializable {
         this.website = website;
     }
 
-    private String[] phonenumbers;
-    private Set<Event> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
-    private String playgroundID;                  // many-to-1
 
-    public Set<String> getPlaygroundsIDs() {
+
+    public Set<String> getPlaygroundNames() {
         return playgroundsIDs;
     }
 
     public void setPlaygroundsIDs(Set<String> playgroundsIDs) {
         this.playgroundsIDs = playgroundsIDs;
     }
-
-    private Set<String> playgroundsIDs = new HashSet<>();
 
 
     //This constructor is used for MongoDB mapping
@@ -158,14 +158,6 @@ public class User implements Serializable {
         this.events = events;
     }
 
-    public String getPlaygroundID() {
-        return playgroundID;
-    }
-
-    public void setPlaygroundID(String playgroundID) {
-        this.playgroundID = playgroundID;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -192,20 +184,10 @@ public class User implements Serializable {
                 ", password='" + password + '\'' +
                 ", phoneNumbers=" + Arrays.toString(phonenumbers) +
                 ", events=" + events +
-                ", playground=" + playgroundID +
                 '}';
     }
 
     public static class Builder {
-        public boolean isLoggedIn() {
-            return loggedIn;
-        }
-
-        public Builder setLoggedIn(boolean loggedIn) {
-            this.loggedIn = loggedIn;
-            return this;
-        }
-
         public boolean loggedIn;
         private String username;
         private String status;
@@ -220,9 +202,17 @@ public class User implements Serializable {
         private String id;
         private String website;
 
-
         public Builder(String username) {
             this.username = username;
+        }
+
+        public boolean isLoggedIn() {
+            return loggedIn;
+        }
+
+        public Builder setLoggedIn(boolean loggedIn) {
+            this.loggedIn = loggedIn;
+            return this;
         }
 
         public Builder status(String status) {

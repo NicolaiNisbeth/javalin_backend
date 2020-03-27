@@ -2,6 +2,7 @@ package resources;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
+import com.mongodb.WriteResult;
 import database.DALException;
 import database.collections.User;
 import database.dao.Controller;
@@ -14,8 +15,6 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class UserAdminResource {
     private static Brugeradmin ba;
@@ -44,11 +43,9 @@ public class UserAdminResource {
 
     // Metoden opretter brugeren i databasen, hvis han ikke allerede findes.
     public static User findUserInDB(Bruger bruger) {
-        User user = null;
+        User user = Controller.getInstance().getUser(bruger.brugernavn);
 
-        try {
-            user = Controller.getController().getUserWithUserName(bruger.brugernavn);
-        } catch (DALException e) {
+        if (user == null){
             System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");
             user = new User.Builder(bruger.brugernavn)
                     .setFirstname(bruger.fornavn)
@@ -58,12 +55,10 @@ public class UserAdminResource {
                     .status("pedagogue")
                     .setWebsite(bruger.ekstraFelter.get("webside").toString())
                     .build();
-            try {
-                Controller.getController().createUser(user);
-            } catch (DALException e1) {
-                e1.printStackTrace();
-            }
+
+            Controller.getInstance().createUser(user);
         }
+
 
         //Brugeren har ikke selv logget ind før og skal derfor ikke oprettes i DB men opdateres
         if (!user.isLoggedIn()) {
@@ -76,11 +71,7 @@ public class UserAdminResource {
             user.setWebsite(bruger.ekstraFelter.get("webside").toString());
             user.setLoggedIn(true);
 
-            try {
-                Controller.getController().updateUser(user);
-            } catch (DALException e1) {
-                e1.printStackTrace();
-            }
+            Controller.getInstance().updateUser(user);
         }
         return user;
     }
@@ -100,31 +91,28 @@ public class UserAdminResource {
         User admin = null;
         User newUser = null;
 
-        try {
-            admin = Controller.getController().getUserWithUserName(username);
-            if (!admin.getPassword().equalsIgnoreCase(password)) {
-                ctx.status(401).result("Unauthorized - password er ikke korrekt");
-                return "ikke oprettet";
-            } else {
-                admin = Controller.getController().getUserWithUserName(username);
-                newUser = new User.Builder(usernameOfNewUser)
-                        .status(statusOfNewUser)
-                        .build();
-                for (Object id : adminRightsOfNewUser) {
-                    newUser.getPlaygroundsIDs().add(id.toString());
-                }
-                if (Controller.getController().createUser(admin, newUser)) {
-                    ctx.status(401).result("User was created");
-                } else {
-                    ctx.status(401).result("User was not created");
-                    return "ikke oprettet";
-                }
-            }
-        } catch (DALException e) {
-            e.printStackTrace();
-            ctx.status(401).result("Unauthorized");
+        admin = Controller.getInstance().getUser(username);
+        if (!admin.getPassword().equalsIgnoreCase(password)) {
+            ctx.status(401).result("Unauthorized - password er ikke korrekt");
             return "ikke oprettet";
+        } else {
+            admin = Controller.getInstance().getUser(username);
+            newUser = new User.Builder(usernameOfNewUser)
+                    .status(statusOfNewUser)
+                    .build();
+            for (Object id : adminRightsOfNewUser) {
+                newUser.getPlaygroundNames().add(id.toString());
+            }
+
+            WriteResult ws = Controller.getInstance().createUser(newUser);
+            if (ws.wasAcknowledged()) {
+                ctx.status(401).result("User was created");
+            } else {
+                ctx.status(401).result("User was not created");
+                return "ikke oprettet";
+            }
         }
+
         return "oprettet";
     }
 
@@ -141,31 +129,26 @@ public class UserAdminResource {
         User admin = null;
         User userToUpdate = null;
 
-        try {
-            admin = Controller.getController().getUserWithUserName(adminUsername);
-            if (!admin.getPassword().equalsIgnoreCase(password)) {
-                ctx.status(401).result("Unauthorized - password er ikke korrekt");
-                return "ikke updated";
-            } else {
-                admin = Controller.getController().getUserWithUserName(adminUsername);
-                userToUpdate = new User.Builder(usernameOfNewUser)
-                        .status(statusOfNewUser)
-                        .build();
-                for (Object id : adminRightsOfNewUser) {
-                    userToUpdate.getPlaygroundsIDs().add(id.toString());
-                }
-                if (Controller.getController().updateUser(admin, userToUpdate)) {
-                    ctx.status(401).result("User was updated");
-                } else {
-                    ctx.status(401).result("User was not updated");
-                    return "ikke updated";
-                }
-            }
-        } catch (DALException e) {
-            e.printStackTrace();
-            ctx.status(401).result("Unauthorized");
+        admin = Controller.getInstance().getUser(adminUsername);
+        if (!admin.getPassword().equalsIgnoreCase(password)) {
+            ctx.status(401).result("Unauthorized - password er ikke korrekt");
             return "ikke updated";
+        } else {
+            admin = Controller.getInstance().getUser(adminUsername);
+            userToUpdate = new User.Builder(usernameOfNewUser)
+                    .status(statusOfNewUser)
+                    .build();
+            for (Object id : adminRightsOfNewUser) {
+                userToUpdate.getPlaygroundNames().add(id.toString());
+            }
+            if (Controller.getInstance().updateUser(userToUpdate)) {
+                ctx.status(401).result("User was updated");
+            } else {
+                ctx.status(401).result("User was not updated");
+                return "ikke updated";
+            }
         }
+
         return "updated";
     }
 //lavet backup
@@ -180,22 +163,18 @@ public class UserAdminResource {
         User admin = null;
         User userToUpdate = null;
 
-        try {
-            admin = Controller.getController().getUserWithUserName(adminUsername);
-            if (!admin.getPassword().equalsIgnoreCase(password)) {
-                ctx.status(401).result("Unauthorized - password er ikke korrekt");
-                return "ikke updated";
-            } else {
-                admin = Controller.getController().getUserWithUserName(adminUsername);
 
-                String usName = Controller.getController().getUserWithUserName(usernameOfNewUser).getId();
-                Controller.getController().deleteUser(admin, usName);
-            }
-        } catch (DALException e) {
-            e.printStackTrace();
-            ctx.status(401).result("Unauthorized");
+        admin = Controller.getInstance().getUser(adminUsername);
+        if (!admin.getPassword().equalsIgnoreCase(password)) {
+            ctx.status(401).result("Unauthorized - password er ikke korrekt");
             return "ikke updated";
+        } else {
+            admin = Controller.getInstance().getUser(adminUsername);
+
+            String usName = Controller.getInstance().getUser(usernameOfNewUser).getId();
+            Controller.getInstance().deleteUser(usName);
         }
+
         return "updated";
     }
 }

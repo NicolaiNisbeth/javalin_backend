@@ -4,6 +4,7 @@ import org.jongo.marshall.jackson.oid.MongoId;
 import org.jongo.marshall.jackson.oid.MongoObjectId;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -23,8 +24,8 @@ public class Playground {
         private String commune;
         private int zipCode;
         private Set<User> assignedPedagogue = new HashSet<>();
-        private Set<Event> events = new TreeSet<>();
-        private Set<Message> messages = new TreeSet<>();
+        private Set<Event> events = new HashSet<>();
+        private Set<Message> messages = new HashSet<>();
 
         public Builder(String name) {
             this.name = name;
@@ -144,6 +145,7 @@ public class Playground {
             playground.name = this.name;
             playground.imagePath = this.imagePath;
             playground.toiletPossibilities = this.toiletPossibilities;
+            playground.hasSoccerField = this.hasSoccerField;
             playground.streetName = this.streetName;
             playground.streetNumber = this.streetNumber;
             playground.commune = this.commune;
@@ -168,8 +170,11 @@ public class Playground {
     private String commune;
     private int zipCode;
     private Set<User> assignedPedagogue = new HashSet<>();
-    private Set<Event> events = new TreeSet<>();
-    private Set<Message> messages = new TreeSet<>();
+    private Set<Event> events = new HashSet<>();
+    private Set<Message> messages = new HashSet<>();
+
+    private Playground() {
+    }
 
 
     public boolean isHasSoccerField() {
@@ -182,22 +187,21 @@ public class Playground {
 
     @Override
     public String toString() {
-        for (User user : assignedPedagogue) {
-            System.out.println(user);
-        }
-
         return "Playground{" +
-                "_id='" + id + '\'' +
+                "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", imagePath='" + imagePath + '\'' +
                 ", toiletPossibilities=" + toiletPossibilities +
+                ", hasSoccerField=" + hasSoccerField +
                 ", streetName='" + streetName + '\'' +
                 ", streetNumber=" + streetNumber +
                 ", commune='" + commune + '\'' +
                 ", zipCode=" + zipCode +
+                ", assignedPedagogue=" + assignedPedagogue +
+                ", events=" + events +
+                ", messages=" + messages +
                 '}';
     }
-
 
     public String getId() {
         return id;
@@ -287,6 +291,27 @@ public class Playground {
         this.messages = messages;
     }
 
-    private Playground() {
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Playground that = (Playground) o;
+
+        if (toiletPossibilities != that.toiletPossibilities) return false;
+        if (hasSoccerField != that.hasSoccerField) return false;
+        if (streetNumber != that.streetNumber) return false;
+        if (zipCode != that.zipCode) return false;
+        if (!Objects.equals(id, that.id)) return false;
+        if (!Objects.equals(name, that.name)) return false;
+        if (!Objects.equals(imagePath, that.imagePath)) return false;
+        if (!Objects.equals(streetName, that.streetName)) return false;
+        if (!Objects.equals(commune, that.commune)) return false;
+        if (!Objects.equals(assignedPedagogue, that.assignedPedagogue))
+            return false;
+        if (!Objects.equals(events, that.events)) return false;
+        return Objects.equals(messages, that.messages);
     }
 }

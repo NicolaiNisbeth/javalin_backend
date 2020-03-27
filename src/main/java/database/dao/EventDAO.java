@@ -1,5 +1,6 @@
 package database.dao;
 
+import com.mongodb.WriteResult;
 import database.DALException;
 import database.DataSource;
 import database.collections.Event;
@@ -19,19 +20,19 @@ public class EventDAO implements IEventDAO{
      * @throws DALException
      */
     @Override
-    public boolean createEvent(Event event) throws DALException {
+    public WriteResult createEvent(Event event) throws DALException {
         if (event == null)
             throw new DALException(String.format("Can't create event in %s collection when event is null", COLLECTION));
 
         Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(COLLECTION);
 
-        boolean isEventCreated = collection.save(event).wasAcknowledged();
+        WriteResult ws = collection.save(event);
 
-        if (!isEventCreated)
+        if (ws.getN() == 0)
             throw new DALException(String.format("Event can't be created in %s collection", COLLECTION));
 
-        return true;
+        return ws;
     }
 
     /**
@@ -42,6 +43,9 @@ public class EventDAO implements IEventDAO{
      */
     @Override
     public Event getEvent(String id) throws DALException {
+        if (id == null || id.isBlank())
+            throw new DALException(String.format("%s as ID is not valid in identifying an event", id));
+
         Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(COLLECTION);
 
@@ -121,5 +125,18 @@ public class EventDAO implements IEventDAO{
             throw new DALException(String.format("No event in %s collection with id %s", COLLECTION, id));
 
         return true;
+    }
+
+    @Override
+    public boolean deleteAllEvents() throws DALException {
+        Jongo jongo = new Jongo(DataSource.getDB());
+        try {
+            System.out.println(jongo.getCollection(COLLECTION)
+                    .remove("{}"));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
