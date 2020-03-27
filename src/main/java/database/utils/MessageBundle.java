@@ -1,4 +1,4 @@
-package util;
+package database.utils;
 
 import java.text.MessageFormat;
 import java.util.Locale;

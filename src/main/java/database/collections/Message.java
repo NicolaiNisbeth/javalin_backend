@@ -5,6 +5,7 @@ import org.jongo.marshall.jackson.oid.MongoId;
 import org.jongo.marshall.jackson.oid.MongoObjectId;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class Message implements Comparable<Message> {
 
@@ -151,7 +152,7 @@ public class Message implements Comparable<Message> {
         this.messageString = messageString;
     }
 
-    public String getPlaygroundID(){
+    public String getPlaygroundName(){
         return playgroundID;
     }
 
@@ -220,6 +221,26 @@ public class Message implements Comparable<Message> {
 
 
     private Message() {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Message message = (Message) o;
+
+        if (outDated != message.outDated) return false;
+        if (!Objects.equals(id, message.id)) return false;
+        if (!Objects.equals(category, message.category)) return false;
+        if (!Objects.equals(icon, message.icon)) return false;
+        if (!Objects.equals(writtenByID, message.writtenByID)) return false;
+        if (!Objects.equals(messageString, message.messageString))
+            return false;
+        if (!Objects.equals(playgroundID, message.playgroundID))
+            return false;
+        return Objects.equals(date, message.date);
     }
 
     @Override

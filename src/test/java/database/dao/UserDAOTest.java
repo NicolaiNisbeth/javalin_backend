@@ -35,34 +35,19 @@ class UserDAOTest {
 
         userDAO.createUser(user);
 
-        User fetchedUser = userDAO.getUser(user.getId());
+        User fetchedUser = userDAO.getUser(user.getUsername());
         Assertions.assertEquals(user, fetchedUser);
 
-        userDAO.deleteUser(user.getId());
+        userDAO.deleteUser(user.getUsername());
 
         // try to fetch deleted user and confirm that exception is thrown with msg: no event
         DALException thrown = Assertions.assertThrows(
-                DALException.class, () -> userDAO.getUser(user.getId())
+                DALException.class, () -> userDAO.getUser(user.getUsername())
         );
         Assertions.assertTrue(thrown.getMessage().contains("No user"));
     }
 
-    @Test
-    void getUserWithName() throws DALException {
-        User user1 = new User.Builder("s185020")
-                .status("admin")
-                .password("123")
-                .setFirstname("NicolaiL")
-                .build();
-        userDAO.createUser(user1);
 
-        for (User user : userDAO.getUserList()) {
-            System.out.println(user);
-        }
-
-        //userDAO.deleteUser("5e78a7ad8e38fd0fe1f01321");
-        //System.out.println(userDAO.getUserWithUserName("s185020") );
-    }
 
 
     @Test
@@ -92,13 +77,13 @@ class UserDAOTest {
         Assertions.assertEquals(userList.get(0), user1);
         Assertions.assertEquals(userList.get(1), user2);
 
-        userDAO.deleteUser(user1.getId());
-        userDAO.deleteUser(user2.getId());
+        userDAO.deleteUser(user1.getUsername());
+        userDAO.deleteUser(user2.getUsername());
     }
 
     @Test
     void createUser_UpdateUser_deleteUser() throws DALException {
-        User event = new User.Builder("Nicolai")
+        User user = new User.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
                 .email("nicolai.nisbeth@yahoo.com")
@@ -106,15 +91,15 @@ class UserDAOTest {
                 .phoneNumbers("+45 12 34 23 12", "+45 45 74 56 32")
                 .build();
 
-        userDAO.createUser(event);
+        userDAO.createUser(user);
 
-        event.setPassword("123456789");
-        userDAO.updateUser(event);
+        user.setPassword("123456789");
+        userDAO.updateUser(user);
 
-        User updatedUser = userDAO.getUser(event.getId());
+        User updatedUser = userDAO.getUser(user.getUsername());
         Assertions.assertEquals("123456789", updatedUser.getPassword());
 
-        userDAO.deleteUser(event.getId());
+        userDAO.deleteUser(user.getUsername());
     }
 
     @Disabled("This test is disabled because it deletes all users in collection")
@@ -123,5 +108,41 @@ class UserDAOTest {
         for (User i : userDAO.getUserList()) {
             userDAO.deleteUser(i.getId());
         }
+    }
+
+    //Larsens test
+    @Test
+    void getUserWithName() throws DALException {
+
+        User user1 = new User.Builder("s123")
+                .status("pedagog")
+                .password("123")
+                .setFirstname("Lars")
+                .setLastname("Jensen")
+                .build();
+        userDAO.createUser(user1);
+        User user2 = new User.Builder("s123")
+                .status("pedagog")
+                .password("123")
+                .setFirstname("Svend")
+                .setLastname("Blåtand")
+                .build();
+        userDAO.createUser(user2);
+
+        userDAO.deleteUser(user1.getUsername());
+        userDAO.deleteUser(user2.getUsername());
+     /*  User user = userDAO.getUserWithUserName("s185020");
+       user.setStatus("admin");
+        userDAO.updateUser(user);*/
+
+        /*for (User user2 : userDAO.getUserList()) {
+            //userDAO.deleteUser(user.getId());
+            System.out.println(user2);
+        }*/
+
+        //userDAO.deleteUser("5e78a7ad8e38fd0fe1f01321");
+        //System.out.println(userDAO.getUserWithUserName("s185020") );
+
+
     }
 }

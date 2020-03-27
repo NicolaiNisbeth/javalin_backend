@@ -1,16 +1,11 @@
-import database.DALException;
-import database.collections.User;
 import database.dao.Controller;
+import database.utils.Path;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import resources.GalgelegResource;
 import resources.PlaygroundResource;
+import resources.UserAdminResource;
 import resources.UserLogin;
-import util.Path;
-
-import javax.naming.ldap.Control;
-
-import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Main {
     public static Javalin app;
@@ -18,7 +13,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         start();
-        usermethods();
+
     }
 
     public static void stop() {
@@ -53,10 +48,19 @@ public class Main {
         app.get("rest/galgeleg/:username/:guess", ctx ->
                 ctx.result(GalgelegResource.makeGuess(ctx.pathParam("username"), ctx.pathParam("guess"))).contentType("json"));
 
-        app.get("playground_list", ctx ->
-                ctx.json(Controller.getController().getAllPlaygrounds()).contentType("json"));
-        app.post("user_login", ctx ->
-                ctx.json(UserLogin.verificerLogin(ctx.body(), ctx)).contentType("json"));
+        //NJL - er i brug
+        app.get("rest/playground_list", ctx ->
+                ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json"));
+        app.post("rest/user_login", ctx ->
+                ctx.json(UserAdminResource.verifyLogin(ctx.body(), ctx)).contentType("json"));
+        app.post("rest/create_user", ctx ->
+                ctx.result(UserAdminResource.createUser(ctx.body(), ctx)));
+        app.put("rest/update_user", ctx ->
+                ctx.result(UserAdminResource.createUser(ctx.body(), ctx)));
+        app.get("rest/user_list", ctx ->
+                ctx.json(Controller.getInstance().getUsers()).contentType("json"));
+        app.post("rest/remove_user", ctx ->
+                ctx.result(UserAdminResource.deleteUser(ctx.body(), ctx)));
 
         app.routes(() -> {
          before(UserLogin.confirmlogin);

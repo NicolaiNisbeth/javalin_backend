@@ -25,20 +25,38 @@ public class User implements Serializable {
     private String email;
     private String password;
     private String username;
-
+    private String website;
+    private boolean loggedIn;
     private String[] phonenumbers;
     private Set<Event> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
-    private String playgroundID;                  // many-to-1
+    private Set<String> playgroundsIDs = new HashSet<>();
 
-    public Set<String> getPlaygroundsIDs() {
+
+    public boolean isLoggedIn() {
+        return loggedIn;
+    }
+
+    public void setLoggedIn(boolean loggedIn) {
+        this.loggedIn = loggedIn;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
+
+
+    public Set<String> getPlaygroundNames() {
         return playgroundsIDs;
     }
 
     public void setPlaygroundsIDs(Set<String> playgroundsIDs) {
         this.playgroundsIDs = playgroundsIDs;
     }
-
-    private Set<String> playgroundsIDs = new HashSet<>();
 
 
     //This constructor is used for MongoDB mapping
@@ -72,8 +90,9 @@ public class User implements Serializable {
         this.password = builder.password;
         this.phonenumbers = builder.phonenumbers;
         this.events = builder.events;
-        this.playgroundID = builder.playgroundID;
         this.playgroundsIDs = builder.playgroundsIDs;
+        this.website = builder.website;
+        this.loggedIn = builder.loggedIn;
     }
 
     public String getId() {
@@ -140,14 +159,6 @@ public class User implements Serializable {
         this.events = events;
     }
 
-    public String getPlaygroundID() {
-        return playgroundID;
-    }
-
-    public void setPlaygroundID(String playgroundID) {
-        this.playgroundID = playgroundID;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -174,11 +185,11 @@ public class User implements Serializable {
                 ", password='" + password + '\'' +
                 ", phoneNumbers=" + Arrays.toString(phonenumbers) +
                 ", events=" + events +
-                ", playground=" + playgroundID +
                 '}';
     }
 
     public static class Builder {
+        public boolean loggedIn;
         private String username;
         private String status;
         private String imagePath;
@@ -187,14 +198,22 @@ public class User implements Serializable {
         private String[] phonenumbers;
         private Set<Event> events = new HashSet<>();
         private Set<String> playgroundsIDs = new HashSet<>();
-        private String playgroundID;
         private String firstname;
         private String lastname;
         private String id;
-
+        private String website;
 
         public Builder(String username) {
             this.username = username;
+        }
+
+        public boolean isLoggedIn() {
+            return loggedIn;
+        }
+
+        public Builder setLoggedIn(boolean loggedIn) {
+            this.loggedIn = loggedIn;
+            return this;
         }
 
         public Builder status(String status) {
@@ -267,14 +286,8 @@ public class User implements Serializable {
 
         }
 
-        public String getPlaygroundID() {
-            return playgroundID;
-        }
-
-        public Builder setPlaygroundID(String playgroundID) {
-            this.playgroundID = playgroundID;
-            return this;
-
+        public Set<String> getPlaygroundID2() {
+            return playgroundsIDs;
         }
 
         public String getId() {
@@ -307,11 +320,6 @@ public class User implements Serializable {
             return this;
         }
 
-        public Builder playground(String playground) {
-            this.playgroundID = playground;
-            return this;
-        }
-
         public String getUsername() {
             return username;
         }
@@ -341,6 +349,15 @@ public class User implements Serializable {
 
         public User build() {
             return new User(this);
+        }
+
+        public String getWebsite() {
+            return website;
+        }
+
+        public Builder setWebsite(String website) {
+            this.website = website;
+            return this;
         }
     }
 }

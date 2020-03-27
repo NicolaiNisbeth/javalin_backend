@@ -2,15 +2,13 @@ package resources;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
-import database.DALException;
 import database.collections.User;
 import database.dao.Controller;
 import io.javalin.http.Handler;
 import org.json.JSONObject;
 
 import io.javalin.http.Context;
-import util.Path;
-import util.ViewUtil;
+import database.utils.ViewUtil;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -22,12 +20,10 @@ public class UserLogin {
     private static Brugeradmin ba;
 
     public static User isUserInDB(Bruger bruger) {
-        User user = null;
-        try {
-           user = Controller.getController().getUserWithUserName(bruger.brugernavn);
-        } catch (DALException e) {
-            System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");
+        User user = Controller.getInstance().getUser(bruger.brugernavn);
 
+        if (user == null){
+            System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");
             user = new User.Builder(bruger.brugernavn)
                     .setFirstname(bruger.fornavn)
                     .setLastname(bruger.efternavn)
@@ -35,12 +31,10 @@ public class UserLogin {
                     .password(bruger.adgangskode)
                     .status("pedagogue")
                     .build();
-            try {
-                Controller.getController().createUser(user);
-            } catch (DALException e1) {
-                e1.printStackTrace();
-            }
+
+            Controller.getInstance().createUser(user);
         }
+
         return user;
     }
 

@@ -1,11 +1,11 @@
-package util;
+package database.utils;
 
 import io.javalin.http.Context;
 import io.javalin.http.ErrorHandler;
 import java.util.HashMap;
 import java.util.Map;
 
-import static util.RequestUtil.*;
+import static database.utils.RequestUtil.*;
 
 public class ViewUtil {
 
