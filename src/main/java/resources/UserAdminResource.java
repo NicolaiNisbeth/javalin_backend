@@ -168,7 +168,7 @@ public class UserAdminResource {
         }
         return "updated";
     }
-
+//lavet backup
     public static String deleteUser(String body, Context ctx) {
         JSONObject jsonObject = new JSONObject(body);
         String adminUsername = jsonObject.getString("username");
