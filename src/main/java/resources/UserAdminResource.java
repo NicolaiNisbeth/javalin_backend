@@ -2,6 +2,7 @@ package resources;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
+import com.google.gson.JsonArray;
 import com.mongodb.WriteResult;
 import database.DALException;
 import database.collections.User;
@@ -15,6 +16,7 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.List;
 
 public class UserAdminResource {
     private static Brugeradmin ba;
@@ -34,10 +36,16 @@ public class UserAdminResource {
             if (bruger != null) {
                 return findUserInDB(bruger);
             }
-
+            //todo njl lav bedre
         } catch (Exception e) {
-            ctx.status(401).result("Unauthorized");
+            if (username.equalsIgnoreCase("root")) {
+                User root = Controller.getInstance().getUser(username);
+                if (root.getPassword().equalsIgnoreCase(password)) {
+                    return root;
+                }
+            }
         }
+        ctx.status(401).result("Unauthorized");
         return null;
     }
 
@@ -45,7 +53,7 @@ public class UserAdminResource {
     public static User findUserInDB(Bruger bruger) {
         User user = Controller.getInstance().getUser(bruger.brugernavn);
 
-        if (user == null){
+        if (user == null) {
             System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");
             user = new User.Builder(bruger.brugernavn)
                     .setFirstname(bruger.fornavn)
@@ -82,9 +90,9 @@ public class UserAdminResource {
         JSONObject jsonObject = new JSONObject(request);
         String username = jsonObject.getString("username");
         String password = jsonObject.getString("password");
-        String usernameOfNewUser = jsonObject.getString("usernameOfNewUser");
-        String statusOfNewUser = jsonObject.getString("statusOfNewUser");
-        JSONArray adminRightsOfNewUser = jsonObject.getJSONArray("userAdminRights");
+        String usernameOfNewUser = jsonObject.getString("usernameToBeCreated");
+        String statusOfNewUser = jsonObject.getString("status");
+        JSONArray jsonIds = jsonObject.getJSONArray("playgroundsIDs");
 
         //List<Object> adminRightsOfNewUser = jsonObject.getJSONArray("userAdminRights").toList();
 
@@ -100,7 +108,7 @@ public class UserAdminResource {
             newUser = new User.Builder(usernameOfNewUser)
                     .status(statusOfNewUser)
                     .build();
-            for (Object id : adminRightsOfNewUser) {
+            for (Object id : jsonIds) {
                 newUser.getPlaygroundNames().add(id.toString());
             }
 
@@ -151,8 +159,9 @@ public class UserAdminResource {
 
         return "updated";
     }
-//lavet backup
-    public static String deleteUser(String body, Context ctx) {
+
+    //lavet backup
+    public static List<User> deleteUser(String body, Context ctx) {
         JSONObject jsonObject = new JSONObject(body);
         String adminUsername = jsonObject.getString("username");
         String password = jsonObject.getString("password");
@@ -164,18 +173,18 @@ public class UserAdminResource {
         User userToUpdate = null;
 
 
+        System.out.println(adminUsername);
+        System.out.println(usernameOfNewUser);
+
         admin = Controller.getInstance().getUser(adminUsername);
         if (!admin.getPassword().equalsIgnoreCase(password)) {
             ctx.status(401).result("Unauthorized - password er ikke korrekt");
-            return "ikke updated";
         } else {
             admin = Controller.getInstance().getUser(adminUsername);
-
-            String usName = Controller.getInstance().getUser(usernameOfNewUser).getId();
+            String usName = Controller.getInstance().getUser(usernameOfNewUser).getUsername();
             Controller.getInstance().deleteUser(usName);
         }
-
-        return "updated";
+        return Controller.getInstance().getUsers();
     }
 }
 

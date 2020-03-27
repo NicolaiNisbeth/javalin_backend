@@ -48,8 +48,6 @@ class UserDAOTest {
     }
 
 
-
-
     @Test
     void createUsers_GetUserList_DeleteUsers() throws DALException {
         User user1 = new User.Builder("Nicolai")
@@ -113,35 +111,37 @@ class UserDAOTest {
     //Larsens test
     @Test
     void getUserWithName() throws DALException {
-
-        User user1 = new User.Builder("s123")
-                .status("pedagog")
-                .password("123")
-                .setFirstname("Lars")
-                .setLastname("Jensen")
+        User user1 = new User.Builder("root")
+                .status("admin")
+                .password("root")
+                .setFirstname("Base")
+                .setLastname("Admin")
                 .build();
         userDAO.createUser(user1);
+       /*
         User user2 = new User.Builder("s123")
                 .status("pedagog")
                 .password("123")
                 .setFirstname("Svend")
                 .setLastname("Blåtand")
                 .build();
-        userDAO.createUser(user2);
+        userDAO.createUser(user2);*/
 
-        userDAO.deleteUser(user1.getUsername());
-        userDAO.deleteUser(user2.getUsername());
+       /* userDAO.deleteUser(user1.getUsername());
+        userDAO.deleteUser(user2.getUsername());*/
      /*  User user = userDAO.getUserWithUserName("s185020");
        user.setStatus("admin");
         userDAO.updateUser(user);*/
 
-        /*for (User user2 : userDAO.getUserList()) {
-            //userDAO.deleteUser(user.getId());
+     /*   for (User user2 : userDAO.getUserList()) {
             System.out.println(user2);
-        }*/
 
-        //userDAO.deleteUser("5e78a7ad8e38fd0fe1f01321");
-        //System.out.println(userDAO.getUserWithUserName("s185020") );
+            if (!user2.getUsername().equalsIgnoreCase("s185040")) {
+
+                userDAO.deleteUser(user2.getUsername());
+            }
+        }
+*/
 
 
     }

@@ -56,8 +56,6 @@ public class Main {
         app.get("rest/user_list", ctx ->
                 ctx.json(Controller.getInstance().getUsers()).contentType("json"));
         app.post("rest/remove_user", ctx ->
-                ctx.result(UserAdminResource.deleteUser(ctx.body(), ctx)));
-
-
+                ctx.json(UserAdminResource.deleteUser(ctx.body(), ctx)).contentType("json"));
     }
 }
