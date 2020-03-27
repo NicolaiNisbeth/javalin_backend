@@ -31,8 +31,7 @@ public class Message implements Comparable<Message> {
             return this;
         }
 
-        public Builder() {
-        }
+        public Builder() { }
 
         public String get_id() {
             return _id;

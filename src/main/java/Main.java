@@ -37,6 +37,12 @@ public class Main {
         });
         app.config.addStaticFiles("webapp");
 
+        app.routes(() -> {
+            before(UserLogin.confirmlogin);
+            get(Path.Playground.PLAYGROUND_ALL, PlaygroundResource.AllPlaygroundsHandlerGet);
+            get(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.OnePlaygroundHandlerGet);
+        });
+
         // REST endpoints
         app.get("/rest/hej", ctx -> ctx.result("Hejsa, godt at møde dig!"));
         app.get("/rest/hej/:fornavn", ctx -> ctx.result("Hej " + ctx.queryParam("fornavn") + ", godt at møde dig!"));
@@ -62,40 +68,9 @@ public class Main {
         app.post("rest/remove_user", ctx ->
                 ctx.result(UserAdminResource.deleteUser(ctx.body(), ctx)));
 
+
+
         app.routes(() -> {
-         before(UserLogin.confirmlogin);
-         get(Path.Playground.PLAYGROUND_ALL, PlaygroundResource.AllPlaygroundsHandlerGet);
-         get(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.OnePlaygroundHandlerGet);
-
         });
-    }
-
-    public static void usermethods() throws Exception {
-        /*
-        User getUser(User activeUser, String userID) throws DALException;
-
-        void createUser(User activeUser, User userToBeCreated) throws DALException;
-        void updateUser(User activeUser, User updatedUser) throws DALException;
-        void deleteUser(User activeUser, String userID) throws DALException;
-        */
-
-
-        // username og password er den bruger der selv er logget på.
-        app.get("users/:id/:username/:password", ctx -> {
-            User user = UserLogin.verificerLogin(ctx.body(),ctx);
-            if (user != null) {
-            ctx.json(Controller.getController().getUser(user,ctx.pathParam("id"))).contentType("json");
-            ctx.status(200);
-            }
-            else
-                // 401 is status code for unauthorized .
-                ctx.status(401);
-        });
-
-        //app.post("users/:id/:username", ctx -> ctx.json(Controller.getController().createUser(ctx.pathParam())))
-
-        //app.routes(() -> { crud("users/:id", Controller.getController().get); });
-
-        //app.post("users/:id", () -> { })
     }
 }
