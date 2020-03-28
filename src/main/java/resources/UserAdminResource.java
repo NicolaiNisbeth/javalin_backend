@@ -7,6 +7,7 @@ import database.DALException;
 import database.collections.User;
 import database.dao.Controller;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import io.javalin.http.Context;
@@ -102,6 +103,7 @@ public class UserAdminResource {
         }
         return user;
     }
+
     //todo ryd op
     //todo få sat nogle ordentlige status koder på
     //bruges af admins til at give brugere rettigheder - INDEN de selv er logget på første gang
@@ -141,14 +143,14 @@ public class UserAdminResource {
                     .status(status)
                     .build();
 
-            newUser.setPassword(password);
+            //newUser.setPassword(password);
             newUser.setFirstname(firstName);
             newUser.setLastname(lastName);
             newUser.setStatus(status);
             newUser.setEmail(email);
             newUser.setWebsite(website);
             newUser.setImagepath(imagePath);
-            String [] phoneNumbers = new String[1];
+            String[] phoneNumbers = new String[1];
             phoneNumbers[0] = phoneNumber;
             newUser.setPhonenumbers(phoneNumbers);
 
@@ -177,7 +179,7 @@ public class UserAdminResource {
         String username = jsonObject.getString(USERNAME);
         String password = jsonObject.getString(PASSWORD);
         String firstName = jsonObject.getString(FIRSTNAME);
-        String lastName = jsonObject.getString(FIRSTNAME);
+        String lastName = jsonObject.getString(LASTNAME);
         String email = jsonObject.getString(EMAIL);
         String status = jsonObject.getString(STATUS);
         JSONArray playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
@@ -204,14 +206,14 @@ public class UserAdminResource {
                 e.printStackTrace();
             }
 
-            userToUpdate.setPassword(password);
+            //userToUpdate.setPassword(password);
             userToUpdate.setFirstname(firstName);
             userToUpdate.setLastname(lastName);
             userToUpdate.setStatus(status);
             userToUpdate.setEmail(email);
             userToUpdate.setWebsite(website);
             userToUpdate.setImagepath(imagePath);
-            String [] phoneNumbers = new String[1];
+            String[] phoneNumbers = new String[1];
             phoneNumbers[0] = phoneNumber;
             userToUpdate.setPhonenumbers(phoneNumbers);
             userToUpdate.getPlaygroundsIDs().removeAll(userToUpdate.getPlaygroundsIDs());
