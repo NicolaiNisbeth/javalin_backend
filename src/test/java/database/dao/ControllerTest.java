@@ -1,6 +1,7 @@
 package database.dao;
 
 import com.mongodb.WriteResult;
+import database.DALException;
 import database.collections.*;
 import org.junit.jupiter.api.*;
 
@@ -76,7 +77,7 @@ class ControllerTest {
 
     @Test
     @DisplayName("Create and delete user")
-    void createUser() {
+    void createUser() throws DALException {
         User user = new User.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
@@ -162,7 +163,7 @@ class ControllerTest {
     }
 
     @Test
-    void getUser() {
+    void getUser() throws DALException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -512,7 +513,7 @@ class ControllerTest {
     }
 
     @Test
-    void updateUser() {
+    void updateUser() throws DALException {
         User user = new User.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
@@ -646,7 +647,7 @@ class ControllerTest {
     }
 
     @Test
-    void deletePlayground() {
+    void deletePlayground() throws DALException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -713,14 +714,14 @@ class ControllerTest {
         User updatedUser = beta.getUser(playPovPedagogue.getUsername());
 
         Assertions.assertAll(
-                () -> assertFalse(updatedUser.getPlaygroundNames().iterator().hasNext())
+                () -> assertFalse(updatedUser.getPlaygroundsIDs().iterator().hasNext())
         );
 
         beta.deleteUser(updatedUser.getUsername());
     }
 
     @Test
-    void deleteUser() {
+    void deleteUser() throws DALException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -767,7 +768,7 @@ class ControllerTest {
 
         Assertions.assertAll(
                 () -> assertEquals(eventID, fetchedUser.getEvents().iterator().next().getId()),
-                () -> assertEquals(playground.getName(), fetchedUser.getPlaygroundNames().iterator().next()),
+                () -> assertEquals(playground.getName(), fetchedUser.getPlaygroundsIDs().iterator().next()),
                 () -> assertEquals(fetchedPlayground.getAssignedPedagogue().iterator().next().getUsername(), user.getUsername()),
                 () -> assertEquals(fetchedEvent.getAssignedUsers().iterator().next().getUsername(), user.getUsername())
         );

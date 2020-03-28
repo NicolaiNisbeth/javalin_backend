@@ -1,6 +1,7 @@
 package database.dao;
 
 import com.mongodb.WriteResult;
+import database.DALException;
 import database.collections.Event;
 import database.collections.Message;
 import database.collections.Playground;
@@ -16,7 +17,7 @@ public interface IController {
 
     // READ
     Playground getPlayground(String playgroundName);
-    User getUser(String username);
+    User getUser(String username) throws DALException;
     Event getEvent(String eventID);
     Message getMessage(String messageID);
 

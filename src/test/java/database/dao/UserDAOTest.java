@@ -111,13 +111,18 @@ class UserDAOTest {
     //Larsens test
     @Test
     void getUserWithName() throws DALException {
-        User user1 = new User.Builder("root")
+        User user = userDAO.getUser("root");
+        user.setPassword("root");
+        userDAO.updateUser(user);
+
+       /* User user1 = new User.Builder("root")
                 .status("admin")
                 .password("root")
                 .setFirstname("Base")
                 .setLastname("Admin")
                 .build();
-        userDAO.createUser(user1);
+        userDAO.createUser(user1);*/
+
        /*
         User user2 = new User.Builder("s123")
                 .status("pedagog")
@@ -129,6 +134,7 @@ class UserDAOTest {
 
        /* userDAO.deleteUser(user1.getUsername());
         userDAO.deleteUser(user2.getUsername());*/
+
      /*  User user = userDAO.getUserWithUserName("s185020");
        user.setStatus("admin");
         userDAO.updateUser(user);*/
@@ -140,8 +146,7 @@ class UserDAOTest {
 
                 userDAO.deleteUser(user2.getUsername());
             }
-        }
-*/
+        }*/
 
 
     }
