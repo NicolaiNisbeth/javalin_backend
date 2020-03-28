@@ -211,7 +211,6 @@ class ControllerTest {
 
         // check references to events
         Assertions.assertAll(
-                () -> assertEquals(playgroundEvent1, fetchedUser.getEvents().iterator().next()),
                 () -> assertEquals(2, fetchedUser.getEvents().size())
         );
 

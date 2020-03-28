@@ -43,10 +43,9 @@ public class EventDAO implements IEventDAO{
      */
     @Override
     public Event getEvent(String id) throws DALException {
-       /* todo fix Nisbeth
-       if (id == null || id.isBlank())
+       if (id == null || id.isEmpty())
             throw new DALException(String.format("%s as ID is not valid in identifying an event", id));
-*/
+
         Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(COLLECTION);
 
