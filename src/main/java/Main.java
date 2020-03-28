@@ -50,9 +50,9 @@ public class Main {
         app.post("rest/user_login", ctx ->
                 ctx.json(UserAdminResource.verifyLogin(ctx.body(), ctx)).contentType("json"));
         app.post("rest/create_user", ctx ->
-                ctx.result(UserAdminResource.createUser(ctx.body(), ctx)));
+                ctx.json(UserAdminResource.createUser(ctx.body(), ctx)).contentType("json"));
         app.put("rest/update_user", ctx ->
-                ctx.result(UserAdminResource.createUser(ctx.body(), ctx)));
+                ctx.json(UserAdminResource.updateUser(ctx.body(), ctx)).contentType("json"));
         app.get("rest/user_list", ctx ->
                 ctx.json(Controller.getInstance().getUsers()).contentType("json"));
         app.post("rest/remove_user", ctx ->

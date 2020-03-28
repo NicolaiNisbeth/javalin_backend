@@ -18,7 +18,12 @@ public class UserLogin {
     private static Brugeradmin ba;
 
     public static User isUserInDB(Bruger bruger) {
-        User user = Controller.getInstance().getUser(bruger.brugernavn);
+        User user = null;
+        try {
+            user = Controller.getInstance().getUser(bruger.brugernavn);
+        } catch (DALException e) {
+            e.printStackTrace();
+        }
 
         if (user == null){
             System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");

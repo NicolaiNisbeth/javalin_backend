@@ -66,8 +66,8 @@ public class Controller implements IController {
             // fetch assigned pedagogues based on username
             Set<User> assignedPedagogue = playground.getAssignedPedagogue();
             Set<User> updatedPedagogue = new HashSet<>();
-            if (!assignedPedagogue.isEmpty()){
-                for (User usernameObj : assignedPedagogue){
+            if (!assignedPedagogue.isEmpty()) {
+                for (User usernameObj : assignedPedagogue) {
                     User user = userDAO.getUser(usernameObj.getUsername());
                     updatedPedagogue.add(user);
                 }
@@ -77,8 +77,8 @@ public class Controller implements IController {
             // fetch events based on id
             Set<Event> events = playground.getEvents();
             Set<Event> updatedEvents = new HashSet<>();
-            if (!events.isEmpty()){
-                for (Event idObj : events){
+            if (!events.isEmpty()) {
+                for (Event idObj : events) {
                     Event event = eventDAO.getEvent(idObj.getId());
                     updatedEvents.add(event);
                 }
@@ -89,8 +89,8 @@ public class Controller implements IController {
             // fetch messages based on id
             Set<Message> messages = playground.getMessages();
             Set<Message> updatedMessage = new HashSet<>();
-            if (!messages.isEmpty()){
-                for (Message idObj : messages){
+            if (!messages.isEmpty()) {
+                for (Message idObj : messages) {
                     Message message = messageDAO.getMessage(idObj.getId());
                     updatedMessage.add(message);
                 }
@@ -104,27 +104,23 @@ public class Controller implements IController {
         return null;
     }
 
+
+    // todo rettet af NJL
     @Override
-    public User getUser(String username) {
-        try {
-            User user = userDAO.getUser(username);
+    public User getUser(String username) throws DALException {
+        User user = userDAO.getUser(username);
 
-            // fetch all events based on id
-            Set<Event> events = user.getEvents();
-            Set<Event> updatedEvents = new HashSet<>();
-            if (!events.isEmpty()){
-                for (Event value : events) {
-                    Event event = eventDAO.getEvent(value.getId());
-                    updatedEvents.add(event);
-                }
+        // fetch all events based on id
+        Set<Event> events = user.getEvents();
+        Set<Event> updatedEvents = new HashSet<>();
+        if (!events.isEmpty()) {
+            for (Event value : events) {
+                Event event = eventDAO.getEvent(value.getId());
+                updatedEvents.add(event);
             }
-            user.setEvents(updatedEvents);
-            return user;
-
-        } catch (DALException e) {
-            e.printStackTrace();
         }
-        return null;
+        user.setEvents(updatedEvents);
+        return user;
     }
 
     @Override
@@ -136,8 +132,8 @@ public class Controller implements IController {
             // fetch all users based on id
             Set<User> users = event.getAssignedUsers();
             Set<User> updatedUser = new HashSet<>();
-            if (!users.isEmpty()){
-                for (User user : users){
+            if (!users.isEmpty()) {
+                for (User user : users) {
                     User u = userDAO.getUser(user.getUsername());
                     updatedUser.add(u);
                 }
@@ -178,7 +174,7 @@ public class Controller implements IController {
         List<User> list = null;
         try {
             list = userDAO.getUserList();
-        } catch (DALException e){
+        } catch (DALException e) {
             e.printStackTrace();
         }
         return list;
@@ -290,7 +286,7 @@ public class Controller implements IController {
             User user = userDAO.getUser(username);
 
             // delete user reference from playground
-            for (String playgroundName : user.getPlaygroundNames())
+            for (String playgroundName : user.getPlaygroundsIDs())
                 removePedagogueFromPlayground(playgroundName, username);
 
             // delete user reference in events
@@ -312,7 +308,7 @@ public class Controller implements IController {
         try {
             // insert playground reference in user
             User pedagogue = userDAO.getUser(username);
-            pedagogue.getPlaygroundNames().add(plagroundName);
+            pedagogue.getPlaygroundsIDs().add(plagroundName);
             userDAO.updateUser(pedagogue);
 
             // insert user reference in playground
@@ -388,7 +384,7 @@ public class Controller implements IController {
     public boolean removePedagogueFromPlayground(String playgroundName, String username) {
         MongoCollection playground = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
         try {
-            QueryUtils.updateWithPullObject(playground, "name", playgroundName, "assignedPedagogue","username", username);
+            QueryUtils.updateWithPullObject(playground, "name", playgroundName, "assignedPedagogue", "username", username);
         } catch (DALException e) {
             e.printStackTrace();
         }
@@ -414,7 +410,7 @@ public class Controller implements IController {
 
             // delete event reference in users
             MongoCollection users = new Jongo(DataSource.getDB()).getCollection(IUserDAO.COLLECTION);
-            for (User user : event.getAssignedUsers()){
+            for (User user : event.getAssignedUsers()) {
                 QueryUtils.updateWithPullObject(users, "username", user.getUsername(), "events", "_id", new ObjectId(eventID));
             }
 

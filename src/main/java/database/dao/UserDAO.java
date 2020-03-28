@@ -52,7 +52,6 @@ public class UserDAO implements IUserDAO {
 
         if (user == null)
             throw new DALException(String.format("No user in %s collection with username %s", COLLECTION, username));
-
         return user;
     }
 
