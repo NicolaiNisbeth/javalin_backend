@@ -3,11 +3,15 @@ import io.javalin.Javalin;
 import resources.GalgelegResource;
 import resources.UserAdminResource;
 
+import java.util.HashMap;
+import java.util.HashSet;
+
 public class Main {
     public static Javalin app;
-
+    private static HashMap<String, String> profileImages;
 
     public static void main(String[] args) throws Exception {
+        profileImages = new HashMap<>();
         start();
 
     }
@@ -52,10 +56,23 @@ public class Main {
         app.post("rest/create_user", ctx ->
                 ctx.json(UserAdminResource.createUser(ctx.body(), ctx)).contentType("json"));
         app.put("rest/update_user", ctx ->
-                ctx.json(UserAdminResource.updateUser(ctx.body(), ctx)).contentType("json"));
+                ctx.json(UserAdminResource.updateUser2(ctx.body(), ctx)).contentType("json"));
         app.get("rest/user_list", ctx ->
                 ctx.json(Controller.getInstance().getUsers()).contentType("json"));
         app.post("rest/remove_user", ctx ->
                 ctx.json(UserAdminResource.deleteUser(ctx.body(), ctx)).contentType("json"));
+
+
+
+        app.get("rest/user_list/images", ctx ->
+                ctx.json(getPictures()).contentType("json"));
+
+        app.get("rest/set_image", ctx ->
+                ctx.json(getPictures()).contentType("json"));
+
+    }
+
+    private static Object getPictures() {
+       return profileImages.put("s185020", "");
     }
 }

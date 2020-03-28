@@ -6,12 +6,15 @@ import com.mongodb.WriteResult;
 import database.DALException;
 import database.collections.User;
 import database.dao.Controller;
+import org.eclipse.jetty.client.HttpRequest;
+import org.eclipse.jetty.http.MultiPartFormInputStream;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import io.javalin.http.Context;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -172,6 +175,20 @@ public class UserAdminResource {
 
     //todo få sat nogle ordentlige status koder på
     //bruges af admins til at give brugere rettigheder - EFTER de selv er logget på første gang
+    public static List<User> updateUser2(String request, Context ctx) {
+        JSONObject jsonObject = new JSONObject(request);
+        String username = jsonObject.getString(USERNAME);
+        String imagePath = jsonObject.getString(IMAGEPATH);
+        JSONObject image = jsonObject.getJSONObject("image");
+        User admin = null;
+        User userToUpdate = null;
+
+
+        return Controller.getInstance().getUsers();
+    }
+
+    //todo få sat nogle ordentlige status koder på
+    //bruges af admins til at give brugere rettigheder - EFTER de selv er logget på første gang
     public static List<User> updateUser(String request, Context ctx) {
         JSONObject jsonObject = new JSONObject(request);
         String usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
@@ -186,6 +203,7 @@ public class UserAdminResource {
         String phoneNumber = jsonObject.getString(PHONENUMBER);
         String imagePath = jsonObject.getString(IMAGEPATH);
         String website = jsonObject.getString(WEBSITE);
+
 
         User admin = null;
         User userToUpdate = null;
@@ -205,6 +223,8 @@ public class UserAdminResource {
             } catch (DALException e) {
                 e.printStackTrace();
             }
+
+
 
             //userToUpdate.setPassword(password);
             userToUpdate.setFirstname(firstName);
@@ -230,6 +250,7 @@ public class UserAdminResource {
         }
         return Controller.getInstance().getUsers();
     }
+
 
     //lavet backup
     public static List<User> deleteUser(String body, Context ctx) {
