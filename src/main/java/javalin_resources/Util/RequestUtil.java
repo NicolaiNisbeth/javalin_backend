@@ -1,4 +1,4 @@
-package database.utils;
+package javalin_resources.Util;
 
 
 import io.javalin.http.Context;

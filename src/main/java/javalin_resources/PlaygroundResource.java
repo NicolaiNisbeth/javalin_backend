@@ -1,12 +1,10 @@
-package resources;
+package javalin_resources;
 
 
 import database.collections.*;
 import database.dao.Controller;
-import database.dao.PlaygroundDAO;
 import io.javalin.http.Handler;
-import database.utils.ViewUtil;
-import org.json.JSONArray;
+import javalin_resources.Util.ViewUtil;
 import org.json.JSONObject;
 
 import java.util.*;
@@ -21,12 +19,17 @@ public class PlaygroundResource {
 
     public static Handler OnePlaygroundHandlerGet = ctx -> {
         Map<String, Object> model = ViewUtil.baseModel(ctx);
-        model.put("playgrounds", Controller.getInstance().getPlayground(ctx.queryParam("playground_name")));
+        model.put("playground", Controller.getInstance().getPlayground(ctx.queryParam("name")));
     };
 
-    public static Handler OnePlaygroundEmployeeHandlerGet = ctx -> {
+    public static Handler OnePlaygroundAllEmployeeHandlerGet = ctx -> {
         Map<String, Object> model = ViewUtil.baseModel(ctx);
-        model.put("playgrounds", Controller.getInstance().getPlayground(ctx.queryParam("playground_name")).getAssignedPedagogue());
+        model.put("pedagogues", Controller.getInstance().getPlayground(ctx.queryParam("name")).getAssignedPedagogue());
+    };
+
+    public static Handler OnePlaygroundOneEmployeeHandlerGet = ctx -> {
+        Map<String, Object> model = ViewUtil.baseModel(ctx);
+        model.put("pedagogue", Controller.getInstance().getUser(ctx.queryParam("username")));
     };
         //TODO
 

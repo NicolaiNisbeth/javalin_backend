@@ -1,9 +1,8 @@
-package resources;
+package javalin_resources;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import com.mongodb.WriteResult;
-import database.DALException;
 import database.collections.User;
 import database.dao.Controller;
 import org.json.JSONArray;

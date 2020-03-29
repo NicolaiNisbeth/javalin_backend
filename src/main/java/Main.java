@@ -1,11 +1,10 @@
 import database.dao.Controller;
-import database.utils.Path;
+import javalin_resources.Util.Path;
 import io.javalin.Javalin;
-import io.javalin.http.Context;
-import resources.GalgelegResource;
-import resources.PlaygroundResource;
-import resources.UserAdminResource;
-import resources.UserLogin;
+import javalin_resources.*;
+
+import static io.javalin.apibuilder.ApiBuilder.*;
+import static io.javalin.apibuilder.ApiBuilder.post;
 
 public class Main {
     public static Javalin app;
@@ -37,11 +36,6 @@ public class Main {
         });
         app.config.addStaticFiles("webapp");
 
-        app.routes(() -> {
-            before(UserLogin.confirmlogin);
-            get(Path.Playground.PLAYGROUND_ALL, PlaygroundResource.AllPlaygroundsHandlerGet);
-            get(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.OnePlaygroundHandlerGet);
-        });
 
         // REST endpoints
         app.get("/rest/hej", ctx -> ctx.result("Hejsa, godt at møde dig!"));
@@ -68,9 +62,17 @@ public class Main {
         app.post("rest/remove_user", ctx ->
                 ctx.result(UserAdminResource.deleteUser(ctx.body(), ctx)));
 
-
-
         app.routes(() -> {
+
+            get(Path.Playground.PLAYGROUND_ALL, PlaygroundResource.AllPlaygroundsHandlerGet);
+            get(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.OnePlaygroundHandlerGet);
+
+            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, PlaygroundResource.OnePlaygroundAllEmployeeHandlerGet);
+            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, PlaygroundResource.OnePlaygroundOneEmployeeHandlerGet);
+
+            get(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, EventRessource.PlayGroundAllEventsHandlerGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT, EventRessource.OneEventHandlerGet);
+
         });
     }
 }

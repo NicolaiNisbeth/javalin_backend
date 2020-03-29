@@ -1,4 +1,4 @@
-package resources;
+package javalin_resources;
 
 
 import server.rmi.IGalgelegRMI;
@@ -9,7 +9,6 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.List;
 
 //@Path("/galgeleg")
 public class GalgelegResource {

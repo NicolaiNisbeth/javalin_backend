@@ -1,10 +1,9 @@
-package resources;
+package javalin_resources;
 
 import database.collections.Details;
-import database.collections.Event;
 import database.collections.Message;
 import database.dao.Controller;
-import database.utils.ViewUtil;
+import javalin_resources.Util.ViewUtil;
 import io.javalin.http.Handler;
 import org.json.JSONObject;
 

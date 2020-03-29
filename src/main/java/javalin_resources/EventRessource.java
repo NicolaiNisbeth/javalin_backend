@@ -1,12 +1,10 @@
-package resources;
+package javalin_resources;
 
-import com.google.gson.JsonObject;
 import database.collections.Details;
 import database.collections.Event;
-import database.collections.Message;
 import database.collections.User;
 import database.dao.Controller;
-import database.utils.ViewUtil;
+import javalin_resources.Util.ViewUtil;
 import io.javalin.http.Handler;
 import org.json.JSONObject;
 
@@ -17,9 +15,9 @@ public class EventRessource {
     public static Handler OneEventHandlerGet = ctx -> {
         Map<String, Object> model = ViewUtil.baseModel(ctx);
         // TODO er parameteren name?
-        Event event = Controller.getInstance().getEvent(ctx.pathParam("name"));
+        Event event = Controller.getInstance().getEvent(ctx.pathParam("id"));
         if (model != null) {
-            model.get(event);
+            model.put("event", event);
             ctx.status(200);
         } else
             ctx.status(404);
@@ -27,7 +25,7 @@ public class EventRessource {
 
     public static Handler PlayGroundAllEventsHandlerGet = ctx -> {
         Map<String, Object> model = ViewUtil.baseModel(ctx);
-        List<Event> events = Controller.getInstance().getPlaygroundEvents(ctx.pathParam("playground"));
+        List<Event> events = Controller.getInstance().getPlaygroundEvents(ctx.pathParam("name"));
         if (events != null) {
             model.put("messages", events);
             ctx.status(200);

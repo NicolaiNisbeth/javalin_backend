@@ -1,4 +1,4 @@
-package resources;
+package javalin_resources;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
@@ -8,7 +8,7 @@ import io.javalin.http.Handler;
 import org.json.JSONObject;
 
 import io.javalin.http.Context;
-import database.utils.ViewUtil;
+import javalin_resources.Util.ViewUtil;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
