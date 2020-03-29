@@ -61,7 +61,7 @@ public class Event implements Comparable<Event>{
     }
 
     public int getParticipants() {
-        return participants;
+        return assignedUsers.size();
     }
 
     public void setParticipants(int participants) {

@@ -1,10 +1,12 @@
 import database.dao.Controller;
-import javalin_resources.Util.Path;
 import io.javalin.Javalin;
-import javalin_resources.*;
+import javalin_resources.EventRessource;
+import javalin_resources.GalgelegResource;
+import javalin_resources.PlaygroundResource;
+import javalin_resources.UserAdminResource;
+import javalin_resources.Util.Path;
 
-import static io.javalin.apibuilder.ApiBuilder.*;
-import static io.javalin.apibuilder.ApiBuilder.post;
+import static io.javalin.apibuilder.ApiBuilder.get;
 
 public class Main {
     public static Javalin app;
@@ -36,7 +38,6 @@ public class Main {
         });
         app.config.addStaticFiles("webapp");
 
-
         // REST endpoints
         app.get("/rest/hej", ctx -> ctx.result("Hejsa, godt at møde dig!"));
         app.get("/rest/hej/:fornavn", ctx -> ctx.result("Hej " + ctx.queryParam("fornavn") + ", godt at møde dig!"));
@@ -54,16 +55,15 @@ public class Main {
         app.post("rest/user_login", ctx ->
                 ctx.json(UserAdminResource.verifyLogin(ctx.body(), ctx)).contentType("json"));
         app.post("rest/create_user", ctx ->
-                ctx.result(UserAdminResource.createUser(ctx.body(), ctx)));
+                ctx.json(UserAdminResource.createUser(ctx.body(), ctx)).contentType("json"));
         app.put("rest/update_user", ctx ->
-                ctx.result(UserAdminResource.createUser(ctx.body(), ctx)));
+                ctx.json(UserAdminResource.updateUser(ctx.body(), ctx)).contentType("json"));
         app.get("rest/user_list", ctx ->
                 ctx.json(Controller.getInstance().getUsers()).contentType("json"));
         app.post("rest/remove_user", ctx ->
-                ctx.result(UserAdminResource.deleteUser(ctx.body(), ctx)));
+                ctx.json(UserAdminResource.deleteUser(ctx.body(), ctx)).contentType("json"));
 
         app.routes(() -> {
-
             get(Path.Playground.PLAYGROUND_ALL, PlaygroundResource.AllPlaygroundsHandlerGet);
             get(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.OnePlaygroundHandlerGet);
 

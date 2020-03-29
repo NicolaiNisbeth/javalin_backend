@@ -2,6 +2,7 @@ package javalin_resources;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
+import database.DALException;
 import database.collections.User;
 import database.dao.Controller;
 import io.javalin.http.Handler;
@@ -20,7 +21,12 @@ public class UserLogin {
     private static Brugeradmin ba;
 
     public static User isUserInDB(Bruger bruger) {
-        User user = Controller.getInstance().getUser(bruger.brugernavn);
+        User user = null;
+        try {
+            user = Controller.getInstance().getUser(bruger.brugernavn);
+        } catch (DALException e) {
+            e.printStackTrace();
+        }
 
         if (user == null){
             System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");
