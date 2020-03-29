@@ -26,10 +26,11 @@ public class Main {
 
         app = Javalin.create(config -> {
             config.enableCorsForAllOrigins()
-                    .addStaticFiles("webapp")
-                    .addSinglePageRoot("/", "webapp/index.html");
+                    .addStaticFiles("webapp");
         }).start(8088);
 
+        /*                    .addSinglePageRoot("/", "webapp/index.html");
+         */
 
         app.before(ctx -> {
             System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());

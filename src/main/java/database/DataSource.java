@@ -31,7 +31,6 @@ public class DataSource {
             mongoClient = new MongoClient(HOST, PORT);
         return mongoClient;
 
-
     }
 
 
