@@ -3,6 +3,10 @@ import io.javalin.Javalin;
 import resources.GalgelegResource;
 import resources.UserAdminResource;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.HashSet;
+
 public class Main {
     public static Javalin app;
 
@@ -21,7 +25,9 @@ public class Main {
         if (app != null) return;
 
         app = Javalin.create(config -> {
-            config.enableCorsForAllOrigins();
+            config.enableCorsForAllOrigins()
+                    .addStaticFiles("webapp")
+                    .addSinglePageRoot("/", "webapp/index.html");
         }).start(8088);
 
 
@@ -31,7 +37,7 @@ public class Main {
         app.exception(Exception.class, (e, ctx) -> {
             e.printStackTrace();
         });
-        app.config.addStaticFiles("webapp");
+
 
         // REST endpoints
         app.get("/rest/hej", ctx -> ctx.result("Hejsa, godt at møde dig!"));
@@ -57,5 +63,9 @@ public class Main {
                 ctx.json(Controller.getInstance().getUsers()).contentType("json"));
         app.post("rest/remove_user", ctx ->
                 ctx.json(UserAdminResource.deleteUser(ctx.body(), ctx)).contentType("json"));
+
+
+
     }
+
 }
