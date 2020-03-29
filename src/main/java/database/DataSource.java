@@ -1,6 +1,9 @@
 package database;
 
-import com.mongodb.*;
+
+import com.mongodb.DB;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 
 public class DataSource {
     private static DB database;
@@ -16,6 +19,7 @@ public class DataSource {
 	DB db = mongoClient.getDB("database name");
 	boolean auth = db.authenticate("username", "password".toCharArray());*/
 
+    /*
     public static DB getDB() {
         if (database == null) {
             mongoClient = new MongoClient(host, port);
@@ -25,15 +29,25 @@ public class DataSource {
         return database;
     }
 
+     */
 
 
 
-  /*public static DB getDB(){
-        if (database == null){
-            mongoClient = new MongoClient(new MongoClientURI("mongodb+srv://s175565:qwe123@todoapp-cn8eq.mongodb.net/test"));
-            database = mongoClient.getDB("test");
-        }
+
+  public static DB getDB(){
+        if (database == null)
+            database = getClient().getDB("test");
 
         return database;
-    }*/
+  }
+
+  public static MongoClient getClient(){
+      if (mongoClient == null)
+          mongoClient = new MongoClient(new MongoClientURI("mongodb+srv://s175565:qwe123@todoapp-cn8eq.mongodb.net/test"));
+
+      return mongoClient;
+
+
+  }
+
 }

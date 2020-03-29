@@ -160,7 +160,7 @@ public class InitTestData {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Messages are created");
+        System.out.println("Messages are added to playgrounds");
     }
 
     private List<String> addEventsToPlaygrounds(List<String> playgroundNames) {
@@ -189,7 +189,7 @@ public class InitTestData {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Events are created");
+        System.out.println("Events are added to playgrounds");
         return eventID;
     }
 

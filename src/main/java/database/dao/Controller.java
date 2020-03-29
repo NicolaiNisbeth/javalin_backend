@@ -1,6 +1,8 @@
 package database.dao;
 
 import com.mongodb.WriteResult;
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.TransactionBody;
 import database.DALException;
 import database.DataSource;
 import database.collections.Event;
@@ -251,7 +253,9 @@ public class Controller implements IController {
 
     @Override
     public boolean deletePlayground(String playgroundName) {
+        final ClientSession session = DataSource.getClient().startSession();
         boolean isPlaygroundDeleted = false;
+        session.startTransaction();
         try {
             Playground playground = playgroundDAO.getPlayground(playgroundName);
 
@@ -271,8 +275,12 @@ public class Controller implements IController {
             // delete playground
             isPlaygroundDeleted = playgroundDAO.deletePlayground(playgroundName);
 
-        } catch (DALException e) {
+            session.commitTransaction();
+        } catch (Exception e){
+            session.abortTransaction();
             e.printStackTrace();
+        } finally {
+            session.close();
         }
 
         return isPlaygroundDeleted;
@@ -280,8 +288,9 @@ public class Controller implements IController {
 
     @Override
     public boolean deleteUser(String username) {
+        final ClientSession clientSession = DataSource.getClient().startSession();
         boolean isUserDeleted = false;
-
+        clientSession.startTransaction();
         try {
             User user = userDAO.getUser(username);
 
@@ -296,8 +305,12 @@ public class Controller implements IController {
             // delete user
             isUserDeleted = userDAO.deleteUser(username);
 
-        } catch (DALException e) {
+            clientSession.commitTransaction();
+        } catch (Exception e){
+            clientSession.abortTransaction();
             e.printStackTrace();
+        } finally {
+            clientSession.close();
         }
 
         return isUserDeleted;
@@ -305,6 +318,8 @@ public class Controller implements IController {
 
     @Override
     public boolean addPedagogueToPlayground(String plagroundName, String username) {
+        final ClientSession clientSession = DataSource.getClient().startSession();
+        clientSession.startTransaction();
         try {
             // insert playground reference in user
             User pedagogue = userDAO.getUser(username);
@@ -315,8 +330,12 @@ public class Controller implements IController {
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", plagroundName, "assignedPedagogue", pedagogue);
 
-        } catch (DALException e) {
+            clientSession.commitTransaction();
+        } catch (Exception e) {
+            clientSession.abortTransaction();
             e.printStackTrace();
+        } finally {
+            clientSession.close();
         }
 
         return true;
@@ -324,17 +343,25 @@ public class Controller implements IController {
 
     @Override
     public boolean addUserToPlaygroundEvent(String eventID, String username) {
+        ClientSession clientSession = DataSource.getClient().startSession();
+        clientSession.startTransaction();
         try {
             // update user with event reference
             User user = userDAO.getUser(username);
             user.getEvents().add(new Event.Builder().id(new ObjectId(eventID).toString()).build());
             userDAO.updateUser(user);
 
+            // insert user reference in event
             Jongo jongo = new Jongo(DataSource.getDB());
             MongoCollection events = jongo.getCollection(IEventDAO.COLLECTION);
             QueryUtils.updateWithPush(events, "_id", new ObjectId(eventID), "assignedUsers", user);
-        } catch (DALException e) {
+
+            clientSession.commitTransaction();
+        } catch (Exception e) {
+            clientSession.abortTransaction();
             e.printStackTrace();
+        } finally {
+            clientSession.close();
         }
 
         return true;
@@ -342,8 +369,9 @@ public class Controller implements IController {
 
     @Override
     public WriteResult addPlaygroundEvent(String playgroundName, Event event) {
+        ClientSession clientSession = DataSource.getClient().startSession();
         WriteResult result = null;
-
+        clientSession.startTransaction();
         try {
             // create event in event collection
             event.setPlayground(playgroundName);
@@ -353,9 +381,12 @@ public class Controller implements IController {
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", playgroundName, "events", event);
 
-
-        } catch (DALException e) {
+            clientSession.commitTransaction();
+        } catch (Exception e) {
+            clientSession.abortTransaction();
             e.printStackTrace();
+        } finally {
+          clientSession.close();
         }
 
         return result;
@@ -363,7 +394,9 @@ public class Controller implements IController {
 
     @Override
     public WriteResult addPlaygroundMessage(String playgroundName, Message message) {
+        ClientSession clientSession = DataSource.getClient().startSession();
         WriteResult result = null;
+        clientSession.startTransaction();
         try {
             // create message in message collection
             message.setPlaygroundID(playgroundName);
@@ -373,8 +406,12 @@ public class Controller implements IController {
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", playgroundName, "messages", message);
 
-        } catch (DALException e) {
+            clientSession.commitTransaction();
+        } catch (Exception e) {
+            clientSession.abortTransaction();
             e.printStackTrace();
+        } finally {
+            clientSession.close();
         }
 
         return result;
@@ -404,7 +441,9 @@ public class Controller implements IController {
 
     @Override
     public boolean removePlaygroundEvent(String eventID) {
+        ClientSession clientSession = DataSource.getClient().startSession();
         boolean isEventDeleted = false;
+        clientSession.startTransaction();
         try {
             Event event = eventDAO.getEvent(eventID);
 
@@ -420,8 +459,13 @@ public class Controller implements IController {
 
             // delete event
             isEventDeleted = eventDAO.deleteEvent(eventID);
-        } catch (DALException e) {
+
+            clientSession.commitTransaction();
+        } catch (Exception e) {
+            clientSession.abortTransaction();
             e.printStackTrace();
+        } finally {
+            clientSession.close();
         }
 
         return isEventDeleted;
@@ -429,7 +473,9 @@ public class Controller implements IController {
 
     @Override
     public boolean removePlaygroundMessage(String messageID) {
+        ClientSession clientSession = DataSource.getClient().startSession();
         boolean isMessageDeleted = false;
+        clientSession.startTransaction();
         try {
             Message message = messageDAO.getMessage(messageID);
 
@@ -440,8 +486,12 @@ public class Controller implements IController {
             // delete message
             isMessageDeleted = messageDAO.deleteMessage(messageID);
 
-        } catch (DALException e) {
+            clientSession.commitTransaction();
+        } catch (Exception e) {
+            clientSession.abortTransaction();
             e.printStackTrace();
+        } finally {
+            clientSession.close();
         }
 
         return isMessageDeleted;
