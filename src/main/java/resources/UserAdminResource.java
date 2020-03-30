@@ -14,7 +14,12 @@ import org.json.JSONObject;
 
 import io.javalin.http.Context;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -176,12 +181,38 @@ public class UserAdminResource {
     //todo få sat nogle ordentlige status koder på
     //bruges af admins til at give brugere rettigheder - EFTER de selv er logget på første gang
     public static List<User> updateUser2(String request, Context ctx) {
-        JSONObject jsonObject = new JSONObject(request);
+
+        BufferedImage bufferedImage;
+        try {
+            bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+            //Hvis du vil kunne se billedet i en JFrame, så kommenter dette ind.
+            /*
+            JFrame frame = new JFrame();
+            frame.setBounds(10, 10, 900, 600);
+            frame.setLocationRelativeTo(null);
+            frame.setResizable(false);
+            frame.setLayout(new FlowLayout());
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            JPanel panel = new JPanel();
+            panel.setLayout(new BorderLayout());
+            JLabel label = new JLabel(new ImageIcon(bufferedImage));
+            //label.setBounds(0, 0, 100, 200);
+            panel.add(label, BorderLayout.CENTER);
+            frame.getContentPane().add(panel, BorderLayout.CENTER);
+            frame.pack();
+            frame.setVisible(true);
+             */
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //TODO: Gør noget med billedet og resten af requestet.
+
+       /* JSONObject jsonObject = new JSONObject(request);
         String username = jsonObject.getString(USERNAME);
         String imagePath = jsonObject.getString(IMAGEPATH);
         JSONObject image = jsonObject.getJSONObject("image");
         User admin = null;
-        User userToUpdate = null;
+        User userToUpdate = null;*/
 
 
         return Controller.getInstance().getUsers();
