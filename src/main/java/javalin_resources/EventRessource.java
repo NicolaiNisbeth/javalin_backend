@@ -11,32 +11,53 @@ import org.json.JSONObject;
 import java.util.*;
 
 public class EventRessource {
+    static final String EVENT_ID = "id";
+    static final String PLAYGROUND_NAME = "name";
+    static final String USER_NAME = "username";
 
     public static Handler OneEventHandlerGet = ctx -> {
-        Map<String, Object> model = ViewUtil.baseModel(ctx);
-        // TODO er parameteren name?
-        Event event = Controller.getInstance().getEvent(ctx.pathParam("id"));
-        if (model != null) {
-            model.put("event", event);
+        Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
+        if (event != null) {
+            ctx.json(event).contentType("json");
             ctx.status(200);
         } else
             ctx.status(404);
     };
 
+    public static Handler OneEventParticipantsHandlerGet = ctx -> {
+        Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
+        if (event != null) {
+            ctx.json(event.getParticipants()).contentType("json");
+            ctx.status(200);
+        } else
+            ctx.status(404);
+    };
+
+    public static Handler OneEventOneParticipantHandlerGet = ctx -> {
+        Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
+        for (User user: event.getAssignedUsers())
+            if (user.getUsername().equals(ctx.pathParam(USER_NAME))) {
+                ctx.json(user).contentType("json");
+                ctx.status(200);
+                return;
+            } else
+            ctx.status(404);
+    };
+
+
     public static Handler PlayGroundAllEventsHandlerGet = ctx -> {
-        Map<String, Object> model = ViewUtil.baseModel(ctx);
-        List<Event> events = Controller.getInstance().getPlaygroundEvents(ctx.pathParam("name"));
+        List<Event> events = Controller.getInstance().getPlaygroundEvents(ctx.pathParam(PLAYGROUND_NAME));
         if (events != null) {
-            model.put("messages", events);
+            ctx.json(events).contentType("json");
             ctx.status(200);
         } else {
             ctx.status(404);
         }
     };
 
-    public static Handler PlayGroundUpdateEventHandlerGet = ctx -> {
+    public static Handler PlayGroundUpdateEventHandlerPut = ctx -> {
         JSONObject jsonObject = new JSONObject(ctx.body());
-        Event event = Controller.getInstance().getEvent(jsonObject.getString("id"));
+        Event event = Controller.getInstance().getEvent(ctx.queryParam("id"));
 
         if (event != null) {
             ctx.status(200);

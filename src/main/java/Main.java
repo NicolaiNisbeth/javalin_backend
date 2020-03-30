@@ -1,12 +1,10 @@
 import database.dao.Controller;
 import io.javalin.Javalin;
-import javalin_resources.EventRessource;
-import javalin_resources.GalgelegResource;
-import javalin_resources.PlaygroundResource;
-import javalin_resources.UserAdminResource;
+import javalin_resources.*;
 import javalin_resources.Util.Path;
 
-import static io.javalin.apibuilder.ApiBuilder.get;
+import static io.javalin.apibuilder.ApiBuilder.*;
+
 
 public class Main {
     public static Javalin app;
@@ -64,15 +62,33 @@ public class Main {
                 ctx.json(UserAdminResource.deleteUser(ctx.body(), ctx)).contentType("json"));
 
         app.routes(() -> {
-            get(Path.Playground.PLAYGROUND_ALL, PlaygroundResource.AllPlaygroundsHandlerGet);
-            get(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.OnePlaygroundHandlerGet);
-
-            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, PlaygroundResource.OnePlaygroundAllEmployeeHandlerGet);
+            //Works
+            get(Path.Playground.PLAYGROUND_ALL, ctx -> ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json"));
+            get(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.OnePlaygroundGet);
+            //Works
             get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, PlaygroundResource.OnePlaygroundOneEmployeeHandlerGet);
+            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, PlaygroundResource.OnePlaygroundAllEmployeeHandlerGet);
+            // Works
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS, EventRessource.OneEventParticipantsHandlerGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, EventRessource.OneEventOneParticipantHandlerGet);
 
+            //works
             get(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, EventRessource.PlayGroundAllEventsHandlerGet);
             get(Path.Playground.PLAYGROUNDS_ONE_EVENT, EventRessource.OneEventHandlerGet);
-
+            //works
+            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, MessageRessource.AllMessageHandlerGet);
+            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, MessageRessource.OneMessageHandlerGet);
+            //works
+            post(Path.Playground.PLAYGROUND_ALL, PlaygroundResource.CreatePlaygroundHandlerPost);
+            post(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, PlaygroundResource.addPlaygroundEventPost);
+//works
+            post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, MessageRessource.PlaygroundMessageInsertPost);
+//works
+            put(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.UpdatePlaygroundHandlerPut);
+//works
+            put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, MessageRessource.PlaygroundMessageUpdatePut);
+//works
+            delete(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.DeleteOnePlaygroundDelete);
         });
     }
 }

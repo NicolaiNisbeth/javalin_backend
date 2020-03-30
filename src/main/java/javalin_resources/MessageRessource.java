@@ -6,22 +6,33 @@ import database.dao.Controller;
 import javalin_resources.Util.ViewUtil;
 import io.javalin.http.Handler;
 import org.json.JSONObject;
+import sun.util.resources.CalendarData;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 public class MessageRessource {
 
     public static Handler OneMessageHandlerGet = ctx -> {
-        Map<String, Object> model = ViewUtil.baseModel(ctx);
-        Message message = Controller.getInstance().getMessage(ctx.pathParam("message"));
+        Message message = Controller.getInstance().getMessage(ctx.pathParam("id"));
         if (message != null) {
-            model.put("message", message);
+            ctx.json(message).contentType("json");
             ctx.status(200);
         } else
             ctx.status(404);
     };
+
+    public static Handler AllMessageHandlerGet = ctx -> {
+        List<Message> messages = Controller.getInstance().getPlaygroundMessages(ctx.pathParam("name"));
+        if (messages != null) {
+            ctx.json(messages).contentType("json");
+            ctx.status(200);
+        } else
+            ctx.status(404);
+    };
+
     public static Handler PlayGroundMessagesHandlerGet = ctx -> {
         Map<String, Object> model = ViewUtil.baseModel(ctx);
         List<Message> messages = Controller.getInstance().getPlaygroundMessages(ctx.pathParam("playground"));
@@ -33,17 +44,43 @@ public class MessageRessource {
         }
     };
 
+    public static Handler PlaygroundMessageInsertPost = ctx -> {
+
+        Date date = new Date();
+        JSONObject jsonObject = new JSONObject(ctx.body());
+        date.setYear(jsonObject.getInt("year"));
+        date.setMonth((Calendar.MARCH));
+        date.setDate(jsonObject.getInt("day"));
+        date.setHours(jsonObject.getInt("hour"));
+        date.setMinutes(jsonObject.getInt("minute"));
+
+        Message message = new Message.Builder()
+                .setMessageString(jsonObject.getString("messageString"))
+                .setIcon(jsonObject.getString("icon"))
+                .setOutDated(jsonObject.getBoolean("outDated"))
+                .setWrittenByID(jsonObject.getString("writtenByID"))
+                .setPlaygroundID(jsonObject.getString("playgroundID"))
+                .setDate(date)
+                .build();
+
+
+        if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString("playgroundID"), message).wasAcknowledged()) {
+            ctx.status(200);
+            System.out.println("message created");
+        } else {
+            ctx.status(404);
+            System.out.println("message faiiiiiiiled");
+        }
+
+    };
+
     public static Handler PlaygroundMessageUpdatePut = ctx -> {
 
         JSONObject jsonObject = new JSONObject(ctx.body());
-        Message message = Controller.getInstance().getMessage(jsonObject.getString("id"));
-
-        if (message != null) {
-            ctx.status(200);
+        Message message = Controller.getInstance().getMessage(ctx.pathParam("id"));
 
 // TODO Hvordan kommer den detail parameter til at foregå?
             if (jsonObject.get("hour") != null) {
-                Details details = new Details();
                 Calendar cal = Calendar.getInstance();
 
                 cal.set(Calendar.YEAR, jsonObject.getInt("year"));
@@ -61,16 +98,21 @@ public class MessageRessource {
             if (jsonObject.get("icon") != null)
                 message.setIcon(jsonObject.getString("icon"));
 
-            if (jsonObject.get("message") != null)
-                message.setMessageString(jsonObject.getString("message"));
+            if (jsonObject.get("messageString") != null)
+                message.setMessageString(jsonObject.getString("messageString"));
 
             if (jsonObject.get("playgroundID") != null)
                 message.setPlaygroundID(jsonObject.getString("playgroundID"));
 
-            if (jsonObject.get("writtenbyID") != null)
-                message.setWrittenByID("writtenbyID");
-        } else {
-            ctx.status(404);
+            if (jsonObject.get("WrittenByID") != null)
+                message.setWrittenByID("WrittenByID");
+
+            if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString("playgroundID"), message).wasAcknowledged())
+                ctx.status(200).result("The message was created for the playground " + jsonObject.getString("playgroundID"));
+
+
+         else {
+            ctx.status(404).result("there was an error");
         }
     };
 

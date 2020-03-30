@@ -16,25 +16,25 @@ public class Path {
         // A playground with the given name.
         public static final String PLAYGROUND_ONE = "/playgrounds/:name";
         // All employees on a playground
-        public static final String PLAYGROUND_ONE_PEDAGOGUE_ONE = "/playgrounds/:name/pedagogues";
+        public static final String PLAYGROUND_ONE_PEDAGOGUE_ALL = "/playgrounds/:name/pedagogues";
         // One employees on a playground
-        public static final String PLAYGROUND_ONE_PEDAGOGUE_ALL = "/playgrounds/:name/pedagogues/:username";
+        public static final String PLAYGROUND_ONE_PEDAGOGUE_ONE = "/playgrounds/:name/pedagogues/:username";
         // All events on all playgrounds.
-        public static final String PLAYGROUND_ALL_EVENTS = "/playground/events";
+        public static final String PLAYGROUND_ALL_EVENTS = "/playgrounds/events";
         // All events on a playground
-        public static final String PLAYGROUNDS_ONE_ALL_EVENTS = "/playground/:name/events";
+        public static final String PLAYGROUNDS_ONE_ALL_EVENTS = "/playgrounds/:name/events";
         // One events on a playground
-        public static final String PLAYGROUNDS_ONE_EVENT = "/playground/:name/events/:id";
+        public static final String PLAYGROUNDS_ONE_EVENT = "/playgrounds/:name/events/:id";
         // One event paricipant
-        public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS = "/playground/:name/events/:id/participants";
+        public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS = "/playgrounds/:name/events/:id/participants";
         // One event paricipant
-        public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE = "/playground/:name/events/:id/participants/:username";
+        public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE = "/playgrounds/:name/events/:id/participants/:username";
         // All events on a given month on a given playground.
         public static final String PLAYGROUND_ONE_EVENTS_MONTH = "/playground/:name/events/:month";
         // Playground message
-        public static final String PLAYGROUND_ONE_MESSAGE_ONE = "playgrounds/:name/messages/:id";
+        public static final String PLAYGROUND_ONE_MESSAGE_ONE = "/playgrounds/:name/messages/:id";
         // Playground message all
-        public static final String PLAYGROUND_ONE_MESSAGE_LL = "playgrounds/:name/messages";
+        public static final String PLAYGROUND_ONE_MESSAGE_ALL = "/playgrounds/:name/messages";
         // All playgrounds with a given zipcode.
         public static final String PLAYGROUNDS_WITHZIPCODE = "/playground/:zipcode";
         // All playgrounds nearby.
