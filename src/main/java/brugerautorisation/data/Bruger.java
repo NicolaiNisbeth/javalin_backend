@@ -27,10 +27,10 @@ public class Bruger implements Serializable {
 	{
 		return brugernavn+"/"+adgangskode;
 	}
-
+/*
 	public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
 		System.out.println("Forbinder til " + IGalgelegRMI.URL);
 		IGalgelegRMI galgen = (IGalgelegRMI) Naming.lookup(IGalgelegRMI.URL);
 		System.out.println("Forbundet til serveren");
-	}
+	}*/
 }

@@ -7,7 +7,6 @@ import database.DALException;
 import database.collections.User;
 import database.dao.Controller;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import io.javalin.http.Context;

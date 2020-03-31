@@ -1,6 +1,5 @@
 package resources;
 
-
 import server.rmi.IGalgelegRMI;
 
 import java.io.IOException;
@@ -9,16 +8,10 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.List;
 
-//@Path("/galgeleg")
 public class GalgelegResource {
     private static IGalgelegRMI server;
 
-    /*@POST
-    @Path("/{brugernavn}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)*/
     public static String startGame(String username) {
         String spilStatus = null;
         try {
@@ -31,10 +24,6 @@ public class GalgelegResource {
         }
         return spilStatus;
     }
- /*   @GET
-    @Path("/{brugernavn}/{bogstav}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    */
 
     public static String makeGuess(String username, String guess) {
         String spilStatus = null;
