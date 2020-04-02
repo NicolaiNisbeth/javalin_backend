@@ -59,7 +59,7 @@ public class UserLogin {
             }
 
         } catch (Exception e) {
-            ctx.status(401).result("Unauthorized");
+            ctx.status(401).result("Wrong password");
         }
         return isUserInDB(user);
     }

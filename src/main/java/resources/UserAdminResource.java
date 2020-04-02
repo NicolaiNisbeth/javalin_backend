@@ -64,7 +64,7 @@ public class UserAdminResource {
                 }
             }
         }
-        ctx.status(401).result("Unauthorized");
+        ctx.status(401).result("Unauthorized - Forkert password!");
         return null;
     }
 
@@ -130,7 +130,7 @@ public class UserAdminResource {
             e.printStackTrace();
         }
         if (!admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
-            ctx.status(401).result("Unauthorized - password er ikke korrekt");
+            ctx.status(401).result("Unauthorized - Forkert password!");
             return Controller.getInstance().getUsers();
         } else {
             try {
@@ -159,7 +159,7 @@ public class UserAdminResource {
 
             WriteResult ws = Controller.getInstance().createUser(newUser);
             if (ws.wasAcknowledged()) {
-                ctx.status(401).result("User was created");
+                ctx.status(201).result("User was created");
             } else {
                 ctx.status(401).result("User was not created");
                 return Controller.getInstance().getUsers();
@@ -221,7 +221,7 @@ public class UserAdminResource {
             }
 
             if (Controller.getInstance().updateUser(userToUpdate)) {
-                ctx.status(401).result("User was updated");
+                ctx.status(200).result("User was updated");
             } else {
                 ctx.status(401).result("User was not updated");
                 return Controller.getInstance().getUsers();
