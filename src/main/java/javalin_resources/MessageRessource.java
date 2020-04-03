@@ -114,9 +114,8 @@ public class MessageRessource {
         }
     };
 
-    public static Handler removePlaygroundMessageHandlerPut = ctx -> {
-        JSONObject jsonObject = new JSONObject(ctx.body());
-        if (Controller.getInstance().removePlaygroundMessage(jsonObject.getString("messageID")))
+    public static Handler removePlaygroundMessageHandlerDelete = ctx -> {
+        if (Controller.getInstance().removePlaygroundMessage(ctx.pathParam("id")))
             ctx.status(200);
         else
             ctx.status(404);

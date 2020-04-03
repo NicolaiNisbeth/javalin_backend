@@ -111,6 +111,8 @@ public class Main {
             delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, PlaygroundResource.removePedagogueFromPlaygroundDelete);
             //works
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT, PlaygroundResource.removeEventFromPlaygroundDelete);
+            //works
+            delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, MessageRessource.removePlaygroundMessageHandlerDelete);
         });
     }
 }
