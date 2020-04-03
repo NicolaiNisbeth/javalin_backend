@@ -31,7 +31,8 @@ public class Message implements Comparable<Message> {
             return this;
         }
 
-        public Builder() { }
+        public Builder() {
+        }
 
         public String get_id() {
             return _id;
@@ -42,11 +43,11 @@ public class Message implements Comparable<Message> {
             return this;
         }
 
-        public String getPlaygroundID(){
+        public String getPlaygroundID() {
             return playgroundID;
         }
 
-        public Builder setPlaygroundID(String playgroundID){
+        public Builder setPlaygroundID(String playgroundID) {
             this.playgroundID = playgroundID;
             return this;
         }
@@ -151,11 +152,11 @@ public class Message implements Comparable<Message> {
         this.messageString = messageString;
     }
 
-    public String getPlaygroundName(){
+    public String getPlaygroundName() {
         return playgroundID;
     }
 
-    public void setPlaygroundID(String playgroundID){
+    public void setPlaygroundID(String playgroundID) {
         this.playgroundID = playgroundID;
     }
 

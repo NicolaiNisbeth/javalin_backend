@@ -21,7 +21,7 @@ public class EventRessource {
             ctx.json(event).contentType("json");
             ctx.status(200);
         } else
-            ctx.status(404);
+            ctx.status(404).result("Couldn't find an event");
     };
 
     public static Handler OneEventParticipantsHandlerGet = ctx -> {
@@ -35,13 +35,13 @@ public class EventRessource {
 
     public static Handler OneEventOneParticipantHandlerGet = ctx -> {
         Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
-        for (User user: event.getAssignedUsers())
+        for (User user : event.getAssignedUsers())
             if (user.getUsername().equals(ctx.pathParam(USER_NAME))) {
                 ctx.json(user).contentType("json");
                 ctx.status(200);
                 return;
             } else
-            ctx.status(404);
+                ctx.status(404);
     };
 
 
@@ -86,39 +86,41 @@ public class EventRessource {
                     details.setStartTime(cal.getTime());
 
                     event.setDetails(details);
-                } }
-                if (jsonObject.has("assignedusers")) {
-                    Set<User> users = new HashSet<>();
+                }
+            }
+            if (jsonObject.has("assignedusers")) {
+                Set<User> users = new HashSet<>();
 //TODO don't have the slightest idea if this will work. - Gustav
-                    for (int i = 0; i < jsonObject.getJSONArray("user").length(); i++) {
-                        String username = jsonObject.getJSONArray("assignedusers").getJSONObject(i).getString("username");
-                        users.add(Controller.getInstance().getUser(username));
-                    }
-                    event.setAssignedUsers(users);
-                } if (jsonObject.has("imagepath"))
-                    event.setImagepath(jsonObject.getString("imagepath"));
+                for (int i = 0; i < jsonObject.getJSONArray("user").length(); i++) {
+                    String username = jsonObject.getJSONArray("assignedusers").getJSONObject(i).getString("username");
+                    users.add(Controller.getInstance().getUser(username));
+                }
+                event.setAssignedUsers(users);
+            }
+            if (jsonObject.has("imagepath"))
+                event.setImagepath(jsonObject.getString("imagepath"));
 
-                if (jsonObject.has("participants"))
-                    event.setParticipants(jsonObject.getInt("participants"));
+            if (jsonObject.has("participants"))
+                event.setParticipants(jsonObject.getInt("participants"));
 
-                if (jsonObject.has("name"))
+            if (jsonObject.has("name"))
                 event.setName(jsonObject.getString("name"));
 
 
-                if (jsonObject.has("playgroundname"))
-                    event.setPlayground(jsonObject.getString("playgroundname"));
+            if (jsonObject.has("playgroundname"))
+                event.setPlayground(jsonObject.getString("playgroundname"));
 
-                Controller.getInstance().updatePlaygroundEvent(event);
-            } else {
-                ctx.status(404);
-            }
+            Controller.getInstance().updatePlaygroundEvent(event);
+        } else {
+            ctx.status(404);
+        }
     };
 
     public static Handler removeUserFromPlaygroundEventPut = ctx -> {
         JSONObject jsonObject = new JSONObject(ctx.body());
         if (Controller.getInstance().removeUserFromPlaygroundEvent(jsonObject.getString("eventID"), jsonObject.getString("userID")))
-        ctx.status(200);
-                else
-       ctx.status(404);
+            ctx.status(200);
+        else
+            ctx.status(404);
     };
 }

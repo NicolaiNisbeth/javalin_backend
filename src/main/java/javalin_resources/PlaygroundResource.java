@@ -16,6 +16,13 @@ import java.util.*;
 public class PlaygroundResource {
     static final String PLAYGROUND_NAME = "name";
     static final String EMPLOYEE_USERNAME = "username";
+    static final String ID = "id";
+    static final String NAME = "name";
+    static final String IMAGEPATH = "imagepath";
+    static final String PARTICIPANTS = "participants";
+    static final String DESCRIPTION = "description";
+    static final String DETAILS = "details";
+    static final String ASSIGNEDUSERS = "assignedusers";
 
     public static Handler AllPlaygroundsHandlerGet = ctx -> {
         Map<String, Object> model = ViewUtil.baseModel(ctx);
@@ -39,12 +46,12 @@ public class PlaygroundResource {
         Playground playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
         JSONObject jsonObject = new JSONObject(ctx.body());
         if (playground != null) {
-        if (jsonObject.getString("streetname") != null)
-            playground.setStreetName(jsonObject.getString("streetname"));
+            if (jsonObject.has("streetname"))
+                playground.setStreetName(jsonObject.getString("streetname"));
 
-            if (jsonObject.getJSONArray("pedagogues") != null) {
+            if (jsonObject.has("pedagogues")) {
                 Set<User> pedagoges = new HashSet<>();
-//TODO don't have the slightest idea if this will work. - Gustav
+
                 for (int i = 0; i < jsonObject.getJSONArray("pedagogues").length(); i++) {
                     String username = jsonObject.getJSONArray("pedagogues").getString(i);
                     pedagoges.add(Controller.getInstance().getUser(username));
@@ -52,10 +59,10 @@ public class PlaygroundResource {
                 playground.setAssignedPedagogue(pedagoges);
             }
 
-            if (jsonObject.getString("commune") != null)
+            if (jsonObject.has("commune"))
                 playground.setCommune(jsonObject.getString("commune"));
-/*
-            if (jsonObject.get("events") != null) {
+
+            if (jsonObject.has("events")) {
                 Set<Event> eventSet = new HashSet<>();
                 for (int i = 0; i < jsonObject.getJSONArray("events").length(); i++) {
                     String eventid = jsonObject.getJSONArray("events").getJSONObject(i).getString("events");
@@ -63,17 +70,16 @@ public class PlaygroundResource {
                 }
                 playground.setEvents(eventSet);
             }
- */
-            if (jsonObject.get("soccerfield") != null)
+            if (jsonObject.has("soccerfield"))
                 playground.setHasSoccerField(jsonObject.getBoolean("soccerfield"));
 
-          //  if (jsonObject.get("id") != null)
-          //      playground.setId(jsonObject.getString("id"));
+            if (jsonObject.has("id"))
+                playground.setId(jsonObject.getString("id"));
 
-            if (jsonObject.get("imagepath") != null)
+            if (jsonObject.has("imagepath"))
                 playground.setImagePath(jsonObject.getString("imagepath"));
-/*
-            if (jsonObject.getJSONArray("messages") != null) {
+
+            if (jsonObject.has("messages")) {
                 Set<Message> messagesSet = new HashSet<>();
                 for (int i = 0; i < jsonObject.getJSONArray("messageid").length(); i++) {
                     String messageid = jsonObject.getJSONArray("messageid").getJSONObject(i).getString("messageid");
@@ -81,27 +87,26 @@ public class PlaygroundResource {
                 }
                 playground.setMessages(messagesSet);
             }
- */
 
-            if (jsonObject.get("streetnumber") != null)
+            if (jsonObject.has("streetnumber"))
                 playground.setStreetNumber(jsonObject.getInt("streetnumber"));
 
             if (jsonObject.has("toilets"))
                 playground.setToiletPossibilities(jsonObject.getBoolean("toilets"));
 
-            if (jsonObject.get("zipcode") != null)
+            if (jsonObject.has("zipcode"))
                 playground.setZipCode(jsonObject.getInt("zipcode"));
 
-        if (Controller.getInstance().updatePlayground(playground)) {
-        ctx.status(200).result("playground updated");
-            System.out.println("update playground with name " + playground.getName());
-        }
+            if (Controller.getInstance().updatePlayground(playground)) {
+                ctx.status(200).result("playground updated");
+                System.out.println("update playground with name " + playground.getName());
+            }
         } else {
             ctx.status(404).result("playground didn't update");
         }
     };
 
-//TODO does this return null if it doesnt work out?
+    //TODO does this return null if it doesnt work out?
     public static Handler CreatePlaygroundHandlerPost = ctx -> {
         ctx.json(createPlayground(ctx.body(), ctx)).contentType("json");
     };
@@ -142,8 +147,8 @@ public class PlaygroundResource {
         playgroundname = ctx.pathParam("name");
 
         if (playgroundname != "") {
-      Controller.getInstance().deletePlayground(playgroundname);
-      ctx.status(200);
+            Controller.getInstance().deletePlayground(playgroundname);
+            ctx.status(200);
             System.out.println("Deleted playground with name " + playgroundname);
         } else {
             ctx.status(404);
@@ -160,7 +165,7 @@ public class PlaygroundResource {
         if (jsonObject.getString("pedagogue") != null && jsonObject.getString("playgroundname") != null) {
             ctx.status(200);
         } else {
-        ctx.status(404);
+            ctx.status(404);
         }
     };
 
@@ -215,7 +220,7 @@ public class PlaygroundResource {
         event.setDescription(jsonObject.getString("description"));
 
         if (Controller.getInstance().addPlaygroundEvent(jsonObject.getString("playgroundname"), event).wasAcknowledged()) {
-        ctx.status(200);
+            ctx.status(200);
             System.out.println("inserted event");
         } else {
             ctx.status(404);
@@ -225,7 +230,7 @@ public class PlaygroundResource {
 
     public static Handler addPlaygroundMessagePost = ctx -> {
 
-            JSONObject jsonObject = new JSONObject(ctx.body());
+        JSONObject jsonObject = new JSONObject(ctx.body());
 
         Details details = new Details();
         Calendar cal = Calendar.getInstance();
@@ -239,31 +244,85 @@ public class PlaygroundResource {
 
         Date date = cal.getTime();
 
-            Message message = new Message.Builder()
-                    .setMessageString(jsonObject.getString("message"))
-                    .set_id(jsonObject.getString("id"))
-                    .setIcon(jsonObject.getString("icon"))
-                    .setName(jsonObject.getString("name"))
-                    .setCategory(jsonObject.getString("category"))
-                    .setPlaygroundID(jsonObject.getString("playgroundID"))
-                    .setWrittenByID(jsonObject.getString("writtenbyID"))
-                    .setDate(date)
-                    .build();
+        Message message = new Message.Builder()
+                .setMessageString(jsonObject.getString("message"))
+                .set_id(jsonObject.getString("id"))
+                .setIcon(jsonObject.getString("icon"))
+                .setName(jsonObject.getString("name"))
+                .setCategory(jsonObject.getString("category"))
+                .setPlaygroundID(jsonObject.getString("playgroundID"))
+                .setWrittenByID(jsonObject.getString("writtenbyID"))
+                .setDate(date)
+                .build();
 
 
-
-            if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString("playgroundID"), message).wasAcknowledged()) {
-                ctx.status(200);
-            } else {
-                ctx.status(404);
-            }
+        if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString("playgroundID"), message).wasAcknowledged()) {
+            ctx.status(200);
+        } else {
+            ctx.status(404);
+        }
     };
 
-    public static Handler removePedagogueFromPlaygroundPut = ctx -> {
-        JSONObject jsonObject = new JSONObject(ctx.body());
-        if (Controller.getInstance().removePedagogueFromPlayground(jsonObject.getString("playgroudID"), jsonObject.getString("pedagogueID")))
-            ctx.status(200);
+    public static Handler removePedagogueFromPlaygroundDelete = ctx -> {
+        if (Controller.getInstance().removePedagogueFromPlayground(ctx.pathParam(PLAYGROUND_NAME), ctx.pathParam(EMPLOYEE_USERNAME)))
+            ctx.status(200).result("Pedagogue is removed from the playground");
         else
-            ctx.status(404);
+            ctx.status(404).result("Couldn't remove pedagogue from playground");
+    };
+
+
+    public static Handler removeEventFromPlaygroundDelete = ctx -> {
+        if (Controller.getInstance().removePlaygroundEvent(ctx.pathParam("id"))) {
+            ctx.status(200).result("Event has been removed from the playground");
+        } else {
+            ctx.status(404).result("Couldn't remove event from playground");
+        }
+    };
+
+
+    public static Handler updateEventToPlaygroundPut = ctx -> {
+        JSONObject jsonObject = new JSONObject(ctx.body());
+        Event event = Controller.getInstance().getEvent(ctx.pathParam(ID));
+        Playground playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
+
+        if (playground != null) {
+
+            if (jsonObject.has(ID)) {
+                event.setId(jsonObject.getString(ID));
+            }
+            if (jsonObject.has(NAME)) {
+                event.setName(jsonObject.getString(NAME));
+            }
+            if (jsonObject.has(IMAGEPATH)) {
+                event.setImagepath(jsonObject.getString(IMAGEPATH));
+            }
+            if (jsonObject.has(PARTICIPANTS)) {
+                event.setParticipants(jsonObject.getInt(PARTICIPANTS));
+            }
+            if (jsonObject.has(DESCRIPTION)) {
+                event.setDescription(jsonObject.getString(DESCRIPTION));
+            }
+            if (jsonObject.has(DETAILS)) {
+                //TODO: Change this
+                event.setDetails(null);
+            }
+            if (jsonObject.has(ASSIGNEDUSERS)) {
+                Set<User> assignedUsers = new HashSet<>();
+                for (int i = 0; i < jsonObject.getJSONArray(ASSIGNEDUSERS).length(); i++) {
+                    String assignedUserId = jsonObject.getJSONArray(ASSIGNEDUSERS).getJSONObject(i).getString(ASSIGNEDUSERS);
+                    assignedUsers.add(Controller.getInstance().getUser(assignedUserId));
+                }
+                event.setAssignedUsers(assignedUsers);
+            }
+            if (jsonObject.has(PLAYGROUND_NAME)) {
+                event.setPlayground(PLAYGROUND_NAME);
+            }
+
+            if (Controller.getInstance().updatePlaygroundEvent(event)) {
+                ctx.status(200).result("Event is updated");
+            }
+        } else {
+            ctx.status(404).result("Couldn't update event");
+        }
     };
 }

@@ -1,6 +1,7 @@
-package app.util;
+package javalin_resources.Util;
 
 import io.javalin.http.Handler;
+
 import static javalin_resources.Util.RequestUtil.*;
 
 public class Filters {

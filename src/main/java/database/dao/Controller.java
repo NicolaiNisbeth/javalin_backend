@@ -253,9 +253,9 @@ public class Controller implements IController {
 
     @Override
     public boolean deletePlayground(String playgroundName) {
-  //      final ClientSession session = DataSource.getClient().startSession();
+        //      final ClientSession session = DataSource.getClient().startSession();
         boolean isPlaygroundDeleted = false;
-  //      session.startTransaction();
+        //      session.startTransaction();
         try {
             Playground playground = playgroundDAO.getPlayground(playgroundName);
 
@@ -275,12 +275,12 @@ public class Controller implements IController {
             // delete playground
             isPlaygroundDeleted = playgroundDAO.deletePlayground(playgroundName);
 
-      //      session.commitTransaction();
-        } catch (Exception e){
-     //       session.abortTransaction();
+            //      session.commitTransaction();
+        } catch (Exception e) {
+            //       session.abortTransaction();
             e.printStackTrace();
         } finally {
-     //       session.close();
+            //       session.close();
         }
 
         return isPlaygroundDeleted;
@@ -306,7 +306,7 @@ public class Controller implements IController {
             isUserDeleted = userDAO.deleteUser(username);
 
             clientSession.commitTransaction();
-        } catch (Exception e){
+        } catch (Exception e) {
             clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
@@ -381,12 +381,12 @@ public class Controller implements IController {
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", playgroundName, "events", event);
 
-        //    clientSession.commitTransaction();
+            //    clientSession.commitTransaction();
         } catch (Exception e) {
-          //  clientSession.abortTransaction();
+            //  clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
-        //  clientSession.close();
+            //  clientSession.close();
         }
 
         return result;
@@ -406,12 +406,12 @@ public class Controller implements IController {
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", playgroundName, "messages", message);
 
-         //   clientSession.commitTransaction();
+            //   clientSession.commitTransaction();
         } catch (Exception e) {
-          //  clientSession.abortTransaction();
+            //  clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
-          //  clientSession.close();
+            //  clientSession.close();
         }
 
         return result;
@@ -441,9 +441,9 @@ public class Controller implements IController {
 
     @Override
     public boolean removePlaygroundEvent(String eventID) {
-        ClientSession clientSession = DataSource.getClient().startSession();
+        //ClientSession clientSession = DataSource.getClient().startSession();
         boolean isEventDeleted = false;
-        clientSession.startTransaction();
+        //clientSession.startTransaction();
         try {
             Event event = eventDAO.getEvent(eventID);
 
@@ -460,12 +460,12 @@ public class Controller implements IController {
             // delete event
             isEventDeleted = eventDAO.deleteEvent(eventID);
 
-            clientSession.commitTransaction();
+            //clientSession.commitTransaction();
         } catch (Exception e) {
-            clientSession.abortTransaction();
+            //clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
-            clientSession.close();
+            // clientSession.close();
         }
 
         return isEventDeleted;

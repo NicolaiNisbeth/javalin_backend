@@ -49,7 +49,6 @@ public class User implements Serializable {
     }
 
 
-
     public Set<String> getPlaygroundsIDs() {
         return playgroundsIDs;
     }

@@ -28,7 +28,7 @@ public class UserLogin {
             e.printStackTrace();
         }
 
-        if (user == null){
+        if (user == null) {
             System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");
             user = new User.Builder(bruger.brugernavn)
                     .setFirstname(bruger.fornavn)

@@ -2,6 +2,7 @@ package javalin_resources.Util;
 
 import io.javalin.http.Context;
 import io.javalin.http.ErrorHandler;
+
 import java.util.HashMap;
 import java.util.Map;
 

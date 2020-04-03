@@ -25,7 +25,7 @@ public class Main {
 
         app = Javalin.create(config -> {
             config.enableCorsForAllOrigins();
-        }).start(8089);
+        }).start(8090);
 
 
         app.before(ctx -> {
@@ -62,6 +62,10 @@ public class Main {
                 ctx.json(UserAdminResource.deleteUser(ctx.body(), ctx)).contentType("json"));
 
         app.routes(() -> {
+
+
+            //GET
+
             //Works
             get(Path.Playground.PLAYGROUND_ALL, ctx -> ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json"));
             get(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.OnePlaygroundGet);
@@ -77,17 +81,36 @@ public class Main {
             //works
             get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, MessageRessource.AllMessageHandlerGet);
             get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, MessageRessource.OneMessageHandlerGet);
+
+
+            //POST
+
             //works
             post(Path.Playground.PLAYGROUND_ALL, PlaygroundResource.CreatePlaygroundHandlerPost);
+            //work
             post(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, PlaygroundResource.addPlaygroundEventPost);
             //works
             post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, MessageRessource.PlaygroundMessageInsertPost);
+
+
+            //PUT
+
             //works
             put(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.UpdatePlaygroundHandlerPut);
             //works
             put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, MessageRessource.PlaygroundMessageUpdatePut);
             //works
+            put(Path.Playground.PLAYGROUNDS_ONE_EVENT, PlaygroundResource.updateEventToPlaygroundPut);
+
+
+            //DELETE
+
+            //works
             delete(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.DeleteOnePlaygroundDelete);
+            //works
+            delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, PlaygroundResource.removePedagogueFromPlaygroundDelete);
+            //works
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT, PlaygroundResource.removeEventFromPlaygroundDelete);
         });
     }
 }

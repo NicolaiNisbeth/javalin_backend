@@ -4,11 +4,11 @@ public class Path {
     /**
      * Hello friends
      * The strings is named after first the object it looks for, and then how muc. For example look at the playground_all
-     *  and the playground one. If it looks for more things it will say {object}_{how many?}_{another object}_{how many}
-     *  and so fourth. If you have any questions then contact me.
-     *  Br, Gustav.
-     *
-     *  Ressources can be found here. https://docs.google.com/spreadsheets/d/1YTCKT_WVPJq8Thh6pwso8qQqgjPSwprOZ46bQqMWGQs/edit#gid=0
+     * and the playground one. If it looks for more things it will say {object}_{how many?}_{another object}_{how many}
+     * and so fourth. If you have any questions then contact me.
+     * Br, Gustav.
+     * <p>
+     * Ressources can be found here. https://docs.google.com/spreadsheets/d/1YTCKT_WVPJq8Thh6pwso8qQqgjPSwprOZ46bQqMWGQs/edit#gid=0
      */
     public static class Playground {
         // All playgrounds.
