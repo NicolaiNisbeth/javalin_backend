@@ -62,10 +62,10 @@ public class EventRessource {
         if (event != null) {
             ctx.status(200);
 
-            if (jsonObject.get("description") != null) {
+            if (jsonObject.has("description")) {
                 event.setDescription(jsonObject.getString("description"));
 // TODO Hvordan kommer den detail parameter til at foregå?
-                if (jsonObject.get("hour") != null) {
+                if (jsonObject.has("hour")) {
                     Details details = new Details();
                     Calendar cal = Calendar.getInstance();
 
@@ -87,7 +87,7 @@ public class EventRessource {
 
                     event.setDetails(details);
                 } }
-                if (jsonObject.get("assignedusers") != null) {
+                if (jsonObject.has("assignedusers")) {
                     Set<User> users = new HashSet<>();
 //TODO don't have the slightest idea if this will work. - Gustav
                     for (int i = 0; i < jsonObject.getJSONArray("user").length(); i++) {
@@ -95,16 +95,17 @@ public class EventRessource {
                         users.add(Controller.getInstance().getUser(username));
                     }
                     event.setAssignedUsers(users);
-                } if (jsonObject.get("imagepath") != null)
+                } if (jsonObject.has("imagepath"))
                     event.setImagepath(jsonObject.getString("imagepath"));
 
-                if (jsonObject.get("participants") != null)
+                if (jsonObject.has("participants"))
                     event.setParticipants(jsonObject.getInt("participants"));
 
-                if (jsonObject.get("name") != null)
+                if (jsonObject.has("name"))
                 event.setName(jsonObject.getString("name"));
 
-                if (jsonObject.get("playgroundname") != null)
+
+                if (jsonObject.has("playgroundname"))
                     event.setPlayground(jsonObject.getString("playgroundname"));
 
                 Controller.getInstance().updatePlaygroundEvent(event);

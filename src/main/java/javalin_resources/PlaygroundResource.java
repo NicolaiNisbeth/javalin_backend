@@ -86,18 +86,18 @@ public class PlaygroundResource {
             if (jsonObject.get("streetnumber") != null)
                 playground.setStreetNumber(jsonObject.getInt("streetnumber"));
 
-            if (jsonObject.get("toilets") != null)
+            if (jsonObject.has("toilets"))
                 playground.setToiletPossibilities(jsonObject.getBoolean("toilets"));
 
             if (jsonObject.get("zipcode") != null)
                 playground.setZipCode(jsonObject.getInt("zipcode"));
 
         if (Controller.getInstance().updatePlayground(playground)) {
-        ctx.status(200);
+        ctx.status(200).result("playground updated");
             System.out.println("update playground with name " + playground.getName());
         }
         } else {
-            ctx.status(404);
+            ctx.status(404).result("playground didn't update");
         }
     };
 

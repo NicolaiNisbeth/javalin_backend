@@ -25,7 +25,7 @@ public class Main {
 
         app = Javalin.create(config -> {
             config.enableCorsForAllOrigins();
-        }).start(8088);
+        }).start(8089);
 
 
         app.before(ctx -> {
@@ -71,7 +71,6 @@ public class Main {
             // Works
             get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS, EventRessource.OneEventParticipantsHandlerGet);
             get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, EventRessource.OneEventOneParticipantHandlerGet);
-
             //works
             get(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, EventRessource.PlayGroundAllEventsHandlerGet);
             get(Path.Playground.PLAYGROUNDS_ONE_EVENT, EventRessource.OneEventHandlerGet);
@@ -81,13 +80,13 @@ public class Main {
             //works
             post(Path.Playground.PLAYGROUND_ALL, PlaygroundResource.CreatePlaygroundHandlerPost);
             post(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, PlaygroundResource.addPlaygroundEventPost);
-//works
+            //works
             post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, MessageRessource.PlaygroundMessageInsertPost);
-//works
+            //works
             put(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.UpdatePlaygroundHandlerPut);
-//works
+            //works
             put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, MessageRessource.PlaygroundMessageUpdatePut);
-//works
+            //works
             delete(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.DeleteOnePlaygroundDelete);
         });
     }
