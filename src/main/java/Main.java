@@ -2,18 +2,34 @@ import database.dao.Controller;
 import io.javalin.Javalin;
 import resources.GalgelegResource;
 import resources.UserAdminResource;
+import resources.UserLogin;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class Main {
     public static Javalin app;
 
 
     public static void main(String[] args) throws Exception {
-        start();
+        InetAddress ip;
 
+        String hostname;
+        try {
+            ip = InetAddress.getLocalHost();
+            hostname = ip.getHostName();
+            //System.out.println( ip.getCanonicalHostName());;
+            System.out.println("Your current IP address : " + ip.getHostAddress());
+            ;
+            // System.out.println("Your current IP address : " + ip);
+            //System.out.println("Your current Hostname : " + hostname);
+
+        } catch (UnknownHostException e) {
+
+            e.printStackTrace();
+        }
+
+        start();
     }
 
     public static void stop() {
@@ -25,12 +41,9 @@ public class Main {
         if (app != null) return;
 
         app = Javalin.create(config -> {
-            config.enableCorsForAllOrigins()
-                    .addStaticFiles("webapp");
+            config.enableCorsForAllOrigins();
         }).start(8088);
 
-        /*                    .addSinglePageRoot("/", "webapp/index.html");
-         */
 
         app.before(ctx -> {
             System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());
@@ -38,7 +51,7 @@ public class Main {
         app.exception(Exception.class, (e, ctx) -> {
             e.printStackTrace();
         });
-
+        app.config.addStaticFiles("webapp");
 
         // REST endpoints
         app.get("/rest/hej", ctx -> ctx.result("Hejsa, godt at møde dig!"));
@@ -55,18 +68,16 @@ public class Main {
         app.get("rest/playground_list", ctx ->
                 ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json"));
         app.post("rest/user_login", ctx ->
-                ctx.json(UserAdminResource.verifyLogin(ctx.body(), ctx)).contentType("json"));
+                ctx.json(UserLogin.verifyLogin(ctx)).contentType("json"));
+        app.get("/rest/user/:username/profile-picture", ctx ->
+                ctx.result(UserLogin.getProfilePicture(ctx.pathParam("username"))).contentType("image/jpg"));
         app.post("rest/create_user", ctx ->
-                ctx.json(UserAdminResource.createUser(ctx.body(), ctx)).contentType("json"));
-        app.put("rest/update_user", ctx ->
-                ctx.json(UserAdminResource.updateUser(ctx.body(), ctx)).contentType("json"));
+                ctx.json(UserAdminResource.createUser(ctx)).contentType("json"));
         app.get("rest/user_list", ctx ->
                 ctx.json(Controller.getInstance().getUsers()).contentType("json"));
         app.post("rest/remove_user", ctx ->
                 ctx.json(UserAdminResource.deleteUser(ctx.body(), ctx)).contentType("json"));
-
-
-
+        app.put("rest/update_user", ctx ->
+                ctx.json(UserAdminResource.updateUser(ctx)).contentType("json"));
     }
-
 }
