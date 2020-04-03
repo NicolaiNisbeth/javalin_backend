@@ -26,7 +26,7 @@ public class Delete implements Tag {
 
     public static class DeleteUser {
 
-        public static Handler deleteUserFromPlaygroundEventDelete = ctx -> {
+        public static Handler deleteParticipantFromPlaygroundEventDelete = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
             if (Controller.getInstance().removeUserFromPlaygroundEvent(jsonObject.getString(EVENT_ID), jsonObject.getString(USER_ID)))
                 ctx.status(200).result("Removed user from event");
@@ -61,15 +61,12 @@ public class Delete implements Tag {
 
     public static class DeleteMessage {
 
-        public static Handler removePlaygroundMessageHandlerDelete = ctx -> {
+        public static Handler deletePlaygroundMessageDelete = ctx -> {
             if (Controller.getInstance().removePlaygroundMessage(ctx.pathParam(PLAYGROUND_MESSAGE_ID)))
                 ctx.status(200);
             else
-                ctx.status(404);
+                ctx.status(404).result("Couldn't delete message");
         };
 
     }
-
-
-
 }

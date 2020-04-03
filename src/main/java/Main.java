@@ -72,11 +72,11 @@ public class Main {
             get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Get.GetPlayground.readOnePlaygroundOneEmployeeGet);
             get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Get.GetPlayground.readOnePlaygroundAllEmployeeGet);
             // Works
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS, Get.GetEvent.readOneEventParticipantsGet);
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT, Get.GetEvent.readOneEventOneParticipantGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Get.GetEvent.readOneEventParticipantsGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Get.GetEvent.readOneEventOneParticipantGet);
             //works
-            get(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, Get.GetEvent.readOnePlayGroundAllEventsGet);
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT, Get.GetEvent.readOneEventGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Get.GetEvent.readOnePlayGroundAllEventsGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Get.GetEvent.readOneEventGet);
             //works
             get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Get.GetMessage.readAllMessagesGet);
             get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Get.GetMessage.readOneMessageGet);
@@ -88,9 +88,15 @@ public class Main {
             //works
             post(Path.Playground.PLAYGROUND_ALL, Post.PostPlayground.createPlaygroundPost);
             //work
-            post(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, Post.PostEvent.createPlaygroundEventPost);
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Post.PostEvent.createPlaygroundEventPost);
             //works
             post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Post.PostMessage.createPlaygroundMessagePost);
+
+            //TODO: This is not implemented
+            post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostPedagogue.createPedagogueToPlaygroundPost);
+
+            //TODO: This is not implemented
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.PostUser.createParticipantsToPlaygroundEventPost);
 
 
             /**
@@ -101,7 +107,11 @@ public class Main {
             //works
             put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Put.PutMessage.updatePlaygroundMessagePut);
             //works
-            put(Path.Playground.PLAYGROUNDS_ONE_EVENT, Put.PutEvent.updateEventToPlaygroundPut);
+            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Put.PutEvent.updateEventToPlaygroundPut);
+            //Not tested
+            put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Put.PutPedagogue.updatePedagogueToPlayGroundPut);
+            //Not tested
+            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
 
 
             /**
@@ -112,9 +122,14 @@ public class Main {
             //works
             delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Delete.DeletePedagogue.deletePedagogueFromPlaygroundDelete);
             //works
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT, Delete.DeleteEvent.deleteEventFromPlaygroundDelete);
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Delete.DeleteEvent.deleteEventFromPlaygroundDelete);
             //works
-            delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Delete.DeleteMessage.removePlaygroundMessageHandlerDelete);
+            delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Delete.DeleteMessage.deletePlaygroundMessageDelete);
+            //Not tested
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
+
+
+
         });
     }
 }

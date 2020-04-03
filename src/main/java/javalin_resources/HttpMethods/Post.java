@@ -136,4 +136,19 @@ public class Post implements Tag {
         };
 
     }
+
+    public static class PostPedagogue {
+
+        public static Handler createPedagogueToPlaygroundPost = ctx -> {
+
+
+        };
+    }
+
+    public static class PostUser {
+        public static Handler createParticipantsToPlaygroundEventPost = ctx -> {
+
+
+        };
+    }
 }

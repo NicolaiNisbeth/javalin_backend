@@ -22,13 +22,13 @@ public class Path {
         // All events on all playgrounds.
         public static final String PLAYGROUND_ALL_EVENTS = "/playgrounds/events";
         // All events on a playground
-        public static final String PLAYGROUNDS_ONE_ALL_EVENTS = "/playgrounds/:name/events";
+        public static final String PLAYGROUNDS_ONE_EVENTS_ALL = "/playgrounds/:name/events";
         // One events on a playground
-        public static final String PLAYGROUNDS_ONE_EVENT = "/playgrounds/:name/events/:id";
+        public static final String PLAYGROUNDS_ONE_EVENT_ONE = "/playgrounds/:name/events/:id";
         // One event paricipant
-        public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS = "/playgrounds/:name/events/:id/participants";
+        public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL = "/playgrounds/:name/events/:id/participants";
         // One event paricipant
-        public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT = "/playgrounds/:name/events/:id/participants/:username";
+        public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE = "/playgrounds/:name/events/:id/participants/:username";
         // All events on a given month on a given playground.
         public static final String PLAYGROUND_ONE_EVENTS_MONTH = "/playground/:name/events/:month";
         // Playground message
