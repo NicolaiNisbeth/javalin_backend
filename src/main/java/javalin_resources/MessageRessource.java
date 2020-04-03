@@ -13,34 +13,8 @@ import java.util.Map;
 
 public class MessageRessource {
 
-    public static Handler OneMessageHandlerGet = ctx -> {
-        Message message = Controller.getInstance().getMessage(ctx.pathParam("id"));
-        if (message != null) {
-            ctx.json(message).contentType("json");
-            ctx.status(200);
-        } else
-            ctx.status(404);
-    };
 
-    public static Handler AllMessageHandlerGet = ctx -> {
-        List<Message> messages = Controller.getInstance().getPlaygroundMessages(ctx.pathParam("name"));
-        if (messages != null) {
-            ctx.json(messages).contentType("json");
-            ctx.status(200);
-        } else
-            ctx.status(404);
-    };
 
-    public static Handler PlayGroundMessagesHandlerGet = ctx -> {
-        Map<String, Object> model = ViewUtil.baseModel(ctx);
-        List<Message> messages = Controller.getInstance().getPlaygroundMessages(ctx.pathParam("playground"));
-        if (messages != null) {
-            model.put("messages", messages);
-            ctx.status(200);
-        } else {
-            ctx.status(404);
-        }
-    };
 
     public static Handler PlaygroundMessageInsertPost = ctx -> {
 

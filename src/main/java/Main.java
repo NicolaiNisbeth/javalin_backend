@@ -1,6 +1,10 @@
 import database.dao.Controller;
 import io.javalin.Javalin;
 import javalin_resources.*;
+import javalin_resources.HttpMethods.Delete;
+import javalin_resources.HttpMethods.Get;
+import javalin_resources.HttpMethods.Post;
+import javalin_resources.HttpMethods.Put;
 import javalin_resources.Util.Path;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
@@ -40,13 +44,6 @@ public class Main {
         app.get("/rest/hej", ctx -> ctx.result("Hejsa, godt at møde dig!"));
         app.get("/rest/hej/:fornavn", ctx -> ctx.result("Hej " + ctx.queryParam("fornavn") + ", godt at møde dig!"));
 
-        app.get("rest/galgeleg/highscore", ctx ->
-                ctx.json(GalgelegResource.getHighscoreListe()).contentType("json"));
-        app.post("rest/galgeleg/:username", ctx ->
-                ctx.result(GalgelegResource.startGame(ctx.pathParam("username"))).contentType("json"));
-        app.get("rest/galgeleg/:username/:guess", ctx ->
-                ctx.result(GalgelegResource.makeGuess(ctx.pathParam("username"), ctx.pathParam("guess"))).contentType("json"));
-
         //NJL - er i brug
         app.get("rest/playground_list", ctx ->
                 ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json"));
@@ -67,28 +64,28 @@ public class Main {
             //GET
 
             //Works
-            get(Path.Playground.PLAYGROUND_ALL, ctx -> ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json"));
-            get(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.OnePlaygroundGet);
+            get(Path.Playground.PLAYGROUND_ALL, Get.GetPlayground.allPlaygroundsGet);
+            get(Path.Playground.PLAYGROUND_ONE, Get.GetPlayground.onePlaygroundGet);
             //Works
-            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, PlaygroundResource.OnePlaygroundOneEmployeeHandlerGet);
-            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, PlaygroundResource.OnePlaygroundAllEmployeeHandlerGet);
+            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Get.GetPlayground.onePlaygroundOneEmployeeGet);
+            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Get.GetPlayground.onePlaygroundAllEmployeeGet);
             // Works
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS, EventRessource.OneEventParticipantsHandlerGet);
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, EventRessource.OneEventOneParticipantHandlerGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS, Get.GetEvent.oneEventParticipantsGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Get.GetEvent.oneEventOneParticipantGet);
             //works
-            get(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, EventRessource.PlayGroundAllEventsHandlerGet);
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT, EventRessource.OneEventHandlerGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, Get.GetEvent.playGroundAllEventsGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT, Get.GetEvent.oneEventGet);
             //works
-            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, MessageRessource.AllMessageHandlerGet);
-            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, MessageRessource.OneMessageHandlerGet);
+            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Get.GetMessage.AllMessagesGet);
+            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Get.GetMessage.OneMessageGet);
 
 
             //POST
 
             //works
-            post(Path.Playground.PLAYGROUND_ALL, PlaygroundResource.CreatePlaygroundHandlerPost);
+            post(Path.Playground.PLAYGROUND_ALL, Post.PostPlayground.createPlaygroundPost);
             //work
-            post(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, PlaygroundResource.addPlaygroundEventPost);
+            post(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, Post.PostEvent.addPlaygroundEventPost);
             //works
             post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, MessageRessource.PlaygroundMessageInsertPost);
 
@@ -96,21 +93,21 @@ public class Main {
             //PUT
 
             //works
-            put(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.UpdatePlaygroundHandlerPut);
+            put(Path.Playground.PLAYGROUND_ONE, Put.PutPlayground.updatePlaygroundPut);
             //works
             put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, MessageRessource.PlaygroundMessageUpdatePut);
             //works
-            put(Path.Playground.PLAYGROUNDS_ONE_EVENT, PlaygroundResource.updateEventToPlaygroundPut);
+            put(Path.Playground.PLAYGROUNDS_ONE_EVENT, Put.PutEvent.updateEventToPlaygroundPut);
 
 
             //DELETE
 
             //works
-            delete(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.DeleteOnePlaygroundDelete);
+            delete(Path.Playground.PLAYGROUND_ONE, Delete.DeletePlayground.removeOnePlaygroundDelete);
             //works
-            delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, PlaygroundResource.removePedagogueFromPlaygroundDelete);
+            delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Delete.DeletePedagogue.removePedagogueFromPlaygroundDelete);
             //works
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT, PlaygroundResource.removeEventFromPlaygroundDelete);
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT, Delete.DeleteEvent.removeEventFromPlaygroundDelete);
             //works
             delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, MessageRessource.removePlaygroundMessageHandlerDelete);
         });

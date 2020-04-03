@@ -65,10 +65,6 @@ public class Message implements Comparable<Message> {
             return category;
         }
 
-        public Builder setName(String name) {
-            this.category = name;
-            return this;
-        }
 
         public String getIcon() {
             return icon;
