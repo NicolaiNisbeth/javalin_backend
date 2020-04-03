@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.gruppe18.javalinBackendMvn</groupId>
-    <artifactId>javalin_server</artifactId>
+    <groupId>com.gruppe70.javalin_server</groupId>
+    <artifactId>kbh-legepladser-api</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
@@ -17,6 +17,14 @@
     </properties>
 
     <dependencies>
+
+        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
+
 
         <!-- FOR MONGODB -->
         <dependency>
@@ -85,9 +93,9 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <archive>
+                        <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>com.gruppe18.javalinBackendMvn.javalin_server.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -99,7 +107,7 @@
                     <archive>
                         <manifest>
                             <mainClass>
-                                com.gruppe18.javalinBackendMvn.javalin_server.Main
+                                Main
                             </mainClass>
                         </manifest>
                     </archive>
@@ -127,6 +135,17 @@
                 </configuration>
             </plugin>
 
+            <!--Docker-->
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <to>
+                        <image>javalin-server</image>
+                    </to>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
