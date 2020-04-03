@@ -61,55 +61,60 @@ public class Main {
         app.routes(() -> {
 
 
-            //GET
+            /**
+             * GET
+             **/
 
             //Works
-            get(Path.Playground.PLAYGROUND_ALL, Get.GetPlayground.allPlaygroundsGet);
-            get(Path.Playground.PLAYGROUND_ONE, Get.GetPlayground.onePlaygroundGet);
+            get(Path.Playground.PLAYGROUND_ALL, Get.GetPlayground.readAllPlaygroundsGet);
+            get(Path.Playground.PLAYGROUND_ONE, Get.GetPlayground.readOnePlaygroundGet);
             //Works
-            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Get.GetPlayground.onePlaygroundOneEmployeeGet);
-            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Get.GetPlayground.onePlaygroundAllEmployeeGet);
+            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Get.GetPlayground.readOnePlaygroundOneEmployeeGet);
+            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Get.GetPlayground.readOnePlaygroundAllEmployeeGet);
             // Works
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS, Get.GetEvent.oneEventParticipantsGet);
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Get.GetEvent.oneEventOneParticipantGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS, Get.GetEvent.readOneEventParticipantsGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT, Get.GetEvent.readOneEventOneParticipantGet);
             //works
-            get(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, Get.GetEvent.playGroundAllEventsGet);
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT, Get.GetEvent.oneEventGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, Get.GetEvent.readOnePlayGroundAllEventsGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT, Get.GetEvent.readOneEventGet);
             //works
-            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Get.GetMessage.AllMessagesGet);
-            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Get.GetMessage.OneMessageGet);
+            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Get.GetMessage.readAllMessagesGet);
+            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Get.GetMessage.readOneMessageGet);
 
 
-            //POST
-
+            /**
+             * POST
+             **/
             //works
             post(Path.Playground.PLAYGROUND_ALL, Post.PostPlayground.createPlaygroundPost);
             //work
-            post(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, Post.PostEvent.addPlaygroundEventPost);
+            post(Path.Playground.PLAYGROUNDS_ONE_ALL_EVENTS, Post.PostEvent.createPlaygroundEventPost);
             //works
-            post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, MessageRessource.PlaygroundMessageInsertPost);
+            post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Post.PostMessage.createPlaygroundMessagePost);
 
 
-            //PUT
-
+            /**
+             * PUT
+             **/
             //works
             put(Path.Playground.PLAYGROUND_ONE, Put.PutPlayground.updatePlaygroundPut);
             //works
-            put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, MessageRessource.PlaygroundMessageUpdatePut);
+            put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Put.PutMessage.updatePlaygroundMessagePut);
             //works
             put(Path.Playground.PLAYGROUNDS_ONE_EVENT, Put.PutEvent.updateEventToPlaygroundPut);
 
 
-            //DELETE
-
+            /**
+             * DELETE
+             **/
             //works
-            delete(Path.Playground.PLAYGROUND_ONE, Delete.DeletePlayground.removeOnePlaygroundDelete);
+            delete(Path.Playground.PLAYGROUND_ONE, Delete.DeletePlayground.deleteOnePlaygroundDelete);
             //works
-            delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Delete.DeletePedagogue.removePedagogueFromPlaygroundDelete);
+            delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Delete.DeletePedagogue.deletePedagogueFromPlaygroundDelete);
             //works
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT, Delete.DeleteEvent.removeEventFromPlaygroundDelete);
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT, Delete.DeleteEvent.deleteEventFromPlaygroundDelete);
             //works
-            delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, MessageRessource.removePlaygroundMessageHandlerDelete);
+            delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Delete.DeleteMessage.removePlaygroundMessageHandlerDelete);
         });
     }
 }
