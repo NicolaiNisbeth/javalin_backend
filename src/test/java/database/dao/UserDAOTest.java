@@ -115,13 +115,6 @@ class UserDAOTest {
         user.setPassword("root");
         userDAO.updateUser(user);*/
 
-        User user1 = new User.Builder("root")
-                .status("admin")
-                .password("root")
-                .setFirstname("Base")
-                .setLastname("Admin")
-                .build();
-        userDAO.createUser(user1);
 
        /*
         User user2 = new User.Builder("s123")
@@ -138,16 +131,17 @@ class UserDAOTest {
      /*  User user = userDAO.getUserWithUserName("s185020");
        user.setStatus("admin");
         userDAO.updateUser(user);*/
-
-     /*   for (User user2 : userDAO.getUserList()) {
-            System.out.println(user2);
-
-            if (!user2.getUsername().equalsIgnoreCase("s185040")) {
-
-                userDAO.deleteUser(user2.getUsername());
-            }
+/*
+        for (User user2 : userDAO.getUserList()) {
+            userDAO.deleteUser(user2.getUsername());
         }*/
 
-
+        User user1 = new User.Builder("root")
+                .status("admin")
+                .password("root")
+                .setFirstname("Base")
+                .setLastname("Admin")
+                .build();
+        userDAO.createUser(user1);
     }
 }

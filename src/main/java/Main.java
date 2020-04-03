@@ -2,18 +2,34 @@ import database.dao.Controller;
 import io.javalin.Javalin;
 import resources.GalgelegResource;
 import resources.UserAdminResource;
+import resources.UserLogin;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class Main {
     public static Javalin app;
-    private static HashMap<String, String> profileImages;
+
 
     public static void main(String[] args) throws Exception {
-        profileImages = new HashMap<>();
-        start();
+        InetAddress ip;
 
+        String hostname;
+        try {
+            ip = InetAddress.getLocalHost();
+            hostname = ip.getHostName();
+            //System.out.println( ip.getCanonicalHostName());;
+            System.out.println("Your current IP address : " + ip.getHostAddress());
+            ;
+            // System.out.println("Your current IP address : " + ip);
+            //System.out.println("Your current Hostname : " + hostname);
+
+        } catch (UnknownHostException e) {
+
+            e.printStackTrace();
+        }
+
+        start();
     }
 
     public static void stop() {
@@ -52,28 +68,16 @@ public class Main {
         app.get("rest/playground_list", ctx ->
                 ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json"));
         app.post("rest/user_login", ctx ->
-                ctx.json(UserAdminResource.verifyLogin(ctx.body(), ctx)).contentType("json"));
+                ctx.json(UserLogin.verifyLogin(ctx)).contentType("json"));
+        app.get("/rest/user/:username/profile-picture", ctx ->
+                ctx.result(UserLogin.getProfilePicture(ctx.pathParam("username"))).contentType("image/jpg"));
         app.post("rest/create_user", ctx ->
-                ctx.json(UserAdminResource.createUser(ctx.body(), ctx)).contentType("json"));
-        //app.post("rest/update_user", ctx ->
-         //       ctx.json(UserAdminResource.updateUser2(ctx.body(), ctx)).contentType("json"));
-        app.post("rest/update_user", ctx -> UserAdminResource.updateUser2(ctx.body(), ctx));
+                ctx.json(UserAdminResource.createUser(ctx)).contentType("json"));
         app.get("rest/user_list", ctx ->
                 ctx.json(Controller.getInstance().getUsers()).contentType("json"));
         app.post("rest/remove_user", ctx ->
                 ctx.json(UserAdminResource.deleteUser(ctx.body(), ctx)).contentType("json"));
-
-
-
-        app.get("rest/user_list/images", ctx ->
-                ctx.json(getPictures()).contentType("json"));
-
-        app.get("rest/set_image", ctx ->
-                ctx.json(getPictures()).contentType("json"));
-
-    }
-
-    private static Object getPictures() {
-       return profileImages.put("s185020", "");
+        app.put("rest/update_user", ctx ->
+                ctx.json(UserAdminResource.updateUser(ctx)).contentType("json"));
     }
 }
