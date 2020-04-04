@@ -19,9 +19,8 @@ public class User implements Serializable {
     private String id;
     private String firstname;
     private String lastname;
-
     private String status;
-    private String imagepath;
+    private String imagePath;
     private String email;
     private String password;
     private String username;
@@ -84,7 +83,7 @@ public class User implements Serializable {
         this.lastname = builder.lastname;
         this.username = builder.username;
         this.status = builder.status;
-        this.imagepath = builder.imagePath;
+        this.imagePath = builder.imagePath;
         this.email = builder.email;
         this.password = builder.password;
         this.phonenumbers = builder.phonenumbers;
@@ -119,11 +118,11 @@ public class User implements Serializable {
     }
 
     public String getImagepath() {
-        return imagepath;
+        return imagePath;
     }
 
-    public void setImagepath(String imagepath) {
-        this.imagepath = imagepath;
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public String getEmail() {
@@ -165,7 +164,7 @@ public class User implements Serializable {
         return Objects.equals(id, user.id) &&
                 Objects.equals(firstname, user.firstname) &&
                 Objects.equals(status, user.status) &&
-                Objects.equals(imagepath, user.imagepath) &&
+                Objects.equals(imagePath, user.imagePath) &&
                 Objects.equals(email, user.email) &&
                 Objects.equals(password, user.password) &&
                 Arrays.equals(phonenumbers, user.phonenumbers);
@@ -179,7 +178,7 @@ public class User implements Serializable {
                 ", name='" + firstname + " " + lastname + " " + '\'' +
                 ", username='" + username + '\'' +
                 ", status='" + status + '\'' +
-                ", imagePath='" + imagepath + '\'' +
+                ", imagePath='" + imagePath + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", phoneNumbers=" + Arrays.toString(phonenumbers) +

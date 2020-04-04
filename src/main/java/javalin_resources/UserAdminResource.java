@@ -1,21 +1,21 @@
 package javalin_resources;
 
-import brugerautorisation.data.Bruger;
-import brugerautorisation.transport.rmi.Brugeradmin;
 import com.mongodb.WriteResult;
 import database.DALException;
 import database.collections.User;
 import database.dao.Controller;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import io.javalin.http.Context;
 
-import java.net.MalformedURLException;
-import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.List;
+
+// todo gør noget ved phonenumbers
 
 public class UserAdminResource {
     final static String USERNAME_ADMIN = "usernameAdmin";
@@ -30,84 +30,23 @@ public class UserAdminResource {
     final static String STATUS_ADMIN = "admin";
     final static String PLAYGROUNDSIDS = "playgroundsIDs";
     final static String WEBSITE = "website";
-    final static String IMAGEPATH = "imagePath";
     final static String PHONENUMBER = "phoneNumber";
+    //todo ret addressen inden deployment
+    //final static String IMAGEPATH = "http://localhost:8088/rest/user";
+    final static String IMAGEPATH = "http://130.225.170.204:8088/rest/user";
 
-    private static Brugeradmin ba;
-
-    public static User verifyLogin(String request, Context ctx) {
-        JSONObject jsonObject = new JSONObject(request);
-        String username = jsonObject.getString(USERNAME);
-        String password = jsonObject.getString(PASSWORD);
-        try {
-            ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
-        } catch (NotBoundException | MalformedURLException | RemoteException e) {
-            e.printStackTrace();
-        }
-        Bruger bruger = null;
-        try {
-            bruger = ba.hentBruger(username, password);
-            if (bruger != null) {
-                return findUserInDB(bruger);
-            }
-            //todo njl lav bedre
-        } catch (Exception e) {
-            if (username.equalsIgnoreCase("root")) {
-                User root = null;
-                try {
-                    root = Controller.getInstance().getUser(username);
-                } catch (DALException e1) {
-                    e1.printStackTrace();
-                }
-                if (root.getPassword().equalsIgnoreCase(password)) {
-                    return root;
-                }
-            }
-        }
-        ctx.status(401).result("Unauthorized");
-        return null;
-    }
-
-    // Metoden opretter brugeren i databasen, hvis han ikke allerede findes.
-    public static User findUserInDB(Bruger bruger) {
-        User user = null;
-        try {
-            user = Controller.getInstance().getUser(bruger.brugernavn);
-        } catch (DALException e) {
-            e.printStackTrace();
-        }
-
-        if (user == null) {
-            System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");
-            user = new User.Builder(bruger.brugernavn)
-                    .setFirstname(bruger.fornavn)
-                    .setLastname(bruger.efternavn)
-                    .email(bruger.email)
-                    .password(bruger.adgangskode)
-                    .status(STATUS_PEDAGOG)
-                    .setWebsite(bruger.ekstraFelter.get("webside").toString())
-                    .build();
-            Controller.getInstance().createUser(user);
-        }
-        //Brugeren har ikke selv logget ind før og skal derfor ikke oprettes i DB men opdateres
-        if (!user.isLoggedIn()) {
-            user.setFirstname(bruger.fornavn);
-            user.setLastname(bruger.efternavn);
-            user.setEmail(bruger.email);
-            user.setPassword(bruger.adgangskode);
-            user.setStatus(user.getStatus());
-            user.setWebsite(bruger.ekstraFelter.get("webside").toString());
-            user.setLoggedIn(true);
-            Controller.getInstance().updateUser(user);
-        }
-        return user;
-    }
-
-    //todo ryd op
-    //todo få sat nogle ordentlige status koder på
-    //bruges af admins til at give brugere rettigheder - INDEN de selv er logget på første gang
-    public static List<User> createUser(String request, Context ctx) {
-        JSONObject jsonObject = new JSONObject(request);
+    /**
+     * Create
+     * Metoden bruges af admins til at give en bruger rettigheder,
+     * INDEN brugeren er logget på første gang
+     *
+     * @param ctx
+     * @return
+     */
+    public static List<User> createUser(Context ctx) {
+        BufferedImage bufferedImage;
+        String usermodel = ctx.formParam(("usermodel"));
+        JSONObject jsonObject = new JSONObject(usermodel);
         String usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
         String passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
         String username = jsonObject.getString(USERNAME);
@@ -118,40 +57,37 @@ public class UserAdminResource {
         String status = jsonObject.getString(STATUS);
         JSONArray playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
         String phoneNumber = jsonObject.getString(PHONENUMBER);
-        String imagePath = jsonObject.getString(IMAGEPATH);
         String website = jsonObject.getString(WEBSITE);
-
         User admin = null;
-        User newUser = null;
+        User newUser;
 
         try {
             admin = Controller.getInstance().getUser(usernameAdmin);
         } catch (DALException e) {
+            ctx.status(401).result("Unauthorized - Forkert brugernavn eller adgangskode...");
             e.printStackTrace();
         }
-        if (!admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
-            ctx.status(401).result("Unauthorized - password er ikke korrekt");
-            return Controller.getInstance().getUsers();
-        } else {
-            try {
-                admin = Controller.getInstance().getUser(usernameAdmin);
-            } catch (DALException e) {
-                e.printStackTrace();
-            }
+        if (admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
+
             newUser = new User.Builder(username)
                     .status(status)
                     .build();
-
-            //newUser.setPassword(password);
             newUser.setFirstname(firstName);
             newUser.setLastname(lastName);
             newUser.setStatus(status);
             newUser.setEmail(email);
             newUser.setWebsite(website);
-            newUser.setImagepath(imagePath);
             String[] phoneNumbers = new String[1];
             phoneNumbers[0] = phoneNumber;
             newUser.setPhonenumbers(phoneNumbers);
+            newUser.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username));
+
+            try {
+                bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+                saveProfilePicture(username, bufferedImage);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             for (Object id : playgroundIDs) {
                 newUser.getPlaygroundsIDs().add(id.toString());
@@ -159,20 +95,30 @@ public class UserAdminResource {
 
             WriteResult ws = Controller.getInstance().createUser(newUser);
             if (ws.wasAcknowledged()) {
-                ctx.status(401).result("User was created");
+                ctx.status(201).result("User was created");
             } else {
                 ctx.status(401).result("User was not created");
                 return Controller.getInstance().getUsers();
             }
+            // Hvis admin har skrevet forkert adgangskode
+        } else {
+            ctx.status(401).result("Unauthorized - Forkert kodeord...");
         }
-
         return Controller.getInstance().getUsers();
     }
 
-    //todo få sat nogle ordentlige status koder på
-    //bruges af admins til at give brugere rettigheder - EFTER de selv er logget på første gang
-    public static List<User> updateUser(String request, Context ctx) {
-        JSONObject jsonObject = new JSONObject(request);
+    //todo gem en bruger - marker ham som inaktiv
+
+    /**
+     * UPDATE
+     *
+     * @param ctx
+     * @return
+     */
+    public static List<User> updateUser(Context ctx) {
+        BufferedImage bufferedImage;
+        String usermodel = ctx.formParam(("usermodel"));
+        JSONObject jsonObject = new JSONObject(usermodel);
         String usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
         String passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
         String username = jsonObject.getString(USERNAME);
@@ -183,35 +129,32 @@ public class UserAdminResource {
         String status = jsonObject.getString(STATUS);
         JSONArray playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
         String phoneNumber = jsonObject.getString(PHONENUMBER);
-        String imagePath = jsonObject.getString(IMAGEPATH);
         String website = jsonObject.getString(WEBSITE);
 
         User admin = null;
         User userToUpdate = null;
-
         try {
             admin = Controller.getInstance().getUser(usernameAdmin);
         } catch (DALException e) {
             e.printStackTrace();
         }
         if (!admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
-            ctx.status(401).result("Unauthorized - password er ikke korrekt");
+            System.out.println(admin.getPassword());
+            System.out.println(passwordAdmin);
+            ctx.status(401).result("Unauthorized - Kodeord er forkert...");
             return Controller.getInstance().getUsers();
         } else {
             try {
-                admin = Controller.getInstance().getUser(usernameAdmin);
                 userToUpdate = Controller.getInstance().getUser(username);
             } catch (DALException e) {
                 e.printStackTrace();
             }
-
-            //userToUpdate.setPassword(password);
             userToUpdate.setFirstname(firstName);
             userToUpdate.setLastname(lastName);
             userToUpdate.setStatus(status);
             userToUpdate.setEmail(email);
             userToUpdate.setWebsite(website);
-            userToUpdate.setImagepath(imagePath);
+            userToUpdate.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username));
             String[] phoneNumbers = new String[1];
             phoneNumbers[0] = phoneNumber;
             userToUpdate.setPhonenumbers(phoneNumbers);
@@ -219,7 +162,13 @@ public class UserAdminResource {
             for (Object id : playgroundIDs) {
                 userToUpdate.getPlaygroundsIDs().add(id.toString());
             }
-
+            try {
+                bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+                saveProfilePicture(username, bufferedImage);
+            } catch (Exception e) {
+               //e.printStackTrace();
+                System.out.println("Server: intet billede i upload");
+            }
             if (Controller.getInstance().updateUser(userToUpdate)) {
                 ctx.status(401).result("User was updated");
             } else {
@@ -230,7 +179,13 @@ public class UserAdminResource {
         return Controller.getInstance().getUsers();
     }
 
-    //lavet backup
+    /**
+     * Delete
+     *
+     * @param body
+     * @param ctx
+     * @return
+     */
     public static List<User> deleteUser(String body, Context ctx) {
         JSONObject jsonObject = new JSONObject(body);
         String usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
@@ -240,19 +195,43 @@ public class UserAdminResource {
         //  JSONArray adminRightsOfNewUser = jsonObject.getJSONArray("userAdminRights");
 
         User admin = null;
-        User userToDelete = null;
-
         try {
             admin = Controller.getInstance().getUser(usernameAdmin);
         } catch (DALException e) {
             e.printStackTrace();
         }
         if (!admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
-            ctx.status(401).result("Unauthorized - password er ikke korrekt");
+            ctx.status(401).result("Unauthorized - Forkert kodeord...");
         } else {
-            //  usName = Controller.getInstance().getUser(usernameToBeDeleted).getUsername();
             Controller.getInstance().deleteUser(username);
         }
         return Controller.getInstance().getUsers();
+    }
+
+    private static void printImage(BufferedImage bufferedImage) {
+        JFrame frame = new JFrame();
+        frame.setBounds(10, 10, 900, 600);
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
+        frame.setLayout(new FlowLayout());
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        JLabel label = new JLabel(new ImageIcon(bufferedImage));
+        //label.setBounds(0, 0, 100, 200);
+        panel.add(label, BorderLayout.CENTER);
+        frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    private static void saveProfilePicture(String username, BufferedImage bufferedImage) {
+        String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
+        File imageFile = new File(path);
+        try {
+            ImageIO.write(bufferedImage, "png", imageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

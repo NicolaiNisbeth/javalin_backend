@@ -8,15 +8,32 @@ import javalin_resources.HttpMethods.Put;
 import javalin_resources.Util.Path;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
-
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class Main {
     public static Javalin app;
 
 
     public static void main(String[] args) throws Exception {
-        start();
+        InetAddress ip;
 
+        String hostname;
+        try {
+            ip = InetAddress.getLocalHost();
+            hostname = ip.getHostName();
+            //System.out.println( ip.getCanonicalHostName());;
+            System.out.println("Your current IP address : " + ip.getHostAddress());
+            ;
+            // System.out.println("Your current IP address : " + ip);
+            //System.out.println("Your current Hostname : " + hostname);
+
+        } catch (UnknownHostException e) {
+
+            e.printStackTrace();
+        }
+
+        start();
     }
 
     public static void stop() {
@@ -132,4 +149,4 @@ public class Main {
 
         });
     }
-}
+

@@ -288,9 +288,9 @@ public class Controller implements IController {
 
     @Override
     public boolean deleteUser(String username) {
-        final ClientSession clientSession = DataSource.getClient().startSession();
+      //  final ClientSession clientSession = DataSource.getClient().startSession();
         boolean isUserDeleted = false;
-        clientSession.startTransaction();
+        //clientSession.startTransaction();
         try {
             User user = userDAO.getUser(username);
 
@@ -305,12 +305,12 @@ public class Controller implements IController {
             // delete user
             isUserDeleted = userDAO.deleteUser(username);
 
-            clientSession.commitTransaction();
-        } catch (Exception e) {
-            clientSession.abortTransaction();
+          //  clientSession.commitTransaction();
+        } catch (Exception e){
+           // clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
-            clientSession.close();
+            //clientSession.close();
         }
 
         return isUserDeleted;
