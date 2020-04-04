@@ -157,7 +157,7 @@ public class UserLogin {
 
     public static Handler handleLoginPost = ctx -> {
         Map<String, Object> model = ViewUtil.baseModel(ctx);
-        User user = verificerLogin(ctx.body(), ctx);
+        User user = verifyLogin(ctx);
         if (user != null) {
             model.put("authenticationFailed", true);
         } else {

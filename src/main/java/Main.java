@@ -65,11 +65,11 @@ public class Main {
         app.get("rest/playground_list", ctx ->
                 ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json"));
         app.post("rest/user_login", ctx ->
-                ctx.json(UserAdminResource.verifyLogin(ctx.body(), ctx)).contentType("json"));
+                ctx.json(UserLogin.verifyLogin(ctx)).contentType("json"));
         app.post("rest/create_user", ctx ->
-                ctx.json(UserAdminResource.createUser(ctx.body(), ctx)).contentType("json"));
+                ctx.json(UserAdminResource.createUser(ctx)).contentType("json"));
         app.put("rest/update_user", ctx ->
-                ctx.json(UserAdminResource.updateUser(ctx.body(), ctx)).contentType("json"));
+                ctx.json(UserAdminResource.updateUser(ctx)).contentType("json"));
         app.get("rest/user_list", ctx ->
                 ctx.json(Controller.getInstance().getUsers()).contentType("json"));
         app.post("rest/remove_user", ctx ->
@@ -146,7 +146,7 @@ public class Main {
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
 
 
-
         });
     }
+}
 
