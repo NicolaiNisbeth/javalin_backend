@@ -30,7 +30,10 @@ public class UserLogin {
     final static String PLAYGROUNDSIDS = "playgroundsIDs";
     final static String WEBSITE = "website";
     final static String PHONENUMBER = "phoneNumber";
-    final static String IMAGEPATH = "http://localhost:8088/rest/user";
+
+    //todo ret addressen inden deployment
+    //final static String IMAGEPATH = "http://localhost:8088/rest/user";
+    final static String IMAGEPATH = "http://130.225.170.204:8088/rest/user";
 
 
     private static Brugeradmin ba;
@@ -110,15 +113,18 @@ public class UserLogin {
         BufferedImage buffImage = null;
         File imageFile = new File(path);
         try {
+            //buffImage = ImageIO.read(UserLogin.class.getResource(path));
             buffImage = ImageIO.read(imageFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            //  e.printStackTrace();
+            System.out.println("Server: Brugeren har ikke uploadet et billede og får et standard");
         }
         //Hvis ikke han har et profil billede får han random_user
         if (buffImage == null) {
             path = "src/main/resources/images/profile_pictures/random_user.png";
             imageFile = new File(path);
             try {
+                // buffImage = ImageIO.read(UserLogin.class.getResource(path));
                 buffImage = ImageIO.read(imageFile);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -128,7 +134,7 @@ public class UserLogin {
         try {
             ImageIO.write(buffImage, "png", os);
         } catch (IOException e) {
-            e.printStackTrace();
+             e.printStackTrace();
         }
         InputStream is = new ByteArrayInputStream(os.toByteArray());
         return is;
