@@ -11,10 +11,11 @@ import org.jongo.MongoCollection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventDAO implements IEventDAO{
+public class EventDAO implements IEventDAO {
 
     /**
      * Create event in events collection
+     *
      * @param event
      * @return true if created else false
      * @throws DALException
@@ -37,13 +38,14 @@ public class EventDAO implements IEventDAO{
 
     /**
      * Get event with given id
+     *
      * @param id
      * @return event
      * @throws DALException
      */
     @Override
     public Event getEvent(String id) throws DALException {
-       if (id == null || id.isEmpty())
+        if (id == null || id.isEmpty())
             throw new DALException(String.format("%s as ID is not valid in identifying an event", id));
 
         Jongo jongo = new Jongo(DataSource.getDB());
@@ -59,6 +61,7 @@ public class EventDAO implements IEventDAO{
 
     /**
      * Get all events in collection
+     *
      * @return list of events
      * @throws DALException
      */
@@ -80,6 +83,7 @@ public class EventDAO implements IEventDAO{
 
     /**
      * Replace event with same id
+     *
      * @param event
      * @return true if updated else false
      * @throws DALException
@@ -108,6 +112,7 @@ public class EventDAO implements IEventDAO{
 
     /**
      * Delete event with given id
+     *
      * @param id
      * @return true if deleted else false
      * @throws DALException

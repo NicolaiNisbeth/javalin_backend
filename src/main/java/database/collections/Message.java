@@ -43,11 +43,11 @@ public class Message implements Comparable<Message> {
             return this;
         }
 
-        public String getPlaygroundID(){
+        public String getPlaygroundID() {
             return playgroundID;
         }
 
-        public Builder setPlaygroundID(String playgroundID){
+        public Builder setPlaygroundID(String playgroundID) {
             this.playgroundID = playgroundID;
             return this;
         }
@@ -65,10 +65,6 @@ public class Message implements Comparable<Message> {
             return category;
         }
 
-        public Builder setName(String name) {
-            this.category = name;
-            return this;
-        }
 
         public String getIcon() {
             return icon;
@@ -152,11 +148,11 @@ public class Message implements Comparable<Message> {
         this.messageString = messageString;
     }
 
-    public String getPlaygroundName(){
+    public String getPlaygroundName() {
         return playgroundID;
     }
 
-    public void setPlaygroundID(String playgroundID){
+    public void setPlaygroundID(String playgroundID) {
         this.playgroundID = playgroundID;
     }
 

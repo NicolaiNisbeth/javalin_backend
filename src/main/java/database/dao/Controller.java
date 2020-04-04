@@ -253,9 +253,9 @@ public class Controller implements IController {
 
     @Override
     public boolean deletePlayground(String playgroundName) {
-        final ClientSession session = DataSource.getClient().startSession();
+        //      final ClientSession session = DataSource.getClient().startSession();
         boolean isPlaygroundDeleted = false;
-        session.startTransaction();
+        //      session.startTransaction();
         try {
             Playground playground = playgroundDAO.getPlayground(playgroundName);
 
@@ -275,12 +275,12 @@ public class Controller implements IController {
             // delete playground
             isPlaygroundDeleted = playgroundDAO.deletePlayground(playgroundName);
 
-            session.commitTransaction();
-        } catch (Exception e){
-            session.abortTransaction();
+            //      session.commitTransaction();
+        } catch (Exception e) {
+            //       session.abortTransaction();
             e.printStackTrace();
         } finally {
-            session.close();
+            //       session.close();
         }
 
         return isPlaygroundDeleted;
@@ -306,7 +306,7 @@ public class Controller implements IController {
             isUserDeleted = userDAO.deleteUser(username);
 
             clientSession.commitTransaction();
-        } catch (Exception e){
+        } catch (Exception e) {
             clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
@@ -369,9 +369,9 @@ public class Controller implements IController {
 
     @Override
     public WriteResult addPlaygroundEvent(String playgroundName, Event event) {
-        ClientSession clientSession = DataSource.getClient().startSession();
+        //ClientSession clientSession = DataSource.getClient().startSession();
         WriteResult result = null;
-        clientSession.startTransaction();
+        //clientSession.startTransaction();
         try {
             // create event in event collection
             event.setPlayground(playgroundName);
@@ -381,12 +381,12 @@ public class Controller implements IController {
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", playgroundName, "events", event);
 
-            clientSession.commitTransaction();
+            //    clientSession.commitTransaction();
         } catch (Exception e) {
-            clientSession.abortTransaction();
+            //  clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
-          clientSession.close();
+            //  clientSession.close();
         }
 
         return result;
@@ -394,9 +394,9 @@ public class Controller implements IController {
 
     @Override
     public WriteResult addPlaygroundMessage(String playgroundName, Message message) {
-        ClientSession clientSession = DataSource.getClient().startSession();
+        //ClientSession clientSession = DataSource.getClient().startSession();
         WriteResult result = null;
-        clientSession.startTransaction();
+        //clientSession.startTransaction();
         try {
             // create message in message collection
             message.setPlaygroundID(playgroundName);
@@ -406,12 +406,12 @@ public class Controller implements IController {
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", playgroundName, "messages", message);
 
-            clientSession.commitTransaction();
+            //   clientSession.commitTransaction();
         } catch (Exception e) {
-            clientSession.abortTransaction();
+            //  clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
-            clientSession.close();
+            //  clientSession.close();
         }
 
         return result;
@@ -441,9 +441,9 @@ public class Controller implements IController {
 
     @Override
     public boolean removePlaygroundEvent(String eventID) {
-        ClientSession clientSession = DataSource.getClient().startSession();
+        //ClientSession clientSession = DataSource.getClient().startSession();
         boolean isEventDeleted = false;
-        clientSession.startTransaction();
+        //clientSession.startTransaction();
         try {
             Event event = eventDAO.getEvent(eventID);
 
@@ -460,12 +460,12 @@ public class Controller implements IController {
             // delete event
             isEventDeleted = eventDAO.deleteEvent(eventID);
 
-            clientSession.commitTransaction();
+            //clientSession.commitTransaction();
         } catch (Exception e) {
-            clientSession.abortTransaction();
+            //clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
-            clientSession.close();
+            // clientSession.close();
         }
 
         return isEventDeleted;
@@ -473,9 +473,9 @@ public class Controller implements IController {
 
     @Override
     public boolean removePlaygroundMessage(String messageID) {
-        ClientSession clientSession = DataSource.getClient().startSession();
+        //ClientSession clientSession = DataSource.getClient().startSession();
         boolean isMessageDeleted = false;
-        clientSession.startTransaction();
+        //clientSession.startTransaction();
         try {
             Message message = messageDAO.getMessage(messageID);
 
@@ -486,12 +486,12 @@ public class Controller implements IController {
             // delete message
             isMessageDeleted = messageDAO.deleteMessage(messageID);
 
-            clientSession.commitTransaction();
+            //clientSession.commitTransaction();
         } catch (Exception e) {
-            clientSession.abortTransaction();
+            //clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
-            clientSession.close();
+            //clientSession.close();
         }
 
         return isMessageDeleted;

@@ -1,4 +1,4 @@
-package resources;
+package javalin_resources;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;

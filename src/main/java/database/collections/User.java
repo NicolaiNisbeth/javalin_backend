@@ -1,6 +1,7 @@
 package database.collections;
 
 
+import io.javalin.apibuilder.CrudHandler;
 import org.jongo.marshall.jackson.oid.MongoId;
 import org.jongo.marshall.jackson.oid.MongoObjectId;
 
@@ -46,7 +47,6 @@ public class User implements Serializable {
     public void setWebsite(String website) {
         this.website = website;
     }
-
 
 
     public Set<String> getPlaygroundsIDs() {
