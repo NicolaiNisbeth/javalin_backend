@@ -63,7 +63,7 @@ public class Delete implements Tag {
 
         public static Handler deletePlaygroundMessageDelete = ctx -> {
             if (Controller.getInstance().removePlaygroundMessage(ctx.pathParam(PLAYGROUND_MESSAGE_ID)))
-                ctx.status(200);
+                ctx.status(200).result("Message deleted successfully");
             else
                 ctx.status(404).result("Couldn't delete message");
         };
