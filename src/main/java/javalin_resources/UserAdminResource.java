@@ -1,4 +1,4 @@
-package resources;
+package javalin_resources;
 
 import com.mongodb.WriteResult;
 import database.DALException;
@@ -30,9 +30,10 @@ public class UserAdminResource {
     final static String STATUS_ADMIN = "admin";
     final static String PLAYGROUNDSIDS = "playgroundsIDs";
     final static String WEBSITE = "website";
-    //todo ret addressen inden deployment
-    final static String IMAGEPATH = "http://localhost:8088/rest/user";
     final static String PHONENUMBER = "phoneNumber";
+    //todo ret addressen inden deployment
+    //final static String IMAGEPATH = "http://localhost:8088/rest/user";
+    final static String IMAGEPATH = "http://130.225.170.204:8088/rest/user";
 
     /**
      * Create
@@ -165,7 +166,8 @@ public class UserAdminResource {
                 bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
                 saveProfilePicture(username, bufferedImage);
             } catch (Exception e) {
-                e.printStackTrace();
+               //e.printStackTrace();
+                System.out.println("Server: intet billede i upload");
             }
             if (Controller.getInstance().updateUser(userToUpdate)) {
                 ctx.status(401).result("User was updated");

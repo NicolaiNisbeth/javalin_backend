@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 
 
-public class Event implements Comparable<Event>{
+public class Event implements Comparable<Event> {
 
     @MongoObjectId
     @MongoId
@@ -23,9 +23,10 @@ public class Event implements Comparable<Event>{
     private String playground;                      // 1-to-many
 
     //This constructor is used for MongoDB mapping
-    public Event(){}
+    public Event() {
+    }
 
-    private Event(Builder builder){
+    private Event(Builder builder) {
         this.id = builder.id;
         this.name = builder.name;
         this.imagepath = builder.imagepath;
@@ -140,15 +141,15 @@ public class Event implements Comparable<Event>{
         private Set<User> assignedUsers = new HashSet<>();  // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
         private String playground;                      // 1-to-many
 
-        public Builder(){
+        public Builder() {
         }
 
-        public Builder id(String id){
+        public Builder id(String id) {
             this.id = id;
             return this;
         }
 
-        public Builder name(String name){
+        public Builder name(String name) {
             this.name = name;
             return this;
         }
@@ -183,7 +184,7 @@ public class Event implements Comparable<Event>{
             return this;
         }
 
-        public Event build(){
+        public Event build() {
             return new Event(this);
         }
     }

@@ -48,6 +48,7 @@ public class Playground {
             this.name = name;
             return this;
         }
+
         public boolean isHasSoccerField() {
             return hasSoccerField;
         }
@@ -290,7 +291,6 @@ public class Playground {
     public void setMessages(Set<Message> messages) {
         this.messages = messages;
     }
-
 
 
     @Override

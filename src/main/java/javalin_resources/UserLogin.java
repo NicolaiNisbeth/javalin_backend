@@ -1,12 +1,14 @@
-package resources;
+package javalin_resources;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import database.DALException;
 import database.collections.User;
 import database.dao.Controller;
+import io.javalin.http.Handler;
 import org.json.JSONObject;
 import io.javalin.http.Context;
+import javalin_resources.Util.ViewUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -15,6 +17,7 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.Map;
 
 public class UserLogin {
     final static String USERNAME_ADMIN = "usernameAdmin";
@@ -30,7 +33,10 @@ public class UserLogin {
     final static String PLAYGROUNDSIDS = "playgroundsIDs";
     final static String WEBSITE = "website";
     final static String PHONENUMBER = "phoneNumber";
-    final static String IMAGEPATH = "http://localhost:8088/rest/user";
+
+    //todo ret addressen inden deployment
+    //final static String IMAGEPATH = "http://localhost:8088/rest/user";
+    final static String IMAGEPATH = "http://130.225.170.204:8088/rest/user";
 
 
     private static Brugeradmin ba;
@@ -110,15 +116,18 @@ public class UserLogin {
         BufferedImage buffImage = null;
         File imageFile = new File(path);
         try {
+            //buffImage = ImageIO.read(UserLogin.class.getResource(path));
             buffImage = ImageIO.read(imageFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            //  e.printStackTrace();
+            System.out.println("Server: Brugeren har ikke uploadet et billede og får et standard");
         }
         //Hvis ikke han har et profil billede får han random_user
         if (buffImage == null) {
             path = "src/main/resources/images/profile_pictures/random_user.png";
             imageFile = new File(path);
             try {
+                // buffImage = ImageIO.read(UserLogin.class.getResource(path));
                 buffImage = ImageIO.read(imageFile);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -128,9 +137,34 @@ public class UserLogin {
         try {
             ImageIO.write(buffImage, "png", os);
         } catch (IOException e) {
-            e.printStackTrace();
+             e.printStackTrace();
         }
         InputStream is = new ByteArrayInputStream(os.toByteArray());
         return is;
     }
+
+    // The origin of the request (request.pathInfo()) is saved in the session so
+    // the user can be redirected back after login
+    public static Handler confirmlogin = ctx -> {
+        if (!ctx.path().startsWith("/books"))
+            return;
+        if (ctx.sessionAttribute("currentUser") == null) {
+            ctx.sessionAttribute("loginRedirect", ctx.path());
+            ctx.redirect("/");
+            ctx.status(401);
+        }
+    };
+
+    public static Handler handleLoginPost = ctx -> {
+        Map<String, Object> model = ViewUtil.baseModel(ctx);
+        User user = verifyLogin(ctx);
+        if (user != null) {
+            model.put("authenticationFailed", true);
+        } else {
+            ctx.sessionAttribute("currentUser", user.getId());
+            ctx.sessionAttribute("currentUserStatus", user.getStatus());
+            model.put("authenticationSucceeded", true);
+            model.put("currentUser", user.getId());
+        }
+    };
 }
