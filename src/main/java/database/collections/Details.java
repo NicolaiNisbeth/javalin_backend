@@ -8,8 +8,10 @@ public class Details {
     private Date startTime;
     private Date endTime;
 
-    public Details(){}
-    public Details(Date date, Date startTime, Date endTime){
+    public Details() {
+    }
+
+    public Details(Date date, Date startTime, Date endTime) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
