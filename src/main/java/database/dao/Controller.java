@@ -473,9 +473,9 @@ public class Controller implements IController {
 
     @Override
     public boolean removePlaygroundMessage(String messageID) {
-        ClientSession clientSession = DataSource.getClient().startSession();
+        //ClientSession clientSession = DataSource.getClient().startSession();
         boolean isMessageDeleted = false;
-        clientSession.startTransaction();
+        //clientSession.startTransaction();
         try {
             Message message = messageDAO.getMessage(messageID);
 
@@ -486,12 +486,12 @@ public class Controller implements IController {
             // delete message
             isMessageDeleted = messageDAO.deleteMessage(messageID);
 
-            clientSession.commitTransaction();
+         //   clientSession.commitTransaction();
         } catch (Exception e) {
-            clientSession.abortTransaction();
+        //    clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
-            clientSession.close();
+          //  clientSession.close();
         }
 
         return isMessageDeleted;

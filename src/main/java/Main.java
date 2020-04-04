@@ -88,6 +88,7 @@ public class Main {
             put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, MessageRessource.PlaygroundMessageUpdatePut);
             //works
             delete(Path.Playground.PLAYGROUND_ONE, PlaygroundResource.DeleteOnePlaygroundDelete);
+            delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, MessageRessource.removePlaygroundMessageHandlerDelete);
         });
     }
 }

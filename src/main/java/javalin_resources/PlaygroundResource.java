@@ -17,11 +17,6 @@ public class PlaygroundResource {
     static final String PLAYGROUND_NAME = "name";
     static final String EMPLOYEE_USERNAME = "username";
 
-    public static Handler AllPlaygroundsHandlerGet = ctx -> {
-        Map<String, Object> model = ViewUtil.baseModel(ctx);
-        model.put("playgrounds", Controller.getInstance().getPlaygrounds());
-        Controller.getInstance().getPlaygrounds();
-    };
 
     public static Handler OnePlaygroundGet = ctx -> {
         ctx.json(Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME))).contentType("json");
@@ -249,8 +244,6 @@ public class PlaygroundResource {
                     .setWrittenByID(jsonObject.getString("writtenbyID"))
                     .setDate(date)
                     .build();
-
-
 
             if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString("playgroundID"), message).wasAcknowledged()) {
                 ctx.status(200);

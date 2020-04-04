@@ -123,4 +123,11 @@ public class MessageRessource {
         else
             ctx.status(404);
     };
+
+    public static Handler removePlaygroundMessageHandlerDelete = ctx -> {
+        if (Controller.getInstance().removePlaygroundMessage(ctx.pathParam("id")))
+            ctx.status(200);
+        else
+            ctx.status(404);
+    };
 }
