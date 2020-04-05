@@ -20,6 +20,8 @@ import java.rmi.RemoteException;
 import java.util.Map;
 
 public class UserLogin {
+
+    //virker det
     final static String USERNAME_ADMIN = "usernameAdmin";
     final static String PASSWORD_ADMIN = "passwordAdmin";
     final static String USERNAME = "username";

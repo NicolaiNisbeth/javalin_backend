@@ -13,6 +13,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 // todo gør noget ved phonenumbers
@@ -187,7 +189,7 @@ public class UserAdminResource {
      * @return
      */
     public static List<User> deleteUser(String body, Context ctx) {
-        JSONObject jsonObject = new JSONObject(body);
+        JSONObject jsonObject = new JSONObject(ctx.body());
         String usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
         String passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
         String username = jsonObject.getString(USERNAME);
@@ -208,7 +210,7 @@ public class UserAdminResource {
         return Controller.getInstance().getUsers();
     }
 
-    private static void printImage(BufferedImage bufferedImage) {
+    public static void printImage(BufferedImage bufferedImage) {
         JFrame frame = new JFrame();
         frame.setBounds(10, 10, 900, 600);
         frame.setLocationRelativeTo(null);
@@ -225,13 +227,43 @@ public class UserAdminResource {
         frame.setVisible(true);
     }
 
-    private static void saveProfilePicture(String username, BufferedImage bufferedImage) {
-        String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
-        File imageFile = new File(path);
+    static void saveProfilePicture(String username, BufferedImage bufferedImage) {
+        //String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
+
+        File homeFolder = new File(System.getProperty("user.home"));
+        Path path = Paths.get(String.format(homeFolder.toPath() +
+                "/server_resource/profile_images/%s.png", username));
+
+        //String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
+        File imageFile = new File(path.toString());
         try {
             ImageIO.write(bufferedImage, "png", imageFile);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    public static InputStream getProfilePicture(String username) {
+        File homeFolder = new File(System.getProperty("user.home"));
+        Path path = Paths.get(String.format(homeFolder.toPath() +
+                "/server_resource/profile_images/%s.png", username));
+
+        File initialFile = new File(path.toString());
+        InputStream targetStream = null;
+        try {
+            targetStream = new FileInputStream(initialFile);
+/*            BufferedImage in = ImageIO.read(initialFile);
+            UserAdminResource.printImage(in);*/
+        } catch (IOException e) {
+            //e.printStackTrace();
+            System.out.println("Server: User have no profile picture...");
+        }
+
+        if (targetStream != null) {
+            return targetStream;
+        } else {
+            System.out.println("Server: Returning random user picture...");
+            targetStream = UserAdminResource.class.getResourceAsStream("/images/profile_pictures/random_user.png");
+            return targetStream;
         }
     }
 }
