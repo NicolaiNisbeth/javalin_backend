@@ -42,10 +42,10 @@ public class Main {
 
     public static void start() throws Exception {
         if (app != null) return;
-/* .addSinglePageRoot("/resouces", "/webapp/index.html")*/
         app = Javalin.create(config -> {
             config.enableCorsForAllOrigins()
-                   ;
+                    .addSinglePageRoot("", "/webapp/index.html")
+            ;
         }).start(8088);
 
         app.before(ctx -> {
