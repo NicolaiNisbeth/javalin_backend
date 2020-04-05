@@ -22,7 +22,7 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
-public class UserLogin {
+public class UserLoginResource {
     final static String USERNAME_ADMIN = "usernameAdmin";
     final static String PASSWORD_ADMIN = "passwordAdmin";
     final static String USERNAME = "username";
@@ -113,54 +113,4 @@ public class UserLogin {
         }
         return user;
     }
-
-    public static InputStream getProfilePicture(String username) {
-        File homeFolder = new File(System.getProperty("user.home"));
-        Path path = Paths.get(String.format(homeFolder.toPath() +
-                "/server_resource/profile_images/%s.png", username));
-
-        File initialFile = new File(path.toString());
-        InputStream targetStream = null;
-        try {
-            targetStream = new FileInputStream(initialFile);
-/*            BufferedImage in = ImageIO.read(initialFile);
-            UserAdminResource.printImage(in);*/
-        } catch (IOException e) {
-            //e.printStackTrace();
-            System.out.println("Server: User have no profile picture...");
-        }
-
-        if (targetStream != null) {
-            return targetStream;
-        } else {
-            System.out.println("Server: Returning random user picture...");
-            //path = Paths.get("/images/profile_pictures/random_user.png");
-            targetStream = UserLogin.class.getResourceAsStream("/images/profile_pictures/random_user.png");
-            return targetStream;
-        }
-    }
 }
-
-
-
-
-
-/*    public static InputStream getProfilePicture(String username) {
-        String path = String.format("/images/profile_pictures/%s.png", username);
-        InputStream is;
-
-
-
-
-        is = UserLogin.class.getResourceAsStream(path);
-        if (is != null) {
-            System.out.println("Returning profil picture...");
-            return is;
-        } else {
-            System.out.println("Returning random user picture...");
-            path = "/images/profile_pictures/random_user.png";
-            is = UserLogin.class.getResourceAsStream(path);
-            return is;
-        }
-    }*/
-

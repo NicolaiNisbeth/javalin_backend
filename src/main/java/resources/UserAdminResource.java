@@ -13,6 +13,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 // todo gør noget ved phonenumbers
@@ -226,12 +228,42 @@ public class UserAdminResource {
     }
 
     static void saveProfilePicture(String username, BufferedImage bufferedImage) {
-        String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
-        File imageFile = new File(path);
+        //String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
+
+        File homeFolder = new File(System.getProperty("user.home"));
+        Path path = Paths.get(String.format(homeFolder.toPath() +
+                "/server_resource/profile_images/%s.png", username));
+
+        //String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
+        File imageFile = new File(path.toString());
         try {
             ImageIO.write(bufferedImage, "png", imageFile);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    public static InputStream getProfilePicture(String username) {
+        File homeFolder = new File(System.getProperty("user.home"));
+        Path path = Paths.get(String.format(homeFolder.toPath() +
+                "/server_resource/profile_images/%s.png", username));
+
+        File initialFile = new File(path.toString());
+        InputStream targetStream = null;
+        try {
+            targetStream = new FileInputStream(initialFile);
+/*            BufferedImage in = ImageIO.read(initialFile);
+            UserAdminResource.printImage(in);*/
+        } catch (IOException e) {
+            //e.printStackTrace();
+            System.out.println("Server: User have no profile picture...");
+        }
+
+        if (targetStream != null) {
+            return targetStream;
+        } else {
+            System.out.println("Server: Returning random user picture...");
+            targetStream = UserLoginResource.class.getResourceAsStream("/images/profile_pictures/random_user.png");
+            return targetStream;
         }
     }
 }

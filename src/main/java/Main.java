@@ -2,7 +2,7 @@ import database.dao.Controller;
 import io.javalin.Javalin;
 import resources.GalgelegResource;
 import resources.UserAdminResource;
-import resources.UserLogin;
+import resources.UserLoginResource;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -42,9 +42,10 @@ public class Main {
 
     public static void start() throws Exception {
         if (app != null) return;
-
+/* .addSinglePageRoot("/resouces", "/webapp/index.html")*/
         app = Javalin.create(config -> {
-            config.enableCorsForAllOrigins();
+            config.enableCorsForAllOrigins()
+                   ;
         }).start(8088);
 
         app.before(ctx -> {
@@ -70,10 +71,10 @@ public class Main {
         app.get("rest/playground_list", ctx ->
                 ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json"));
         app.post("rest/user_login", ctx ->
-                ctx.json(UserLogin.verifyLogin(ctx)).contentType("json"));
+                ctx.json(UserLoginResource.verifyLogin(ctx)).contentType("json"));
 
         app.get("/rest/user/:username/profile-picture", ctx ->
-                ctx.result(UserLogin.getProfilePicture(ctx.pathParam("username"))).contentType("image/png"));
+                ctx.result(UserAdminResource.getProfilePicture(ctx.pathParam("username"))).contentType("image/png"));
 
 
         app.post("rest/create_user", ctx ->
