@@ -187,7 +187,7 @@ public class UserAdminResource {
      * @return
      */
     public static List<User> deleteUser(String body, Context ctx) {
-        JSONObject jsonObject = new JSONObject(body);
+        JSONObject jsonObject = new JSONObject(ctx.body());
         String usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
         String passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
         String username = jsonObject.getString(USERNAME);
@@ -208,7 +208,7 @@ public class UserAdminResource {
         return Controller.getInstance().getUsers();
     }
 
-    private static void printImage(BufferedImage bufferedImage) {
+    public static void printImage(BufferedImage bufferedImage) {
         JFrame frame = new JFrame();
         frame.setBounds(10, 10, 900, 600);
         frame.setLocationRelativeTo(null);
@@ -225,7 +225,7 @@ public class UserAdminResource {
         frame.setVisible(true);
     }
 
-    private static void saveProfilePicture(String username, BufferedImage bufferedImage) {
+    static void saveProfilePicture(String username, BufferedImage bufferedImage) {
         String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
         File imageFile = new File(path);
         try {

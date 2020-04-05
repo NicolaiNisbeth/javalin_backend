@@ -4,32 +4,35 @@ import resources.GalgelegResource;
 import resources.UserAdminResource;
 import resources.UserLogin;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Main {
     public static Javalin app;
 
-
     public static void main(String[] args) throws Exception {
-        InetAddress ip;
-
-        String hostname;
-        try {
-            ip = InetAddress.getLocalHost();
-            hostname = ip.getHostName();
-            //System.out.println( ip.getCanonicalHostName());;
-            System.out.println("Your current IP address : " + ip.getHostAddress());
-            ;
-            // System.out.println("Your current IP address : " + ip);
-            //System.out.println("Your current Hostname : " + hostname);
-
-        } catch (UnknownHostException e) {
-
-            e.printStackTrace();
-        }
-
+        buildDirectories();
         start();
+    }
+
+    private static void buildDirectories() {
+        System.out.println("Server: Starting directories inquiry");
+        File homeFolder = new File(System.getProperty("user.home"));
+        Path pathProfileImages = Paths.get(homeFolder.toPath().toString() + "/server_resource/profile_images");
+        File serverResProfileImages = new File(pathProfileImages.toString());
+        Path pathPlaygrounds = Paths.get(homeFolder.toPath().toString() + "/server_resource/playgrounds");
+        File serverResPlaygrounds = new File(pathPlaygrounds.toString());
+
+        if (serverResProfileImages.exists()) {
+            System.out.println("Server: Directories exists from path: " + homeFolder.toString());
+        } else {
+            boolean dirCreated = serverResProfileImages.mkdirs();
+            boolean dir2Created = serverResPlaygrounds.mkdir();
+            if (dirCreated && dir2Created) {
+                System.out.println("Server: Directories is build at path: " + homeFolder.toString());
+            }
+        }
     }
 
     public static void stop() {
@@ -43,7 +46,6 @@ public class Main {
         app = Javalin.create(config -> {
             config.enableCorsForAllOrigins();
         }).start(8088);
-
 
         app.before(ctx -> {
             System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());
@@ -69,8 +71,11 @@ public class Main {
                 ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json"));
         app.post("rest/user_login", ctx ->
                 ctx.json(UserLogin.verifyLogin(ctx)).contentType("json"));
+
         app.get("/rest/user/:username/profile-picture", ctx ->
-                ctx.result(UserLogin.getProfilePicture(ctx.pathParam("username"))).contentType("image/jpg"));
+                ctx.result(UserLogin.getProfilePicture(ctx.pathParam("username"))).contentType("image/png"));
+
+
         app.post("rest/create_user", ctx ->
                 ctx.json(UserAdminResource.createUser(ctx)).contentType("json"));
         app.get("rest/user_list", ctx ->

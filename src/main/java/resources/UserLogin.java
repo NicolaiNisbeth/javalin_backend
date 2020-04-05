@@ -8,10 +8,16 @@ import database.dao.Controller;
 import org.json.JSONObject;
 import io.javalin.http.Context;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -109,34 +115,52 @@ public class UserLogin {
     }
 
     public static InputStream getProfilePicture(String username) {
-        String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
-        BufferedImage buffImage = null;
-        File imageFile = new File(path);
+        File homeFolder = new File(System.getProperty("user.home"));
+        Path path = Paths.get(String.format(homeFolder.toPath() +
+                "/server_resource/profile_images/%s.png", username));
+
+        File initialFile = new File(path.toString());
+        InputStream targetStream = null;
         try {
-            //buffImage = ImageIO.read(UserLogin.class.getResource(path));
-            buffImage = ImageIO.read(imageFile);
+            targetStream = new FileInputStream(initialFile);
+/*            BufferedImage in = ImageIO.read(initialFile);
+            UserAdminResource.printImage(in);*/
         } catch (IOException e) {
-            //  e.printStackTrace();
-            System.out.println("Server: Brugeren har ikke uploadet et billede og får et standard");
+            //e.printStackTrace();
+            System.out.println("Server: User have no profile picture...");
         }
-        //Hvis ikke han har et profil billede får han random_user
-        if (buffImage == null) {
-            path = "src/main/resources/images/profile_pictures/random_user.png";
-            imageFile = new File(path);
-            try {
-                // buffImage = ImageIO.read(UserLogin.class.getResource(path));
-                buffImage = ImageIO.read(imageFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+        if (targetStream != null) {
+            return targetStream;
+        } else {
+            System.out.println("Server: Returning random user picture...");
+            //path = Paths.get("/images/profile_pictures/random_user.png");
+            targetStream = UserLogin.class.getResourceAsStream("/images/profile_pictures/random_user.png");
+            return targetStream;
         }
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try {
-            ImageIO.write(buffImage, "png", os);
-        } catch (IOException e) {
-             e.printStackTrace();
-        }
-        InputStream is = new ByteArrayInputStream(os.toByteArray());
-        return is;
     }
 }
+
+
+
+
+
+/*    public static InputStream getProfilePicture(String username) {
+        String path = String.format("/images/profile_pictures/%s.png", username);
+        InputStream is;
+
+
+
+
+        is = UserLogin.class.getResourceAsStream(path);
+        if (is != null) {
+            System.out.println("Returning profil picture...");
+            return is;
+        } else {
+            System.out.println("Returning random user picture...");
+            path = "/images/profile_pictures/random_user.png";
+            is = UserLogin.class.getResourceAsStream(path);
+            return is;
+        }
+    }*/
+
