@@ -6,15 +6,10 @@ import javalin_resources.HttpMethods.Get;
 import javalin_resources.HttpMethods.Post;
 import javalin_resources.HttpMethods.Put;
 import javalin_resources.Util.Path;
-import resources.GalgelegResource;
-import resources.UserAdminResource;
-import resources.UserLoginResource;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+
 import java.io.*;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Main {
@@ -28,9 +23,10 @@ public class Main {
     private static void buildDirectories() {
         System.out.println("Server: Starting directories inquiry");
         File homeFolder = new File(System.getProperty("user.home"));
-        Path pathProfileImages = Paths.get(homeFolder.toPath().toString() + "/server_resource/profile_images");
+
+        java.nio.file.Path pathProfileImages = Paths.get(homeFolder.toPath().toString() + "/server_resource/profile_images");
         File serverResProfileImages = new File(pathProfileImages.toString());
-        Path pathPlaygrounds = Paths.get(homeFolder.toPath().toString() + "/server_resource/playgrounds");
+        java.nio.file.Path pathPlaygrounds = Paths.get(homeFolder.toPath().toString() + "/server_resource/playgrounds");
         File serverResPlaygrounds = new File(pathPlaygrounds.toString());
 
         if (serverResProfileImages.exists()) {
@@ -69,23 +65,14 @@ public class Main {
         app.get("/rest/hej", ctx -> ctx.result("Hejsa, godt at møde dig!"));
         app.get("/rest/hej/:fornavn", ctx -> ctx.result("Hej " + ctx.queryParam("fornavn") + ", godt at møde dig!"));
 
-        app.get("rest/galgeleg/highscore", ctx ->
-                ctx.json(GalgelegResource.getHighscoreListe()).contentType("json"));
-        app.post("rest/galgeleg/:username", ctx ->
-                ctx.result(GalgelegResource.startGame(ctx.pathParam("username"))).contentType("json"));
-        app.get("rest/galgeleg/:username/:guess", ctx ->
-                ctx.result(GalgelegResource.makeGuess(ctx.pathParam("username"), ctx.pathParam("guess"))).contentType("json"));
-
         //NJL - er i brug
         app.get("rest/playground_list", ctx ->
                 ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json"));
-        app.post("rest/user_login", ctx ->
-                ctx.json(UserLoginResource.verifyLogin(ctx)).contentType("json"));
+/*        app.post("rest/user_login", ctx ->
+                ctx.json(UserLogin.verifyLogin(ctx)).contentType("json"));*/
 
         app.get("/rest/user/:username/profile-picture", ctx ->
                 ctx.result(UserAdminResource.getProfilePicture(ctx.pathParam("username"))).contentType("image/png"));
-
-
         app.post("rest/create_user", ctx ->
                 ctx.json(UserAdminResource.createUser(ctx)).contentType("json"));
         app.get("rest/user_list", ctx ->
@@ -131,6 +118,10 @@ public class Main {
             post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostPedagogue.createPedagogueToPlaygroundPost);
             post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.PostUser.createParticipantsToPlaygroundEventPost);
 
+
+            // User
+            post("rest/user_login", ctx ->
+                    ctx.json(UserLogin.verifyLogin(ctx)).contentType("json"));
 
             /**
              * PUT

@@ -48,6 +48,9 @@ public class Path {
         public static final String EMPLOYEE_ONE = "/employee/:id";
         // All employees working within a zipcode.
         public static final String EMPLOYEE_ALL_ZIPCODE = "/employee/:zipcode";
+        // Get employee's profile picture
+        public static final String EMPLOYEE_ONE_PROFILE_PICTURE = "/employee/:id/profile-picture";
+
     }
 
     public static class User {
