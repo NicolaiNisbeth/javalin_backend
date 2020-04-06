@@ -131,10 +131,9 @@ class UserDAOTest {
      /*  User user = userDAO.getUserWithUserName("s185020");
        user.setStatus("admin");
         userDAO.updateUser(user);*/
-/*
         for (User user2 : userDAO.getUserList()) {
             userDAO.deleteUser(user2.getUsername());
-        }*/
+        }
 
         User user1 = new User.Builder("root")
                 .status("admin")
