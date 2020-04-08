@@ -150,16 +150,19 @@ public class Put implements Tag {
     public static class PutUser {
 
         public static Handler updateUserToPlaygroundEventPut = ctx -> {
-            JSONObject jsonObject = new JSONObject(ctx.body());
-            Event event = Controller.getInstance().getEvent(jsonObject.getString(EVENT_ID));
-            User user = Controller.getInstance().getUser(jsonObject.getString(USER_ID));
-            event.getAssignedUsers().add(user);
-            Controller.getInstance().updatePlaygroundEvent(event);
-            if (jsonObject.getString(EVENT_ID) != null && jsonObject.getString(USER_ID) != null) {
+            //ctx.json(UserLogin.verifyLogin(ctx)).contentType("json")
+            //JSONObject jsonObject = new JSONObject(ctx.body());
+            //Event event = Controller.getInstance().getEvent(jsonObject.getString(EVENT_ID));
+            //User user = Controller.getInstance().getUser(jsonObject.getString(USER_ID));
+            //event.getAssignedUsers().add(user);
+            //Controller.getInstance().updatePlaygroundEvent(event);
+            boolean successful = Controller.getInstance().addUserToPlaygroundEvent(ctx.pathParam("id"), ctx.pathParam("username"));
+            if (successful) {
                 ctx.status(200).result("Update successfull");
             } else {
                 ctx.status(404).result("Failed to update");
             }
+
         };
 
     }
