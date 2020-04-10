@@ -120,10 +120,9 @@ public class Main {
             post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostPedagogue.createPedagogueToPlaygroundPost);
             post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.PostUser.createParticipantsToPlaygroundEventPost);
 
-
             // User
-            post("rest/user_login", ctx ->
-                    ctx.json(UserLogin.verifyLogin(ctx)).contentType("json"));
+            post(Path.User.LOGIN, Post.PostUser.createUserLoginPost);
+
 
             /**
              * PUT
@@ -137,8 +136,7 @@ public class Main {
 
             //TODO: Test this
             put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Put.PutPedagogue.updatePedagogueToPlayGroundPut);
-            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
-
+            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, ctx -> ctx.json(Put.PutUser.updateUserToPlaygroundEventPut).contentType("json"));
 
             /**
              * DELETE

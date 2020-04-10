@@ -5,6 +5,7 @@ import database.DALException;
 import database.collections.*;
 import database.dao.Controller;
 import io.javalin.http.Handler;
+import javalin_resources.UserLogin;
 import org.json.JSONObject;
 
 import java.util.Calendar;
@@ -148,7 +149,10 @@ public class Post implements Tag {
     public static class PostUser {
         public static Handler createParticipantsToPlaygroundEventPost = ctx -> {
 
+        };
 
+        public static Handler createUserLoginPost = ctx -> {
+            ctx.json(UserLogin.verifyLogin(ctx)).contentType("json");
         };
     }
 }
