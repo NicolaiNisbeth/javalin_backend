@@ -75,10 +75,12 @@ public class Main {
                 ctx.result(UserAdminResource.getProfilePicture(ctx.pathParam("username"))).contentType("image/png"));
         app.post("rest/create_user", ctx ->
                 ctx.json(UserAdminResource.createUser(ctx)).contentType("json"));
+        app.put("rest/update_user", ctx ->
+                ctx.json(UserAdminResource.updateUser(ctx)).contentType("json"));
         app.get("rest/user_list", ctx ->
                 ctx.json(Controller.getInstance().getUsers()).contentType("json"));
         app.post("rest/remove_user", ctx ->
-                ctx.json(UserAdminResource.deleteUser(ctx.body(), ctx)).contentType("json"));
+                ctx.json(UserAdminResource.deleteUser(ctx)).contentType("json"));
 
         app.routes(() -> {
 

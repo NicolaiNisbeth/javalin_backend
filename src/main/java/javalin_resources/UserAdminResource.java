@@ -57,7 +57,13 @@ public class UserAdminResource {
         String lastName = jsonObject.getString(FIRSTNAME);
         String email = jsonObject.getString(EMAIL);
         String status = jsonObject.getString(STATUS);
-        JSONArray playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+        // todo njl håndter et tomt array
+        try {
+            JSONArray playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+        } catch (Exception e) {
+            //   e.printStackTrace();
+        }
+        JSONArray playgroundIDs = new JSONArray();
         String phoneNumber = jsonObject.getString(PHONENUMBER);
         String website = jsonObject.getString(WEBSITE);
         User admin = null;
@@ -118,6 +124,7 @@ public class UserAdminResource {
      * @return
      */
     public static List<User> updateUser(Context ctx) {
+        System.out.println("update");
         BufferedImage bufferedImage;
         String usermodel = ctx.formParam(("usermodel"));
         JSONObject jsonObject = new JSONObject(usermodel);
@@ -168,14 +175,13 @@ public class UserAdminResource {
                 bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
                 saveProfilePicture(username, bufferedImage);
             } catch (Exception e) {
-               //e.printStackTrace();
                 System.out.println("Server: intet billede i upload");
             }
+            System.out.println(userToUpdate);
             if (Controller.getInstance().updateUser(userToUpdate)) {
-                ctx.status(401).result("User was updated");
+                ctx.status(201).result("User was updated");
             } else {
                 ctx.status(401).result("User was not updated");
-                return Controller.getInstance().getUsers();
             }
         }
         return Controller.getInstance().getUsers();
@@ -184,11 +190,10 @@ public class UserAdminResource {
     /**
      * Delete
      *
-     * @param body
      * @param ctx
      * @return
      */
-    public static List<User> deleteUser(String body, Context ctx) {
+    public static List<User> deleteUser(Context ctx) {
         JSONObject jsonObject = new JSONObject(ctx.body());
         String usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
         String passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
@@ -242,6 +247,7 @@ public class UserAdminResource {
             e.printStackTrace();
         }
     }
+
     public static InputStream getProfilePicture(String username) {
         File homeFolder = new File(System.getProperty("user.home"));
         Path path = Paths.get(String.format(homeFolder.toPath() +

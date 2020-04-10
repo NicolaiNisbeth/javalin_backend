@@ -316,10 +316,11 @@ public class Controller implements IController {
         return isUserDeleted;
     }
 
+    // todo fix it
     @Override
     public boolean addPedagogueToPlayground(String plagroundName, String username) {
-        final ClientSession clientSession = DataSource.getClient().startSession();
-        clientSession.startTransaction();
+//        final ClientSession clientSession = DataSource.getClient().startSession();
+      //  clientSession.startTransaction();
         try {
             // insert playground reference in user
             User pedagogue = userDAO.getUser(username);
@@ -330,21 +331,22 @@ public class Controller implements IController {
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", plagroundName, "assignedPedagogue", pedagogue);
 
-            clientSession.commitTransaction();
+    //        clientSession.commitTransaction();
         } catch (Exception e) {
-            clientSession.abortTransaction();
+      //      clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
-            clientSession.close();
+        //    clientSession.close();
         }
 
         return true;
     }
 
+    // to do fix it
     @Override
     public boolean addUserToPlaygroundEvent(String eventID, String username) {
-        ClientSession clientSession = DataSource.getClient().startSession();
-        clientSession.startTransaction();
+//        ClientSession clientSession = DataSource.getClient().startSession();
+ //       clientSession.startTransaction();
         try {
             // update user with event reference
             User user = userDAO.getUser(username);
@@ -356,12 +358,12 @@ public class Controller implements IController {
             MongoCollection events = jongo.getCollection(IEventDAO.COLLECTION);
             QueryUtils.updateWithPush(events, "_id", new ObjectId(eventID), "assignedUsers", user);
 
-            clientSession.commitTransaction();
+        //    clientSession.commitTransaction();
         } catch (Exception e) {
-            clientSession.abortTransaction();
+            //    clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
-            clientSession.close();
+            //clientSession.close();
         }
 
         return true;
