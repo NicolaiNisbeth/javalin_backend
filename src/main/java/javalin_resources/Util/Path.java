@@ -51,10 +51,12 @@ public class Path {
         // Get employee's profile picture
         public static final String EMPLOYEE_ONE_PROFILE_PICTURE = "/rest/employee/:id/profile-picture";
 
+        public static final String LOGIN = "rest/employee/login";
+
     }
 
     public static class User {
-        public static final String LOGIN = "rest/user_login";
+        public static final String LOGIN = "rest/employee/login";
         public static final String HOMESCREEN = "/rest/:id";
         public static final String FAVORITES = "/rest/:id/favorites";
         public static final String USER_POSTS = "/rest/id/posts";

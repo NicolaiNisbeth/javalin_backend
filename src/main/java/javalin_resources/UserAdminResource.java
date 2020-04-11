@@ -194,10 +194,12 @@ public class UserAdminResource {
      * @return
      */
     public static List<User> deleteUser(Context ctx) {
-        JSONObject jsonObject = new JSONObject(ctx.body());
-        String usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
-        String passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
-        String username = jsonObject.getString(USERNAME);
+        JSONObject jsonObject = null, deleteUserModel = null;
+        jsonObject = new JSONObject(ctx.body());
+        deleteUserModel = jsonObject.getJSONObject("deleteUserModel");
+        String usernameAdmin = deleteUserModel.getString(USERNAME_ADMIN);
+        String passwordAdmin = deleteUserModel.getString(PASSWORD_ADMIN);
+        String username = deleteUserModel.getString(USERNAME);
         // todo slet ham fra legeplader også
         //  JSONArray adminRightsOfNewUser = jsonObject.getJSONArray("userAdminRights");
 

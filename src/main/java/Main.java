@@ -71,15 +71,15 @@ public class Main {
 /*        app.post("rest/user_login", ctx ->
                 ctx.json(UserLogin.verifyLogin(ctx)).contentType("json"));*/
 
-        app.get("/rest/user/:username/profile-picture", ctx ->
+        app.get("/rest/employee/:username/profile-picture", ctx ->
                 ctx.result(UserAdminResource.getProfilePicture(ctx.pathParam("username"))).contentType("image/png"));
-        app.post("rest/create_user", ctx ->
+        app.post("rest/employee/create", ctx ->
                 ctx.json(UserAdminResource.createUser(ctx)).contentType("json"));
-        app.put("rest/update_user", ctx ->
+        app.put("rest/employee/update", ctx ->
                 ctx.json(UserAdminResource.updateUser(ctx)).contentType("json"));
-        app.get("rest/user_list", ctx ->
+        app.get("rest/employee/all", ctx ->
                 ctx.json(Controller.getInstance().getUsers()).contentType("json"));
-        app.post("rest/remove_user", ctx ->
+        app.post("rest/employee/delete", ctx ->
                 ctx.json(UserAdminResource.deleteUser(ctx)).contentType("json"));
 
         app.routes(() -> {
@@ -121,7 +121,7 @@ public class Main {
             post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.PostUser.createParticipantsToPlaygroundEventPost);
 
             // User
-            post(Path.User.LOGIN, Post.PostUser.createUserLoginPost);
+            post(Path.Employee.LOGIN, Post.PostUser.createUserLoginPost);
 
 
             /**
@@ -153,6 +153,9 @@ public class Main {
             //TODO: Test this
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
 
+
+            delete("rest/employee/delete", ctx ->
+                    ctx.json(UserAdminResource.deleteUser(ctx)).contentType("json"));
         });
     }
 }
