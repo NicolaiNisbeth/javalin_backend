@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
+import javax.mail.MessagingException;
 import java.awt.image.BufferedImage;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -155,6 +156,36 @@ public class Put implements Tag {
 
     public static class PutUser {
 
+        public static User resetPassword(Context ctx) {
+            JSONObject jsonObject = new JSONObject(ctx.body());
+            String username = jsonObject.getString(USERNAME);
+            User user = null;
+
+            try {
+                user = Controller.getInstance().getUser(username);
+            } catch (DALException e) {
+                ctx.status(401).result("Unauthorized");
+                e.printStackTrace();
+            }
+            if (user.getEmail() == null) {
+                //reset password
+            } else {
+                try {
+                    String newPassword = "1234";
+                    user.setPassword(newPassword);
+                    Controller.getInstance().updateUser(user);
+                    Controller.getInstance().getUser(user.getUsername());
+                    SendMail.sendMail("Din nye adgangskode", "Din nye adgangskode er: " + newPassword, user.getEmail());
+                } catch (MessagingException | DALException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // ctx.status(401).result("Unauthorized - Forkert kodeord...");
+            return user;
+        }
+
+
         public static Handler updateUserToPlaygroundEventPut = ctx -> {
             //ctx.json(UserLogin.verifyLogin(ctx)).contentType("json")
             //JSONObject jsonObject = new JSONObject(ctx.body());
@@ -172,7 +203,6 @@ public class Put implements Tag {
         };
 
         public static List<User> updateUser(Context ctx) {
-            System.out.println("update");
             BufferedImage bufferedImage;
             String usermodel = ctx.formParam(("usermodel"));
             JSONObject jsonObject = new JSONObject(usermodel);
@@ -234,52 +264,51 @@ public class Put implements Tag {
             }
             return Controller.getInstance().getUsers();
         }
+
+
+        public static class PutMessage {
+
+            public static Handler updatePlaygroundMessagePut = ctx -> {
+
+                JSONObject jsonObject = new JSONObject(ctx.body());
+                Message message = Controller.getInstance().getMessage(ctx.pathParam("id"));
+
+                // TODO Hvordan kommer den detail parameter til at foregå?
+                if (jsonObject.get(HOUR) != null) {
+                    Calendar cal = Calendar.getInstance();
+
+                    cal.set(Calendar.YEAR, jsonObject.getInt(YEAR));
+                    cal.set(Calendar.DAY_OF_MONTH, jsonObject.getInt(DAY));
+                    cal.set(Calendar.MONTH, jsonObject.getInt(MONTH));
+
+
+                    cal.set(Calendar.HOUR, jsonObject.getInt(HOUR));
+                    cal.set(Calendar.MINUTE, jsonObject.getInt(MINUTE));
+                    message.setDate(cal.getTime());
+                }
+                if (jsonObject.get(MESSAGE_CATEGORY) != null)
+                    message.setCategory(jsonObject.getString(MESSAGE_CATEGORY));
+
+                if (jsonObject.get(MESSAGE_ICON) != null)
+                    message.setIcon(jsonObject.getString(MESSAGE_ICON));
+
+                if (jsonObject.get(MESSAGE_STRING) != null)
+                    message.setMessageString(jsonObject.getString(MESSAGE_STRING));
+
+                if (jsonObject.get(PLAYGROUND_ID) != null)
+                    message.setPlaygroundID(jsonObject.getString(PLAYGROUND_ID));
+
+                if (jsonObject.get(MESSAGE_WRITTENBY_ID) != null)
+                    message.setWrittenByID(MESSAGE_WRITTENBY_ID);
+
+                if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged())
+                    ctx.status(200).result("The message was created for the playground " + jsonObject.getString(PLAYGROUND_ID));
+
+                else {
+                    ctx.status(404).result("There was an error");
+                }
+            };
+
+        }
     }
-
-    public static class PutMessage {
-
-        public static Handler updatePlaygroundMessagePut = ctx -> {
-
-            JSONObject jsonObject = new JSONObject(ctx.body());
-            Message message = Controller.getInstance().getMessage(ctx.pathParam("id"));
-
-            // TODO Hvordan kommer den detail parameter til at foregå?
-            if (jsonObject.get(HOUR) != null) {
-                Calendar cal = Calendar.getInstance();
-
-                cal.set(Calendar.YEAR, jsonObject.getInt(YEAR));
-                cal.set(Calendar.DAY_OF_MONTH, jsonObject.getInt(DAY));
-                cal.set(Calendar.MONTH, jsonObject.getInt(MONTH));
-
-
-                cal.set(Calendar.HOUR, jsonObject.getInt(HOUR));
-                cal.set(Calendar.MINUTE, jsonObject.getInt(MINUTE));
-                message.setDate(cal.getTime());
-            }
-            if (jsonObject.get(MESSAGE_CATEGORY) != null)
-                message.setCategory(jsonObject.getString(MESSAGE_CATEGORY));
-
-            if (jsonObject.get(MESSAGE_ICON) != null)
-                message.setIcon(jsonObject.getString(MESSAGE_ICON));
-
-            if (jsonObject.get(MESSAGE_STRING) != null)
-                message.setMessageString(jsonObject.getString(MESSAGE_STRING));
-
-            if (jsonObject.get(PLAYGROUND_ID) != null)
-                message.setPlaygroundID(jsonObject.getString(PLAYGROUND_ID));
-
-            if (jsonObject.get(MESSAGE_WRITTENBY_ID) != null)
-                message.setWrittenByID(MESSAGE_WRITTENBY_ID);
-
-            if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged())
-                ctx.status(200).result("The message was created for the playground " + jsonObject.getString(PLAYGROUND_ID));
-
-            else {
-                ctx.status(404).result("There was an error");
-            }
-        };
-
-    }
-
-
 }

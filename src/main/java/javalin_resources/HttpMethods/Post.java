@@ -167,7 +167,7 @@ public class Post implements Tag {
             String username = jsonObject.getString(USERNAME);
             String password = jsonObject.getString(PASSWORD);
             String firstName = jsonObject.getString(FIRSTNAME);
-            String lastName = jsonObject.getString(FIRSTNAME);
+            String lastName = jsonObject.getString(LASTNAME);
             String email = jsonObject.getString(EMAIL);
             String status = jsonObject.getString(STATUS);
             // todo njl håndter et tomt array
@@ -196,6 +196,7 @@ public class Post implements Tag {
                 newUser.setFirstname(firstName);
                 newUser.setLastname(lastName);
                 newUser.setStatus(status);
+                newUser.setPassword(password);
                 newUser.setEmail(email);
                 newUser.setWebsite(website);
                 String[] phoneNumbers = new String[1];
@@ -207,7 +208,8 @@ public class Post implements Tag {
                     bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
                     Shared.saveProfilePicture(username, bufferedImage);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
+                    System.out.println("Server: No profile picture was chosen...");
                 }
 
                 for (Object id : playgroundIDs) {
@@ -245,22 +247,19 @@ public class Post implements Tag {
                 if (bruger != null) {
                     return findUserInDB(bruger);
                 }
-                //todo njl lav bedre
             } catch (Exception e) {
-                if (username.equalsIgnoreCase("root")) {
-                    User root = null;
-                    try {
-                        root = Controller.getInstance().getUser(username);
-                    } catch (DALException e1) {
-                        e1.printStackTrace();
-                    }
-                    if (root.getPassword().equalsIgnoreCase(password)) {
-                        return root;
-                    }
-                }
+                System.out.println("Server: User is not registered in Brugeradminmodule");
             }
-            ctx.status(401).result("Unauthorized");
-            return null;
+
+            User user = null;
+            try {
+                user = Controller.getInstance().getUser(username);
+            } catch (DALException e) {
+                e.printStackTrace();
+                System.out.println("Server: User doesn't exist.");
+                ctx.status(401).json("Unauthorized");
+            }
+            return user;
         }
 
         // Metoden opretter brugeren i databasen, hvis han ikke allerede findes.

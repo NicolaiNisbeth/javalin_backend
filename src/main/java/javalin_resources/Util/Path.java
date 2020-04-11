@@ -55,6 +55,7 @@ public class Path {
         public static final String DELETE = "rest/employee/delete";
         public static final String UPDATE = "rest/employee/update";
         public static final String CREATE = "rest/employee/create";
+        public static final String RESET_PASSWORD = "rest/employee/reset-password";
 
     }
 

@@ -109,7 +109,7 @@ public class Main {
              **/
             //PUT PLAYGROUNDS
             put(Path.Playground.PLAYGROUND_ONE, Put.PutPlayground.updatePlaygroundPut);
-            put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Put.PutMessage.updatePlaygroundMessagePut);
+            //put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Put.PutMessage.updatePlaygroundMessagePut);
             put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Put.PutEvent.updateEventToPlaygroundPut);
 
             //TODO: Test this
@@ -119,6 +119,7 @@ public class Main {
             //PUT EMLOYEES
             // NJL
             put(Path.Employee.UPDATE, ctx -> ctx.json(Put.PutUser.updateUser(ctx)).contentType("json"));
+            put(Path.Employee.RESET_PASSWORD, ctx -> ctx.json(Put.PutUser.resetPassword(ctx)).contentType("json"));
 
             /**
              * DELETE
