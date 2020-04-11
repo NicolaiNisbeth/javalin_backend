@@ -5,7 +5,14 @@ import database.collections.Message;
 import database.collections.User;
 import database.dao.Controller;
 import io.javalin.http.Handler;
+import javalin_resources.UserAdminResource;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class Get implements Tag {
@@ -94,4 +101,34 @@ public class Get implements Tag {
         };
     }
 
+
+    public static class GetUser {
+
+        public static InputStream getProfilePicture(String username) {
+            File homeFolder = new File(System.getProperty("user.home"));
+            Path path = Paths.get(String.format(homeFolder.toPath() +
+                    "/server_resource/profile_images/%s.png", username));
+
+            File initialFile = new File(path.toString());
+            InputStream targetStream = null;
+            try {
+                targetStream = new FileInputStream(initialFile);
+         /*   BufferedImage in = ImageIO.read(initialFile);
+            UserAdminResource.printImage(in);*/
+
+            } catch (IOException e) {
+                //e.printStackTrace();
+                System.out.println("Server: User have no profile picture...");
+            }
+
+            if (targetStream != null) {
+                return targetStream;
+            } else {
+                System.out.println("Server: Returning random user picture...");
+                targetStream = UserAdminResource.class.getResourceAsStream("/images/profile_pictures/random_user.png");
+                return targetStream;
+            }
+        }
+
+    }
 }

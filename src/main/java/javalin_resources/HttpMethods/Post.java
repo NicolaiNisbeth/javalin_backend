@@ -8,16 +8,16 @@ import database.collections.*;
 import database.dao.Controller;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Post implements Tag {
 
@@ -158,6 +158,75 @@ public class Post implements Tag {
 
         };
 
+        public static List<User> createUser(Context ctx) {
+            BufferedImage bufferedImage;
+            String usermodel = ctx.formParam(("usermodel"));
+            JSONObject jsonObject = new JSONObject(usermodel);
+            String usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
+            String passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
+            String username = jsonObject.getString(USERNAME);
+            String password = jsonObject.getString(PASSWORD);
+            String firstName = jsonObject.getString(FIRSTNAME);
+            String lastName = jsonObject.getString(FIRSTNAME);
+            String email = jsonObject.getString(EMAIL);
+            String status = jsonObject.getString(STATUS);
+            // todo njl håndter et tomt array
+            try {
+                JSONArray playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+            } catch (Exception e) {
+                //   e.printStackTrace();
+            }
+            JSONArray playgroundIDs = new JSONArray();
+            String phoneNumber = jsonObject.getString(PHONENUMBER);
+            String website = jsonObject.getString(WEBSITE);
+            User admin = null;
+            User newUser;
+
+            try {
+                admin = Controller.getInstance().getUser(usernameAdmin);
+            } catch (DALException e) {
+                ctx.status(401).result("Unauthorized - Forkert brugernavn eller adgangskode...");
+                e.printStackTrace();
+            }
+            if (admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
+
+                newUser = new User.Builder(username)
+                        .status(status)
+                        .build();
+                newUser.setFirstname(firstName);
+                newUser.setLastname(lastName);
+                newUser.setStatus(status);
+                newUser.setEmail(email);
+                newUser.setWebsite(website);
+                String[] phoneNumbers = new String[1];
+                phoneNumbers[0] = phoneNumber;
+                newUser.setPhonenumbers(phoneNumbers);
+                newUser.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username));
+
+                try {
+                    bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+                    Shared.saveProfilePicture(username, bufferedImage);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                for (Object id : playgroundIDs) {
+                    newUser.getPlaygroundsIDs().add(id.toString());
+                }
+
+                WriteResult ws = Controller.getInstance().createUser(newUser);
+                if (ws.wasAcknowledged()) {
+                    ctx.status(201).result("User was created");
+                } else {
+                    ctx.status(401).result("User was not created");
+                    return Controller.getInstance().getUsers();
+                }
+                // Hvis admin har skrevet forkert adgangskode
+            } else {
+                ctx.status(401).result("Unauthorized - Forkert kodeord...");
+            }
+            return Controller.getInstance().getUsers();
+        }
 
         public static User userLogin(Context ctx) {
             Brugeradmin ba = null;

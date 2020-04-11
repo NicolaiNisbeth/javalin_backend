@@ -49,11 +49,12 @@ public class Path {
         // All employees working within a zipcode.
         public static final String EMPLOYEE_ALL_ZIPCODE = "/rest/employee/:zipcode";
         // Get employee's profile picture
-        public static final String EMPLOYEE_ONE_PROFILE_PICTURE = "/rest/employee/:id/profile-picture";
+        public static final String EMPLOYEE_ONE_PROFILE_PICTURE = "/rest/employee/:username/profile-picture";
 
         public static final String LOGIN = "rest/employee/login";
         public static final String DELETE = "rest/employee/delete";
         public static final String UPDATE = "rest/employee/update";
+        public static final String CREATE = "rest/employee/create";
 
     }
 

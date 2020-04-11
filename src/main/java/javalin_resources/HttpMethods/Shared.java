@@ -1,6 +1,8 @@
 package javalin_resources.HttpMethods;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -23,5 +25,21 @@ public class Shared {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    public static void printImage(BufferedImage bufferedImage) {
+        JFrame frame = new JFrame();
+        frame.setBounds(10, 10, 900, 600);
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
+        frame.setLayout(new FlowLayout());
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        JLabel label = new JLabel(new ImageIcon(bufferedImage));
+        //label.setBounds(0, 0, 100, 200);
+        panel.add(label, BorderLayout.CENTER);
+        frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.pack();
+        frame.setVisible(true);
     }
 }
