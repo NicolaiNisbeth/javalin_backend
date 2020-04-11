@@ -1,13 +1,19 @@
 package javalin_resources.HttpMethods;
 
+import brugerautorisation.data.Bruger;
+import brugerautorisation.transport.rmi.Brugeradmin;
 import com.mongodb.WriteResult;
 import database.DALException;
 import database.collections.*;
 import database.dao.Controller;
+import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import javalin_resources.UserLogin;
 import org.json.JSONObject;
 
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -138,21 +144,95 @@ public class Post implements Tag {
 
     }
 
+   /* lad os holde os til employee eller user
     public static class PostPedagogue {
 
         public static Handler createPedagogueToPlaygroundPost = ctx -> {
 
 
         };
-    }
+    }*/
 
     public static class PostUser {
         public static Handler createParticipantsToPlaygroundEventPost = ctx -> {
 
         };
 
-        public static Handler createUserLoginPost = ctx -> {
-            ctx.json(UserLogin.verifyLogin(ctx)).contentType("json");
-        };
+
+        public static User userLogin(Context ctx) {
+            Brugeradmin ba = null;
+
+            JSONObject jsonObject = new JSONObject(ctx.body());
+            String username = jsonObject.getString(USERNAME);
+            String password = jsonObject.getString(PASSWORD);
+            try {
+                ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
+            } catch (NotBoundException | MalformedURLException | RemoteException e) {
+                e.printStackTrace();
+            }
+            Bruger bruger;
+            try {
+                bruger = ba.hentBruger(username, password);
+                if (bruger != null) {
+                    return findUserInDB(bruger);
+                }
+                //todo njl lav bedre
+            } catch (Exception e) {
+                if (username.equalsIgnoreCase("root")) {
+                    User root = null;
+                    try {
+                        root = Controller.getInstance().getUser(username);
+                    } catch (DALException e1) {
+                        e1.printStackTrace();
+                    }
+                    if (root.getPassword().equalsIgnoreCase(password)) {
+                        return root;
+                    }
+                }
+            }
+            ctx.status(401).result("Unauthorized");
+            return null;
+        }
+
+        // Metoden opretter brugeren i databasen, hvis han ikke allerede findes.
+        public static User findUserInDB(Bruger bruger) {
+            User user = null;
+            try {
+                user = Controller.getInstance().getUser(bruger.brugernavn);
+            } catch (DALException e) {
+                e.printStackTrace();
+            }
+
+            if (user == null) {
+                System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");
+                user = new User.Builder(bruger.brugernavn)
+                        .setFirstname(bruger.fornavn)
+                        .setLastname(bruger.efternavn)
+                        .email(bruger.email)
+                        .password(bruger.adgangskode)
+                        .status(STATUS_PEDAGOG)
+                        .setWebsite(bruger.ekstraFelter.get("webside").toString())
+                        .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn))
+                        .build();
+                Controller.getInstance().createUser(user);
+            }
+            //Brugeren har ikke selv logget ind før og skal derfor ikke oprettes i DB men opdateres
+            if (!user.isLoggedIn()) {
+                user.setFirstname(bruger.fornavn);
+                user.setLastname(bruger.efternavn);
+                user.setEmail(bruger.email);
+                user.setPassword(bruger.adgangskode);
+                user.setStatus(user.getStatus());
+                user.setWebsite(bruger.ekstraFelter.get("webside").toString());
+                user.setLoggedIn(true);
+                user.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn));
+                Controller.getInstance().updateUser(user);
+            }
+            return user;
+        }
+
+
     }
+
+
 }

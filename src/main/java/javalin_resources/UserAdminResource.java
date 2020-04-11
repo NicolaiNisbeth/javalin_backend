@@ -34,17 +34,12 @@ public class UserAdminResource {
     final static String WEBSITE = "website";
     final static String PHONENUMBER = "phoneNumber";
     //todo ret addressen inden deployment
-    //final static String IMAGEPATH = "http://localhost:8088/rest/user";
-    final static String IMAGEPATH = "http://130.225.170.204:8088/rest/user";
+    final static String IMAGEPATH = "http://localhost:8088/rest/user";
+    // final static String IMAGEPATH = "http://130.225.170.204:8088/rest/user";
 
-    /**
-     * Create
-     * Metoden bruges af admins til at give en bruger rettigheder,
-     * INDEN brugeren er logget på første gang
-     *
-     * @param ctx
-     * @return
-     */
+
+
+
     public static List<User> createUser(Context ctx) {
         BufferedImage bufferedImage;
         String usermodel = ctx.formParam(("usermodel"));
@@ -117,12 +112,7 @@ public class UserAdminResource {
 
     //todo gem en bruger - marker ham som inaktiv
 
-    /**
-     * UPDATE
-     *
-     * @param ctx
-     * @return
-     */
+
     public static List<User> updateUser(Context ctx) {
         System.out.println("update");
         BufferedImage bufferedImage;
@@ -187,12 +177,8 @@ public class UserAdminResource {
         return Controller.getInstance().getUsers();
     }
 
-    /**
-     * Delete
-     *
-     * @param ctx
-     * @return
-     */
+
+
     public static List<User> deleteUser(Context ctx) {
         JSONObject jsonObject = null, deleteUserModel = null;
         jsonObject = new JSONObject(ctx.body());
@@ -259,8 +245,9 @@ public class UserAdminResource {
         InputStream targetStream = null;
         try {
             targetStream = new FileInputStream(initialFile);
-/*            BufferedImage in = ImageIO.read(initialFile);
+         /*   BufferedImage in = ImageIO.read(initialFile);
             UserAdminResource.printImage(in);*/
+
         } catch (IOException e) {
             //e.printStackTrace();
             System.out.println("Server: User have no profile picture...");

@@ -1,8 +1,13 @@
 package javalin_resources.HttpMethods;
 
+import database.DALException;
+import database.collections.User;
 import database.dao.Controller;
+import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.json.JSONObject;
+
+import java.util.List;
 
 public class Delete implements Tag {
 
@@ -34,7 +39,33 @@ public class Delete implements Tag {
                 ctx.status(404).result("Couldn't remove user from event");
         };
 
+
+        public static List<User> deleteUser(Context ctx) {
+            JSONObject jsonObject = null, deleteUserModel = null;
+            jsonObject = new JSONObject(ctx.body());
+            deleteUserModel = jsonObject.getJSONObject("deleteUserModel");
+            String usernameAdmin = deleteUserModel.getString(USERNAME_ADMIN);
+            String passwordAdmin = deleteUserModel.getString(PASSWORD_ADMIN);
+            String username = deleteUserModel.getString(USERNAME);
+            // todo slet ham fra legeplader også
+            //  JSONArray adminRightsOfNewUser = jsonObject.getJSONArray("userAdminRights");
+
+            User admin = null;
+            try {
+                admin = Controller.getInstance().getUser(usernameAdmin);
+            } catch (DALException e) {
+                e.printStackTrace();
+            }
+            if (!admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
+                ctx.status(401).result("Unauthorized - Forkert kodeord...");
+            } else {
+                Controller.getInstance().deleteUser(username);
+            }
+            return Controller.getInstance().getUsers();
+        }
+
     }
+
 
     public static class DeletePedagogue {
 

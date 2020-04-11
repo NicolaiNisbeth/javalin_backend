@@ -77,10 +77,12 @@ public class Main {
                 ctx.json(UserAdminResource.createUser(ctx)).contentType("json"));
         app.put("rest/employee/update", ctx ->
                 ctx.json(UserAdminResource.updateUser(ctx)).contentType("json"));
-        app.get("rest/employee/all", ctx ->
-                ctx.json(Controller.getInstance().getUsers()).contentType("json"));
+        /*app.get("rest/employee/all", ctx ->
+                ctx.json(Controller.getInstance().getUsers()).contentType("json"));*/
+/*
         app.post("rest/employee/delete", ctx ->
                 ctx.json(UserAdminResource.deleteUser(ctx)).contentType("json"));
+*/
 
         app.routes(() -> {
 
@@ -106,6 +108,9 @@ public class Main {
             get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Get.GetMessage.readOneMessageGet);
 
 
+            get(Path.Employee.EMPLOYEE_ALL, ctx ->
+                    ctx.json(Controller.getInstance().getUsers()).contentType("json"));
+
             /**
              * POST
              **/
@@ -117,11 +122,11 @@ public class Main {
             post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Post.PostMessage.createPlaygroundMessagePost);
 
             //TODO: Implement this
-            post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostPedagogue.createPedagogueToPlaygroundPost);
+            //post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostPedagogue.createPedagogueToPlaygroundPost);
             post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.PostUser.createParticipantsToPlaygroundEventPost);
-
             // User
-            post(Path.Employee.LOGIN, Post.PostUser.createUserLoginPost);
+            post(Path.Employee.LOGIN, ctx ->
+                    ctx.json(Post.PostUser.userLogin(ctx)).contentType("json"));
 
 
             /**
@@ -154,8 +159,12 @@ public class Main {
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
 
 
+/*
             delete("rest/employee/delete", ctx ->
                     ctx.json(UserAdminResource.deleteUser(ctx)).contentType("json"));
+*/
+            delete(Path.Employee.DELETE, ctx ->
+                    ctx.json(Delete.DeleteUser.deleteUser(ctx)).contentType("json"));
         });
     }
 }
