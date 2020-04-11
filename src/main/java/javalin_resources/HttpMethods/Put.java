@@ -1,12 +1,18 @@
 package javalin_resources.HttpMethods;
 
+import database.DALException;
 import database.collections.*;
 import database.dao.Controller;
+import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.util.Calendar;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Put implements Tag {
@@ -165,6 +171,69 @@ public class Put implements Tag {
 
         };
 
+        public static List<User> updateUser(Context ctx) {
+            System.out.println("update");
+            BufferedImage bufferedImage;
+            String usermodel = ctx.formParam(("usermodel"));
+            JSONObject jsonObject = new JSONObject(usermodel);
+            String usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
+            String passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
+            String username = jsonObject.getString(USERNAME);
+            String password = jsonObject.getString(PASSWORD);
+            String firstName = jsonObject.getString(FIRSTNAME);
+            String lastName = jsonObject.getString(LASTNAME);
+            String email = jsonObject.getString(EMAIL);
+            String status = jsonObject.getString(STATUS);
+            JSONArray playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+            String phoneNumber = jsonObject.getString(PHONENUMBER);
+            String website = jsonObject.getString(WEBSITE);
+
+            User admin = null;
+            User userToUpdate = null;
+            try {
+                admin = Controller.getInstance().getUser(usernameAdmin);
+            } catch (DALException e) {
+                e.printStackTrace();
+            }
+            if (!admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
+                System.out.println(admin.getPassword());
+                System.out.println(passwordAdmin);
+                ctx.status(401).result("Unauthorized - Kodeord er forkert...");
+                return Controller.getInstance().getUsers();
+            } else {
+                try {
+                    userToUpdate = Controller.getInstance().getUser(username);
+                } catch (DALException e) {
+                    e.printStackTrace();
+                }
+                userToUpdate.setFirstname(firstName);
+                userToUpdate.setLastname(lastName);
+                userToUpdate.setStatus(status);
+                userToUpdate.setEmail(email);
+                userToUpdate.setWebsite(website);
+                userToUpdate.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username));
+                String[] phoneNumbers = new String[1];
+                phoneNumbers[0] = phoneNumber;
+                userToUpdate.setPhonenumbers(phoneNumbers);
+                userToUpdate.getPlaygroundsIDs().removeAll(userToUpdate.getPlaygroundsIDs());
+                for (Object id : playgroundIDs) {
+                    userToUpdate.getPlaygroundsIDs().add(id.toString());
+                }
+                try {
+                    bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+                    Shared.saveProfilePicture(username, bufferedImage);
+                } catch (Exception e) {
+                    System.out.println("Server: intet billede i upload");
+                }
+                System.out.println(userToUpdate);
+                if (Controller.getInstance().updateUser(userToUpdate)) {
+                    ctx.status(201).result("User was updated");
+                } else {
+                    ctx.status(401).result("User was not updated");
+                }
+            }
+            return Controller.getInstance().getUsers();
+        }
     }
 
     public static class PutMessage {

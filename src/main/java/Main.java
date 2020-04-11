@@ -75,8 +75,8 @@ public class Main {
                 ctx.result(UserAdminResource.getProfilePicture(ctx.pathParam("username"))).contentType("image/png"));
         app.post("rest/employee/create", ctx ->
                 ctx.json(UserAdminResource.createUser(ctx)).contentType("json"));
-        app.put("rest/employee/update", ctx ->
-                ctx.json(UserAdminResource.updateUser(ctx)).contentType("json"));
+      /*  app.put("rest/employee/update", ctx ->
+                ctx.json(UserAdminResource.updateUser(ctx)).contentType("json"));*/
         /*app.get("rest/employee/all", ctx ->
                 ctx.json(Controller.getInstance().getUsers()).contentType("json"));*/
 /*
@@ -142,6 +142,12 @@ public class Main {
             //TODO: Test this
             put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Put.PutPedagogue.updatePedagogueToPlayGroundPut);
             put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, ctx -> ctx.json(Put.PutUser.updateUserToPlaygroundEventPut).contentType("json"));
+
+
+
+            put(Path.Employee.UPDATE, ctx ->
+                    ctx.json(  Put.PutUser.updateUser(ctx)).contentType("json"));
+
 
             /**
              * DELETE
