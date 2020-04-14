@@ -52,6 +52,4 @@ public interface Tag {
     String DAY = "day";
     String HOUR = "hour";
     String MINUTE = "minute";
-
-
 }

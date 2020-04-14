@@ -144,29 +144,4 @@ public class UserLogin {
         InputStream is = new ByteArrayInputStream(os.toByteArray());
         return is;
     }
-
-    // The origin of the request (request.pathInfo()) is saved in the session so
-    // the user can be redirected back after login
-    public static Handler confirmlogin = ctx -> {
-        if (!ctx.path().startsWith("/books"))
-            return;
-        if (ctx.sessionAttribute("currentUser") == null) {
-            ctx.sessionAttribute("loginRedirect", ctx.path());
-            ctx.redirect("/");
-            ctx.status(401);
-        }
-    };
-
-    public static Handler handleLoginPost = ctx -> {
-        Map<String, Object> model = ViewUtil.baseModel(ctx);
-        User user = verifyLogin(ctx);
-        if (user != null) {
-            model.put("authenticationFailed", true);
-        } else {
-            ctx.sessionAttribute("currentUser", user.getId());
-            ctx.sessionAttribute("currentUserStatus", user.getStatus());
-            model.put("authenticationSucceeded", true);
-            model.put("currentUser", user.getId());
-        }
-    };
 }

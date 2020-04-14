@@ -86,7 +86,6 @@ public class Main {
             /**
              * GET
              **/
-
             //Works
             get(Path.Playground.PLAYGROUND_ALL, Get.GetPlayground.readAllPlaygroundsGet);
             get(Path.Playground.PLAYGROUND_ONE, Get.GetPlayground.readOnePlaygroundGet);
@@ -102,6 +101,8 @@ public class Main {
             //works
             get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Get.GetMessage.readAllMessagesGet);
             get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Get.GetMessage.readOneMessageGet);
+
+            get(Path.Playground.PLAYGROUND_ALL_EVENTS, Get.GetEvent.readAllEventsGet);
 
 
             /**

@@ -50,7 +50,18 @@ public class Get implements Tag {
                 ctx.status(404).result("Couldn't find any events for this playground");
             }
         };
+        public static Handler readAllEventsGet = ctx -> {
+            List<Event> events = Controller.getInstance().getPlaygroundEvents(ctx.pathParam(PLAYGROUND_NAME));
+            if (events != null) {
+                ctx.json(events).contentType("json");
+                ctx.status(200);
+            } else {
+                ctx.status(404).result("Couldn't find any events for this playground");
+            }
+        };
+
     }
+
 
     public static class GetPlayground {
 
@@ -59,8 +70,7 @@ public class Get implements Tag {
         };
 
         public static Handler readOnePlaygroundGet = ctx -> {
-            ctx.json(Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME))).contentType("json");
-
+            ctx.json(String.valueOf(ctx.json(Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME))).contentType("json")));
         };
 
         public static Handler readOnePlaygroundAllEmployeeGet = ctx -> {
