@@ -101,7 +101,7 @@ public class Main {
 
             // NJL
             //POST EMPLOYEES
-            post(Path.Employee.LOGIN, ctx -> ctx.json(Post.PostUser.userLogin(ctx)).contentType("json"));
+            post(Path.Employee.LOGIN, Post.PostUser.userLogin);
             post(Path.Employee.CREATE, ctx -> ctx.json(Post.PostUser.createUser(ctx)).contentType("json"));
 
             /**

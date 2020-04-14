@@ -230,9 +230,8 @@ public class Post implements Tag {
             return Controller.getInstance().getUsers();
         }
 
-        public static User userLogin(Context ctx) {
+        public static Handler userLogin = ctx -> {
             Brugeradmin ba = null;
-
             JSONObject jsonObject = new JSONObject(ctx.body());
             String username = jsonObject.getString(USERNAME);
             String password = jsonObject.getString(PASSWORD);
@@ -245,7 +244,7 @@ public class Post implements Tag {
             try {
                 bruger = ba.hentBruger(username, password);
                 if (bruger != null) {
-                    return findUserInDB(bruger);
+                    ctx.json(findUserInDB(bruger)).status(200);
                 }
             } catch (Exception e) {
                 System.out.println("Server: User is not registered in Brugeradminmodule");
@@ -254,16 +253,26 @@ public class Post implements Tag {
             User user = null;
             try {
                 user = Controller.getInstance().getUser(username);
+                if (user.getPassword().compareTo(password) != 0){
+                    //throw new DALException("Wrong password");
+                    System.out.println(user.getPassword() +"    " + password);
+                    ctx.status(401).json("Unauthorized - Wrong password!");
+                    return;
+                }
             } catch (DALException e) {
-                e.printStackTrace();
-                System.out.println("Server: User doesn't exist.");
-                ctx.status(401).json("Unauthorized");
+                System.out.println("Server: Username doesn't exist.");
+                ctx.status(401).json("Unauthorized - No such username!");
+                return;
             }
-            return user;
-        }
+            System.out.println(
+            String.format("Server: Returning user: %s, %s %s",
+                    user.getUsername(), user.getFirstname(), user.getLastname())
+            );
+            ctx.json(user).status(200);
+        };
 
         // Metoden opretter brugeren i databasen, hvis han ikke allerede findes.
-        public static User findUserInDB(Bruger bruger) {
+        private static User findUserInDB(Bruger bruger) {
             User user = null;
             try {
                 user = Controller.getInstance().getUser(bruger.brugernavn);
@@ -298,9 +307,5 @@ public class Post implements Tag {
             }
             return user;
         }
-
-
     }
-
-
 }
