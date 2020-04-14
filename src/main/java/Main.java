@@ -79,11 +79,8 @@ public class Main {
             get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Get.GetMessage.readOneMessageGet);
 
             //GET EMPLOYEES
-            // NJL
-            get(Path.Employee.EMPLOYEE_ALL, ctx ->
-                    ctx.json(Controller.getInstance().getUsers()).contentType("json"));
-            get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, ctx ->
-                    ctx.result(Get.GetUser.getProfilePicture(ctx.pathParam("username"))).contentType("image/png"));
+            get(Path.Employee.EMPLOYEE_ALL, Get.GetUser.getAllUsers);
+            get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, Get.GetUser.getUserPicture);
 
             /**
              * POST
@@ -96,30 +93,29 @@ public class Main {
             post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Post.PostMessage.createPlaygroundMessagePost);
 
             //TODO: Implement this
-            //post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostPedagogue.createPedagogueToPlaygroundPost);
+            post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostUser.createUserToPlaygroundPost);
             post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.PostUser.createParticipantsToPlaygroundEventPost);
 
-            // NJL
+
             //POST EMPLOYEES
-            post(Path.Employee.LOGIN, ctx -> ctx.json(Post.PostUser.userLogin(ctx)).contentType("json"));
-            post(Path.Employee.CREATE, ctx -> ctx.json(Post.PostUser.createUser(ctx)).contentType("json"));
+            post(Path.Employee.LOGIN, Post.PostUser.userLogin);
+            post(Path.Employee.CREATE, Post.PostUser.createUser);
 
             /**
              * PUT
              **/
             //PUT PLAYGROUNDS
             put(Path.Playground.PLAYGROUND_ONE, Put.PutPlayground.updatePlaygroundPut);
-            //put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Put.PutMessage.updatePlaygroundMessagePut);
+            put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Put.PutMessage.updatePlaygroundMessagePut);
             put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Put.PutEvent.updateEventToPlaygroundPut);
 
             //TODO: Test this
             put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Put.PutPedagogue.updatePedagogueToPlayGroundPut);
-            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, ctx -> ctx.json(Put.PutUser.updateUserToPlaygroundEventPut).contentType("json"));
+            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
 
             //PUT EMLOYEES
-            // NJL
-            put(Path.Employee.UPDATE, ctx -> ctx.json(Put.PutUser.updateUser(ctx)).contentType("json"));
-            put(Path.Employee.RESET_PASSWORD, ctx -> ctx.json(Put.PutUser.resetPassword(ctx)).contentType("json"));
+            put(Path.Employee.UPDATE, Put.PutUser.updateUser);
+            put(Path.Employee.RESET_PASSWORD, Put.PutUser.resetPassword);
 
             /**
              * DELETE
@@ -134,8 +130,7 @@ public class Main {
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
 
             //DELETE EMPLOYEES
-            // NJL
-            delete(Path.Employee.DELETE, ctx -> ctx.json(Delete.DeleteUser.deleteUser(ctx)).contentType("json"));
+            delete(Path.Employee.DELETE, Delete.DeleteUser.deleteUser);
         });
     }
 }

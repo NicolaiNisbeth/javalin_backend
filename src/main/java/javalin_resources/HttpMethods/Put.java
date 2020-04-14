@@ -156,7 +156,7 @@ public class Put implements Tag {
 
     public static class PutUser {
 
-        public static User resetPassword(Context ctx) {
+        public static Handler resetPassword = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
             String username = jsonObject.getString(USERNAME);
             User user = null;
@@ -175,15 +175,14 @@ public class Put implements Tag {
                     user.setPassword(newPassword);
                     Controller.getInstance().updateUser(user);
                     Controller.getInstance().getUser(user.getUsername());
-                    SendMail.sendMail("Din nye adgangskode", "Din nye adgangskode er: " + newPassword, user.getEmail());
+                    SendMail.sendMail("Your new password", "Your new password is: " + newPassword, user.getEmail());
                 } catch (MessagingException | DALException e) {
                     e.printStackTrace();
                 }
             }
 
-            // ctx.status(401).result("Unauthorized - Forkert kodeord...");
-            return user;
-        }
+            ctx.status(401).result("Unauthorized - Wrong password");
+        };
 
 
         public static Handler updateUserToPlaygroundEventPut = ctx -> {
@@ -202,7 +201,7 @@ public class Put implements Tag {
 
         };
 
-        public static List<User> updateUser(Context ctx) {
+        public static Handler updateUser = ctx -> {
             BufferedImage bufferedImage;
             String usermodel = ctx.formParam(("usermodel"));
             JSONObject jsonObject = new JSONObject(usermodel);
@@ -229,7 +228,7 @@ public class Put implements Tag {
                 System.out.println(admin.getPassword());
                 System.out.println(passwordAdmin);
                 ctx.status(401).result("Unauthorized - Kodeord er forkert...");
-                return Controller.getInstance().getUsers();
+                Controller.getInstance().getUsers();
             } else {
                 try {
                     userToUpdate = Controller.getInstance().getUser(username);
@@ -262,53 +261,54 @@ public class Put implements Tag {
                     ctx.status(401).result("User was not updated");
                 }
             }
-            return Controller.getInstance().getUsers();
-        }
-
-
-        public static class PutMessage {
-
-            public static Handler updatePlaygroundMessagePut = ctx -> {
-
-                JSONObject jsonObject = new JSONObject(ctx.body());
-                Message message = Controller.getInstance().getMessage(ctx.pathParam("id"));
-
-                // TODO Hvordan kommer den detail parameter til at foregå?
-                if (jsonObject.get(HOUR) != null) {
-                    Calendar cal = Calendar.getInstance();
-
-                    cal.set(Calendar.YEAR, jsonObject.getInt(YEAR));
-                    cal.set(Calendar.DAY_OF_MONTH, jsonObject.getInt(DAY));
-                    cal.set(Calendar.MONTH, jsonObject.getInt(MONTH));
-
-
-                    cal.set(Calendar.HOUR, jsonObject.getInt(HOUR));
-                    cal.set(Calendar.MINUTE, jsonObject.getInt(MINUTE));
-                    message.setDate(cal.getTime());
-                }
-                if (jsonObject.get(MESSAGE_CATEGORY) != null)
-                    message.setCategory(jsonObject.getString(MESSAGE_CATEGORY));
-
-                if (jsonObject.get(MESSAGE_ICON) != null)
-                    message.setIcon(jsonObject.getString(MESSAGE_ICON));
-
-                if (jsonObject.get(MESSAGE_STRING) != null)
-                    message.setMessageString(jsonObject.getString(MESSAGE_STRING));
-
-                if (jsonObject.get(PLAYGROUND_ID) != null)
-                    message.setPlaygroundID(jsonObject.getString(PLAYGROUND_ID));
-
-                if (jsonObject.get(MESSAGE_WRITTENBY_ID) != null)
-                    message.setWrittenByID(MESSAGE_WRITTENBY_ID);
-
-                if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged())
-                    ctx.status(200).result("The message was created for the playground " + jsonObject.getString(PLAYGROUND_ID));
-
-                else {
-                    ctx.status(404).result("There was an error");
-                }
-            };
-
-        }
+            Controller.getInstance().getUsers();
+        };
     }
+
+
+    public static class PutMessage {
+
+        public static Handler updatePlaygroundMessagePut = ctx -> {
+
+            JSONObject jsonObject = new JSONObject(ctx.body());
+            Message message = Controller.getInstance().getMessage(ctx.pathParam("id"));
+
+            // TODO Hvordan kommer den detail parameter til at foregå?
+            if (jsonObject.get(HOUR) != null) {
+                Calendar cal = Calendar.getInstance();
+
+                cal.set(Calendar.YEAR, jsonObject.getInt(YEAR));
+                cal.set(Calendar.DAY_OF_MONTH, jsonObject.getInt(DAY));
+                cal.set(Calendar.MONTH, jsonObject.getInt(MONTH));
+
+
+                cal.set(Calendar.HOUR, jsonObject.getInt(HOUR));
+                cal.set(Calendar.MINUTE, jsonObject.getInt(MINUTE));
+                message.setDate(cal.getTime());
+            }
+            if (jsonObject.get(MESSAGE_CATEGORY) != null)
+                message.setCategory(jsonObject.getString(MESSAGE_CATEGORY));
+
+            if (jsonObject.get(MESSAGE_ICON) != null)
+                message.setIcon(jsonObject.getString(MESSAGE_ICON));
+
+            if (jsonObject.get(MESSAGE_STRING) != null)
+                message.setMessageString(jsonObject.getString(MESSAGE_STRING));
+
+            if (jsonObject.get(PLAYGROUND_ID) != null)
+                message.setPlaygroundID(jsonObject.getString(PLAYGROUND_ID));
+
+            if (jsonObject.get(MESSAGE_WRITTENBY_ID) != null)
+                message.setWrittenByID(MESSAGE_WRITTENBY_ID);
+
+            if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged())
+                ctx.status(200).result("The message was created for the playground " + jsonObject.getString(PLAYGROUND_ID));
+
+            else {
+                ctx.status(404).result("There was an error");
+            }
+        };
+    }
+
 }
+

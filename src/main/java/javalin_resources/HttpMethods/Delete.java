@@ -40,8 +40,8 @@ public class Delete implements Tag {
         };
 
 
-        public static List<User> deleteUser(Context ctx) {
-            JSONObject jsonObject = null, deleteUserModel = null;
+        public static Handler deleteUser = ctx -> {
+            JSONObject jsonObject, deleteUserModel;
             jsonObject = new JSONObject(ctx.body());
             deleteUserModel = jsonObject.getJSONObject("deleteUserModel");
             String usernameAdmin = deleteUserModel.getString(USERNAME_ADMIN);
@@ -61,9 +61,8 @@ public class Delete implements Tag {
             } else {
                 Controller.getInstance().deleteUser(username);
             }
-            return Controller.getInstance().getUsers();
-        }
-
+            Controller.getInstance().getUsers();
+        };
     }
 
 

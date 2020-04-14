@@ -158,7 +158,11 @@ public class Post implements Tag {
 
         };
 
-        public static List<User> createUser(Context ctx) {
+        public static Handler createUserToPlaygroundPost = ctx -> {
+
+        } ;
+
+        public static Handler createUser = ctx -> {
             BufferedImage bufferedImage;
             String usermodel = ctx.formParam(("usermodel"));
             JSONObject jsonObject = new JSONObject(usermodel);
@@ -221,16 +225,16 @@ public class Post implements Tag {
                     ctx.status(201).result("User was created");
                 } else {
                     ctx.status(401).result("User was not created");
-                    return Controller.getInstance().getUsers();
+                    Controller.getInstance().getUsers();
                 }
                 // Hvis admin har skrevet forkert adgangskode
             } else {
                 ctx.status(401).result("Unauthorized - Forkert kodeord...");
             }
-            return Controller.getInstance().getUsers();
-        }
+            Controller.getInstance().getUsers();
+        };
 
-        public static User userLogin(Context ctx) {
+        public static Handler userLogin = ctx -> {
             Brugeradmin ba = null;
 
             JSONObject jsonObject = new JSONObject(ctx.body());
@@ -245,7 +249,7 @@ public class Post implements Tag {
             try {
                 bruger = ba.hentBruger(username, password);
                 if (bruger != null) {
-                    return findUserInDB(bruger);
+                    findUserInDB(bruger);
                 }
             } catch (Exception e) {
                 System.out.println("Server: User is not registered in Brugeradminmodule");
@@ -259,8 +263,7 @@ public class Post implements Tag {
                 System.out.println("Server: User doesn't exist.");
                 ctx.status(401).json("Unauthorized");
             }
-            return user;
-        }
+        };
 
         // Metoden opretter brugeren i databasen, hvis han ikke allerede findes.
         public static User findUserInDB(Bruger bruger) {
