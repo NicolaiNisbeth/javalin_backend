@@ -43,20 +43,26 @@ public class Path {
 
     public static class Employee {
         // ALl employees
-        public static final String EMPLOYEE_ALL = "/rest/employee";
+        public static final String EMPLOYEE_ALL = "/rest/employee/all";
         // Employee based on ID
         public static final String EMPLOYEE_ONE = "/rest/employee/:id";
         // All employees working within a zipcode.
         public static final String EMPLOYEE_ALL_ZIPCODE = "/rest/employee/:zipcode";
         // Get employee's profile picture
-        public static final String EMPLOYEE_ONE_PROFILE_PICTURE = "/rest/employee/:id/profile-picture";
+        public static final String EMPLOYEE_ONE_PROFILE_PICTURE = "/rest/employee/:username/profile-picture";
+
+        public static final String LOGIN = "rest/employee/login";
+        public static final String DELETE = "rest/employee/delete";
+        public static final String UPDATE = "rest/employee/update";
+        public static final String CREATE = "rest/employee/create";
+        public static final String RESET_PASSWORD = "rest/employee/reset-password";
 
     }
 
-    public static class User {
-        public static final String LOGIN = "rest/user_login";
+   /* public static class User {
+        public static final String LOGIN = "rest/employee/login";
         public static final String HOMESCREEN = "/rest/:id";
         public static final String FAVORITES = "/rest/:id/favorites";
         public static final String USER_POSTS = "/rest/id/posts";
-    }
+    }*/
 }

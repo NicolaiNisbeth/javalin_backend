@@ -1,3 +1,4 @@
+/*
 package javalin_resources;
 
 import brugerautorisation.data.Bruger;
@@ -113,35 +114,29 @@ public class UserLogin {
         return user;
     }
 
-    public static InputStream getProfilePicture(String username) {
-        String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
-        BufferedImage buffImage = null;
-        File imageFile = new File(path);
-        try {
-            //buffImage = ImageIO.read(UserLogin.class.getResource(path));
-            buffImage = ImageIO.read(imageFile);
-        } catch (IOException e) {
-            //  e.printStackTrace();
-            System.out.println("Server: Brugeren har ikke uploadet et billede og får et standard");
+    // The origin of the request (request.pathInfo()) is saved in the session so
+    // the user can be redirected back after login
+    public static Handler confirmlogin = ctx -> {
+        if (!ctx.path().startsWith("/books"))
+            return;
+        if (ctx.sessionAttribute("currentUser") == null) {
+            ctx.sessionAttribute("loginRedirect", ctx.path());
+            ctx.redirect("/");
+            ctx.status(401);
         }
-        //Hvis ikke han har et profil billede får han random_user
-        if (buffImage == null) {
-            path = "src/main/resources/images/profile_pictures/random_user.png";
-            imageFile = new File(path);
-            try {
-                // buffImage = ImageIO.read(UserLogin.class.getResource(path));
-                buffImage = ImageIO.read(imageFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    };
+
+    public static Handler handleLoginPost = ctx -> {
+        Map<String, Object> model = ViewUtil.baseModel(ctx);
+        User user = verifyLogin(ctx);
+        if (user != null) {
+            model.put("authenticationFailed", true);
+        } else {
+            ctx.sessionAttribute("currentUser", user.getId());
+            ctx.sessionAttribute("currentUserStatus", user.getStatus());
+            model.put("authenticationSucceeded", true);
+            model.put("currentUser", user.getId());
         }
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try {
-            ImageIO.write(buffImage, "png", os);
-        } catch (IOException e) {
-             e.printStackTrace();
-        }
-        InputStream is = new ByteArrayInputStream(os.toByteArray());
-        return is;
-    }
+    };
 }
+*/

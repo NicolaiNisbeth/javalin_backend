@@ -52,4 +52,21 @@ public interface Tag {
     String DAY = "day";
     String HOUR = "hour";
     String MINUTE = "minute";
+
+    String USERNAME_ADMIN = "usernameAdmin";
+    String PASSWORD_ADMIN = "passwordAdmin";
+    String USERNAME = "username";
+    String PASSWORD = "password";
+    String FIRSTNAME = "firstname";
+    String LASTNAME = "lastname";
+    String EMAIL = "email";
+    String STATUS = "status";
+    String STATUS_PEDAGOG = "pedagog";
+    String STATUS_ADMIN = "admin";
+    String PLAYGROUNDSIDS = "playgroundsIDs";
+    String WEBSITE = "website";
+    String PHONENUMBER = "phoneNumber";
+    //todo - vigtigt - ret addressen inden deployment
+    String IMAGEPATH = "http://localhost:8088/rest/employee";
+    //final static String IMAGEPATH = "http://130.225.170.204:8088/rest/employee";
 }
