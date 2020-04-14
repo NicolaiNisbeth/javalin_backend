@@ -236,7 +236,6 @@ public class Post implements Tag {
 
         public static Handler userLogin = ctx -> {
             Brugeradmin ba = null;
-
             JSONObject jsonObject = new JSONObject(ctx.body());
             String username = jsonObject.getString(USERNAME);
             String password = jsonObject.getString(PASSWORD);
@@ -258,15 +257,21 @@ public class Post implements Tag {
             User user = null;
             try {
                 user = Controller.getInstance().getUser(username);
+                if (user.getPassword().compareTo(password) != 0){
+                    //throw new DALException("Wrong password");
+                    System.out.println(user.getPassword() +"    " + password);
+                    ctx.status(401).json("Unauthorized - Wrong password!");
+                    return;
+                }
             } catch (DALException e) {
-                e.printStackTrace();
-                System.out.println("Server: User doesn't exist.");
-                ctx.status(401).json("Unauthorized");
+                System.out.println("Server: Username doesn't exist.");
+                ctx.status(401).json("Unauthorized - No such username!");
+                return;
             }
         };
 
         // Metoden opretter brugeren i databasen, hvis han ikke allerede findes.
-        public static User findUserInDB(Bruger bruger) {
+        private static User findUserInDB(Bruger bruger) {
             User user = null;
             try {
                 user = Controller.getInstance().getUser(bruger.brugernavn);
@@ -301,9 +306,5 @@ public class Post implements Tag {
             }
             return user;
         }
-
-
     }
-
-
 }
