@@ -1,5 +1,8 @@
+import database.collections.User;
 import database.dao.Controller;
 import io.javalin.Javalin;
+import io.javalin.core.security.Role;
+import io.javalin.http.UnauthorizedResponse;
 import javalin_resources.HttpMethods.Delete;
 import javalin_resources.HttpMethods.Get;
 import javalin_resources.HttpMethods.Post;
@@ -10,13 +13,25 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Main {
     public static Javalin app;
+    public static HashSet<Role> anyone;
+    public static HashSet<Role> pedagogues;
+    public static HashSet<Role> admin;
 
     public static void main(String[] args) throws Exception {
         buildDirectories();
         start();
+        anyone = new HashSet<>();
+        anyone.add(User.roles.ANYONE);
+        pedagogues = new HashSet<>();
+        pedagogues.add(User.roles.PEDAGOGUE);
+        admin = new HashSet<>();
+        admin.add(User.roles.ADMIN);
     }
 
     private static void buildDirectories() {
@@ -44,16 +59,25 @@ public class Main {
         app = null;
     }
 
+
+
     public static void start() throws Exception {
         if (app != null) return;
         app = Javalin.create(config -> {
             config.enableCorsForAllOrigins()
                     .addSinglePageRoot("", "/webapp/index.html");
+
+            config.accessManager((handler, ctx, permittedRoles) -> {
+                User.roles userRole = User.roles.valueOf(ctx.sessionAttribute("role"));
+                if (permittedRoles.contains(userRole)) {
+                    handler.handle(ctx);
+                } else {
+                    ctx.status(401).result("Unauthorized");
+                }
+            });
         }).start(8088);
 
-        app.before(ctx -> {
-            System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());
-        });
+
         app.exception(Exception.class, (e, ctx) -> {
             e.printStackTrace();
         });
@@ -63,9 +87,13 @@ public class Main {
         app.routes(() -> {
 
             /**
+             * BEFORE
+             */
+
+            before(ctx -> { System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap()); });
+            /**
              * GET
              **/
-
             //GET PLAYGROUNDS
             get(Path.Playground.PLAYGROUND_ALL, Get.GetPlayground.readAllPlaygroundsGet);
             get(Path.Playground.PLAYGROUND_ONE, Get.GetPlayground.readOnePlaygroundGet);

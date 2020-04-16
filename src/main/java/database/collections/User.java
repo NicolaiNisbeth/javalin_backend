@@ -2,6 +2,7 @@ package database.collections;
 
 
 import io.javalin.apibuilder.CrudHandler;
+import io.javalin.core.security.Role;
 import org.jongo.marshall.jackson.oid.MongoId;
 import org.jongo.marshall.jackson.oid.MongoObjectId;
 
@@ -20,6 +21,7 @@ public class User implements Serializable {
     private String firstname;
     private String lastname;
     private String status;
+    private HashSet<roles> roles;
     private String imagePath;
     private String email;
     private String password;
@@ -30,6 +32,13 @@ public class User implements Serializable {
     private Set<Event> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
     private Set<String> playgroundsIDs = new HashSet<>();
 
+    /**
+     * I would like to make it into an enum at some point, but then i also need to change the user set and i don't wanna do that right now.
+     * @return
+     */
+    public enum roles implements Role {
+        ANYONE, PEDAGOGUE, ADMIN;
+    }
 
     public boolean isLoggedIn() {
         return loggedIn;
