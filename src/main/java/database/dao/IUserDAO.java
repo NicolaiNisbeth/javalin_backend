@@ -15,9 +15,9 @@ public interface IUserDAO {
 
     List<User> getUserList() throws DALException;
 
-    boolean updateUser(User user) throws DALException;
+    WriteResult updateUser(User user) throws DALException;
 
-    boolean deleteUser(String username) throws DALException;
+    WriteResult deleteUser(String username) throws DALException;
 
-    boolean deleteAllUsers() throws DALException;
+    WriteResult deleteAllUsers() throws DALException;
 }

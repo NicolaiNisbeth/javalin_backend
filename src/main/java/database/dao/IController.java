@@ -7,7 +7,6 @@ import database.collections.Message;
 import database.collections.Playground;
 import database.collections.User;
 
-import java.io.InputStream;
 import java.util.List;
 
 public interface IController {
@@ -37,7 +36,7 @@ public interface IController {
     // UPDATE
     boolean updatePlayground(Playground playground);
 
-    boolean updateUser(User user);
+    WriteResult updateUser(User user);
 
     boolean updatePlaygroundEvent(Event event);
 
@@ -46,7 +45,7 @@ public interface IController {
     // DELETE
     boolean deletePlayground(String playgroundName);
 
-    boolean deleteUser(String username);
+    WriteResult deleteUser(String username);
 
     // ASSOCIATIONS
     boolean addPedagogueToPlayground(String plagroundName, String username);

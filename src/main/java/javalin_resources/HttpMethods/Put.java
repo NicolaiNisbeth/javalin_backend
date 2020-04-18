@@ -3,7 +3,6 @@ package javalin_resources.HttpMethods;
 import database.DALException;
 import database.collections.*;
 import database.dao.Controller;
-import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,7 +12,6 @@ import javax.mail.MessagingException;
 import java.awt.image.BufferedImage;
 import java.util.Calendar;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Put implements Tag {
@@ -255,7 +253,7 @@ public class Put implements Tag {
                     System.out.println("Server: intet billede i upload");
                 }
                 System.out.println(userToUpdate);
-                if (Controller.getInstance().updateUser(userToUpdate)) {
+                if (Controller.getInstance().updateUser(userToUpdate).wasAcknowledged()) {
                     ctx.status(201).result("User was updated");
                 } else {
                     ctx.status(401).result("User was not updated");
