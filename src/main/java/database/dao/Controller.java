@@ -10,11 +10,18 @@ import database.collections.Message;
 import database.collections.Playground;
 import database.collections.User;
 import database.utils.QueryUtils;
+import javalin_resources.UserAdminResource;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class Controller implements IController {
@@ -123,6 +130,33 @@ public class Controller implements IController {
         }
         user.setEvents(updatedEvents);
         return user;
+    }
+
+    @Override
+    public InputStream getUserImage(String username) {
+        File homeFolder = new File(System.getProperty("user.home"));
+        Path path = Paths.get(String.format(homeFolder.toPath() +
+                "/server_resource/profile_images/%s.png", username));
+
+        File initialFile = new File(path.toString());
+        InputStream targetStream = null;
+        try {
+            targetStream = new FileInputStream(initialFile);
+         /*   BufferedImage in = ImageIO.read(initialFile);
+            UserAdminResource.printImage(in);*/
+
+        } catch (IOException e) {
+            //e.printStackTrace();
+            System.out.println("Server: User have no profile picture...");
+        }
+
+        if (targetStream != null) {
+            return targetStream;
+        } else {
+            System.out.println("Server: Returning random user picture...");
+            targetStream = UserAdminResource.class.getResourceAsStream("/images/profile_pictures/random_user.png");
+            return targetStream;
+        }
     }
 
     @Override
@@ -288,7 +322,7 @@ public class Controller implements IController {
 
     @Override
     public boolean deleteUser(String username) {
-      //  final ClientSession clientSession = DataSource.getClient().startSession();
+        //  final ClientSession clientSession = DataSource.getClient().startSession();
         boolean isUserDeleted = false;
         //clientSession.startTransaction();
         try {
@@ -305,9 +339,9 @@ public class Controller implements IController {
             // delete user
             isUserDeleted = userDAO.deleteUser(username);
 
-          //  clientSession.commitTransaction();
-        } catch (Exception e){
-           // clientSession.abortTransaction();
+            //  clientSession.commitTransaction();
+        } catch (Exception e) {
+            // clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
             //clientSession.close();
@@ -316,10 +350,11 @@ public class Controller implements IController {
         return isUserDeleted;
     }
 
+    // todo fix it
     @Override
     public boolean addPedagogueToPlayground(String plagroundName, String username) {
-        final ClientSession clientSession = DataSource.getClient().startSession();
-        clientSession.startTransaction();
+//        final ClientSession clientSession = DataSource.getClient().startSession();
+        //  clientSession.startTransaction();
         try {
             // insert playground reference in user
             User pedagogue = userDAO.getUser(username);
@@ -330,21 +365,22 @@ public class Controller implements IController {
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", plagroundName, "assignedPedagogue", pedagogue);
 
-            clientSession.commitTransaction();
+            //        clientSession.commitTransaction();
         } catch (Exception e) {
-            clientSession.abortTransaction();
+            //      clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
-            clientSession.close();
+            //    clientSession.close();
         }
 
         return true;
     }
 
+    // to do fix it
     @Override
     public boolean addUserToPlaygroundEvent(String eventID, String username) {
-        ClientSession clientSession = DataSource.getClient().startSession();
-        clientSession.startTransaction();
+//        ClientSession clientSession = DataSource.getClient().startSession();
+        //       clientSession.startTransaction();
         try {
             // update user with event reference
             User user = userDAO.getUser(username);
@@ -356,12 +392,12 @@ public class Controller implements IController {
             MongoCollection events = jongo.getCollection(IEventDAO.COLLECTION);
             QueryUtils.updateWithPush(events, "_id", new ObjectId(eventID), "assignedUsers", user);
 
-            clientSession.commitTransaction();
+            //    clientSession.commitTransaction();
         } catch (Exception e) {
-            clientSession.abortTransaction();
+            //    clientSession.abortTransaction();
             e.printStackTrace();
         } finally {
-            clientSession.close();
+            //clientSession.close();
         }
 
         return true;

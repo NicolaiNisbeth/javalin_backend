@@ -5,7 +5,14 @@ import database.collections.Message;
 import database.collections.User;
 import database.dao.Controller;
 import io.javalin.http.Handler;
+import javalin_resources.UserAdminResource;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class Get implements Tag {
@@ -94,4 +101,17 @@ public class Get implements Tag {
         };
     }
 
+
+
+    public static class GetUser {
+
+        public static Handler getUserPicture = ctx -> {
+            ctx.json(Controller.getInstance().getUserImage(ctx.pathParam("username"))).contentType("image/png");
+        };
+
+        public static Handler getAllUsers = ctx -> {
+            ctx.json(Controller.getInstance().getUsers()).contentType("json");
+        };
+
+    }
 }

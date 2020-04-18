@@ -113,8 +113,8 @@ class UserDAOTest {
     void getUserWithName() throws DALException {
      /*   User user = userDAO.getUser("root");
         user.setPassword("root");
-        userDAO.updateUser(user);*/
-
+        userDAO.updateUser(user);
+*/
 
        /*
         User user2 = new User.Builder("s123")
@@ -131,10 +131,10 @@ class UserDAOTest {
      /*  User user = userDAO.getUserWithUserName("s185020");
        user.setStatus("admin");
         userDAO.updateUser(user);*/
-        for (User user2 : userDAO.getUserList()) {
+       /* for (User user2 : userDAO.getUserList()) {
             userDAO.deleteUser(user2.getUsername());
         }
-
+*/
         User user1 = new User.Builder("root")
                 .status("admin")
                 .password("root")

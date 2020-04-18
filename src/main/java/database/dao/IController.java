@@ -7,6 +7,7 @@ import database.collections.Message;
 import database.collections.Playground;
 import database.collections.User;
 
+import java.io.InputStream;
 import java.util.List;
 
 public interface IController {
@@ -20,6 +21,8 @@ public interface IController {
     Playground getPlayground(String playgroundName);
 
     User getUser(String username) throws DALException;
+
+    InputStream getUserImage(String username);
 
     Event getEvent(String eventID);
 

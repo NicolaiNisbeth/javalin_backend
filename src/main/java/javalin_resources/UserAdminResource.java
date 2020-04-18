@@ -34,17 +34,12 @@ public class UserAdminResource {
     final static String WEBSITE = "website";
     final static String PHONENUMBER = "phoneNumber";
     //todo ret addressen inden deployment
-    //final static String IMAGEPATH = "http://localhost:8088/rest/user";
-    final static String IMAGEPATH = "http://130.225.170.204:8088/rest/user";
+    final static String IMAGEPATH = "http://localhost:8088/rest/user";
+    // final static String IMAGEPATH = "http://130.225.170.204:8088/rest/user";
 
-    /**
-     * Create
-     * Metoden bruges af admins til at give en bruger rettigheder,
-     * INDEN brugeren er logget på første gang
-     *
-     * @param ctx
-     * @return
-     */
+
+
+
     public static List<User> createUser(Context ctx) {
         BufferedImage bufferedImage;
         String usermodel = ctx.formParam(("usermodel"));
@@ -57,7 +52,13 @@ public class UserAdminResource {
         String lastName = jsonObject.getString(FIRSTNAME);
         String email = jsonObject.getString(EMAIL);
         String status = jsonObject.getString(STATUS);
-        JSONArray playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+        // todo njl håndter et tomt array
+        try {
+            JSONArray playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+        } catch (Exception e) {
+            //   e.printStackTrace();
+        }
+        JSONArray playgroundIDs = new JSONArray();
         String phoneNumber = jsonObject.getString(PHONENUMBER);
         String website = jsonObject.getString(WEBSITE);
         User admin = null;
@@ -111,13 +112,9 @@ public class UserAdminResource {
 
     //todo gem en bruger - marker ham som inaktiv
 
-    /**
-     * UPDATE
-     *
-     * @param ctx
-     * @return
-     */
+
     public static List<User> updateUser(Context ctx) {
+        System.out.println("update");
         BufferedImage bufferedImage;
         String usermodel = ctx.formParam(("usermodel"));
         JSONObject jsonObject = new JSONObject(usermodel);
@@ -168,31 +165,27 @@ public class UserAdminResource {
                 bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
                 saveProfilePicture(username, bufferedImage);
             } catch (Exception e) {
-               //e.printStackTrace();
                 System.out.println("Server: intet billede i upload");
             }
+            System.out.println(userToUpdate);
             if (Controller.getInstance().updateUser(userToUpdate)) {
-                ctx.status(401).result("User was updated");
+                ctx.status(201).result("User was updated");
             } else {
                 ctx.status(401).result("User was not updated");
-                return Controller.getInstance().getUsers();
             }
         }
         return Controller.getInstance().getUsers();
     }
 
-    /**
-     * Delete
-     *
-     * @param body
-     * @param ctx
-     * @return
-     */
-    public static List<User> deleteUser(String body, Context ctx) {
-        JSONObject jsonObject = new JSONObject(ctx.body());
-        String usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
-        String passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
-        String username = jsonObject.getString(USERNAME);
+
+
+    public static List<User> deleteUser(Context ctx) {
+        JSONObject jsonObject = null, deleteUserModel = null;
+        jsonObject = new JSONObject(ctx.body());
+        deleteUserModel = jsonObject.getJSONObject("deleteUserModel");
+        String usernameAdmin = deleteUserModel.getString(USERNAME_ADMIN);
+        String passwordAdmin = deleteUserModel.getString(PASSWORD_ADMIN);
+        String username = deleteUserModel.getString(USERNAME);
         // todo slet ham fra legeplader også
         //  JSONArray adminRightsOfNewUser = jsonObject.getJSONArray("userAdminRights");
 
@@ -242,6 +235,7 @@ public class UserAdminResource {
             e.printStackTrace();
         }
     }
+
     public static InputStream getProfilePicture(String username) {
         File homeFolder = new File(System.getProperty("user.home"));
         Path path = Paths.get(String.format(homeFolder.toPath() +
@@ -251,8 +245,9 @@ public class UserAdminResource {
         InputStream targetStream = null;
         try {
             targetStream = new FileInputStream(initialFile);
-/*            BufferedImage in = ImageIO.read(initialFile);
+         /*   BufferedImage in = ImageIO.read(initialFile);
             UserAdminResource.printImage(in);*/
+
         } catch (IOException e) {
             //e.printStackTrace();
             System.out.println("Server: User have no profile picture...");

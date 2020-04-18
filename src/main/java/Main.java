@@ -1,6 +1,5 @@
 import database.dao.Controller;
 import io.javalin.Javalin;
-import javalin_resources.*;
 import javalin_resources.HttpMethods.Delete;
 import javalin_resources.HttpMethods.Get;
 import javalin_resources.HttpMethods.Post;
@@ -49,8 +48,7 @@ public class Main {
         if (app != null) return;
         app = Javalin.create(config -> {
             config.enableCorsForAllOrigins()
-                    .addSinglePageRoot("", "/webapp/index.html")
-            ;
+                    .addSinglePageRoot("", "/webapp/index.html");
         }).start(8088);
 
         app.before(ctx -> {
@@ -62,97 +60,77 @@ public class Main {
         app.config.addStaticFiles("webapp");
 
         // REST endpoints
-        app.get("/rest/hej", ctx -> ctx.result("Hejsa, godt at møde dig!"));
-        app.get("/rest/hej/:fornavn", ctx -> ctx.result("Hej " + ctx.queryParam("fornavn") + ", godt at møde dig!"));
-
-        //NJL - er i brug
-        app.get("rest/playground_list", ctx ->
-                ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json"));
-/*        app.post("rest/user_login", ctx ->
-                ctx.json(UserLogin.verifyLogin(ctx)).contentType("json"));*/
-
-        app.get("/rest/user/:username/profile-picture", ctx ->
-                ctx.result(UserAdminResource.getProfilePicture(ctx.pathParam("username"))).contentType("image/png"));
-        app.post("rest/create_user", ctx ->
-                ctx.json(UserAdminResource.createUser(ctx)).contentType("json"));
-        app.get("rest/user_list", ctx ->
-                ctx.json(Controller.getInstance().getUsers()).contentType("json"));
-        app.post("rest/remove_user", ctx ->
-                ctx.json(UserAdminResource.deleteUser(ctx.body(), ctx)).contentType("json"));
-
         app.routes(() -> {
-
 
             /**
              * GET
              **/
 
-            //Works
+            //GET PLAYGROUNDS
             get(Path.Playground.PLAYGROUND_ALL, Get.GetPlayground.readAllPlaygroundsGet);
             get(Path.Playground.PLAYGROUND_ONE, Get.GetPlayground.readOnePlaygroundGet);
-            //Works
             get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Get.GetPlayground.readOnePlaygroundOneEmployeeGet);
             get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Get.GetPlayground.readOnePlaygroundAllEmployeeGet);
-            // Works
             get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Get.GetEvent.readOneEventParticipantsGet);
             get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Get.GetEvent.readOneEventOneParticipantGet);
-            //works
             get(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Get.GetEvent.readOnePlayGroundAllEventsGet);
             get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Get.GetEvent.readOneEventGet);
-            //works
             get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Get.GetMessage.readAllMessagesGet);
             get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Get.GetMessage.readOneMessageGet);
 
+            //GET EMPLOYEES
+            get(Path.Employee.EMPLOYEE_ALL, Get.GetUser.getAllUsers);
+            get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, Get.GetUser.getUserPicture);
 
             /**
              * POST
              **/
-            //works
+
+            //POST PLAYGROUNDS
+            //WORKS
             post(Path.Playground.PLAYGROUND_ALL, Post.PostPlayground.createPlaygroundPost);
-            //work
             post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Post.PostEvent.createPlaygroundEventPost);
-            //works
             post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Post.PostMessage.createPlaygroundMessagePost);
 
             //TODO: Implement this
-            post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostPedagogue.createPedagogueToPlaygroundPost);
+            post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostUser.createUserToPlaygroundPost);
             post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.PostUser.createParticipantsToPlaygroundEventPost);
 
-            // User
-            post(Path.User.LOGIN, Post.PostUser.createUserLoginPost);
 
+            //POST EMPLOYEES
+            post(Path.Employee.LOGIN, Post.PostUser.userLogin);
+            post(Path.Employee.CREATE, Post.PostUser.createUser);
 
             /**
              * PUT
              **/
-            //works
+            //PUT PLAYGROUNDS
             put(Path.Playground.PLAYGROUND_ONE, Put.PutPlayground.updatePlaygroundPut);
-            //works
             put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Put.PutMessage.updatePlaygroundMessagePut);
-            //works
             put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Put.PutEvent.updateEventToPlaygroundPut);
 
             //TODO: Test this
             put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Put.PutPedagogue.updatePedagogueToPlayGroundPut);
             put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
 
+            //PUT EMLOYEES
+            put(Path.Employee.UPDATE, Put.PutUser.updateUser);
+            put(Path.Employee.RESET_PASSWORD, Put.PutUser.resetPassword);
 
             /**
              * DELETE
              **/
-            //works
+            //DELETE PLAYGROUNDS
             delete(Path.Playground.PLAYGROUND_ONE, Delete.DeletePlayground.deleteOnePlaygroundDelete);
-            //works
             delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Delete.DeletePedagogue.deletePedagogueFromPlaygroundDelete);
-            //works
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Delete.DeleteEvent.deleteEventFromPlaygroundDelete);
-            //works
             delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Delete.DeleteMessage.deletePlaygroundMessageDelete);
 
             //TODO: Test this
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
 
+            //DELETE EMPLOYEES
+            delete(Path.Employee.DELETE, Delete.DeleteUser.deleteUser);
         });
     }
 }
-
