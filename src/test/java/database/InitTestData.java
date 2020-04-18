@@ -1,7 +1,11 @@
 package database;
 
 import com.mongodb.WriteResult;
-import database.collections.*;
+import database.collections.Details;
+import database.collections.Event;
+import database.collections.Message;
+import database.collections.Playground;
+import database.collections.User;
 import database.dao.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
