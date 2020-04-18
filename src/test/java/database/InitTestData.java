@@ -1,6 +1,7 @@
 package database;
 
 import com.mongodb.WriteResult;
+import database.collections.Details;
 import database.collections.Event;
 import database.collections.Message;
 import database.collections.Playground;
@@ -14,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class InitTestData {
@@ -179,6 +181,7 @@ public class InitTestData {
                         .name(data[0])
                         .description(data[1])
                         .imagePath(data[2])
+                        .details(new Details(new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis())))
                         .build();
 
                 WriteResult wr = controller.addPlaygroundEvent(playgroundNames.get(i), event);
