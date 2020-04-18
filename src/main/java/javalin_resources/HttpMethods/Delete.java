@@ -39,7 +39,6 @@ public class Delete implements Tag {
                 ctx.status(404).result("Couldn't remove user from event");
         };
 
-
         public static Handler deleteUser = ctx -> {
             JSONObject jsonObject, deleteUserModel;
             jsonObject = new JSONObject(ctx.body());
@@ -61,10 +60,9 @@ public class Delete implements Tag {
             } else {
                 Controller.getInstance().deleteUser(username);
             }
-            Controller.getInstance().getUsers();
+            ctx.json(Controller.getInstance().getUsers()).contentType("json");
         };
     }
-
 
     public static class DeletePedagogue {
 

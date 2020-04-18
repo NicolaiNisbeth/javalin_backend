@@ -261,7 +261,7 @@ public class Put implements Tag {
                     ctx.status(401).result("User was not updated");
                 }
             }
-            Controller.getInstance().getUsers();
+            ctx.json(Controller.getInstance().getUsers());
         };
     }
 

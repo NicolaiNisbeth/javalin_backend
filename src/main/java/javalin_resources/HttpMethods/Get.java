@@ -102,16 +102,35 @@ public class Get implements Tag {
     }
 
 
-
     public static class GetUser {
 
         public static Handler getUserPicture = ctx -> {
-            ctx.json(Controller.getInstance().getUserImage(ctx.pathParam("username"))).contentType("image/png");
+            File homeFolder = new File(System.getProperty("user.home"));
+            Path path = Paths.get(String.format(homeFolder.toPath() +
+                    "/server_resource/profile_images/%s.png", ctx.pathParam("username")));
+
+            File initialFile = new File(path.toString());
+            InputStream targetStream = null;
+            try {
+                targetStream = new FileInputStream(initialFile);
+         /*   BufferedImage in = ImageIO.read(initialFile);
+            UserAdminResource.printImage(in);*/
+
+            } catch (IOException e) {
+                System.out.println("Server: User have no profile picture...");
+            }
+
+            if (targetStream != null) {
+                ctx.result(targetStream).contentType("image/png");
+            } else {
+                System.out.println("Server: Returning random user picture...");
+                targetStream = UserAdminResource.class.getResourceAsStream("/images/profile_pictures/random_user.png");
+                ctx.result(targetStream).contentType("image/png");
+            }
         };
 
         public static Handler getAllUsers = ctx -> {
             ctx.json(Controller.getInstance().getUsers()).contentType("json");
         };
-
     }
 }

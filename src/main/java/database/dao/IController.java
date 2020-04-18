@@ -22,8 +22,6 @@ public interface IController {
 
     User getUser(String username) throws DALException;
 
-    InputStream getUserImage(String username);
-
     Event getEvent(String eventID);
 
     Message getMessage(String messageID);

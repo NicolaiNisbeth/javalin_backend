@@ -133,33 +133,6 @@ public class Controller implements IController {
     }
 
     @Override
-    public InputStream getUserImage(String username) {
-        File homeFolder = new File(System.getProperty("user.home"));
-        Path path = Paths.get(String.format(homeFolder.toPath() +
-                "/server_resource/profile_images/%s.png", username));
-
-        File initialFile = new File(path.toString());
-        InputStream targetStream = null;
-        try {
-            targetStream = new FileInputStream(initialFile);
-         /*   BufferedImage in = ImageIO.read(initialFile);
-            UserAdminResource.printImage(in);*/
-
-        } catch (IOException e) {
-            //e.printStackTrace();
-            System.out.println("Server: User have no profile picture...");
-        }
-
-        if (targetStream != null) {
-            return targetStream;
-        } else {
-            System.out.println("Server: Returning random user picture...");
-            targetStream = UserAdminResource.class.getResourceAsStream("/images/profile_pictures/random_user.png");
-            return targetStream;
-        }
-    }
-
-    @Override
     public Event getEvent(String eventID) {
         Event event = null;
         try {

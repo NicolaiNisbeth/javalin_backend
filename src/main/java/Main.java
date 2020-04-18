@@ -1,9 +1,6 @@
 import database.dao.Controller;
 import io.javalin.Javalin;
-import javalin_resources.HttpMethods.Delete;
-import javalin_resources.HttpMethods.Get;
-import javalin_resources.HttpMethods.Post;
-import javalin_resources.HttpMethods.Put;
+import javalin_resources.HttpMethods.*;
 import javalin_resources.Util.Path;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
@@ -100,6 +97,10 @@ public class Main {
             //POST EMPLOYEES
             post(Path.Employee.LOGIN, Post.PostUser.userLogin);
             post(Path.Employee.CREATE, Post.PostUser.createUser);
+            post("/rest/employee/imagetest", context -> {
+                Shared.saveProfilePicture2(context);
+            });
+
 
             /**
              * PUT

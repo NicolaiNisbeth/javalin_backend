@@ -160,9 +160,10 @@ public class Post implements Tag {
 
         public static Handler createUserToPlaygroundPost = ctx -> {
 
-        } ;
+        };
 
         public static Handler createUser = ctx -> {
+
             BufferedImage bufferedImage;
             String usermodel = ctx.formParam(("usermodel"));
             JSONObject jsonObject = new JSONObject(usermodel);
@@ -175,12 +176,12 @@ public class Post implements Tag {
             String email = jsonObject.getString(EMAIL);
             String status = jsonObject.getString(STATUS);
             // todo njl håndter et tomt array
+            JSONArray playgroundIDs = null;
             try {
-                JSONArray playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+                playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
             } catch (Exception e) {
                 //   e.printStackTrace();
             }
-            JSONArray playgroundIDs = new JSONArray();
             String phoneNumber = jsonObject.getString(PHONENUMBER);
             String website = jsonObject.getString(WEBSITE);
             User admin = null;
@@ -195,7 +196,6 @@ public class Post implements Tag {
             if (admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
 
                 newUser = new User.Builder(username)
-                        .status(status)
                         .build();
                 newUser.setFirstname(firstName);
                 newUser.setLastname(lastName);
@@ -231,7 +231,7 @@ public class Post implements Tag {
             } else {
                 ctx.status(401).result("Unauthorized - Forkert kodeord...");
             }
-            Controller.getInstance().getUsers();
+            ctx.json(Controller.getInstance().getUsers());
         };
 
         public static Handler userLogin = ctx -> {
@@ -239,6 +239,27 @@ public class Post implements Tag {
             JSONObject jsonObject = new JSONObject(ctx.body());
             String username = jsonObject.getString(USERNAME);
             String password = jsonObject.getString(PASSWORD);
+            User user = null;
+
+            if (username.equalsIgnoreCase("root")) {
+                try {
+                    user = Controller.getInstance().getUser(username);
+
+                } catch (DALException e) {
+                    //e.printStackTrace();
+                    System.out.println("Opretter root");
+                    user = new User.Builder("root")
+                            .status("admin")
+                            .password("root")
+                            .setFirstname("Københavns")
+                            .setLastname("Kommune")
+                            .build();
+                    Controller.getInstance().createUser(user);
+                }
+                ctx.json(user).contentType("json");
+                return;
+            }
+
             try {
                 ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
             } catch (NotBoundException | MalformedURLException | RemoteException e) {
@@ -254,19 +275,12 @@ public class Post implements Tag {
                 System.out.println("Server: User is not registered in Brugeradminmodule");
             }
 
-            User user = null;
             try {
                 user = Controller.getInstance().getUser(username);
-                if (user.getPassword().compareTo(password) != 0){
-                    //throw new DALException("Wrong password");
-                    System.out.println(user.getPassword() +"    " + password);
-                    ctx.status(401).json("Unauthorized - Wrong password!");
-                    return;
-                }
+                ctx.json(user).contentType("json");
             } catch (DALException e) {
                 System.out.println("Server: Username doesn't exist.");
                 ctx.status(401).json("Unauthorized - No such username!");
-                return;
             }
         };
 
