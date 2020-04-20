@@ -68,5 +68,5 @@ public interface Tag {
     String PHONENUMBER = "phoneNumber";
     //todo - vigtigt - ret addressen inden deployment
     String IMAGEPATH = "http://localhost:8088/rest/employee";
-    //final static String IMAGEPATH = "http://130.225.170.204:8088/rest/employee";
+    //final static String IMAGEPATH = "http://18.185.121.182:8088/rest/employee";
 }

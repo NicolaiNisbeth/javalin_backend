@@ -5,8 +5,11 @@ import com.mongodb.DB;
 import com.mongodb.MongoClient;
 
 public class DataSource {
-    private final static String HOST = "130.225.170.204";
-    private final static int PORT = 27027;
+   /* private final static String HOST = "130.225.170.204";
+    private final static int PORT = 27027;*/
+
+   private final static String HOST = "18.185.121.182";
+    private final static int PORT = 27017;
     private final static String DATABASE_NAME = "cphPlaygroundsDB";
     private static DB database;
     private static MongoClient mongoClient;
