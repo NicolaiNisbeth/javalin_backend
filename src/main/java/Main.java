@@ -46,7 +46,7 @@ public class Main {
         app = Javalin.create(config -> {
             config.enableCorsForAllOrigins()
                     .addSinglePageRoot("", "/webapp/index.html");
-        }).start(8088);
+        }).start(8080);
 
         app.before(ctx -> {
             System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());
