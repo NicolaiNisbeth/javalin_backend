@@ -216,8 +216,10 @@ public class Post implements Tag {
                     System.out.println("Server: No profile picture was chosen...");
                 }
 
-                for (Object id : playgroundIDs) {
-                    newUser.getPlaygroundsIDs().add(id.toString());
+                if (playgroundIDs != null) {
+                    for (Object id : playgroundIDs) {
+                        newUser.getPlaygroundsIDs().add(id.toString());
+                    }
                 }
 
                 WriteResult ws = Controller.getInstance().createUser(newUser);

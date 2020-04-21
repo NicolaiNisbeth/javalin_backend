@@ -37,7 +37,7 @@ public class DataSource {
             // mongoClient = new MongoClient(HOST, PORT);
             // database = mongoClient.getDB(DATABASE_NAME);
             MongoCredential credential = MongoCredential.createCredential(user, adminDatabase, password);
-            MongoClient mongoClient = new MongoClient(new ServerAddress(HOST, PORT),
+            mongoClient = new MongoClient(new ServerAddress(HOST, PORT),
                     Arrays.asList(credential));
             database = mongoClient.getDB(DATABASE_NAME);
         }
@@ -45,8 +45,12 @@ public class DataSource {
     }
 
     public static MongoClient getClient() {
-        if (mongoClient == null)
-            mongoClient = new MongoClient(HOST, PORT);
+        if (mongoClient == null) {
+            MongoCredential credential = MongoCredential.createCredential(user, adminDatabase, password);
+            mongoClient = new MongoClient(new ServerAddress(HOST, PORT),
+                    Arrays.asList(credential));
+        }
+
         return mongoClient;
 
     }
