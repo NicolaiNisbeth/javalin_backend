@@ -228,7 +228,6 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
                     bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
                     Shared.saveProfilePicture(username, bufferedImage);
                 } catch (Exception e) {
-                    //e.printStackTrace();
                     System.out.println("Server: No profile picture was chosen...");
                 }
 
@@ -240,31 +239,17 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
 
                 WriteResult ws = Controller.getInstance().createUser(newUser);
                 if (ws.wasAcknowledged()) {
-                    System.out.println("snapos");
-                    ctx.json(Controller.getInstance().getUsers()).status(207).result("User created.");
-
-//                    ctx.status(201).result("User was created");
+                    ctx.json(Controller.getInstance().getUsers()).status(201).result("User created.");
                 } else {
                     ctx.status(401).result("User was not created");
                     //Controller.getInstance().getUsers();
                 }
                 // Hvis admin har skrevet forkert adgangskode
             } else {
-                System.out.println("nsap 2");
                 ctx.status(401).result("Unauthorized");
             }
             //  ctx.json(Controller.getInstance().getUsers());
         };
-
-
-        /*JBCrypt.
-BCrypt.hashpw(password, BCrypt.gensalt());
- - Returnerer et saltet hash (med kendt salt)
-BCrypt.checkpw(candidate, hashed);
-- Returnerer true, hvis kodeordet matcher
-HUSK: Kodeord må aldrig opbevares i clear-text!!!!
-- Skal saltes og hashes med det samme og originalen glemmes!
-- Saltet Hash gemmes i db.*/
 
         public static Handler userLogin = ctx -> {
             Brugeradmin ba = null;

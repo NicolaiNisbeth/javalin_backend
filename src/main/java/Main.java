@@ -1,9 +1,9 @@
-import database.dao.Controller;
 import io.javalin.Javalin;
 import io.prometheus.client.exporter.HTTPServer;
-import io.prometheus.client.Collector;
 import javalin_resources.HttpMethods.*;
 import javalin_resources.Util.Path;
+import monitor.QueuedThreadPoolCollector;
+import monitor.StatisticsHandlerCollector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
