@@ -175,12 +175,13 @@ public class Post implements Tag {
             String lastName = jsonObject.getString(LASTNAME);
             String email = jsonObject.getString(EMAIL);
             String status = jsonObject.getString(STATUS);
-            // todo njl håndter et tomt array
+
             JSONArray playgroundIDs = null;
+            //if pedg
             try {
                 playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
             } catch (Exception e) {
-                //   e.printStackTrace();
+                //e.printStackTrace();
             }
             String phoneNumber = jsonObject.getString(PHONENUMBER);
             String website = jsonObject.getString(WEBSITE);
@@ -190,7 +191,7 @@ public class Post implements Tag {
             try {
                 admin = Controller.getInstance().getUser(usernameAdmin);
             } catch (DALException e) {
-                ctx.status(401).result("Unauthorized - Forkert brugernavn eller adgangskode...");
+                ctx.status(411).result("Unauthorized - Forkert brugernavn eller adgangskode...");
                 e.printStackTrace();
             }
             if (admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
@@ -227,7 +228,7 @@ public class Post implements Tag {
                     ctx.status(201).result("User was created");
                 } else {
                     ctx.status(401).result("User was not created");
-                    Controller.getInstance().getUsers();
+                    //Controller.getInstance().getUsers();
                 }
                 // Hvis admin har skrevet forkert adgangskode
             } else {

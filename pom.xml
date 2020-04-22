@@ -26,6 +26,7 @@
         </dependency>
 
 
+
         <!-- FOR MONGODB -->
         <dependency>
             <groupId>org.jongo</groupId>
@@ -84,7 +85,14 @@
             <version>2.8.6</version>
         </dependency>
 
+        <!--Monitoring-->
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient_httpserver</artifactId>
+            <version>0.1.0</version>
+        </dependency>
 
+    <!--For sending mails-->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
