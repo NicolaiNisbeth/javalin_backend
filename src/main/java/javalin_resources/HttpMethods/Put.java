@@ -1,9 +1,9 @@
 package javalin_resources.HttpMethods;
 
+import com.google.gson.JsonArray;
 import database.DALException;
 import database.collections.*;
 import database.dao.Controller;
-import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -184,47 +184,33 @@ public class Put implements Tag {
             ctx.status(401).result("Unauthorized - Wrong password");
         };
 
-
-        public static Handler updateUserToPlaygroundEventPut = ctx -> {
-            //ctx.json(UserLogin.verifyLogin(ctx)).contentType("json")
-            //JSONObject jsonObject = new JSONObject(ctx.body());
-            //Event event = Controller.getInstance().getEvent(jsonObject.getString(EVENT_ID));
-            //User user = Controller.getInstance().getUser(jsonObject.getString(USER_ID));
-            //event.getAssignedUsers().add(user);
-            //Controller.getInstance().updatePlaygroundEvent(event);
-            boolean successful = Controller.getInstance().addUserToPlaygroundEvent(ctx.pathParam("id"), ctx.pathParam("username"));
-            if (successful) {
-                ctx.status(200).result("Update successfull");
-            } else {
-                ctx.status(404).result("Failed to update");
-            }
-
-        };
-
         public static Handler updateUser = ctx -> {
             BufferedImage bufferedImage;
-            String usermodel = ctx.formParam(("usermodel"));
+            //String usermodel = ctx.formParam(("usermodel"));
+            String usermodel = ctx.body();
             JSONObject jsonObject = new JSONObject(usermodel);
-            String usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
-            String passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
+
             String username = jsonObject.getString(USERNAME);
             String password = jsonObject.getString(PASSWORD);
             String firstName = jsonObject.getString(FIRSTNAME);
             String lastName = jsonObject.getString(LASTNAME);
             String email = jsonObject.getString(EMAIL);
             String status = jsonObject.getString(STATUS);
-            JSONArray playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
-            String phoneNumber = jsonObject.getString(PHONENUMBER);
+            JSONArray phoneNumber = jsonObject.getJSONArray(PHONENUMBER);
             String website = jsonObject.getString(WEBSITE);
 
             User admin = null;
             User userToUpdate = null;
+            String usernameAdmin = null, passwordAdmin = null;
             try {
+                JSONArray playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+                usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
+                passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
                 admin = Controller.getInstance().getUser(usernameAdmin);
-            } catch (DALException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (!admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
+            if (admin != null && !admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
                 System.out.println(admin.getPassword());
                 System.out.println(passwordAdmin);
                 ctx.status(401).result("Unauthorized - Kodeord er forkert...");
@@ -242,12 +228,14 @@ public class Put implements Tag {
                 userToUpdate.setWebsite(website);
                 userToUpdate.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username));
                 String[] phoneNumbers = new String[1];
-                phoneNumbers[0] = phoneNumber;
+                phoneNumbers[0] = phoneNumber.getString(0);
                 userToUpdate.setPhonenumbers(phoneNumbers);
-                userToUpdate.getPlaygroundsIDs().removeAll(userToUpdate.getPlaygroundsIDs());
+                /*userToUpdate.getPlaygroundsIDs().removeAll(userToUpdate.getPlaygroundsIDs());
                 for (Object id : playgroundIDs) {
                     userToUpdate.getPlaygroundsIDs().add(id.toString());
                 }
+
+                 */
                 try {
                     bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
                     Shared.saveProfilePicture(username, bufferedImage);
@@ -257,11 +245,13 @@ public class Put implements Tag {
                 System.out.println(userToUpdate);
                 if (Controller.getInstance().updateUser(userToUpdate)) {
                     ctx.status(201).result("User was updated");
+                    ctx.json(userToUpdate);
                 } else {
                     ctx.status(401).result("User was not updated");
                 }
             }
-            ctx.json(Controller.getInstance().getUsers());
+            // TODO: hvorfor returneres alle users?
+            //ctx.json(Controller.getInstance().getUsers());
         };
     }
 

@@ -65,7 +65,7 @@ public interface Tag {
     String STATUS_ADMIN = "admin";
     String PLAYGROUNDSIDS = "playgroundsIDs";
     String WEBSITE = "website";
-    String PHONENUMBER = "phoneNumber";
+    String PHONENUMBER = "phonenumbers";
     //todo - vigtigt - ret addressen inden deployment
     String IMAGEPATH = "http://localhost:8088/rest/employee";
     //final static String IMAGEPATH = "http://130.225.170.204:8088/rest/employee";

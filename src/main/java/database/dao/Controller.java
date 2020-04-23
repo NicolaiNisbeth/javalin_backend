@@ -439,9 +439,14 @@ public class Controller implements IController {
 
     @Override
     public boolean removeUserFromPlaygroundEvent(String eventID, String username) {
-        MongoCollection events = new Jongo(DataSource.getDB()).getCollection(IEventDAO.COLLECTION);
         try {
+            // delete user reference in event
+            MongoCollection events = new Jongo(DataSource.getDB()).getCollection(IEventDAO.COLLECTION);
             QueryUtils.updateWithPullObject(events, "_id", new ObjectId(eventID), "assignedUsers", "username", username);
+
+            // delete event reference in user
+            MongoCollection users = new Jongo(DataSource.getDB()).getCollection(IUserDAO.COLLECTION);
+            QueryUtils.updateWithPullObject(users, "username", username, "events", "_id", new ObjectId(eventID));
         } catch (DALException e) {
             e.printStackTrace();
         }

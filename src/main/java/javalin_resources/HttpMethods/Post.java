@@ -103,6 +103,21 @@ public class Post implements Tag {
             }
         };
 
+        public static Handler createUserToPlaygroundEventPost = ctx -> {
+            String id = ctx.pathParam("id");
+            String username = ctx.pathParam("username");
+            Boolean successful = Controller.getInstance().addUserToPlaygroundEvent(id, username);
+            if (successful) {
+                ctx.status(200).result("Update successful");
+                ctx.json(new User.Builder(username));
+                return;
+            } else {
+                ctx.status(404).result("Failed to update");
+                ctx.json(new User.Builder(username));
+            }
+
+        };
+
     }
 
     public static class PostMessage {
@@ -159,7 +174,12 @@ public class Post implements Tag {
         };
 
         public static Handler createUserToPlaygroundPost = ctx -> {
-
+            boolean successful = Controller.getInstance().addPedagogueToPlayground(ctx.pathParam("name"), ctx.pathParam("username"));
+            if (successful) {
+                ctx.status(200).result("Update successful");
+            } else {
+                ctx.status(404).result("Failed to update");
+            }
         };
 
         public static Handler createUser = ctx -> {
@@ -182,7 +202,7 @@ public class Post implements Tag {
             } catch (Exception e) {
                 //   e.printStackTrace();
             }
-            String phoneNumber = jsonObject.getString(PHONENUMBER);
+            JSONArray phoneNumber = jsonObject.getJSONArray(PHONENUMBER);
             String website = jsonObject.getString(WEBSITE);
             User admin = null;
             User newUser;
@@ -204,7 +224,7 @@ public class Post implements Tag {
                 newUser.setEmail(email);
                 newUser.setWebsite(website);
                 String[] phoneNumbers = new String[1];
-                phoneNumbers[0] = phoneNumber;
+                phoneNumbers[0] = phoneNumber.getString(0);
                 newUser.setPhonenumbers(phoneNumbers);
                 newUser.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username));
 
