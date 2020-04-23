@@ -1,3 +1,5 @@
+package main;
+
 import io.javalin.Javalin;
 import io.prometheus.client.exporter.HTTPServer;
 import javalin_resources.HttpMethods.*;
