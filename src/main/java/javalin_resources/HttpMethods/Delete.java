@@ -55,6 +55,8 @@ public class Delete implements Tag {
             } catch (DALException e) {
                 e.printStackTrace();
             }
+            System.out.println(admin.getPassword());
+            System.out.println(passwordAdmin);
             if (!admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
                 ctx.status(401).result("Unauthorized - Forkert kodeord...");
             } else {

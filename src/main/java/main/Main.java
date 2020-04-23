@@ -1,6 +1,14 @@
+package main;
+
 import io.javalin.Javalin;
+import io.prometheus.client.exporter.HTTPServer;
 import javalin_resources.HttpMethods.*;
 import javalin_resources.Util.Path;
+import monitor.QueuedThreadPoolCollector;
+import monitor.StatisticsHandlerCollector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.StatisticsHandler;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
@@ -40,12 +48,28 @@ public class Main {
         app = null;
     }
 
+    private static void initializePrometheus(StatisticsHandler statisticsHandler, QueuedThreadPool queuedThreadPool) throws IOException {
+        StatisticsHandlerCollector.initialize(statisticsHandler); // collector is included in source code
+        QueuedThreadPoolCollector.initialize(queuedThreadPool); // collector is included in source code
+        HTTPServer prometheusServer = new HTTPServer(7080);
+    }
+
     public static void start() throws Exception {
+
+        StatisticsHandler statisticsHandler = new StatisticsHandler();
+        QueuedThreadPool queuedThreadPool = new QueuedThreadPool(200, 8, 60_000);
+        initializePrometheus(statisticsHandler, queuedThreadPool);
+
         if (app != null) return;
         app = Javalin.create(config -> {
             config.enableCorsForAllOrigins()
-                    .addSinglePageRoot("", "/webapp/index.html");
-        }).start(8088);
+                    .addSinglePageRoot("", "/webapp/index.html")
+                    .server(() -> {
+                        Server server = new Server(queuedThreadPool);
+                        server.setHandler(statisticsHandler);
+                        return server;
+                    });
+        }).start(8080);
 
         app.before(ctx -> {
             System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());

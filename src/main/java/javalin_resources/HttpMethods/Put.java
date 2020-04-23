@@ -13,7 +13,6 @@ import javax.mail.MessagingException;
 import java.awt.image.BufferedImage;
 import java.util.Calendar;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Put implements Tag {
@@ -243,7 +242,7 @@ public class Put implements Tag {
                     System.out.println("Server: intet billede i upload");
                 }
                 System.out.println(userToUpdate);
-                if (Controller.getInstance().updateUser(userToUpdate)) {
+                if (Controller.getInstance().updateUser(userToUpdate).wasAcknowledged()) {
                     ctx.status(201).result("User was updated");
                     ctx.json(userToUpdate);
                 } else {

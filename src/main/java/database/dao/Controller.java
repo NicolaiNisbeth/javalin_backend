@@ -1,8 +1,6 @@
 package database.dao;
 
 import com.mongodb.WriteResult;
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.TransactionBody;
 import database.DALException;
 import database.DataSource;
 import database.collections.Event;
@@ -10,18 +8,11 @@ import database.collections.Message;
 import database.collections.Playground;
 import database.collections.User;
 import database.utils.QueryUtils;
-import javalin_resources.UserAdminResource;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class Controller implements IController {
@@ -221,19 +212,18 @@ public class Controller implements IController {
         } catch (DALException e) {
             e.printStackTrace();
         }
-
         return isUpdated;
     }
 
     @Override
-    public boolean updateUser(User user) {
-        boolean isUpdated = false;
+    public WriteResult updateUser(User user) {
+        WriteResult writeResult = null;
         try {
-            isUpdated = userDAO.updateUser(user);
+            writeResult = userDAO.updateUser(user);
         } catch (DALException e) {
             e.printStackTrace();
         }
-        return isUpdated;
+        return writeResult;
     }
 
     @Override
@@ -294,9 +284,10 @@ public class Controller implements IController {
     }
 
     @Override
-    public boolean deleteUser(String username) {
+    public WriteResult deleteUser(String username) {
         //  final ClientSession clientSession = DataSource.getClient().startSession();
-        boolean isUserDeleted = false;
+
+        WriteResult writeResult = null;
         //clientSession.startTransaction();
         try {
             User user = userDAO.getUser(username);
@@ -310,7 +301,7 @@ public class Controller implements IController {
                 removeUserFromPlaygroundEvent(event.getId(), username);
 
             // delete user
-            isUserDeleted = userDAO.deleteUser(username);
+            writeResult = userDAO.deleteUser(username);
 
             //  clientSession.commitTransaction();
         } catch (Exception e) {
@@ -320,7 +311,7 @@ public class Controller implements IController {
             //clientSession.close();
         }
 
-        return isUserDeleted;
+        return writeResult;
     }
 
     // todo fix it

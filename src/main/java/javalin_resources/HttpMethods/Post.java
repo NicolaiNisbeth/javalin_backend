@@ -10,6 +10,7 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -182,10 +183,21 @@ public class Post implements Tag {
             }
         };
 
-        public static Handler createUser = ctx -> {
 
+
+        /*JBCrypt.
+BCrypt.hashpw(password, BCrypt.gensalt());
+ - Returnerer et saltet hash (med kendt salt)
+BCrypt.checkpw(candidate, hashed);
+- Returnerer true, hvis kodeordet matcher
+HUSK: Kodeord må aldrig opbevares i clear-text!!!!
+- Skal saltes og hashes med det samme og originalen glemmes!
+- Saltet Hash gemmes i db.*/
+
+        public static Handler createUser = ctx -> {
             BufferedImage bufferedImage;
             String usermodel = ctx.formParam(("usermodel"));
+            System.out.println(usermodel);
             JSONObject jsonObject = new JSONObject(usermodel);
             String usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
             String passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
@@ -195,12 +207,13 @@ public class Post implements Tag {
             String lastName = jsonObject.getString(LASTNAME);
             String email = jsonObject.getString(EMAIL);
             String status = jsonObject.getString(STATUS);
-            // todo njl håndter et tomt array
+
             JSONArray playgroundIDs = null;
+            //if pedg
             try {
                 playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
             } catch (Exception e) {
-                //   e.printStackTrace();
+                //e.printStackTrace();
             }
             JSONArray phoneNumber = jsonObject.getJSONArray(PHONENUMBER);
             String website = jsonObject.getString(WEBSITE);
@@ -210,8 +223,8 @@ public class Post implements Tag {
             try {
                 admin = Controller.getInstance().getUser(usernameAdmin);
             } catch (DALException e) {
-                ctx.status(401).result("Unauthorized - Forkert brugernavn eller adgangskode...");
                 e.printStackTrace();
+                ctx.status(411).result("Unauthorized - Forkert brugernavn eller adgangskode...");
             }
             if (admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
 
@@ -220,7 +233,10 @@ public class Post implements Tag {
                 newUser.setFirstname(firstName);
                 newUser.setLastname(lastName);
                 newUser.setStatus(status);
-                newUser.setPassword(password);
+
+                String hashPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+                newUser.setPassword(hashPassword);
+
                 newUser.setEmail(email);
                 newUser.setWebsite(website);
                 String[] phoneNumbers = new String[1];
@@ -232,26 +248,27 @@ public class Post implements Tag {
                     bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
                     Shared.saveProfilePicture(username, bufferedImage);
                 } catch (Exception e) {
-                    //e.printStackTrace();
                     System.out.println("Server: No profile picture was chosen...");
                 }
 
-                for (Object id : playgroundIDs) {
-                    newUser.getPlaygroundsIDs().add(id.toString());
+                if (playgroundIDs != null) {
+                    for (Object id : playgroundIDs) {
+                        newUser.getPlaygroundsIDs().add(id.toString());
+                    }
                 }
 
                 WriteResult ws = Controller.getInstance().createUser(newUser);
                 if (ws.wasAcknowledged()) {
-                    ctx.status(201).result("User was created");
+                    ctx.json(Controller.getInstance().getUsers()).status(201).result("User created.");
                 } else {
                     ctx.status(401).result("User was not created");
-                    Controller.getInstance().getUsers();
+                    //Controller.getInstance().getUsers();
                 }
                 // Hvis admin har skrevet forkert adgangskode
             } else {
-                ctx.status(401).result("Unauthorized - Forkert kodeord...");
+                ctx.status(401).result("Unauthorized");
             }
-            ctx.json(Controller.getInstance().getUsers());
+            //  ctx.json(Controller.getInstance().getUsers());
         };
 
         public static Handler userLogin = ctx -> {
@@ -261,6 +278,7 @@ public class Post implements Tag {
             String password = jsonObject.getString(PASSWORD);
             User user = null;
 
+            //Er det root admin der logger ind?
             if (username.equalsIgnoreCase("root")) {
                 try {
                     user = Controller.getInstance().getUser(username);
@@ -280,6 +298,7 @@ public class Post implements Tag {
                 return;
             }
 
+            //Findes brugeren i Brugeradminmodulet?
             try {
                 ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
             } catch (NotBoundException | MalformedURLException | RemoteException e) {
@@ -289,15 +308,21 @@ public class Post implements Tag {
             try {
                 bruger = ba.hentBruger(username, password);
                 if (bruger != null) {
+                    //Findes han i brugeradmin så se om han også findes i databasen
+                    //hvis ikke oprettes han der, med data fra brugeradminmodulet
                     findUserInDB(bruger);
                 }
             } catch (Exception e) {
                 System.out.println("Server: User is not registered in Brugeradminmodule");
             }
-
+            //Findes brugeren ikke i brugeradminmodulet, findes han så i databasen?
             try {
                 user = Controller.getInstance().getUser(username);
-                ctx.json(user).contentType("json");
+                if (BCrypt.checkpw(password, user.getPassword())) {
+                    ctx.json(user).contentType("json").status(200);
+                } else {
+                    ctx.status(401).result("Unauthorized - Wrong password");
+                }
             } catch (DALException e) {
                 System.out.println("Server: Username doesn't exist.");
                 ctx.status(401).json("Unauthorized - No such username!");

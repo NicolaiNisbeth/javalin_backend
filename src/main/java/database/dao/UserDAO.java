@@ -11,10 +11,7 @@ import org.jongo.MongoCollection;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jongo.Oid.withOid;
-
 public class UserDAO implements IUserDAO {
-
     /**
      * Create user in users collection
      *
@@ -29,12 +26,12 @@ public class UserDAO implements IUserDAO {
 
         Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(COLLECTION);
-        WriteResult wr = collection.save(user);
+        WriteResult writeResult = collection.save(user);
 
-        if (wr.getN() == 0)
+        if (writeResult.getN() == 0)
             throw new DALException(String.format("User can't be created in %s collection", COLLECTION));
 
-        return wr;
+        return writeResult;
     }
 
     /**
@@ -55,7 +52,6 @@ public class UserDAO implements IUserDAO {
         return user;
     }
 
-
     /**
      * Get all users in collection
      *
@@ -71,10 +67,8 @@ public class UserDAO implements IUserDAO {
         for (User user : collection.find().as(User.class)) {
             userList.add(user);
         }
-
         if (userList.isEmpty())
             throw new DALException(String.format("No users in %s collection", COLLECTION));
-
         return userList;
     }
 
@@ -82,11 +76,11 @@ public class UserDAO implements IUserDAO {
      * Replace user with same id
      *
      * @param user
-     * @return true if updated else false
+     * @return WriteResult
      * @throws DALException
      */
     @Override
-    public boolean updateUser(User user) throws DALException {
+    public WriteResult updateUser(User user) throws DALException {
         if (user == null)
             throw new DALException(String.format("Can't update user in %s collection when param is null", COLLECTION));
 
@@ -96,49 +90,45 @@ public class UserDAO implements IUserDAO {
         Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(COLLECTION);
 
-        boolean isUserUpdated = collection
+        WriteResult writeResult = collection
                 .update(new ObjectId(user.getId()))
-                .with(user)
-                .wasAcknowledged();
+                .with(user);
 
-        if (!isUserUpdated)
+        if (!writeResult.wasAcknowledged())
             throw new DALException(String.format("No user in %s collection with id %s", COLLECTION, user.getId()));
 
-        return true;
+        return writeResult;
     }
 
     /**
      * Delete user with given id
      *
      * @param username
-     * @return true if deleted else false
+     * @return WriteResult
      * @throws DALException
      */
     @Override
-    public boolean deleteUser(String username) throws DALException {
+    public WriteResult deleteUser(String username) throws DALException {
         Jongo jongo = new Jongo(DataSource.getDB());
         MongoCollection collection = jongo.getCollection(COLLECTION);
 
-        boolean isUserDeleted = collection
-                .remove("{username : #}", username)
-                .wasAcknowledged();
+        WriteResult writeResult = collection
+                .remove("{username : #}", username);
 
-        if (!isUserDeleted)
+        if (!writeResult.wasAcknowledged())
             throw new DALException(String.format("No user in %s collection with id %s", COLLECTION, username));
 
-        return true;
+        return  writeResult;
     }
 
     @Override
-    public boolean deleteAllUsers() throws DALException {
+    public WriteResult deleteAllUsers() throws DALException {
         Jongo jongo = new Jongo(DataSource.getDB());
-        try {
-            System.out.println(jongo.getCollection(COLLECTION)
-                    .remove("{}"));
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+        MongoCollection collection = jongo.getCollection(COLLECTION);
+
+        WriteResult writeResult = collection
+                .remove("{}");
+
+        return writeResult;
     }
 }
