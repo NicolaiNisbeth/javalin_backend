@@ -39,7 +39,6 @@ public class Delete implements Tag {
                 ctx.status(404).result("Couldn't remove user from event");
         };
 
-
         public static Handler deleteUser = ctx -> {
             JSONObject jsonObject, deleteUserModel;
             jsonObject = new JSONObject(ctx.body());
@@ -56,15 +55,16 @@ public class Delete implements Tag {
             } catch (DALException e) {
                 e.printStackTrace();
             }
+            System.out.println(admin.getPassword());
+            System.out.println(passwordAdmin);
             if (!admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
                 ctx.status(401).result("Unauthorized - Forkert kodeord...");
             } else {
                 Controller.getInstance().deleteUser(username);
             }
-            Controller.getInstance().getUsers();
+            ctx.json(Controller.getInstance().getUsers()).contentType("json");
         };
     }
-
 
     public static class DeletePedagogue {
 
@@ -87,6 +87,18 @@ public class Delete implements Tag {
             }
         };
 
+        public static Handler remoteUserFromPlaygroundEventPost = ctx -> {
+            String id = ctx.pathParam("id");
+            String username = ctx.pathParam("username");
+            Boolean successful = Controller.getInstance().removeUserFromPlaygroundEvent(id, username);
+            if (successful) {
+                ctx.status(200).result("Removal was successful");
+                ctx.json(new User.Builder(username));
+            } else {
+                ctx.status(404).result("Failed to remove");
+                ctx.json(new User.Builder(username));
+            }
+        };
     }
 
     public static class DeleteMessage {

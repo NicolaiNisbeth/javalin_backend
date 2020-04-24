@@ -5,7 +5,6 @@ import database.collections.Message;
 import database.collections.User;
 import database.dao.Controller;
 import io.javalin.http.Handler;
-import javalin_resources.UserAdminResource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -87,7 +86,6 @@ public class Get implements Tag {
         public static Handler readOnePlaygroundOneEmployeeGet = ctx -> {
             ctx.json(Controller.getInstance().getUser(ctx.pathParam(USER_NAME))).contentType("json");
         };
-
     }
 
     public static class GetMessage {
@@ -111,17 +109,35 @@ public class Get implements Tag {
         };
     }
 
-
-
     public static class GetUser {
 
         public static Handler getUserPicture = ctx -> {
-            ctx.json(Controller.getInstance().getUserImage(ctx.pathParam("username"))).contentType("image/png");
+            File homeFolder = new File(System.getProperty("user.home"));
+            Path path = Paths.get(String.format(homeFolder.toPath() +
+                    "/server_resource/profile_images/%s.png", ctx.pathParam("username")));
+
+            File initialFile = new File(path.toString());
+            InputStream targetStream = null;
+            try {
+                targetStream = new FileInputStream(initialFile);
+         /*   BufferedImage in = ImageIO.read(initialFile);
+            UserAdminResource.printImage(in);*/
+
+            } catch (IOException e) {
+                System.out.println("Server: User have no profile picture...");
+            }
+
+            if (targetStream != null) {
+                ctx.result(targetStream).contentType("image/png");
+            } else {
+                System.out.println("Server: Returning random user picture...");
+                targetStream = Get.class.getResourceAsStream("/images/profile_pictures/random_user.png");
+                ctx.result(targetStream).contentType("image/png");
+            }
         };
 
         public static Handler getAllUsers = ctx -> {
             ctx.json(Controller.getInstance().getUsers()).contentType("json");
         };
-
     }
 }

@@ -1,10 +1,14 @@
-import database.dao.Controller;
+package main;
+
 import io.javalin.Javalin;
-import javalin_resources.HttpMethods.Delete;
-import javalin_resources.HttpMethods.Get;
-import javalin_resources.HttpMethods.Post;
-import javalin_resources.HttpMethods.Put;
+import io.prometheus.client.exporter.HTTPServer;
+import javalin_resources.HttpMethods.*;
 import javalin_resources.Util.Path;
+import monitor.QueuedThreadPoolCollector;
+import monitor.StatisticsHandlerCollector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.StatisticsHandler;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
@@ -44,12 +48,28 @@ public class Main {
         app = null;
     }
 
+    private static void initializePrometheus(StatisticsHandler statisticsHandler, QueuedThreadPool queuedThreadPool) throws IOException {
+        StatisticsHandlerCollector.initialize(statisticsHandler); // collector is included in source code
+        QueuedThreadPoolCollector.initialize(queuedThreadPool); // collector is included in source code
+        HTTPServer prometheusServer = new HTTPServer(7080);
+    }
+
     public static void start() throws Exception {
+
+        StatisticsHandler statisticsHandler = new StatisticsHandler();
+        QueuedThreadPool queuedThreadPool = new QueuedThreadPool(200, 8, 60_000);
+        initializePrometheus(statisticsHandler, queuedThreadPool);
+
         if (app != null) return;
         app = Javalin.create(config -> {
             config.enableCorsForAllOrigins()
-                    .addSinglePageRoot("", "/webapp/index.html");
-        }).start(8088);
+                    .addSinglePageRoot("", "/webapp/index.html")
+                    .server(() -> {
+                        Server server = new Server(queuedThreadPool);
+                        server.setHandler(statisticsHandler);
+                        return server;
+                    });
+        }).start(8080);
 
         app.before(ctx -> {
             System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());
@@ -90,16 +110,22 @@ public class Main {
             //WORKS
             post(Path.Playground.PLAYGROUND_ALL, Post.PostPlayground.createPlaygroundPost);
             post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Post.PostEvent.createPlaygroundEventPost);
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Post.PostEvent.createUserToPlaygroundEventPost);
             post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Post.PostMessage.createPlaygroundMessagePost);
 
+
             //TODO: Implement this
-            post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostUser.createUserToPlaygroundPost);
+            post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Post.PostUser.createUserToPlaygroundPost);
             post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.PostUser.createParticipantsToPlaygroundEventPost);
 
 
             //POST EMPLOYEES
             post(Path.Employee.LOGIN, Post.PostUser.userLogin);
             post(Path.Employee.CREATE, Post.PostUser.createUser);
+            post("/rest/employee/imagetest", context -> {
+                Shared.saveProfilePicture2(context);
+            });
+
 
             /**
              * PUT
@@ -111,7 +137,6 @@ public class Main {
 
             //TODO: Test this
             put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Put.PutPedagogue.updatePedagogueToPlayGroundPut);
-            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
 
             //PUT EMLOYEES
             put(Path.Employee.UPDATE, Put.PutUser.updateUser);
@@ -125,6 +150,8 @@ public class Main {
             delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Delete.DeletePedagogue.deletePedagogueFromPlaygroundDelete);
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Delete.DeleteEvent.deleteEventFromPlaygroundDelete);
             delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Delete.DeleteMessage.deletePlaygroundMessageDelete);
+
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteEvent.remoteUserFromPlaygroundEventPost);
 
             //TODO: Test this
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);

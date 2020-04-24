@@ -1,8 +1,6 @@
 package database.dao;
 
 import com.mongodb.WriteResult;
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.TransactionBody;
 import database.DALException;
 import database.DataSource;
 import database.collections.Event;
@@ -10,18 +8,11 @@ import database.collections.Message;
 import database.collections.Playground;
 import database.collections.User;
 import database.utils.QueryUtils;
-import javalin_resources.UserAdminResource;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class Controller implements IController {
@@ -133,33 +124,6 @@ public class Controller implements IController {
     }
 
     @Override
-    public InputStream getUserImage(String username) {
-        File homeFolder = new File(System.getProperty("user.home"));
-        Path path = Paths.get(String.format(homeFolder.toPath() +
-                "/server_resource/profile_images/%s.png", username));
-
-        File initialFile = new File(path.toString());
-        InputStream targetStream = null;
-        try {
-            targetStream = new FileInputStream(initialFile);
-         /*   BufferedImage in = ImageIO.read(initialFile);
-            UserAdminResource.printImage(in);*/
-
-        } catch (IOException e) {
-            //e.printStackTrace();
-            System.out.println("Server: User have no profile picture...");
-        }
-
-        if (targetStream != null) {
-            return targetStream;
-        } else {
-            System.out.println("Server: Returning random user picture...");
-            targetStream = UserAdminResource.class.getResourceAsStream("/images/profile_pictures/random_user.png");
-            return targetStream;
-        }
-    }
-
-    @Override
     public Event getEvent(String eventID) {
         Event event = null;
         try {
@@ -248,19 +212,18 @@ public class Controller implements IController {
         } catch (DALException e) {
             e.printStackTrace();
         }
-
         return isUpdated;
     }
 
     @Override
-    public boolean updateUser(User user) {
-        boolean isUpdated = false;
+    public WriteResult updateUser(User user) {
+        WriteResult writeResult = null;
         try {
-            isUpdated = userDAO.updateUser(user);
+            writeResult = userDAO.updateUser(user);
         } catch (DALException e) {
             e.printStackTrace();
         }
-        return isUpdated;
+        return writeResult;
     }
 
     @Override
@@ -321,9 +284,10 @@ public class Controller implements IController {
     }
 
     @Override
-    public boolean deleteUser(String username) {
+    public WriteResult deleteUser(String username) {
         //  final ClientSession clientSession = DataSource.getClient().startSession();
-        boolean isUserDeleted = false;
+
+        WriteResult writeResult = null;
         //clientSession.startTransaction();
         try {
             User user = userDAO.getUser(username);
@@ -337,7 +301,7 @@ public class Controller implements IController {
                 removeUserFromPlaygroundEvent(event.getId(), username);
 
             // delete user
-            isUserDeleted = userDAO.deleteUser(username);
+            writeResult = userDAO.deleteUser(username);
 
             //  clientSession.commitTransaction();
         } catch (Exception e) {
@@ -347,7 +311,7 @@ public class Controller implements IController {
             //clientSession.close();
         }
 
-        return isUserDeleted;
+        return writeResult;
     }
 
     // todo fix it
@@ -466,9 +430,14 @@ public class Controller implements IController {
 
     @Override
     public boolean removeUserFromPlaygroundEvent(String eventID, String username) {
-        MongoCollection events = new Jongo(DataSource.getDB()).getCollection(IEventDAO.COLLECTION);
         try {
+            // delete user reference in event
+            MongoCollection events = new Jongo(DataSource.getDB()).getCollection(IEventDAO.COLLECTION);
             QueryUtils.updateWithPullObject(events, "_id", new ObjectId(eventID), "assignedUsers", "username", username);
+
+            // delete event reference in user
+            MongoCollection users = new Jongo(DataSource.getDB()).getCollection(IUserDAO.COLLECTION);
+            QueryUtils.updateWithPullObject(users, "username", username, "events", "_id", new ObjectId(eventID));
         } catch (DALException e) {
             e.printStackTrace();
         }

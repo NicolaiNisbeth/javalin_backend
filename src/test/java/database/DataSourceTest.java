@@ -13,6 +13,7 @@ class DataSourceTest {
         for (String str : DataSource.getDB().getCollectionNames()) {
             System.out.println(str);
         }
+
     }
 
 

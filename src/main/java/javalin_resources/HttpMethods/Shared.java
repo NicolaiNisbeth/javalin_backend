@@ -1,5 +1,8 @@
 package javalin_resources.HttpMethods;
 
+import io.javalin.http.Context;
+import org.json.JSONObject;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -26,6 +29,20 @@ public class Shared {
             e.printStackTrace();
         }
     }
+
+    public static void saveProfilePicture2(Context ctx) {
+        BufferedImage bufferedImage = null;
+        String username = ctx.formParam("username");
+
+        try {
+            bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Shared.saveProfilePicture(username, bufferedImage);
+    }
+
     public static void printImage(BufferedImage bufferedImage) {
         JFrame frame = new JFrame();
         frame.setBounds(10, 10, 900, 600);
