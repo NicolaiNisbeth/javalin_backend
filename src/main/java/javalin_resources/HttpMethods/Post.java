@@ -6,7 +6,6 @@ import com.mongodb.WriteResult;
 import database.DALException;
 import database.collections.*;
 import database.dao.Controller;
-import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -234,8 +233,11 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
                 newUser.setLastname(lastName);
                 newUser.setStatus(status);
 
+                /* moved to controller.createUser();
                 String hashPassword = BCrypt.hashpw(password, BCrypt.gensalt());
                 newUser.setPassword(hashPassword);
+
+                 */
 
                 newUser.setEmail(email);
                 newUser.setWebsite(website);
@@ -271,75 +273,30 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
             //  ctx.json(Controller.getInstance().getUsers());
         };
 
+
         public static Handler userLogin = ctx -> {
-            Brugeradmin ba = null;
             JSONObject jsonObject = new JSONObject(ctx.body());
             String username = jsonObject.getString(USERNAME);
             String password = jsonObject.getString(PASSWORD);
-            User user = null;
+            User user;
 
-            //Er det root admin der logger ind?
-            if (username.equalsIgnoreCase("root")) {
-                try {
-                    user = Controller.getInstance().getUser(username);
-
-                } catch (DALException e) {
-                    //e.printStackTrace();
-                    System.out.println("Opretter root");
-                    user = new User.Builder("root")
-                            .status("admin")
-                            .password("root")
-                            .setFirstname("Københavns")
-                            .setLastname("Kommune")
-                            .build();
-                    Controller.getInstance().createUser(user);
-                }
+            // early return if root!
+            boolean root = username.equalsIgnoreCase("root");
+            if (root){
+                user = getRootUser(username);
                 ctx.json(user).contentType("json");
                 return;
             }
 
-            //Findes brugeren i Brugeradminmodulet?
-            try {
-                ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
-            } catch (NotBoundException | MalformedURLException | RemoteException e) {
-                e.printStackTrace();
-            }
-            Bruger bruger;
-            try {
-                bruger = ba.hentBruger(username, password);
-                if (bruger != null) {
-                    //Findes han i brugeradmin så se om han også findes i databasen
-                    //hvis ikke oprettes han der, med data fra brugeradminmodulet
-                    findUserInDB(bruger);
-                }
-            } catch (Exception e) {
-                System.out.println("Server: User is not registered in Brugeradminmodule");
-            }
-            //Findes brugeren ikke i brugeradminmodulet, findes han så i databasen?
-            try {
-                user = Controller.getInstance().getUser(username);
-                if (BCrypt.checkpw(password, user.getPassword())) {
-                    ctx.json(user).contentType("json").status(200);
-                } else {
-                    ctx.status(401).result("Unauthorized - Wrong password");
-                }
-            } catch (DALException e) {
-                System.out.println("Server: Username doesn't exist.");
+            Bruger bruger = getUserInNordfalk(username, password);
+            user = getUserInMongo(username);
+            if (bruger == null && user == null){
                 ctx.status(401).json("Unauthorized - No such username!");
-            }
-        };
-
-        // Metoden opretter brugeren i databasen, hvis han ikke allerede findes.
-        private static User findUserInDB(Bruger bruger) {
-            User user = null;
-            try {
-                user = Controller.getInstance().getUser(bruger.brugernavn);
-            } catch (DALException e) {
-                e.printStackTrace();
+                return;
             }
 
-            if (user == null) {
-                System.out.println("Bruger findes ikke i databasen. \nBruger oprettes i databasen");
+            // if user exists in nordfalk but not in db
+            if (user == null){
                 user = new User.Builder(bruger.brugernavn)
                         .setFirstname(bruger.fornavn)
                         .setLastname(bruger.efternavn)
@@ -349,21 +306,68 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
                         .setWebsite(bruger.ekstraFelter.get("webside").toString())
                         .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn))
                         .build();
+
                 Controller.getInstance().createUser(user);
             }
-            //Brugeren har ikke selv logget ind før og skal derfor ikke oprettes i DB men opdateres
-            if (!user.isLoggedIn()) {
+
+            boolean userIsCreatedByAdmin = !user.isLoggedIn() && bruger != null;
+            if (userIsCreatedByAdmin) {
                 user.setFirstname(bruger.fornavn);
                 user.setLastname(bruger.efternavn);
                 user.setEmail(bruger.email);
-                user.setPassword(bruger.adgangskode);
                 user.setStatus(user.getStatus());
+                //user.setPassword(user.getPassword());
                 user.setWebsite(bruger.ekstraFelter.get("webside").toString());
                 user.setLoggedIn(true);
                 user.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn));
                 Controller.getInstance().updateUser(user);
             }
-            return user;
+
+            // validate credentials
+            String hashed = user.getPassword();
+            if (BCrypt.checkpw(password, hashed)) {
+                ctx.json(user).contentType("json").status(200);
+            } else {
+                ctx.status(401).result("Unauthorized - Wrong password");
+            }
+        };
+
+        private static User getUserInMongo(String username) {
+            try {
+                return Controller.getInstance().getUser(username);
+            } catch (DALException e){
+                return null;
+            }
         }
+
+        private static Bruger getUserInNordfalk(String username, String password) {
+            Bruger bruger = null;
+            try {
+                Brugeradmin ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
+                bruger = ba.hentBruger(username, password);
+            } catch (NotBoundException | MalformedURLException | RemoteException e) {
+                e.printStackTrace();
+            }
+            return bruger;
+        }
+
+        private static User getRootUser(String username) {
+            User root;
+            try {
+                root = Controller.getInstance().getUser(username);
+            } catch (DALException e) {
+                System.out.println("Opretter root");
+                root = new User.Builder("root")
+                        .status("admin")
+                        .password("root")
+                        .setFirstname("Københavns")
+                        .setLastname("Kommune")
+                        .build();
+                Controller.getInstance().createUser(root);
+            }
+            return root;
+        }
+
     }
+
 }

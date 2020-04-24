@@ -12,6 +12,7 @@ import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.*;
 
@@ -51,6 +52,8 @@ public class Controller implements IController {
     public WriteResult createUser(User user) {
         WriteResult writeResult = null;
         try {
+            String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+            user.setPassword(hashedPassword);
             writeResult = userDAO.createUser(user);
         } catch (DALException e) {
             e.printStackTrace();
