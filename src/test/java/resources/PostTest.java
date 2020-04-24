@@ -1,3 +1,4 @@
+/*
 package resources;
 
 import com.google.gson.Gson;
@@ -42,9 +43,11 @@ class PostTest {
         Main.stop();
     }
 
-    /**
+    */
+/**
      * POST USER
-     */
+     *//*
+
     @Test
     void createUser() throws Exception {
 
@@ -65,8 +68,10 @@ class PostTest {
         String json = gson.toJson(userModel);
 
         when(ctx.formParam("usermodel")).thenReturn(json);
+*/
 /*        when(ctx.json(Controller.getInstance().getUsers()).status(201)
-                .result("User created.")).thenCallRealMethod();*/
+                .result("User created.")).thenCallRealMethod();*//*
+
 
         when(ctx.json(any())).thenReturn(ctx);
         Post.PostUser.createUser.handle(ctx);
@@ -110,22 +115,26 @@ class PostTest {
 
 
 
-   /* @Test
+   */
+/* @Test
     public void POST_to_create_users_gives_201_for_valid_username() throws Exception {
         when(ctx.queryParam("username")).thenReturn("Roland");
         Post.PostUser.createUser.handle(ctx);
 
         // UserController.create(ctx); // the handler we're testing
         verify(ctx).status(201);
-    }*/
+    }*//*
 
-   /*
+
+   */
+/*
     @Test(expected = BadRequestResponse.class)
     public void POST_to_create_users_throws_for_invalid_username() {
         when(ctx.queryParam("username")).thenReturn(null);
         UserController.create(ctx); // the handler we're testing
     }
-   */
+   *//*
+
 
 
 
@@ -150,3 +159,4 @@ class PostTest {
     }
 }
 
+*/
