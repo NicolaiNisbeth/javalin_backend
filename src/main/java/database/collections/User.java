@@ -18,7 +18,7 @@ public class User implements Serializable {
     private String firstname;
     private String lastname;
     private String status;
-    private HashSet<roles> roles;
+    private String role;
     private String imagePath;
     private String email;
     private String password;
@@ -30,6 +30,7 @@ public class User implements Serializable {
     private Set<String> playgroundsIDs = new HashSet<>();
     private String token;
     private Date tokenExpirationDate;
+    private Set<Role> roleSet = new HashSet<>();
 
     /**
      * I would like to make it into an enum at some point, but then i also need to change the user set and i don't wanna do that right now.
@@ -39,9 +40,13 @@ public class User implements Serializable {
         ANYONE, PEDAGOGUE, ADMIN;
     }
 
-    public HashSet<User.roles> getRoles() {
-        return roles;
-    }
+    public void setRoleSet(Set<Role> roleSet) { this.roleSet = roleSet; }
+
+    public Set<Role> getRoleSet() { return roleSet; }
+
+    public void setRole(String role) { this.role = role; }
+
+    public String getRole() { return role; }
 
     public boolean isLoggedIn() {
         return loggedIn;
