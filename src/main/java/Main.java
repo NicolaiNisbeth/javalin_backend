@@ -1,37 +1,65 @@
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.sun.org.apache.xml.internal.security.algorithms.JCEMapper;
 import database.collections.User;
 import database.dao.Controller;
 import io.javalin.Javalin;
 import io.javalin.core.security.Role;
+import io.javalin.http.Handler;
 import io.javalin.http.UnauthorizedResponse;
 import javalin_resources.HttpMethods.Delete;
 import javalin_resources.HttpMethods.Get;
 import javalin_resources.HttpMethods.Post;
 import javalin_resources.HttpMethods.Put;
+import javalin_resources.Util.JWebToken;
 import javalin_resources.Util.Path;
+import javalinjwt.JWTAccessManager;
+import javalinjwt.JWTGenerator;
+import javalinjwt.JWTProvider;
+import javalinjwt.JavalinJWT;
+import javalinjwt.examples.JWTResponse;
+import org.json.JSONObject;
+
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 import java.io.*;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Main {
     public static Javalin app;
+    public static HashMap<String, Role> rolesmapping;
     public static HashSet<Role> anyone;
     public static HashSet<Role> pedagogues;
     public static HashSet<Role> admin;
 
+    static Algorithm algorithm = Algorithm.HMAC256("Bennys_polser"); //ja tak venner let's go.
+    static JWTProvider provider;
+    static JWTVerifier verifier;
+
+
     public static void main(String[] args) throws Exception {
         buildDirectories();
-        start();
+
+        rolesmapping = new HashMap<>();
+        rolesmapping.put("user", User.roles.ANYONE);
+        rolesmapping.put("pedagogue", User.roles.PEDAGOGUE);
+        rolesmapping.put("admin", User.roles.ADMIN);
+
         anyone = new HashSet<>();
         anyone.add(User.roles.ANYONE);
+
         pedagogues = new HashSet<>();
         pedagogues.add(User.roles.PEDAGOGUE);
+
         admin = new HashSet<>();
         admin.add(User.roles.ADMIN);
+
+        start();
     }
 
     private static void buildDirectories() {
@@ -63,18 +91,20 @@ public class Main {
 
     public static void start() throws Exception {
         if (app != null) return;
-        app = Javalin.create(config -> {
-            config.enableCorsForAllOrigins()
-                    .addSinglePageRoot("", "/webapp/index.html");
 
-            config.accessManager((handler, ctx, permittedRoles) -> {
-                User.roles userRole = User.roles.valueOf(ctx.sessionAttribute("role"));
-                if (permittedRoles.contains(userRole)) {
-                    handler.handle(ctx);
-                } else {
-                    ctx.status(401).result("Unauthorized");
-                }
-            });
+        JWTGenerator<deleteThis.MockUser> generator = (user, alg) -> {
+            JWTCreator.Builder token = JWT.create().withClaim("name", user.name).withClaim("level", user.role);
+            return token.sign(alg);
+        };
+
+
+        verifier = JWT.require(algorithm).build();
+        provider = new JWTProvider(algorithm, generator, verifier);
+        JWTAccessManager accessManager = new JWTAccessManager("role", rolesmapping, User.roles.ANYONE);
+
+        app = Javalin.create(config -> {
+            config.enableCorsForAllOrigins().addSinglePageRoot("", "/webapp/index.html");
+            config.accessManager(accessManager);
         }).start(8088);
 
 
@@ -82,6 +112,8 @@ public class Main {
             e.printStackTrace();
         });
         app.config.addStaticFiles("webapp");
+
+
 
         // REST endpoints
         app.routes(() -> {
@@ -91,11 +123,16 @@ public class Main {
              */
 
             before(ctx -> { System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap()); });
+
+            before(JavalinJWT.createHeaderDecodeHandler(provider)); // This takes care of validating the JWT. It then adds it to the ctx for future use.
+
+            get("/validate", validateJWTHandler, anyone);
+            get("/generate", generateJWTHandler, anyone);
             /**
              * GET
              **/
             //GET PLAYGROUNDS
-            get(Path.Playground.PLAYGROUND_ALL, Get.GetPlayground.readAllPlaygroundsGet);
+            get(Path.Playground.PLAYGROUND_ALL, Get.GetPlayground.readAllPlaygroundsGet, anyone);
             get(Path.Playground.PLAYGROUND_ONE, Get.GetPlayground.readOnePlaygroundGet);
             get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Get.GetPlayground.readOnePlaygroundOneEmployeeGet);
             get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Get.GetPlayground.readOnePlaygroundAllEmployeeGet);
@@ -161,4 +198,27 @@ public class Main {
             delete(Path.Employee.DELETE, Delete.DeleteUser.deleteUser);
         });
     }
+
+
+
+    public static Handler generateJWTHandler = ctx -> {
+        deleteThis.MockUser mockUser = new deleteThis.MockUser("Mocky McMockface", "user");
+    //    JSONObject jsonObject = new JSONObject(ctx.body());
+    //    User user = null;
+    //    if (jsonObject.has(Get.USER_NAME)) {
+    //        user = Controller.getInstance().getUser(jsonObject.getString(Get.USER_NAME));
+    //    }
+        String token = provider.generateToken(mockUser);
+        ctx.json(new JWTResponse(token));
+    //    if (user != null) {
+
+      //  } else {
+       //     ctx.status(400).result("not found");
+      //  }
+    };
+
+    public static Handler validateJWTHandler = context -> {
+        DecodedJWT decodedJWT = JavalinJWT.getDecodedFromContext(context);
+        context.result("Hi " + decodedJWT.getClaim("name").asString());
+    };
 }

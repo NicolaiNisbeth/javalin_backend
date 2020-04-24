@@ -7,10 +7,7 @@ import org.jongo.marshall.jackson.oid.MongoId;
 import org.jongo.marshall.jackson.oid.MongoObjectId;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class User implements Serializable {
     private static final long serialVersionUID = 12233;
@@ -31,6 +28,8 @@ public class User implements Serializable {
     private String[] phonenumbers;
     private Set<Event> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
     private Set<String> playgroundsIDs = new HashSet<>();
+    private String token;
+    private Date tokenExpirationDate;
 
     /**
      * I would like to make it into an enum at some point, but then i also need to change the user set and i don't wanna do that right now.
@@ -38,6 +37,10 @@ public class User implements Serializable {
      */
     public enum roles implements Role {
         ANYONE, PEDAGOGUE, ADMIN;
+    }
+
+    public HashSet<User.roles> getRoles() {
+        return roles;
     }
 
     public boolean isLoggedIn() {
