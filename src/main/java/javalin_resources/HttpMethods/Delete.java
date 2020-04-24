@@ -87,6 +87,18 @@ public class Delete implements Tag {
             }
         };
 
+        public static Handler remoteUserFromPlaygroundEventPost = ctx -> {
+            String id = ctx.pathParam("id");
+            String username = ctx.pathParam("username");
+            Boolean successful = Controller.getInstance().removeUserFromPlaygroundEvent(id, username);
+            if (successful) {
+                ctx.status(200).result("Removal was successful");
+                ctx.json(new User.Builder(username));
+            } else {
+                ctx.status(404).result("Failed to remove");
+                ctx.json(new User.Builder(username));
+            }
+        };
     }
 
     public static class DeleteMessage {

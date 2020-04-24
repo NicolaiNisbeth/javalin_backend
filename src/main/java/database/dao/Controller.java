@@ -12,6 +12,7 @@ import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.*;
 
@@ -51,6 +52,8 @@ public class Controller implements IController {
     public WriteResult createUser(User user) {
         WriteResult writeResult = null;
         try {
+            String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+            user.setPassword(hashedPassword);
             writeResult = userDAO.createUser(user);
         } catch (DALException e) {
             e.printStackTrace();
@@ -430,9 +433,14 @@ public class Controller implements IController {
 
     @Override
     public boolean removeUserFromPlaygroundEvent(String eventID, String username) {
-        MongoCollection events = new Jongo(DataSource.getDB()).getCollection(IEventDAO.COLLECTION);
         try {
+            // delete user reference in event
+            MongoCollection events = new Jongo(DataSource.getDB()).getCollection(IEventDAO.COLLECTION);
             QueryUtils.updateWithPullObject(events, "_id", new ObjectId(eventID), "assignedUsers", "username", username);
+
+            // delete event reference in user
+            MongoCollection users = new Jongo(DataSource.getDB()).getCollection(IUserDAO.COLLECTION);
+            QueryUtils.updateWithPullObject(users, "username", username, "events", "_id", new ObjectId(eventID));
         } catch (DALException e) {
             e.printStackTrace();
         }

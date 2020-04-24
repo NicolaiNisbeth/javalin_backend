@@ -10,6 +10,7 @@ import database.dao.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -43,6 +44,7 @@ public class InitTestData {
         userDAO = null;
     }
 
+
     @Test
     void initFreshData() throws DALException {
         killAll();
@@ -57,7 +59,7 @@ public class InitTestData {
         System.out.println("Database is ready with test data!");
     }
 
-    private void killAll() {
+    private static void killAll() {
         try {
             userDAO.deleteAllUsers();
         } catch (DALException e){}
@@ -216,6 +218,7 @@ public class InitTestData {
         controller.addPedagogueToPlayground(playgroundNames.get(6), usernames.get(13));
 
         controller.addPedagogueToPlayground(playgroundNames.get(7), usernames.get(11));
+        controller.addPedagogueToPlayground(playgroundNames.get(7), usernames.get(18));
         System.out.println("Pedagogues are added to playgrounds");
     }
 
