@@ -185,10 +185,8 @@ public class Put implements Tag {
 
         public static Handler updateUser = ctx -> {
             BufferedImage bufferedImage;
-            //String usermodel = ctx.formParam(("usermodel"));
             String usermodel = ctx.body();
             JSONObject jsonObject = new JSONObject(usermodel);
-
             String username = jsonObject.getString(USERNAME);
             String password = jsonObject.getString(PASSWORD);
             String firstName = jsonObject.getString(FIRSTNAME);
@@ -212,7 +210,8 @@ public class Put implements Tag {
             if (admin != null && !admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
                 System.out.println(admin.getPassword());
                 System.out.println(passwordAdmin);
-                ctx.status(401).result("Unauthorized - Kodeord er forkert...");
+                ctx.status(401);
+                ctx.result("Unauthorized - ");
                 Controller.getInstance().getUsers();
             } else {
                 try {
@@ -229,12 +228,7 @@ public class Put implements Tag {
                 String[] phoneNumbers = new String[1];
                 phoneNumbers[0] = phoneNumber.getString(0);
                 userToUpdate.setPhonenumbers(phoneNumbers);
-                /*userToUpdate.getPlaygroundsIDs().removeAll(userToUpdate.getPlaygroundsIDs());
-                for (Object id : playgroundIDs) {
-                    userToUpdate.getPlaygroundsIDs().add(id.toString());
-                }
 
-                 */
                 try {
                     bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
                     Shared.saveProfilePicture(username, bufferedImage);
@@ -243,14 +237,17 @@ public class Put implements Tag {
                 }
                 System.out.println(userToUpdate);
                 if (Controller.getInstance().updateUser(userToUpdate).wasAcknowledged()) {
-                    ctx.status(201).result("User was updated");
-                    ctx.json(userToUpdate);
+                    ctx.status(201);
+                    ctx.result("User updated");
+                    //ctx.json(userToUpdate);
                 } else {
-                    ctx.status(401).result("User was not updated");
+                    ctx.status(401);
+                    ctx.result("User was not updated");
+                    return;
                 }
             }
-            // TODO: hvorfor returneres alle users?
-            //ctx.json(Controller.getInstance().getUsers());
+            //TODO - fordi det virker i angular app'en
+            ctx.json(Controller.getInstance().getUsers());
         };
     }
 
