@@ -15,6 +15,8 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
+import static javalin_resources.HttpMethods.Tag.HOUR;
+
 public class Put implements Tag {
 
     public static class PutEvent {
@@ -185,69 +187,91 @@ public class Put implements Tag {
 
         public static Handler updateUser = ctx -> {
             BufferedImage bufferedImage;
-            String usermodel = ctx.body();
-            JSONObject jsonObject = new JSONObject(usermodel);
-            String username = jsonObject.getString(USERNAME);
-            String password = jsonObject.getString(PASSWORD);
-            String firstName = jsonObject.getString(FIRSTNAME);
-            String lastName = jsonObject.getString(LASTNAME);
-            String email = jsonObject.getString(EMAIL);
-            String status = jsonObject.getString(STATUS);
-            JSONArray phoneNumber = jsonObject.getJSONArray(PHONENUMBER);
-            String website = jsonObject.getString(WEBSITE);
+            String usernameAdmin, passwordAdmin, username, password,
+                    firstName, lastName, email, status, website;
+            JSONArray phoneNumbers, playgroundIDs;
+            JSONObject jsonObject;
+
+            try {
+                String usermodel = ctx.formParam(("usermodel"));
+                jsonObject = new JSONObject(usermodel);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                ctx.status(400);
+                ctx.result("Bad Request - Error in user data");
+                return;
+            }
+
+
+            usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
+            passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
+            username = jsonObject.getString(USERNAME);
+            password = jsonObject.getString(PASSWORD);
+            firstName = jsonObject.getString(FIRSTNAME);
+            lastName = jsonObject.getString(LASTNAME);
+            email = jsonObject.getString(EMAIL);
+            status = jsonObject.getString(STATUS);
+            website = jsonObject.getString(WEBSITE);
+            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+            phoneNumbers = jsonObject.getJSONArray(PHONENUMBER);
+
+            if (username.length() < 1 || password.length() < 1)
+                throw new DALException("Missing username or password");
 
             User admin = null;
             User userToUpdate = null;
-            String usernameAdmin = null, passwordAdmin = null;
             try {
-                JSONArray playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+                playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
                 usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
                 passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
-                admin = Controller.getInstance().getUser(usernameAdmin);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (admin != null && !admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
-                System.out.println(admin.getPassword());
-                System.out.println(passwordAdmin);
-                ctx.status(401);
-                ctx.result("Unauthorized - ");
-                Controller.getInstance().getUsers();
-            } else {
-                try {
-                    userToUpdate = Controller.getInstance().getUser(username);
-                } catch (DALException e) {
-                    e.printStackTrace();
-                }
-                userToUpdate.setFirstname(firstName);
-                userToUpdate.setLastname(lastName);
-                userToUpdate.setStatus(status);
-                userToUpdate.setEmail(email);
-                userToUpdate.setWebsite(website);
-                userToUpdate.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username));
-                String[] phoneNumbers = new String[1];
-                phoneNumbers[0] = phoneNumber.getString(0);
-                userToUpdate.setPhonenumbers(phoneNumbers);
 
-                try {
-                    bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
-                    Shared.saveProfilePicture(username, bufferedImage);
-                } catch (Exception e) {
-                    System.out.println("Server: intet billede i upload");
-                }
-                System.out.println(userToUpdate);
-                if (Controller.getInstance().updateUser(userToUpdate).wasAcknowledged()) {
-                    ctx.status(201);
-                    ctx.result("User updated");
-                    //ctx.json(userToUpdate);
-                } else {
-                    ctx.status(401);
-                    ctx.result("User was not updated");
-                    return;
+            try {
+                userToUpdate = Controller.getInstance().getUser(username);
+            } catch (DALException e) {
+                e.printStackTrace();
+            }
+            userToUpdate.setFirstname(firstName);
+            userToUpdate.setLastname(lastName);
+            userToUpdate.setStatus(status);
+            userToUpdate.setEmail(email);
+            userToUpdate.setWebsite(website);
+            userToUpdate.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username));
+
+            String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
+            for (int i = 0; i < phoneNumbers.length(); i++) {
+                //todo Nisbeth - hvorfor virker det omvendt?
+                if (phoneNumbers.get(i) == null) {
+                    System.out.println(phoneNumbers.get(i));
+                    usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i);
                 }
             }
+            userToUpdate.setPhonenumbers(usersNewPhoneNumbers);
+
+            try {
+                bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+                Shared.saveProfilePicture(username, bufferedImage);
+            } catch (Exception e) {
+                System.out.println("Server: intet billede i upload");
+            }
+            System.out.println(userToUpdate);
+            if (Controller.getInstance().updateUser(userToUpdate).wasAcknowledged()) {
+                ctx.status(201);
+                ctx.result("User updated");
+            } else {
+                ctx.status(401);
+                ctx.result("User was not updated");
+                return;
+            }
+
             //TODO - fordi det virker i angular app'en
+
             ctx.json(Controller.getInstance().getUsers());
+
         };
     }
 

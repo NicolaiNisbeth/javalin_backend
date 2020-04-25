@@ -1,7 +1,11 @@
 package javalin_resources.HttpMethods;
 
+import database.DALException;
+import database.collections.User;
+import database.dao.Controller;
 import io.javalin.http.Context;
 import org.json.JSONObject;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -13,6 +17,32 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Shared {
+    public static boolean checkAdminCredentials(String username, String password, Context ctx) {
+        User admin;
+        //Hent admin - den der opretter brugeren
+        try {
+            admin = Controller.getInstance().getUser(username);
+        } catch (DALException e) {
+            e.printStackTrace();
+            ctx.status(401);
+            ctx.result("Unauthorized - Wrong admin username");
+            return false;
+        }
+
+        if (!admin.getStatus().equalsIgnoreCase("admin")) {
+            ctx.status(401);
+            ctx.result("Unauthorized - Wrong admin status");
+            return false;
+        }
+
+        if (BCrypt.checkpw(password, admin.getPassword())) {
+            return true;
+        } else {
+            ctx.status(401);
+            ctx.result("Unauthorized - Wrong admin password");
+            return false;
+        }
+    }
 
     public static void saveProfilePicture(String username, BufferedImage bufferedImage) {
         //String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);

@@ -213,22 +213,9 @@ public class Post implements Tag {
                 return;
             }
 
-            User admin = null;
             User newUser = null;
-
-            //Hent admin - den der opretter brugeren
-            try {
-                admin = Controller.getInstance().getUser(usernameAdmin);
-            } catch (DALException e) {
-                e.printStackTrace();
-                ctx.status(401);
-                ctx.result("Unauthorized - Wrong admin username");
-                return;
-            }
-
-            if (!admin.getStatus().equalsIgnoreCase("admin")){
-                ctx.status(401);
-                ctx.result("Unauthorized - Wrong admin status");
+            boolean adminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
+            if (!adminAuthorized) {
                 return;
             }
 
@@ -244,52 +231,46 @@ public class Post implements Tag {
                 return;
             }
 
-            if (BCrypt.checkpw(passwordAdmin, admin.getPassword())) {
-                newUser = new User.Builder(username)
-                        .setFirstname(firstName)
-                        .setLastname(lastName)
-                        .setStatus(status)
-                        .setEmail(email)
-                        .setWebsite(website)
-                        .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username))
-                        .build();
+            newUser = new User.Builder(username)
+                    .setFirstname(firstName)
+                    .setLastname(lastName)
+                    .setStatus(status)
+                    .setEmail(email)
+                    .setWebsite(website)
+                    .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username))
+                    .build();
 
-                String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
-                for (int i = 0; i < phoneNumbers.length(); i++) {
-                    //todo Nisbeth - hvorfor virker det omvendt?
-                    if (phoneNumbers.get(i) == null) {
-                        System.out.println(phoneNumbers.get(i));
-                        usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i);
-                    }
+            String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
+            for (int i = 0; i < phoneNumbers.length(); i++) {
+                //todo Nisbeth - hvorfor virker det omvendt?
+                if (phoneNumbers.get(i) == null) {
+                    System.out.println(phoneNumbers.get(i));
+                    usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i);
                 }
-                newUser.setPhonenumbers(usersNewPhoneNumbers);
+            }
+            newUser.setPhonenumbers(usersNewPhoneNumbers);
 
-                try {
-                    bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
-                    Shared.saveProfilePicture(username, bufferedImage);
-                } catch (Exception e) {
-                    System.out.println("Server: No profile picture was chosen...");
-                }
+            try {
+                bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+                Shared.saveProfilePicture(username, bufferedImage);
+            } catch (Exception e) {
+                System.out.println("Server: No profile picture was chosen...");
+            }
 
-                if (playgroundIDs != null) {
-                    for (Object id : playgroundIDs) {
-                        newUser.getPlaygroundsIDs().add(id.toString());
-                    }
+            if (playgroundIDs != null) {
+                for (Object id : playgroundIDs) {
+                    newUser.getPlaygroundsIDs().add(id.toString());
                 }
+            }
 
-                WriteResult ws = Controller.getInstance().createUser(newUser);
-                if (ws.wasAcknowledged()) {
-                    ctx.status(201);
-                    ctx.result("User created.");
-                    ctx.json(Controller.getInstance().getUsers());
-                } else {
-                    ctx.status(401);
-                    ctx.result("User was not created");
-                }
-                // Hvis admin har skrevet forkert adgangskode
+            WriteResult ws = Controller.getInstance().createUser(newUser);
+            if (ws.wasAcknowledged()) {
+                ctx.status(201);
+                ctx.result("User created.");
+                ctx.json(Controller.getInstance().getUsers());
             } else {
                 ctx.status(401);
-                ctx.result("Unauthorized - Wrong admin password");
+                ctx.result("User was not created");
             }
         };
 
