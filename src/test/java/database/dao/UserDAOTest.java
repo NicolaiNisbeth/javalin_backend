@@ -125,8 +125,7 @@ class UserDAOTest {
                 .build();
         userDAO.createUser(user2);*/
 
-       /* userDAO.deleteUser(user1.getUsername());
-        userDAO.deleteUser(user2.getUsername());*/
+        userDAO.deleteUser("abc");
 
      /*  User user = userDAO.getUserWithUserName("s185020");
        user.setStatus("admin");
@@ -135,12 +134,12 @@ class UserDAOTest {
             userDAO.deleteUser(user2.getUsername());
         }
 */
-        User user1 = new User.Builder("root")
+      /*  User user1 = new User.Builder("root")
                 .status("admin")
                 .password("root")
                 .setFirstname("Base")
                 .setLastname("Admin")
                 .build();
-        userDAO.createUser(user1);
+        userDAO.createUser(user1);*/
     }
 }

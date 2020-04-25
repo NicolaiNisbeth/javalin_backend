@@ -2,6 +2,7 @@
 package resources;
 
 import com.google.gson.Gson;
+import database.DALException;
 import database.collections.User;
 import database.dao.*;
 import io.javalin.http.Context;
@@ -10,6 +11,7 @@ import javalin_resources.HttpMethods.Post;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import main.Main;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -33,6 +35,18 @@ class PostTest {
         beta = Controller.getInstance();
     }
 
+    @AfterAll
+    static void printAll() throws DALException {
+        UserDAO userDAO = new UserDAO();
+        System.out.println("Test userlist after test: ");
+        for (User user : userDAO.getUserList()) {
+            if (user.getUsername().substring(0,3).equalsIgnoreCase("abc")) {
+                System.out.println(user);
+                System.out.println("Deleting test user");
+                userDAO.deleteUser(user.getUsername());
+            }
+        }
+    }
 
     @Test
     public void GET_to_fetch_users_returns_list_of_users() throws Exception {
@@ -113,37 +127,6 @@ class PostTest {
         Post.PostUser.userLogin.handle(ctx);
     }
 
-
-
-   */
-/* @Test
-    public void POST_to_create_users_gives_201_for_valid_username() throws Exception {
-        when(ctx.queryParam("username")).thenReturn("Roland");
-        Post.PostUser.createUser.handle(ctx);
-
-        // UserController.create(ctx); // the handler we're testing
-        verify(ctx).status(201);
-    }*//*
-
-
-   */
-/*
-    @Test(expected = BadRequestResponse.class)
-    public void POST_to_create_users_throws_for_invalid_username() {
-        when(ctx.queryParam("username")).thenReturn(null);
-        UserController.create(ctx); // the handler we're testing
-    }
-   *//*
-
-
-
-
-    public class ReturnFirstArg<T> implements Answer<T> {
-        public T answer(InvocationOnMock invocation) {
-            return (T) invocation.getArguments()[0];
-        }
-    }
-
     @Test
     void userLogin() throws Exception {
 
@@ -159,4 +142,15 @@ class PostTest {
     }
 }
 
+
+/*
+end point test
+@Test
+    public void GET_to_fetch_users_returns_list_of_users() throws Exception {
+        Main.start();
+        HttpResponse<String> response = Unirest.get("http://localhost:8080/rest/employee/all").asString();
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getBody()).isEqualTo(usersJson);
+        Main.stop();
+    }
 */

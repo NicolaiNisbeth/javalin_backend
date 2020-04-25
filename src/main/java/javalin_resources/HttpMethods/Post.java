@@ -217,13 +217,14 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
             JSONArray phoneNumber = jsonObject.getJSONArray(PHONENUMBER);
             String website = jsonObject.getString(WEBSITE);
             User admin = null;
-            User newUser;
+            User newUser = null;
 
+            //Hent admin - den der opretter brugeren
             try {
                 admin = Controller.getInstance().getUser(usernameAdmin);
             } catch (DALException e) {
                 e.printStackTrace();
-                ctx.status(411).result("Unauthorized - Forkert brugernavn eller adgangskode...");
+                ctx.status(411).result("Unauthorized - Wrong username or password");
             }
             if (admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
 
