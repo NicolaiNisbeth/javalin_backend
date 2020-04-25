@@ -182,17 +182,6 @@ public class Post implements Tag {
             }
         };
 
-
-
-        /*JBCrypt.
-BCrypt.hashpw(password, BCrypt.gensalt());
- - Returnerer et saltet hash (med kendt salt)
-BCrypt.checkpw(candidate, hashed);
-- Returnerer true, hvis kodeordet matcher
-HUSK: Kodeord må aldrig opbevares i clear-text!!!!
-- Skal saltes og hashes med det samme og originalen glemmes!
-- Saltet Hash gemmes i db.*/
-
         public static Handler createUser = ctx -> {
             BufferedImage bufferedImage;
             String usermodel = ctx.formParam(("usermodel"));
@@ -214,7 +203,7 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
             } catch (Exception e) {
                 //e.printStackTrace();
             }
-            JSONArray phoneNumber = jsonObject.getJSONArray(PHONENUMBER);
+            JSONArray phoneNumbers = jsonObject.getJSONArray(PHONENUMBER);
             String website = jsonObject.getString(WEBSITE);
             User admin = null;
             User newUser = null;
@@ -228,25 +217,49 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
                 ctx.result("Unauthorized - Wrong admin username");
                 return;
             }
-            if (admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
+
+            //Se om brugeren allerede er oprettet
+            try {
+                newUser = Controller.getInstance().getUser(username);
+            } catch (DALException e) {
+
+            }
+            if (newUser != null) {
+                ctx.status(411);
+                ctx.result("Unauthorized - User already exists");
+                return;
+            }
+
+
+            if (BCrypt.checkpw(passwordAdmin, admin.getPassword())) {
 
                 newUser = new User.Builder(username)
                         .build();
                 newUser.setFirstname(firstName);
                 newUser.setLastname(lastName);
                 newUser.setStatus(status);
-
-                /* moved to controller.createUser();
-                String hashPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-                newUser.setPassword(hashPassword);
-
-                 */
-
                 newUser.setEmail(email);
                 newUser.setWebsite(website);
-                String[] phoneNumbers = new String[1];
-                phoneNumbers[0] = phoneNumber.getString(0);
-                newUser.setPhonenumbers(phoneNumbers);
+             /*   if (phoneNumbers.get(0) == null) {
+                    newUser.setPhonenumbers(null);
+                } else {
+                    String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
+                    for (int i = 0; i < phoneNumbers.length(); i++) {
+                        usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i);
+                    }
+                    newUser.setPhonenumbers(usersNewPhoneNumbers);
+                }*/
+
+                String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
+                for (int i = 0; i < phoneNumbers.length(); i++) {
+                    //todo hvorfor virker det omvendt?
+
+                    if (phoneNumbers.get(i) == null) {
+                        System.out.println(phoneNumbers.get(i));
+                        usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i);
+                    }
+                }
+                newUser.setPhonenumbers(usersNewPhoneNumbers);
                 newUser.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username));
 
                 try {
@@ -264,7 +277,10 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
 
                 WriteResult ws = Controller.getInstance().createUser(newUser);
                 if (ws.wasAcknowledged()) {
-                    ctx.json(Controller.getInstance().getUsers()).status(201).result("User created.");
+                    //ctx.json(Controller.getInstance().getUsers()).status(201).result("User created.");
+                    ctx.status(201);
+                    ctx.result("User created.");
+                    ctx.json(Controller.getInstance().getUsers());
                 } else {
                     ctx.status(401).result("User was not created");
                     //Controller.getInstance().getUsers();
@@ -285,7 +301,7 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
 
             // early return if root!
             boolean root = username.equalsIgnoreCase("root");
-            if (root){
+            if (root) {
                 user = getRootUser(username);
                 ctx.json(user).contentType("json");
                 return;
@@ -293,13 +309,13 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
 
             Bruger bruger = getUserInNordfalk(username, password);
             user = getUserInMongo(username);
-            if (bruger == null && user == null){
+            if (bruger == null && user == null) {
                 ctx.status(401).json("Unauthorized - No such username!");
                 return;
             }
 
             // if user exists in nordfalk but not in db
-            if (user == null){
+            if (user == null) {
                 user = new User.Builder(bruger.brugernavn)
                         .setFirstname(bruger.fornavn)
                         .setLastname(bruger.efternavn)
@@ -338,7 +354,7 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
         private static User getUserInMongo(String username) {
             try {
                 return Controller.getInstance().getUser(username);
-            } catch (DALException e){
+            } catch (DALException e) {
                 return null;
             }
         }

@@ -1,4 +1,3 @@
-/*
 package resources;
 
 import com.google.gson.Gson;
@@ -13,8 +12,12 @@ import kong.unirest.Unirest;
 import main.Main;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.VerificationCollector;
 import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -47,22 +50,12 @@ class PostTest {
         }
     }
 
-    @Test
-    public void GET_to_fetch_users_returns_list_of_users() throws Exception {
-        Main.start();
-        HttpResponse<String> response = Unirest.get("http://localhost:8080/rest/employee/all").asString();
-        assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(usersJson);
-        Main.stop();
-    }
-
-    */
-/**
-     * POST USER
-     *//*
-
+    /**
+     * POST USER TESTS
+     */
     @Test
     void createUser() throws Exception {
+        Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
 
         JsonModels.UserModel userModel = new JsonModels.UserModel();
         userModel.usernameAdmin = "root";
@@ -74,26 +67,38 @@ class PostTest {
         userModel.email = "";
         userModel.status = "pædagog";
         userModel.imagePath = "";
-        userModel.phoneNumber = "";
+        userModel.phonenumbers = new String[2];
         userModel.website = "";
         userModel.playgroundsIDs = new String[2];
         Gson gson = new Gson();
         String json = gson.toJson(userModel);
 
+        // Normal oprettelse af bruger
         when(ctx.formParam("usermodel")).thenReturn(json);
-*/
-/*        when(ctx.json(Controller.getInstance().getUsers()).status(201)
-                .result("User created.")).thenCallRealMethod();*//*
+        when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
 
-
-        when(ctx.json(any())).thenReturn(ctx);
         Post.PostUser.createUser.handle(ctx);
-        //when(ctx.json(Controller.getInstance().getUsers())).thenCallRealMethod();
-
         verify(ctx).status(201);
+        verify(ctx).result("User created.");
 
-        //when(ctx.queryParam("username")).thenReturn("Roland");
-        // UserController.create(ctx); // the handler we're testing
+        // Fejlagtig oprettelse af den samme bruger
+        ctx = mock(Context.class); // "mock-maker-inline" must be enabled
+        when(ctx.formParam("usermodel")).thenReturn(json);
+        when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
+        Post.PostUser.createUser.handle(ctx);
+        verify(ctx).status(411);
+        verify(ctx).result("Unauthorized - User already exists");
+
+        // Fejlagtig oprettelse af anden bruger med forkert admin password
+     /*   ctx = mock(Context.class); // "mock-maker-inline" must be enabled
+        userModel.usernameAdmin = "rot";
+        userModel.username += "test";
+        json = gson.toJson(userModel);
+        when(ctx.formParam("usermodel")).thenReturn(json);
+        when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
+        Post.PostUser.createUser.handle(ctx);
+        verify(ctx).status(411);
+        verify(ctx).result("Unauthorized - Wrong admin username");*/
     }
 
     @Test
@@ -113,14 +118,14 @@ class PostTest {
                 .setLastname("Kommune")
                 .build();
 
-        when(ctx.body()).thenReturn(json);
+        //when(ctx.body()).thenReturn(json);
 
         //when(ctx.json(User.class).contentType("json")).thenCallRealMethod();
         //doCallRealMethod().when(ctx).json(User.class).contentType("json");
-       // doCallRealMethod().when(ctx).json(loginUser).contentType("json");
+        // doCallRealMethod().when(ctx).json(loginUser).contentType("json");
 
-       // when(ctx.json(loginmodel)).thenReturn(ctx.json(loginmodel));
-        when(ctx.json(loginmodel)).thenAnswer(new ReturnFirstArg<Integer>());
+        // when(ctx.json(loginmodel)).thenReturn(ctx.json(loginmodel));
+        //when(ctx.json(loginmodel)).thenAnswer(new ReturnFirstArg<Integer>());
         //when(object.method(7)).thenAnswer(new ReturnFirstArg<Integer>());
 
         Post.PostUser.userLogin.handle(ctx);
