@@ -7,7 +7,9 @@ import database.DALException;
 import database.collections.*;
 import database.dao.Controller;
 import io.javalin.http.Handler;
+import io.javalin.plugin.openapi.annotations.ContentType;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -294,23 +296,35 @@ public class Post implements Tag {
         };
 
         public static Handler userLogin = ctx -> {
-            JSONObject jsonObject = new JSONObject(ctx.body());
-            String username = jsonObject.getString(USERNAME);
-            String password = jsonObject.getString(PASSWORD);
-            User user;
+            String username, password;
+            try {
+                JSONObject jsonObject = new JSONObject(ctx.body());
+                username = jsonObject.getString(USERNAME);
+                password = jsonObject.getString(PASSWORD);
+            } catch (JSONException | NullPointerException e){
+                ctx.status(400);
+                ctx.contentType(ContentType.JSON);
+                ctx.result("body has no username and password");
+                return;
+            }
 
-            // early return if root!
+            User user;
             boolean root = username.equalsIgnoreCase("root");
             if (root) {
                 user = getRootUser(username);
-                ctx.json(user).contentType("json");
+                ctx.status(200);
+                ctx.json(user);
+                ctx.contentType(ContentType.JSON);
+                ctx.result("user login with root was successful");
                 return;
             }
 
             Bruger bruger = getUserInNordfalk(username, password);
             user = getUserInMongo(username);
             if (bruger == null && user == null) {
-                ctx.status(401).json("Unauthorized - No such username!");
+                ctx.status(404);
+                ctx.contentType(ContentType.JSON);
+                ctx.result("Unauthorized - No such username!");
                 return;
             }
 
@@ -345,9 +359,15 @@ public class Post implements Tag {
             // validate credentials
             String hashed = user.getPassword();
             if (BCrypt.checkpw(password, hashed)) {
-                ctx.json(user).contentType("json").status(200);
+                ctx.status(200);
+                ctx.json(user);
+                ctx.contentType(ContentType.JSON);
+                ctx.result("user login was successful");
             } else {
-                ctx.status(401).result("Unauthorized - Wrong password");
+                ctx.status(401);
+                ctx.contentType(ContentType.JSON);
+                ctx.result("Unauthorized - Wrong password");
+
             }
         };
 
@@ -364,7 +384,7 @@ public class Post implements Tag {
             try {
                 Brugeradmin ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
                 bruger = ba.hentBruger(username, password);
-            } catch (NotBoundException | MalformedURLException | RemoteException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return bruger;
