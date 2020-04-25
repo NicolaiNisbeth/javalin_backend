@@ -16,7 +16,7 @@ public class JsonModels {
         String lastname;
         String email;
         String status;
-        String[] phonenumbers;
+        String[] phoneNumbers;
         String website;
         String imagePath;
         String[] playgroundsIDs;

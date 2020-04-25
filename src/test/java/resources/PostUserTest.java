@@ -35,11 +35,23 @@ class PostUserTest {
         userModel.email = "kål";
         userModel.status = "pædagog";
         userModel.imagePath = "";
-        userModel.phonenumbers = new String[2];
+        userModel.phoneNumbers = new String[2];
         userModel.website = "";
         userModel.playgroundsIDs = new String[2];
         gson = new Gson();
         json = gson.toJson(userModel);
+
+        try {
+            Controller.getInstance().getUser("root");
+        } catch (DALException e) {
+              User root = new User.Builder("root")
+                .status("admin")
+                .setPassword("root")
+                .setFirstname("Københavns")
+                .setLastname("Kommune")
+                .build();
+        Controller.getInstance().createUser(root);
+        }
     }
 
     @AfterAll
@@ -78,7 +90,7 @@ class PostUserTest {
     @Test
     void dublicateUserInDB() throws Exception {
         User abcUser = new User.Builder("abc")
-                .password("abc")
+                .setPassword("abc")
                 .status("pædagog")
                 .build();
         Controller.getInstance().createUser(abcUser);
@@ -116,7 +128,7 @@ class PostUserTest {
 
     @Test
     void userWithNoPassword() throws Exception {
-        // Forsøg på oprettelse af user uden password
+        // Forsøg på oprettelse af user uden setPassword
         ctx = mock(Context.class); // "mock-maker-inline" must be enabled
         ctx.result("");
         ctx.status(0);
@@ -137,7 +149,7 @@ class PostUserTest {
     void wrongAdminStatus() throws Exception {
         // Forkert admin status
         User abcUser = new User.Builder("abc-wrong-adm-stat")
-                .password("abc-wrong-adm-stat")
+                .setPassword("abc-wrong-adm-stat")
                 .status("pædagog")
                 .build();
         Controller.getInstance().createUser(abcUser);
@@ -173,7 +185,7 @@ class PostUserTest {
 
     @Test
     void wrongAdminPassword() throws Exception {
-        //Forkert admin password
+        //Forkert admin setPassword
         ctx = mock(Context.class); // "mock-maker-inline" must be enabled
         ctx.result("");
         ctx.status(0);
@@ -183,7 +195,7 @@ class PostUserTest {
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
         Post.PostUser.createUser.handle(ctx);
         verify(ctx).status(401);
-        verify(ctx).result("Unauthorized - Wrong admin password");
+        verify(ctx).result("Unauthorized - Wrong admin setPassword");
     }
 }
 

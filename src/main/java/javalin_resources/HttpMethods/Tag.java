@@ -67,7 +67,7 @@ public interface Tag {
     String STATUS_ADMIN = "admin";
     String PLAYGROUNDSIDS = "playgroundsIDs";
     String WEBSITE = "website";
-    String PHONENUMBER = "phonenumbers";
+    String PHONENUMBERS = "phoneNumbers";
     String IMAGEPATH = String.format("http://%s:8080/rest/employee", Main.getHostAddress());
 
 

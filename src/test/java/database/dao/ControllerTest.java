@@ -83,7 +83,7 @@ class ControllerTest {
                 .setLastname("Nisbeth")
                 .status("admin")
                 .setEmail("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -121,7 +121,7 @@ class ControllerTest {
                 .setLastname("Nisbeth")
                 .status("admin")
                 .setEmail("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -179,7 +179,7 @@ class ControllerTest {
                 .setLastname("Nisbeth")
                 .status("admin")
                 .setEmail("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -236,7 +236,7 @@ class ControllerTest {
                 .setLastname("Nisbeth")
                 .status("admin")
                 .setEmail("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -285,7 +285,7 @@ class ControllerTest {
                 .setLastname("Nisbeth")
                 .status("admin")
                 .setEmail("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -360,7 +360,7 @@ class ControllerTest {
                 .setLastname("Nisbeth")
                 .status("admin")
                 .setEmail("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -370,7 +370,7 @@ class ControllerTest {
                 .setLastname("Børge")
                 .status("pedagogue")
                 .setEmail("s123345@student.dtu.dk")
-                .password("bentabørge123321")
+                .setPassword("bentabørge123321")
                 .phoneNumbers("+45 12 32 21 32")
                 .imagePath("asd9as9d8a89s323d.jpg")
                 .build();
@@ -519,7 +519,7 @@ class ControllerTest {
                 .setLastname("Nisbeth")
                 .status("admin")
                 .setEmail("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -663,7 +663,7 @@ class ControllerTest {
                 .setLastname("Nisbeth")
                 .status("admin")
                 .setEmail("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -737,7 +737,7 @@ class ControllerTest {
                 .setLastname("Nisbeth")
                 .status("admin")
                 .setEmail("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -803,7 +803,7 @@ class ControllerTest {
                 .setLastname("Nisbeth")
                 .status("admin")
                 .setEmail("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -845,7 +845,7 @@ class ControllerTest {
                 .setLastname("Nisbeth")
                 .status("admin")
                 .setEmail("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -982,7 +982,7 @@ class ControllerTest {
                 .setLastname("Nisbeth")
                 .status("admin")
                 .setEmail("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -1028,7 +1028,7 @@ class ControllerTest {
                 .setLastname("Nisbeth")
                 .status("admin")
                 .setEmail("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();

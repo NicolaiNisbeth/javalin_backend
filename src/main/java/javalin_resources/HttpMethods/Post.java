@@ -200,12 +200,15 @@ public class Post implements Tag {
                 email = jsonObject.getString(EMAIL);
                 status = jsonObject.getString(STATUS);
                 website = jsonObject.getString(WEBSITE);
-                //todo test med angular
                 playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
-                phoneNumbers = jsonObject.getJSONArray(PHONENUMBER);
+                phoneNumbers = jsonObject.getJSONArray(PHONENUMBERS);
+                if (username.length() < 1 || password.length() < 1){
+                    System.out.println("pas" + password);
+                    System.out.println("user" + username);
 
-                if (username.length() < 1 || password.length() < 1)
-                    throw new DALException("Missing username or password");
+                    throw new DALException("Missing username or setPassword");
+
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 ctx.status(400);
@@ -232,6 +235,7 @@ public class Post implements Tag {
             }
 
             newUser = new User.Builder(username)
+                    .setPassword(password)
                     .setFirstname(firstName)
                     .setLastname(lastName)
                     .setStatus(status)
@@ -248,7 +252,7 @@ public class Post implements Tag {
                     usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i);
                 }
             }
-            newUser.setPhonenumbers(usersNewPhoneNumbers);
+            newUser.setPhoneNumbers(usersNewPhoneNumbers);
 
             try {
                 bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
@@ -267,7 +271,7 @@ public class Post implements Tag {
             if (ws.wasAcknowledged()) {
                 ctx.status(201);
                 ctx.result("User created.");
-                ctx.json(Controller.getInstance().getUsers());
+                ctx.json(newUser);
             } else {
                 ctx.status(401);
                 ctx.result("User was not created");
@@ -301,7 +305,7 @@ public class Post implements Tag {
                         .setFirstname(bruger.fornavn)
                         .setLastname(bruger.efternavn)
                         .setEmail(bruger.email)
-                        .password(bruger.adgangskode)
+                        .setPassword(bruger.adgangskode)
                         .status(STATUS_PEDAGOG)
                         .setWebsite(bruger.ekstraFelter.get("webside").toString())
                         .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn))
@@ -328,7 +332,7 @@ public class Post implements Tag {
             if (BCrypt.checkpw(password, hashed)) {
                 ctx.json(user).contentType("json").status(200);
             } else {
-                ctx.status(401).result("Unauthorized - Wrong password");
+                ctx.status(401).result("Unauthorized - Wrong setPassword");
             }
         };
 
@@ -359,7 +363,7 @@ public class Post implements Tag {
                 System.out.println("Opretter root");
                 root = new User.Builder("root")
                         .status("admin")
-                        .password("root")
+                        .setPassword("root")
                         .setFirstname("Københavns")
                         .setLastname("Kommune")
                         .build();

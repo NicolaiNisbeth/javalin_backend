@@ -145,7 +145,7 @@ public class User implements Serializable {
         return phonenumbers;
     }
 
-    public void setPhonenumbers(String[] phonenumbers) {
+    public void setPhoneNumbers(String[] phonenumbers) {
         this.phonenumbers = phonenumbers;
     }
 
@@ -180,7 +180,7 @@ public class User implements Serializable {
                 ", status='" + status + '\'' +
                 ", imagePath='" + imagePath + '\'' +
                 ", setEmail='" + email + '\'' +
-                ", password='" + password + '\'' +
+                ", setPassword='" + password + '\'' +
                 ", phoneNumbers=" + Arrays.toString(phonenumbers) +
                 ", events=" + events +
                 '}';
@@ -260,10 +260,6 @@ public class User implements Serializable {
             return password;
         }
 
-        public void setPassword(String password) {
-            this.password = password;
-        }
-
         public String[] getPhonenumbers() {
             return phonenumbers;
         }
@@ -303,7 +299,7 @@ public class User implements Serializable {
             return this;
         }
 
-        public Builder password(String password) {
+        public Builder setPassword(String password) {
             this.password = password;
             return this;
         }

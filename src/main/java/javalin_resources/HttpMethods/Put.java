@@ -1,6 +1,5 @@
 package javalin_resources.HttpMethods;
 
-import com.google.gson.JsonArray;
 import database.DALException;
 import database.collections.*;
 import database.dao.Controller;
@@ -14,8 +13,6 @@ import java.awt.image.BufferedImage;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
-
-import static javalin_resources.HttpMethods.Tag.HOUR;
 
 public class Put implements Tag {
 
@@ -169,20 +166,20 @@ public class Put implements Tag {
                 e.printStackTrace();
             }
             if (user.getEmail() == null) {
-                //reset password
+                //reset setPassword
             } else {
                 try {
                     String newPassword = "1234";
                     user.setPassword(newPassword);
                     Controller.getInstance().updateUser(user);
                     Controller.getInstance().getUser(user.getUsername());
-                    SendMail.sendMail("Your new password", "Your new password is: " + newPassword, user.getEmail());
+                    SendMail.sendMail("Your new setPassword", "Your new setPassword is: " + newPassword, user.getEmail());
                 } catch (MessagingException | DALException e) {
                     e.printStackTrace();
                 }
             }
 
-            ctx.status(401).result("Unauthorized - Wrong password");
+            ctx.status(401).result("Unauthorized - Wrong setPassword");
         };
 
         public static Handler updateUser = ctx -> {
@@ -190,12 +187,24 @@ public class Put implements Tag {
             String usernameAdmin, passwordAdmin, username, password,
                     firstName, lastName, email, status, website;
             JSONArray phoneNumbers, playgroundIDs;
-            JSONObject jsonObject;
 
             try {
                 String usermodel = ctx.formParam(("usermodel"));
-                jsonObject = new JSONObject(usermodel);
+                JSONObject jsonObject = new JSONObject(usermodel);
+                usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
+                passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
+                username = jsonObject.getString(USERNAME);
+                password = jsonObject.getString(PASSWORD);
+                firstName = jsonObject.getString(FIRSTNAME);
+                lastName = jsonObject.getString(LASTNAME);
+                email = jsonObject.getString(EMAIL);
+                status = jsonObject.getString(STATUS);
+                website = jsonObject.getString(WEBSITE);
+                playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+                phoneNumbers = jsonObject.getJSONArray(PHONENUMBERS);
 
+                if (username.length() < 1 || password.length() < 1)
+                    throw new DALException("Missing username or setPassword");
             } catch (Exception e) {
                 e.printStackTrace();
                 ctx.status(400);
@@ -203,37 +212,21 @@ public class Put implements Tag {
                 return;
             }
 
-
-            usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
-            passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
-            username = jsonObject.getString(USERNAME);
-            password = jsonObject.getString(PASSWORD);
-            firstName = jsonObject.getString(FIRSTNAME);
-            lastName = jsonObject.getString(LASTNAME);
-            email = jsonObject.getString(EMAIL);
-            status = jsonObject.getString(STATUS);
-            website = jsonObject.getString(WEBSITE);
-            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
-            phoneNumbers = jsonObject.getJSONArray(PHONENUMBER);
-
-            if (username.length() < 1 || password.length() < 1)
-                throw new DALException("Missing username or password");
-
-            User admin = null;
             User userToUpdate = null;
-            try {
-                playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
-                usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
-                passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
 
-            } catch (Exception e) {
-                e.printStackTrace();
+            //Hvis user ikke opdaterer sig selv, er det en admin der opdaterer
+            if (!username.equalsIgnoreCase(usernameAdmin)) {
+                boolean adminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
+                if (!adminAuthorized) {
+                    return;
+                }
             }
 
             try {
                 userToUpdate = Controller.getInstance().getUser(username);
             } catch (DALException e) {
-                e.printStackTrace();
+                ctx.status(401);
+                ctx.result("Unauthorized - Username doesn't exist");
             }
             userToUpdate.setFirstname(firstName);
             userToUpdate.setLastname(lastName);
@@ -244,37 +237,40 @@ public class Put implements Tag {
 
             String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
             for (int i = 0; i < phoneNumbers.length(); i++) {
-                //todo Nisbeth - hvorfor virker det omvendt?
-                if (phoneNumbers.get(i) == null) {
-                    System.out.println(phoneNumbers.get(i));
+                try {
                     usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i);
+                } catch (ClassCastException e) {
                 }
             }
-            userToUpdate.setPhonenumbers(usersNewPhoneNumbers);
+            userToUpdate.setPhoneNumbers(usersNewPhoneNumbers);
+
+            Set<String> usersNewPGIds = new HashSet<>();
+            for (int i = 0; i < playgroundIDs.length(); i++) {
+                try {
+                    usersNewPGIds.add((String) playgroundIDs.get(i));
+                } catch (ClassCastException e) {
+                }
+            }
+            userToUpdate.setPlaygroundsIDs(usersNewPGIds);
 
             try {
                 bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
                 Shared.saveProfilePicture(username, bufferedImage);
-            } catch (Exception e) {
-                System.out.println("Server: intet billede i upload");
+            } catch (
+                    Exception e) {
+                System.out.println("Server: No image in upload");
             }
-            System.out.println(userToUpdate);
             if (Controller.getInstance().updateUser(userToUpdate).wasAcknowledged()) {
                 ctx.status(201);
                 ctx.result("User updated");
+                System.out.println(userToUpdate.getStatus());
+                ctx.json(userToUpdate);
             } else {
-                ctx.status(401);
-                ctx.result("User was not updated");
-                return;
+                ctx.status(500);
+                ctx.result("User not updated");
             }
-
-            //TODO - fordi det virker i angular app'en
-
-            ctx.json(Controller.getInstance().getUsers());
-
         };
     }
-
 
     public static class PutMessage {
 

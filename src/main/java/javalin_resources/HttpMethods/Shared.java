@@ -35,11 +35,16 @@ public class Shared {
             return false;
         }
 
+
+        if (password.equalsIgnoreCase(admin.getPassword())) {
+            return true;
+        }
+
         if (BCrypt.checkpw(password, admin.getPassword())) {
             return true;
         } else {
             ctx.status(401);
-            ctx.result("Unauthorized - Wrong admin password");
+            ctx.result("Unauthorized - Wrong admin setPassword");
             return false;
         }
     }

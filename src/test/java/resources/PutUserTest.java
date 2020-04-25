@@ -2,17 +2,16 @@ package resources;
 
 import com.google.gson.Gson;
 import database.DALException;
+import database.collections.Playground;
 import database.collections.User;
 import database.dao.Controller;
 import database.dao.UserDAO;
 import io.javalin.http.Context;
-import javalin_resources.HttpMethods.Post;
 import javalin_resources.HttpMethods.Put;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
+
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -26,6 +25,18 @@ class PutUserTest {
     static void setUp() {
         //"mock-maker-inline" must be enabled
         ctx = mock(Context.class);
+
+        try {
+            Controller.getInstance().getUser("root");
+        } catch (DALException e) {
+            User root = new User.Builder("root")
+                    .status("admin")
+                    .setPassword("root")
+                    .setFirstname("Københavns")
+                    .setLastname("Kommune")
+                    .build();
+            Controller.getInstance().createUser(root);
+        }
     }
 
     @BeforeEach
@@ -40,11 +51,17 @@ class PutUserTest {
         userModel.email = "kål";
         userModel.status = "pædagog";
         userModel.imagePath = "";
-        userModel.phonenumbers = new String[2];
+        userModel.phoneNumbers = new String[2];
         userModel.website = "";
         userModel.playgroundsIDs = new String[2];
         gson = new Gson();
         json = gson.toJson(userModel);
+
+        try {
+            Controller.getInstance().deleteUser(userModel.username);
+        } catch (Exception e) {
+
+        }
     }
 
     @AfterAll
@@ -55,151 +72,98 @@ class PutUserTest {
             if (user.getUsername().length() < 1 || user.getUsername().substring(0, 3).equalsIgnoreCase("abc")) {
                 System.out.println(user);
                 System.out.println("Deleting test user: " + user.getUsername());
-                userDAO.deleteUser(user.getUsername());
+                //userDAO.deleteUser(user.getUsername());
             }
         }
     }
 
-
     @Test
-    void updateUser() throws Exception {
-        // Normal oprettelse af bruger
+    void updateUserWithoutPlaygroundIDs() throws Exception {
+        // Normal update af bruger
+
+        User updateUser = new User.Builder(userModel.username)
+                .setPassword(userModel.password)
+                .setFirstname(userModel.firstname)
+                .setLastname(userModel.lastname)
+                .setStatus(userModel.status)
+                .build();
+
+        Controller.getInstance().createUser(updateUser);
+        Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
 
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
         ctx.result("");
         ctx.status(0);
-        userModel.username = "abc-updating";
+        userModel.firstname = "KÅLHOVED";
+
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
         Put.PutUser.updateUser.handle(ctx);
         verify(ctx).status(201);
         verify(ctx).result("User updated");
+
+        updateUser = Controller.getInstance().getUser(updateUser.getUsername());
+        Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
     }
 
-    /**
-     * User edge cases
-     */
     @Test
-    void dublicateUserInDB() throws Exception {
-        User abcUser = new User.Builder("abc")
-                .password("abc")
-                .status("pædagog")
-                .build();
-        Controller.getInstance().createUser(abcUser);
+    void updateUserWithPlaygroundIDs() throws Exception {
+        // Normal update af bruger
 
-        // Forsøg på oprettelse af user der allerede er i db
-        ctx = mock(Context.class); // "mock-maker-inline" must be enabled
+        User updateUser = new User.Builder(userModel.username)
+                .setPassword(userModel.password)
+                .setFirstname(userModel.firstname)
+                .setLastname(userModel.lastname)
+                .setStatus(userModel.status)
+                .build();
+
+        Controller.getInstance().createUser(updateUser);
+        Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
+
+        Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
         ctx.result("");
         ctx.status(0);
 
+        userModel.firstname = "KÅLHOVED";
+        userModel.playgroundsIDs = new String[2];
+        List<Playground> playgrounds = Controller.getInstance().getPlaygrounds();
+        userModel.playgroundsIDs[0] = playgrounds.get(0).getId();
+        userModel.playgroundsIDs[1] = playgrounds.get(1).getId();
+
+        json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.PostUser.createUser.handle(ctx);
-        verify(ctx).status(401);
-        verify(ctx).result("Unauthorized - User already exists");
-        //Clean up
-        Controller.getInstance().deleteUser("abc");
+        Put.PutUser.updateUser.handle(ctx);
+        verify(ctx).status(201);
+        verify(ctx).result("User updated");
+
+        updateUser = Controller.getInstance().getUser(updateUser.getUsername());
+        Assertions.assertEquals(2, updateUser.getPlaygroundsIDs().size());
     }
 
+    /**
+     * Edge cases
+     */
+
     @Test
-    void userWithNoUsername() throws Exception {
-        // Forsøg på oprettelse af user uden username
-        ctx = mock(Context.class); // "mock-maker-inline" must be enabled
+    void updateUserWithNoUserName() throws Exception {
+        // Normal update af bruger
+        Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
         ctx.result("");
         ctx.status(0);
 
         userModel.username = "";
+        userModel.playgroundsIDs = new String[2];
+        List<Playground> playgrounds = Controller.getInstance().getPlaygrounds();
+        userModel.playgroundsIDs[0] = playgrounds.get(0).getId();
+        userModel.playgroundsIDs[1] = playgrounds.get(1).getId();
+
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.PostUser.createUser.handle(ctx);
+        Put.PutUser.updateUser.handle(ctx);
         verify(ctx).status(400);
         verify(ctx).result("Bad Request - Error in user data");
-
-    }
-
-    @Test
-    void userWithNoPassword() throws Exception {
-        // Forsøg på oprettelse af user uden password
-        ctx = mock(Context.class); // "mock-maker-inline" must be enabled
-        ctx.result("");
-        ctx.status(0);
-
-        userModel.password = "";
-        json = gson.toJson(userModel);
-        when(ctx.formParam("usermodel")).thenReturn(json);
-        when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.PostUser.createUser.handle(ctx);
-        verify(ctx).status(400);
-        verify(ctx).result("Bad Request - Error in user data");
-    }
-
-    /**
-     * Admin edge cases
-     */
-    @Test
-    void wrongAdminStatus() throws Exception {
-        // Forkert admin status
-        User abcUser = new User.Builder("abc-wrong-adm-stat")
-                .password("abc-wrong-adm-stat")
-                .status("pædagog")
-                .build();
-        Controller.getInstance().createUser(abcUser);
-        ctx = mock(Context.class); // "mock-maker-inline" must be enabled
-        ctx.result("");
-        ctx.status(0);
-        userModel.usernameAdmin = "abc-wrong-adm-stat";
-        userModel.passwordAdmin = "abc-wrong-adm-stat";
-        userModel.username = "abctest";
-        userModel.password = "abc-kodeord";
-        json = gson.toJson(userModel);
-        when(ctx.formParam("usermodel")).thenReturn(json);
-        when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.PostUser.createUser.handle(ctx);
-        verify(ctx).status(401);
-        verify(ctx).result("Unauthorized - Wrong admin status");
-    }
-
-    @Test
-    void wrongAdminUsername() throws Exception {
-        // Forkert admin brugernavn
-        ctx = mock(Context.class); // "mock-maker-inline" must be enabled
-        ctx.result("");
-        ctx.status(0);
-        userModel.usernameAdmin = "rot";
-        json = gson.toJson(userModel);
-        when(ctx.formParam("usermodel")).thenReturn(json);
-        when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.PostUser.createUser.handle(ctx);
-        verify(ctx).status(401);
-        verify(ctx).result("Unauthorized - Wrong admin username");
-    }
-
-    @Test
-    void wrongAdminPassword() throws Exception {
-        //Forkert admin password
-        ctx = mock(Context.class); // "mock-maker-inline" must be enabled
-        ctx.result("");
-        ctx.status(0);
-        userModel.passwordAdmin = "rot";
-        json = gson.toJson(userModel);
-        when(ctx.formParam("usermodel")).thenReturn(json);
-        when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.PostUser.createUser.handle(ctx);
-        verify(ctx).status(401);
-        verify(ctx).result("Unauthorized - Wrong admin password");
     }
 }
-
-/*
-end point test
-@Test
-    public void GET_to_fetch_users_returns_list_of_users() throws Exception {
-        Main.start();
-        HttpResponse<String> response = Unirest.get("http://localhost:8080/rest/employee/all").asString();
-        assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(usersJson);
-        Main.stop();
-    }
-*/

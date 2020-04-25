@@ -18,7 +18,7 @@ public class DataSource {
 
     private final static String user = "myAdmin"; // the user name
     private final static String adminDatabase = "admin"; // the name of the database in which the user is defined
-    private final static char[] password = ("njl_nykode").toCharArray(); // the password as a character array
+    private final static char[] password = ("njl_nykode").toCharArray(); // the setPassword as a character array
 
     private DataSource() {
     }
