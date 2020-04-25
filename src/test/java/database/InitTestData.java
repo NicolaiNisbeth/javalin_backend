@@ -10,7 +10,6 @@ import database.dao.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -124,7 +123,7 @@ public class InitTestData {
                         .password(data[1])
                         .setFirstname(data[2])
                         .setLastname(data[3])
-                        .email(data[4])
+                        .setEmail(data[4])
                         .phoneNumbers(data[5].split(" "))
                         .imagePath(data[6])
                         .status(data[7])

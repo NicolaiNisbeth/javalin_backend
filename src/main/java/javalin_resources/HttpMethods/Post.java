@@ -184,27 +184,35 @@ public class Post implements Tag {
 
         public static Handler createUser = ctx -> {
             BufferedImage bufferedImage;
-            String usermodel = ctx.formParam(("usermodel"));
-            System.out.println(usermodel);
-            JSONObject jsonObject = new JSONObject(usermodel);
-            String usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
-            String passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
-            String username = jsonObject.getString(USERNAME);
-            String password = jsonObject.getString(PASSWORD);
-            String firstName = jsonObject.getString(FIRSTNAME);
-            String lastName = jsonObject.getString(LASTNAME);
-            String email = jsonObject.getString(EMAIL);
-            String status = jsonObject.getString(STATUS);
+            String usernameAdmin, passwordAdmin, username, password,
+                    firstName, lastName, email, status, website;
+            JSONArray phoneNumbers, playgroundIDs;
 
-            JSONArray playgroundIDs = null;
-            //if pedg
             try {
+                String usermodel = ctx.formParam(("usermodel"));
+                JSONObject jsonObject = new JSONObject(usermodel);
+                usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
+                passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
+                username = jsonObject.getString(USERNAME);
+                password = jsonObject.getString(PASSWORD);
+                firstName = jsonObject.getString(FIRSTNAME);
+                lastName = jsonObject.getString(LASTNAME);
+                email = jsonObject.getString(EMAIL);
+                status = jsonObject.getString(STATUS);
+                website = jsonObject.getString(WEBSITE);
+                //todo test med angular
                 playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+                phoneNumbers = jsonObject.getJSONArray(PHONENUMBER);
+
+                if (username.length() < 1 || password.length() < 1)
+                    throw new DALException("Missing username or password");
             } catch (Exception e) {
-                //e.printStackTrace();
+                e.printStackTrace();
+                ctx.status(400);
+                ctx.result("Bad Request - Error in user data");
+                return;
             }
-            JSONArray phoneNumbers = jsonObject.getJSONArray(PHONENUMBER);
-            String website = jsonObject.getString(WEBSITE);
+
             User admin = null;
             User newUser = null;
 
@@ -213,8 +221,14 @@ public class Post implements Tag {
                 admin = Controller.getInstance().getUser(usernameAdmin);
             } catch (DALException e) {
                 e.printStackTrace();
-                ctx.status(411);
+                ctx.status(401);
                 ctx.result("Unauthorized - Wrong admin username");
+                return;
+            }
+
+            if (!admin.getStatus().equalsIgnoreCase("admin")){
+                ctx.status(401);
+                ctx.result("Unauthorized - Wrong admin status");
                 return;
             }
 
@@ -222,45 +236,33 @@ public class Post implements Tag {
             try {
                 newUser = Controller.getInstance().getUser(username);
             } catch (DALException e) {
-
+                //Brugeren er ikke i databasen og kan derfor oprettes
             }
             if (newUser != null) {
-                ctx.status(411);
+                ctx.status(401);
                 ctx.result("Unauthorized - User already exists");
                 return;
             }
 
-
             if (BCrypt.checkpw(passwordAdmin, admin.getPassword())) {
-
                 newUser = new User.Builder(username)
+                        .setFirstname(firstName)
+                        .setLastname(lastName)
+                        .setStatus(status)
+                        .setEmail(email)
+                        .setWebsite(website)
+                        .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username))
                         .build();
-                newUser.setFirstname(firstName);
-                newUser.setLastname(lastName);
-                newUser.setStatus(status);
-                newUser.setEmail(email);
-                newUser.setWebsite(website);
-             /*   if (phoneNumbers.get(0) == null) {
-                    newUser.setPhonenumbers(null);
-                } else {
-                    String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
-                    for (int i = 0; i < phoneNumbers.length(); i++) {
-                        usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i);
-                    }
-                    newUser.setPhonenumbers(usersNewPhoneNumbers);
-                }*/
 
                 String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
                 for (int i = 0; i < phoneNumbers.length(); i++) {
-                    //todo hvorfor virker det omvendt?
-
+                    //todo Nisbeth - hvorfor virker det omvendt?
                     if (phoneNumbers.get(i) == null) {
                         System.out.println(phoneNumbers.get(i));
                         usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i);
                     }
                 }
                 newUser.setPhonenumbers(usersNewPhoneNumbers);
-                newUser.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username));
 
                 try {
                     bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
@@ -277,21 +279,19 @@ public class Post implements Tag {
 
                 WriteResult ws = Controller.getInstance().createUser(newUser);
                 if (ws.wasAcknowledged()) {
-                    //ctx.json(Controller.getInstance().getUsers()).status(201).result("User created.");
                     ctx.status(201);
                     ctx.result("User created.");
                     ctx.json(Controller.getInstance().getUsers());
                 } else {
-                    ctx.status(401).result("User was not created");
-                    //Controller.getInstance().getUsers();
+                    ctx.status(401);
+                    ctx.result("User was not created");
                 }
                 // Hvis admin har skrevet forkert adgangskode
             } else {
-                ctx.status(401).result("Unauthorized");
+                ctx.status(401);
+                ctx.result("Unauthorized - Wrong admin password");
             }
-            //  ctx.json(Controller.getInstance().getUsers());
         };
-
 
         public static Handler userLogin = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
@@ -319,7 +319,7 @@ public class Post implements Tag {
                 user = new User.Builder(bruger.brugernavn)
                         .setFirstname(bruger.fornavn)
                         .setLastname(bruger.efternavn)
-                        .email(bruger.email)
+                        .setEmail(bruger.email)
                         .password(bruger.adgangskode)
                         .status(STATUS_PEDAGOG)
                         .setWebsite(bruger.ekstraFelter.get("webside").toString())

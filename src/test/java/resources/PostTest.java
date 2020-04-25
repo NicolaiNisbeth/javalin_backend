@@ -42,7 +42,7 @@ class PostTest {
         UserDAO userDAO = new UserDAO();
         System.out.println("Test-userlist after test: ");
         for (User user : userDAO.getUserList()) {
-            if (user.getUsername().substring(0,3).equalsIgnoreCase("abc")) {
+            if (user.getUsername().length() < 1 || user.getUsername().substring(0,3).equalsIgnoreCase("abc") ) {
                 System.out.println(user);
                 System.out.println("Deleting test user: " + user.getUsername());
                 userDAO.deleteUser(user.getUsername());
@@ -55,8 +55,6 @@ class PostTest {
      */
     @Test
     void createUser() throws Exception {
-        Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
-
         JsonModels.UserModel userModel = new JsonModels.UserModel();
         userModel.usernameAdmin = "root";
         userModel.passwordAdmin = "root";
@@ -64,7 +62,7 @@ class PostTest {
         userModel.password = "abc";
         userModel.firstname = "Hans";
         userModel.lastname = "Bertil";
-        userModel.email = "";
+        userModel.email = "kål";
         userModel.status = "pædagog";
         userModel.imagePath = "";
         userModel.phonenumbers = new String[2];
@@ -73,32 +71,89 @@ class PostTest {
         Gson gson = new Gson();
         String json = gson.toJson(userModel);
 
+        Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
+        ctx.result("");
+        ctx.status(0);
+
         // Normal oprettelse af bruger
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-
         Post.PostUser.createUser.handle(ctx);
         verify(ctx).status(201);
         verify(ctx).result("User created.");
 
-        // Fejlagtig oprettelse af den samme bruger
+        /**
+         * User edge cases
+         */
+        // Forsøg på oprettelse af user der allerede er i db
         ctx = mock(Context.class); // "mock-maker-inline" must be enabled
+        ctx.result("");
+        ctx.status(0);
+
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
         Post.PostUser.createUser.handle(ctx);
-        verify(ctx).status(411);
+        verify(ctx).status(401);
         verify(ctx).result("Unauthorized - User already exists");
 
-        // Fejlagtig oprettelse af anden bruger med forkert admin password
-     /*   ctx = mock(Context.class); // "mock-maker-inline" must be enabled
+        // Forsøg på oprettelse af user uden username
+        ctx = mock(Context.class); // "mock-maker-inline" must be enabled
+        ctx.result("");
+        ctx.status(0);
+
+        userModel.username = "";
+        json = gson.toJson(userModel);
+        when(ctx.formParam("usermodel")).thenReturn(json);
+        when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
+        Post.PostUser.createUser.handle(ctx);
+        verify(ctx).status(400);
+        verify(ctx).result("Bad Request - Error in user data");
+
+        /**
+         * Admin edge cases
+         */
+        // Forkert admin status
+        ctx = mock(Context.class); // "mock-maker-inline" must be enabled
+        ctx.result("");
+        ctx.status(0);
+        userModel.usernameAdmin = "abc";
+        userModel.passwordAdmin = "abc";
+        userModel.username = "abctest";
+        json = gson.toJson(userModel);
+        when(ctx.formParam("usermodel")).thenReturn(json);
+        when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
+        Post.PostUser.createUser.handle(ctx);
+        verify(ctx).status(401);
+        verify(ctx).result("Unauthorized - Wrong admin status");
+        // Forkert admin brugernavn
+        ctx = mock(Context.class); // "mock-maker-inline" must be enabled
+        ctx.result("");
+        ctx.status(0);
+
         userModel.usernameAdmin = "rot";
         userModel.username += "test";
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
         Post.PostUser.createUser.handle(ctx);
-        verify(ctx).status(411);
-        verify(ctx).result("Unauthorized - Wrong admin username");*/
+        verify(ctx).status(401);
+        verify(ctx).result("Unauthorized - Wrong admin username");
+
+        // Fejlagtig oprettelse af bruger med forkert admin password
+        ctx = mock(Context.class); // "mock-maker-inline" must be enabled
+        ctx.result("");
+        ctx.status(0);
+
+        userModel.usernameAdmin = "root";
+        userModel.passwordAdmin = "rot";
+        json = gson.toJson(userModel);
+        when(ctx.formParam("usermodel")).thenReturn(json);
+        when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
+        Post.PostUser.createUser.handle(ctx);
+        verify(ctx).status(401);
+        verify(ctx).result("Unauthorized - Wrong admin password");
+
+
     }
 
     @Test

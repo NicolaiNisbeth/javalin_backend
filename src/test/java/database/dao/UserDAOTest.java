@@ -28,7 +28,7 @@ class UserDAOTest {
         User user = new User.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
-                .email("nicolai.nisbeth@yahoo.com")
+                .setEmail("nicolai.nisbeth@yahoo.com")
                 .password("asd123")
                 .phoneNumbers("+45 12 34 23 12", "+45 45 74 56 32")
                 .build();
@@ -53,7 +53,7 @@ class UserDAOTest {
         User user1 = new User.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
-                .email("nicolai.nisbeth@yahoo.com")
+                .setEmail("nicolai.nisbeth@yahoo.com")
                 .password("asd123")
                 .phoneNumbers("+45 12 34 23 12", "+45 45 74 56 32")
                 .build();
@@ -61,7 +61,7 @@ class UserDAOTest {
         User user2 = new User.Builder("Peter")
                 .status("Admin")
                 .imagePath("asd97a9s343d.jpg")
-                .email("peter.pavlidou@yahoo.com")
+                .setEmail("peter.pavlidou@yahoo.com")
                 .password("poggersinthechat3")
                 .phoneNumbers("+45 45 74 56 32")
                 .build();
@@ -84,7 +84,7 @@ class UserDAOTest {
         User user = new User.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
-                .email("nicolai.nisbeth@yahoo.com")
+                .setEmail("nicolai.nisbeth@yahoo.com")
                 .password("asd123")
                 .phoneNumbers("+45 12 34 23 12", "+45 45 74 56 32")
                 .build();

@@ -179,7 +179,7 @@ public class User implements Serializable {
                 ", username='" + username + '\'' +
                 ", status='" + status + '\'' +
                 ", imagePath='" + imagePath + '\'' +
-                ", email='" + email + '\'' +
+                ", setEmail='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", phoneNumbers=" + Arrays.toString(phonenumbers) +
                 ", events=" + events +
@@ -298,7 +298,7 @@ public class User implements Serializable {
 
         }
 
-        public Builder email(String email) {
+        public Builder setEmail(String email) {
             this.email = email;
             return this;
         }
