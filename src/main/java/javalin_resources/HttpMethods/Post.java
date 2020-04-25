@@ -224,7 +224,9 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
                 admin = Controller.getInstance().getUser(usernameAdmin);
             } catch (DALException e) {
                 e.printStackTrace();
-                ctx.status(411).result("Unauthorized - Wrong username or password");
+                ctx.status(411);
+                ctx.result("Unauthorized - Wrong admin username");
+                return;
             }
             if (admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
 

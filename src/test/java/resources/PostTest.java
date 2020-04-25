@@ -24,7 +24,6 @@ import static org.mockito.Mockito.*;
 class PostTest {
     private static Context ctx;
     static Controller beta;
-
     private Main app = new Main(); // inject any dependencies you might have
     private String usersJson = JavalinJson.toJson(Controller.getInstance().getUsers());
 
@@ -38,11 +37,11 @@ class PostTest {
     @AfterAll
     static void printAll() throws DALException {
         UserDAO userDAO = new UserDAO();
-        System.out.println("Test userlist after test: ");
+        System.out.println("Test-userlist after test: ");
         for (User user : userDAO.getUserList()) {
             if (user.getUsername().substring(0,3).equalsIgnoreCase("abc")) {
                 System.out.println(user);
-                System.out.println("Deleting test user");
+                System.out.println("Deleting test user: " + user.getUsername());
                 userDAO.deleteUser(user.getUsername());
             }
         }
