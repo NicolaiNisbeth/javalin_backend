@@ -40,6 +40,7 @@ public class User implements Serializable {
         ANYONE, PEDAGOGUE, ADMIN;
     }
 
+
     public void setRoleSet(Set<Role> roleSet) { this.roleSet = roleSet; }
 
     public Set<Role> getRoleSet() { return roleSet; }

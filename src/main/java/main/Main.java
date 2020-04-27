@@ -244,6 +244,7 @@ public class Main {
         if (user == null) {
             user = new User.Builder("AnonymousUser").build();
             user.setRoleSet(admin);
+            user.setRole("ADMIN");
         }
         String token = provider.generateToken(user);
         ctx.json(new JWTResponse(token));
