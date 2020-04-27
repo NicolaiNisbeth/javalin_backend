@@ -13,6 +13,7 @@ import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
 import org.mindrot.jbcrypt.BCrypt;
+import sun.management.jmxremote.ConnectorBootstrap;
 
 import java.util.*;
 
@@ -317,7 +318,6 @@ public class Controller implements IController {
         return writeResult;
     }
 
-    // todo fix it
     @Override
     public boolean addPedagogueToPlayground(String plagroundName, String username) {
 //        final ClientSession clientSession = DataSource.getClient().startSession();
@@ -331,6 +331,34 @@ public class Controller implements IController {
             // insert user reference in playground
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", plagroundName, "assignedPedagogue", pedagogue);
+
+            //        clientSession.commitTransaction();
+        } catch (Exception e) {
+            //      clientSession.abortTransaction();
+            e.printStackTrace();
+        } finally {
+            //    clientSession.close();
+        }
+
+        return true;
+    }
+
+    public boolean addPedagogueToPlayground(User user) {
+//        final ClientSession clientSession = DataSource.getClient().startSession();
+        //  clientSession.startTransaction();
+        try {
+            // insert playground reference in user
+
+            // insert user reference in playground
+            for (Playground playground : Controller.getInstance().getPlaygrounds()) {
+                System.out.println(playground);
+                for (String id : user.getPlaygroundsIDs()) {
+                    if (playground.getId().equalsIgnoreCase(id)){
+                        playground.getAssignedPedagogue().add(user);
+                        Controller.getInstance().updatePlayground(playground);
+                    }
+                }
+            }
 
             //        clientSession.commitTransaction();
         } catch (Exception e) {

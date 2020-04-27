@@ -2,6 +2,7 @@ package resources;
 
 import com.google.gson.Gson;
 import database.DALException;
+import database.collections.Playground;
 import database.collections.User;
 import database.dao.*;
 import io.javalin.http.Context;
@@ -11,7 +12,7 @@ import org.mockito.Mockito;
 
 import static org.mockito.Mockito.*;
 
-class PostUserTest {
+class CreateUserTest {
     private static Context ctx;
     private JsonModels.UserModel userModel = new JsonModels.UserModel();
     private static Gson gson;
@@ -36,6 +37,8 @@ class PostUserTest {
         userModel.status = "pædagog";
         userModel.imagePath = "";
         userModel.phoneNumbers = new String[2];
+        userModel.phoneNumbers[0] = "12345678";
+        userModel.phoneNumbers[1] = "887654321";
         userModel.website = "";
         userModel.playgroundsIDs = new String[2];
         gson = new Gson();
@@ -44,13 +47,13 @@ class PostUserTest {
         try {
             Controller.getInstance().getUser("root");
         } catch (DALException e) {
-              User root = new User.Builder("root")
-                .status("admin")
-                .setPassword("root")
-                .setFirstname("Københavns")
-                .setLastname("Kommune")
-                .build();
-        Controller.getInstance().createUser(root);
+            User root = new User.Builder("root")
+                    .status("admin")
+                    .setPassword("root")
+                    .setFirstname("Københavns")
+                    .setLastname("Kommune")
+                    .build();
+            Controller.getInstance().createUser(root);
         }
     }
 
@@ -72,6 +75,17 @@ class PostUserTest {
     void createUser() throws Exception {
         // Normal oprettelse af bruger
 
+        Playground playground = new Playground.Builder("KålPladsen i Kildevældsparken")
+                .setCommune("København Ø")
+                .setZipCode(2100)
+                .setStreetName("Vognmandsmarken")
+                .setStreetNumber(69)
+                .setToiletPossibilities(true)
+                .setHasSoccerField(true)
+                .setImagePath("https://scontent-ams4-1.xx.fbcdn.net/v/t1.0-9/35925882_1752144438212095_2872486595854860288_o.jpg?_nc_cat=110&_nc_sid=6e5ad9&_nc_ohc=niAAIcBtSkEAX_InvHT&_nc_ht=scontent-ams4-1.xx&oh=9244ce211671c878bbb58aeb41d6e1d8&oe=5E9AE2B2")
+                .build();
+        Controller.getInstance().createPlayground(playground);
+
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
         ctx.result("");
         ctx.status(0);
@@ -82,6 +96,12 @@ class PostUserTest {
         Post.PostUser.createUser.handle(ctx);
         verify(ctx).status(201);
         verify(ctx).result("User created.");
+
+        User user = Controller.getInstance().getUser("abc-test-user");
+        Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
+        Playground playground1 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken");
+        Assertions.assertEquals(1, playground1.getAssignedPedagogue().size());
+        Controller.getInstance().deletePlayground("KålPladsen i Kildevældsparken");
     }
 
     /**

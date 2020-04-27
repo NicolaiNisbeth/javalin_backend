@@ -15,7 +15,7 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 
-class PutUserTest {
+class UpdateUserTest {
     private static Context ctx;
     private JsonModels.UserModel userModel = new JsonModels.UserModel();
     private static Gson gson;

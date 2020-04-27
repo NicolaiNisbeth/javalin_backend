@@ -205,10 +205,7 @@ public class Post implements Tag {
                 //todo test med angular
                 playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
                 phoneNumbers = jsonObject.getJSONArray(PHONENUMBERS);
-                if (username.length() < 1 || password.length() < 1){
-                    System.out.println("pas" + password);
-                    System.out.println("user" + username);
-
+                if (username.length() < 1 || password.length() < 1) {
                     throw new DALException("Missing username or setPassword");
 
                 }
@@ -247,15 +244,16 @@ public class Post implements Tag {
                     .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username))
                     .build();
 
-            String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
-            for (int i = 0; i < phoneNumbers.length(); i++) {
-                //todo Nisbeth - hvorfor virker det omvendt?
-                if (phoneNumbers.get(i) == null) {
-                    System.out.println(phoneNumbers.get(i));
-                    usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i);
+            if (phoneNumbers.length() > 0) {
+                String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
+                if (phoneNumbers.get(0) != null) {
+                    usersNewPhoneNumbers[0] = (String) phoneNumbers.get(0);
                 }
+                if (phoneNumbers.get(1) != null) {
+                    usersNewPhoneNumbers[1] = (String) phoneNumbers.get(1);
+                }
+                newUser.setPhoneNumbers(usersNewPhoneNumbers);
             }
-            newUser.setPhoneNumbers(usersNewPhoneNumbers);
 
             try {
                 bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
@@ -275,6 +273,10 @@ public class Post implements Tag {
                 ctx.status(201);
                 ctx.result("User created.");
                 ctx.json(newUser);
+
+
+                Controller.getInstance().addPedagogueToPlayground(newUser);
+
             } else {
                 ctx.status(401);
                 ctx.result("User was not created");
@@ -287,7 +289,7 @@ public class Post implements Tag {
                 JSONObject jsonObject = new JSONObject(ctx.body());
                 username = jsonObject.getString(USERNAME);
                 password = jsonObject.getString(PASSWORD);
-            } catch (JSONException | NullPointerException e){
+            } catch (JSONException | NullPointerException e) {
                 ctx.status(400);
                 ctx.contentType(ContentType.JSON);
                 ctx.result("body has no username and password");

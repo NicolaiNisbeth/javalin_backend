@@ -265,6 +265,9 @@ public class Put implements Tag {
                 ctx.result("User updated");
                 System.out.println(userToUpdate.getStatus());
                 ctx.json(userToUpdate);
+                //Tilføj brugeren til de playgrounds han er tilknyttet
+                Controller.getInstance().addPedagogueToPlayground(userToUpdate);
+
             } else {
                 ctx.status(500);
                 ctx.result("User not updated");
