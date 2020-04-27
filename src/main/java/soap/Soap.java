@@ -33,19 +33,22 @@ public class Soap implements ISoap {
         int numAdmin = 0;
 
         for (User user : users){
+            if (user.getStatus() == null) continue;
             switch (user.getStatus()) {
                 case "client": numClients++; break;
-                case "pedagogue": numPedagogue++; break;
+                case "pædagog": numPedagogue++; break;
+                case "pedagog": numPedagogue++; break;
                 case "admin": numAdmin++; break;
                 default:
                     throw new IllegalStateException(String.format("User %s has role %s", user.getId(), user.getStatus()));
             }
         }
         return String.format(
+                "\n### USERS ###\n" +
                 "n = %s\n" +
                 "Clients = %s\n" +
                 "Pedagogues = %s\n" +
-                "Admins = %s",
+                "Admins = %s\n",
                 n, numClients, numPedagogue, numAdmin);
     }
 
@@ -70,10 +73,11 @@ public class Soap implements ISoap {
         avgParticipants = (double) numParticipants / n;
 
         return String.format(
+                "\n### EVENT ###\n" +
                 "n = %s\n" +
                 "Total participants = %s\n" +
                 "Average participation = %s\n" +
-                "Maximum participation = %s and event ID = %s",
+                "Maximum participation = %s and event ID = %s\n",
                 n, numParticipants, avgParticipants, maxParticipants, maxParticipantsID);
     }
 
@@ -125,17 +129,18 @@ public class Soap implements ISoap {
         avgEvents = (double)numEvents / n;
 
         return String.format(
+                "\n### PLAYGROUND ###\n" +
                 "n = %s\n" +
-                        "Total pedagogues %s\n" +
-                        "Average pedagogues %s\n" +
-                        "Total events %s\n" +
-                        "Average events %s\n" +
-                        "Maximum event %s and playground ID %s\n" +
-                        "Minimum event %s and playground ID %s\n" +
-                        "Total messages %s\n" +
-                        "Average messages %s\n" +
-                        "Maximum message %s and Playground ID %s\n" +
-                        "Minimum message %s and Playground ID %s",
+                "Total pedagogues %s\n" +
+                "Average pedagogues %s\n" +
+                "Total events %s\n" +
+                "Average events %s\n" +
+                "Maximum event %s and playground ID %s\n" +
+                "Minimum event %s and playground ID %s\n" +
+                "Total messages %s\n" +
+                "Average messages %s\n" +
+                "Maximum message %s and Playground ID %s\n" +
+                "Minimum message %s and Playground ID %s\n",
                 n, numPedagogues, avgPedagogues,
                 numEvents, avgEvents, maxEvents, maxEventID, minEvents, minEventID,
                 numMessages, avgMessages, maxMessages, maxMessagesID, minMessages, minMessagesID);
@@ -165,10 +170,11 @@ public class Soap implements ISoap {
         //avgInteraction = (double) numInteraction / n;
 
         return String.format(
+                "\n### MESSAGE ###\n" +
                 "n = %s\n" +
-                        "Total interactions = %s\n" +
-                        "Average interactions = %s\n" +
-                        "Maximum interactions = %s and playground ID = %s",
+                "Total interactions = %s\n" +
+                "Average interactions = %s\n" +
+                "Maximum interactions = %s and playground ID = %s\n",
                 n, numInteraction, avgInteraction, maxInteraction, maxInteractionID);
     }
 }
