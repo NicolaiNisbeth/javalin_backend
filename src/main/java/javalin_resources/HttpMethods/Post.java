@@ -309,6 +309,7 @@ public class Post implements Tag {
 
             Bruger bruger = getUserInNordfalk(username, password);
             user = getUserInMongo(username);
+            System.out.println("USER in mongo " + user);
             if (bruger == null && user == null) {
                 ctx.status(404);
                 ctx.contentType(ContentType.JSON);
@@ -363,6 +364,7 @@ public class Post implements Tag {
             try {
                 return Controller.getInstance().getUser(username);
             } catch (DALException e) {
+                e.printStackTrace();
                 return null;
             }
         }

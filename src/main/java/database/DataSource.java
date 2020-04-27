@@ -1,10 +1,7 @@
 package database;
 
 
-import com.mongodb.DB;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
+import com.mongodb.*;
 import com.mongodb.client.MongoDatabase;
 
 import java.util.Arrays;
@@ -22,6 +19,7 @@ public class DataSource {
 
     private DataSource() {
     }
+
 
     public static DB getDB() {
         if (database == null) {
@@ -42,20 +40,25 @@ public class DataSource {
         return mongoClient;
     }
 
-/*  public static DB getDB(){
+
+
+    /*
+  public static DB getDB(){
         if (database == null)
             database = getClient().getDB("test");
 
         return database;
-  }*/
+  }
 
- /* public static MongoClient getClient(){
+  public static MongoClient getClient(){
       if (mongoClient == null)
           mongoClient = new MongoClient(new MongoClientURI("mongodb+srv://s175565:qwe123@todoapp-cn8eq.mongodb.net/test"));
 
       return mongoClient;
   }
 
-  */
+
+     */
+
 
 }
