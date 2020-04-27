@@ -205,9 +205,6 @@ public class Post implements Tag {
                 //todo test med angular
                 playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
                 phoneNumbers = jsonObject.getJSONArray(PHONENUMBERS);
-
-                System.out.println(username);
-                System.out.println(password);
                 if (username.length() < 1 || password.length() < 1) {
                     throw new DALException("Missing username or setPassword");
 

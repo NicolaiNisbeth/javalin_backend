@@ -108,8 +108,6 @@ public class Controller implements IController {
         return null;
     }
 
-
-    // todo rettet af NJL
     @Override
     public User getUser(String username) throws DALException {
         User user = userDAO.getUser(username);

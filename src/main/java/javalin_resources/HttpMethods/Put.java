@@ -247,7 +247,7 @@ public class Put implements Tag {
             userToUpdate.setPhoneNumbers(usersNewPhoneNumbers);
 
             Set<String> usersOldPGIds = userToUpdate.getPlaygroundsIDs();
-            System.out.println("22222" + usersOldPGIds);
+            System.out.println("Old pgs " + usersOldPGIds);
 
             Set<String> usersNewPGIds = new HashSet<>();
             for (int i = 0; i < playgroundIDs.length(); i++) {
@@ -258,11 +258,12 @@ public class Put implements Tag {
             }
             userToUpdate.setPlaygroundsIDs(usersNewPGIds);
 
-
-            for (String oldPlaygroundName : usersOldPGIds) {
-                    if (!usersNewPGIds.contains(oldPlaygroundName)){
+            if (usersOldPGIds != null || usersOldPGIds.size() > 0) {
+                for (String oldPlaygroundName : usersOldPGIds) {
+                    if (!usersNewPGIds.contains(oldPlaygroundName)) {
                         Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
                     }
+                }
             }
 
            /* for (String oldPlaygroundName : usersOldPGIds) {

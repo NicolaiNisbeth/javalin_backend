@@ -84,9 +84,9 @@ class CreateUserTest {
                 .setHasSoccerField(true)
                 .setImagePath("https://scontent-ams4-1.xx.fbcdn.net/v/t1.0-9/35925882_1752144438212095_2872486595854860288_o.jpg?_nc_cat=110&_nc_sid=6e5ad9&_nc_ohc=niAAIcBtSkEAX_InvHT&_nc_ht=scontent-ams4-1.xx&oh=9244ce211671c878bbb58aeb41d6e1d8&oe=5E9AE2B2")
                 .build();
-        WriteResult writeResult = Controller.getInstance().createPlayground(playground);
+        Controller.getInstance().createPlayground(playground);
 
-        userModel.playgroundsIDs[0] = writeResult.getUpsertedId().toString();
+        userModel.playgroundsIDs[0] = playground.getName();
 
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
         ctx.result("");
@@ -109,7 +109,7 @@ class CreateUserTest {
 
     @Test
     void deleteUser() throws Exception {
-        Playground playground = new Playground.Builder("KålPladsen i Kildevældsparken")
+        Playground playground = new Playground.Builder("KålPladsen i Kildevældsparken2")
                 .setCommune("København Ø")
                 .setZipCode(2100)
                 .setStreetName("Vognmandsmarken")
@@ -118,14 +118,14 @@ class CreateUserTest {
                 .setHasSoccerField(true)
                 .setImagePath("https://scontent-ams4-1.xx.fbcdn.net/v/t1.0-9/35925882_1752144438212095_2872486595854860288_o.jpg?_nc_cat=110&_nc_sid=6e5ad9&_nc_ohc=niAAIcBtSkEAX_InvHT&_nc_ht=scontent-ams4-1.xx&oh=9244ce211671c878bbb58aeb41d6e1d8&oe=5E9AE2B2")
                 .build();
-        WriteResult writeResult = Controller.getInstance().createPlayground(playground);
+        Controller.getInstance().createPlayground(playground);
 
-        userModel.playgroundsIDs[0] = writeResult.getUpsertedId().toString();
+        userModel.playgroundsIDs[0] = playground.getName();
 
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
         ctx.result("");
         ctx.status(0);
-        userModel.username = "abc-test-user";
+        userModel.username = "abc-test-user-2";
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
@@ -133,25 +133,21 @@ class CreateUserTest {
         verify(ctx).status(201);
         verify(ctx).result("User created.");
 
-        User user = Controller.getInstance().getUser("abc-test-user");
+        User user = Controller.getInstance().getUser("abc-test-user-2");
         Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
         System.out.println("ids " + user.getPlaygroundsIDs());
-        Playground playground1 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken");
+        Playground playground1 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken2");
         Assertions.assertEquals(1, playground1.getAssignedPedagogue().size());
 
         Controller.getInstance().deleteUser(user.getUsername());
-        Playground playground2 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken");
+        Playground playground2 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken2");
+        Assertions.assertEquals(0, playground2.getAssignedPedagogue().size());
 
-
-        Assertions.assertNull(playground2.getAssignedPedagogue());
-
-       // System.out.println(playground2.getAssignedPedagogue());
+        // System.out.println(playground2.getAssignedPedagogue());
         //Assertions.assertEquals(0, playground2.getAssignedPedagogue().size());
 
-
-        Controller.getInstance().deletePlayground("KålPladsen i Kildevældsparken");
-
-
+        System.out.println(playground2.getAssignedPedagogue());
+        Controller.getInstance().deletePlayground("KålPladsen i Kildevældsparken2");
     }
 
 
