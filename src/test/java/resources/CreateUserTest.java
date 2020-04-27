@@ -1,6 +1,7 @@
 package resources;
 
 import com.google.gson.Gson;
+import com.mongodb.WriteResult;
 import database.DALException;
 import database.collections.Playground;
 import database.collections.User;
@@ -9,6 +10,8 @@ import io.javalin.http.Context;
 import javalin_resources.HttpMethods.Post;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
+
+import java.nio.channels.WritableByteChannel;
 
 import static org.mockito.Mockito.*;
 
@@ -40,7 +43,7 @@ class CreateUserTest {
         userModel.phoneNumbers[0] = "12345678";
         userModel.phoneNumbers[1] = "887654321";
         userModel.website = "";
-        userModel.playgroundsIDs = new String[2];
+        userModel.playgroundsIDs = new String[1];
         gson = new Gson();
         json = gson.toJson(userModel);
 
@@ -70,7 +73,6 @@ class CreateUserTest {
         }
     }
 
-
     @Test
     void createUser() throws Exception {
         // Normal oprettelse af bruger
@@ -84,7 +86,9 @@ class CreateUserTest {
                 .setHasSoccerField(true)
                 .setImagePath("https://scontent-ams4-1.xx.fbcdn.net/v/t1.0-9/35925882_1752144438212095_2872486595854860288_o.jpg?_nc_cat=110&_nc_sid=6e5ad9&_nc_ohc=niAAIcBtSkEAX_InvHT&_nc_ht=scontent-ams4-1.xx&oh=9244ce211671c878bbb58aeb41d6e1d8&oe=5E9AE2B2")
                 .build();
-        Controller.getInstance().createPlayground(playground);
+        WriteResult writeResult = Controller.getInstance().createPlayground(playground);
+
+        userModel.playgroundsIDs[0] = writeResult.getUpsertedId().toString();
 
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
         ctx.result("");
@@ -99,10 +103,60 @@ class CreateUserTest {
 
         User user = Controller.getInstance().getUser("abc-test-user");
         Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
+        System.out.println("ids " + user.getPlaygroundsIDs());
         Playground playground1 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken");
         Assertions.assertEquals(1, playground1.getAssignedPedagogue().size());
         Controller.getInstance().deletePlayground("KålPladsen i Kildevældsparken");
     }
+
+
+    @Test
+    void deleteUser() throws Exception {
+        Playground playground = new Playground.Builder("KålPladsen i Kildevældsparken")
+                .setCommune("København Ø")
+                .setZipCode(2100)
+                .setStreetName("Vognmandsmarken")
+                .setStreetNumber(69)
+                .setToiletPossibilities(true)
+                .setHasSoccerField(true)
+                .setImagePath("https://scontent-ams4-1.xx.fbcdn.net/v/t1.0-9/35925882_1752144438212095_2872486595854860288_o.jpg?_nc_cat=110&_nc_sid=6e5ad9&_nc_ohc=niAAIcBtSkEAX_InvHT&_nc_ht=scontent-ams4-1.xx&oh=9244ce211671c878bbb58aeb41d6e1d8&oe=5E9AE2B2")
+                .build();
+        WriteResult writeResult = Controller.getInstance().createPlayground(playground);
+
+        userModel.playgroundsIDs[0] = writeResult.getUpsertedId().toString();
+
+        Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
+        ctx.result("");
+        ctx.status(0);
+        userModel.username = "abc-test-user";
+        json = gson.toJson(userModel);
+        when(ctx.formParam("usermodel")).thenReturn(json);
+        when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
+        Post.PostUser.createUser.handle(ctx);
+        verify(ctx).status(201);
+        verify(ctx).result("User created.");
+
+        User user = Controller.getInstance().getUser("abc-test-user");
+        Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
+        System.out.println("ids " + user.getPlaygroundsIDs());
+        Playground playground1 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken");
+        Assertions.assertEquals(1, playground1.getAssignedPedagogue().size());
+
+        Controller.getInstance().deleteUser(user.getUsername());
+        Playground playground2 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken");
+
+
+        Assertions.assertNull(playground2.getAssignedPedagogue());
+
+       // System.out.println(playground2.getAssignedPedagogue());
+        //Assertions.assertEquals(0, playground2.getAssignedPedagogue().size());
+
+
+        Controller.getInstance().deletePlayground("KålPladsen i Kildevældsparken");
+
+
+    }
+
 
     /**
      * User edge cases
