@@ -163,6 +163,8 @@ public class Main {
 
             //TODO: Test this
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteEvent.remoteUserFromPlaygroundEventPost);
+
 
             //DELETE EMPLOYEES
             delete(Path.Employee.DELETE, Delete.DeleteUser.deleteUser);
