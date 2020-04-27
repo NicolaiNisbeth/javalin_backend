@@ -81,7 +81,7 @@ public class Get implements Tag {
     public static class GetMessage {
 
         public static Handler readOneMessageGet = ctx -> {
-            Message message = Controller.getInstance().getMessage(ctx.pathParam((MESSAGE_ID)));
+            Message message = Controller.getInstance().getMessage(ctx.pathParam(("id"))); //MESSAGE_ID
             if (message != null) {
                 ctx.json(message).contentType("json");
                 ctx.status(200);

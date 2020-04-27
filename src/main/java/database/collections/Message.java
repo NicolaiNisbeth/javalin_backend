@@ -208,11 +208,12 @@ public class Message implements Comparable<Message> {
     @Override
     public String toString() {
         return "Message{" +
-                "id='" + id + '\'' +
+                "id='" + id + '\'' +            //rettet fra "id="
                 ", category='" + category + '\'' +
                 ", messageString='" + messageString + '\'' +
                 ", outDated=" + outDated +
                 ", writtenByID='" + writtenByID + '\'' +
+                ", playgroundID='" + playgroundID + '\'' +
                 '}';
     }
 

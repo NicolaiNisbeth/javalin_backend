@@ -144,7 +144,7 @@ public class Post implements Tag {
                     //.set_id(jsonObject.getString(MESSAGE_ID))
                     .setIcon(jsonObject.getString(MESSAGE_ICON))
                     .setCategory(jsonObject.getString(MESSAGE_CATEGORY))
-                    .setPlaygroundID(jsonObject.getString(PLAYGROUND_ID))
+                    .setPlaygroundID(jsonObject.getString("playgroundID"))
                     .setDate(date)
                     //.setWrittenByID(jsonObject.getString(MESSAGE_WRITTENBY_ID))
                     //.setWrittenByID("s185036")
@@ -154,7 +154,7 @@ public class Post implements Tag {
                 message.setId(jsonObject.getString(MESSAGE_ID));
             }*/
 
-            if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged()) {
+            if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString("playgroundID"), message).wasAcknowledged()) { //PLAYGROUND_ID
                 ctx.status(200).result("Message posted");
             } else {
                 ctx.status(404).result("Failed to post message");
