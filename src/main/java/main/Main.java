@@ -14,11 +14,7 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.file.Paths;
-import java.util.PriorityQueue;
 
 public class Main {
     public static Javalin app;

@@ -57,6 +57,7 @@ public class Delete implements Tag {
             Controller.getInstance().deleteUser(username);
             ctx.status(222);
             ctx.result("User deleted.");
+            ctx.json("User deleted").contentType("json");
         };
     }
 

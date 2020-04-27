@@ -2,6 +2,7 @@ package javalin_resources.HttpMethods;
 
 import database.DALException;
 import database.collections.*;
+import database.collections.Event;
 import database.dao.Controller;
 import io.javalin.http.Handler;
 import org.json.JSONArray;
@@ -9,6 +10,7 @@ import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
 import javax.mail.MessagingException;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -244,6 +246,9 @@ public class Put implements Tag {
             }
             userToUpdate.setPhoneNumbers(usersNewPhoneNumbers);
 
+            Set<String> usersOldPGIds = userToUpdate.getPlaygroundsIDs();
+            System.out.println("22222" + usersOldPGIds);
+
             Set<String> usersNewPGIds = new HashSet<>();
             for (int i = 0; i < playgroundIDs.length(); i++) {
                 try {
@@ -252,6 +257,25 @@ public class Put implements Tag {
                 }
             }
             userToUpdate.setPlaygroundsIDs(usersNewPGIds);
+
+
+            for (String oldPlaygroundName : usersOldPGIds) {
+                    if (!usersNewPGIds.contains(oldPlaygroundName)){
+                        Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
+                    }
+            }
+
+           /* for (String oldPlaygroundName : usersOldPGIds) {
+                boolean match = false;
+                for (String newPlaygroundName : usersNewPGIds) {
+                    if (oldPlaygroundName.equalsIgnoreCase(newPlaygroundName)) {
+                        match = true;
+                    }
+                    if (!match) {
+                        Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
+                    }
+                }
+            }*/
 
             try {
                 bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
@@ -263,8 +287,8 @@ public class Put implements Tag {
             if (Controller.getInstance().updateUser(userToUpdate).wasAcknowledged()) {
                 ctx.status(201);
                 ctx.result("User updated");
-                System.out.println(userToUpdate.getStatus());
                 ctx.json(userToUpdate);
+
                 //Tilføj brugeren til de playgrounds han er tilknyttet
                 Controller.getInstance().addPedagogueToPlayground(userToUpdate);
 

@@ -11,8 +11,6 @@ import javalin_resources.HttpMethods.Post;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
-import java.nio.channels.WritableByteChannel;
-
 import static org.mockito.Mockito.*;
 
 class CreateUserTest {
@@ -108,7 +106,6 @@ class CreateUserTest {
         Assertions.assertEquals(1, playground1.getAssignedPedagogue().size());
         Controller.getInstance().deletePlayground("KålPladsen i Kildevældsparken");
     }
-
 
     @Test
     void deleteUser() throws Exception {

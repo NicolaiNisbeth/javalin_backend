@@ -205,6 +205,9 @@ public class Post implements Tag {
                 //todo test med angular
                 playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
                 phoneNumbers = jsonObject.getJSONArray(PHONENUMBERS);
+
+                System.out.println(username);
+                System.out.println(password);
                 if (username.length() < 1 || password.length() < 1) {
                     throw new DALException("Missing username or setPassword");
 
@@ -301,9 +304,9 @@ public class Post implements Tag {
             if (root) {
                 user = getRootUser(username);
                 ctx.status(200);
+                ctx.result("user login with root was successful");
                 ctx.json(user);
                 ctx.contentType(ContentType.JSON);
-                ctx.result("user login with root was successful");
                 return;
             }
 
@@ -348,9 +351,9 @@ public class Post implements Tag {
             String hashed = user.getPassword();
             if (BCrypt.checkpw(password, hashed)) {
                 ctx.status(200);
+                ctx.result("user login was successful");
                 ctx.json(user);
                 ctx.contentType(ContentType.JSON);
-                ctx.result("user login was successful");
             } else {
                 ctx.status(401);
                 ctx.contentType(ContentType.JSON);

@@ -1,17 +1,17 @@
 username,password,firstname,lastname,email,phonenumbers,imagepath,status
-s123456,kodes123456,Bente,Miller,s123456.benta@gmail.com,+4523452121,22323jh2hj3.jpg,pedagogue
-s978523,kodes978523,Patrick,Jensen,s978523.jensen@gmail.com,+4512345678,8l7k8l78kl.jpg,pedagogue
+s123456,kodes123456,Bente,Miller,s123456.benta@gmail.com,+4523452121,22323jh2hj3.jpg,pædagog
+s978523,kodes978523,Patrick,Jensen,s978523.jensen@gmail.com,+4512345678,8l7k8l78kl.jpg,pædagog
 s844574,kodes844574,Mette,Abildgaard,s844574.abildgaard@gmail.com,+4523123412 +4521343234,a8d6as9d8.jpg,admin
 s234532,kodes234532,Karina,Adsbøl,s234532.adsbøl@gmail.com,+4523453245,as54dasd689asd.jpg,client
 s758429,kodes758429,Tommy,Ahlers,s758429.ahlers@gmail.com,+4583291083,as56d978ds.jpg,client
 s574810,kodes574810,Alex,Ahrendtsen,s574810.ahrendtsen@gmail.com,+4538291032,sd6asd86as.jpg,client
 s753951,kodes753951,Ida,Auken,s753951.auken@hotmail.com,+4545632145,df76ga098sd6s8.jpg,client
 s741258,kodes741258,Heidi,Bank,s741258.bank@hotmail.com,+4578456598,dfgadad778978ad.jpg,client
-s124583,kodes124583,Marie,Bjerre,s124583.bjerre@hotmail.com,+4548952612,78d6fg678das.jpg,pedagogue
-s785412,kodes785412,Jeppe,Bruus,s785412.bruus@yahoo.com,+4516349718,67gh09azxc7.jpg,pedagogue
-s289320,kodes289320,Morten,Bødskov,s289320.bødskov@yahoo.com,+4582734059,78adsas90d8d89g.jpg,pedagogue
+s124583,kodes124583,Marie,Bjerre,s124583.bjerre@hotmail.com,+4548952612,78d6fg678das.jpg,pædagog
+s785412,kodes785412,Jeppe,Bruus,s785412.bruus@yahoo.com,+4516349718,67gh09azxc7.jpg,pædagog
+s289320,kodes289320,Morten,Bødskov,s289320.bødskov@yahoo.com,+4582734059,78adsas90d8d89g.jpg,pædagog
 s928345,kodes928345,Henrik,Dahl,s928345.dahl@yahoo.com,+4592834950,asd678dfsasd.jpg,client
-s913764,kodes913764,Uffe,Elbæk,s913764.elbæk@yahoo.com,+4593021232,fgh98sd89asd908.jpg,pedagogue
+s913764,kodes913764,Uffe,Elbæk,s913764.elbæk@yahoo.com,+4593021232,fgh98sd89asd908.jpg,pædagog
 s934212,kodes934212,Camilla,Fabricius,s934212.fabircius@yahoo.com,+4523453221,dfg9dsa8asd.jpg,client
 s943245,kodes943245,Eva,Flyvhold,s943245.flyvhold@yahoo.com,+4523847512,dfga89sd789ad.jpg,client
 s954321,kodes954321,Mette,Frederiksen,s954321.frederiksen@yahoo.com,+4512322132,8gds9f89ass8ds9d8.jpg,client

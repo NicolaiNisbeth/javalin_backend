@@ -347,18 +347,13 @@ public class Controller implements IController {
 //        final ClientSession clientSession = DataSource.getClient().startSession();
         //  clientSession.startTransaction();
         try {
-            // insert playground reference in user
 
-            // insert user reference in playground
-            for (Playground playground : Controller.getInstance().getPlaygrounds()) {
-                System.out.println(playground);
-                for (String id : user.getPlaygroundsIDs()) {
-                    if (playground.getId().equalsIgnoreCase(id)){
-                        playground.getAssignedPedagogue().add(user);
-                        Controller.getInstance().updatePlayground(playground);
-                    }
-                }
+            for (String playgroundName : user.getPlaygroundsIDs()) {
+                Playground playground = Controller.getInstance().getPlayground(playgroundName);
+                playground.getAssignedPedagogue().add(user);
+                Controller.getInstance().updatePlayground(playground);
             }
+
 
             //        clientSession.commitTransaction();
         } catch (Exception e) {
@@ -450,12 +445,24 @@ public class Controller implements IController {
 
     @Override
     public boolean removePedagogueFromPlayground(String playgroundName, String username) {
-        MongoCollection playground = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
+       /* Kan ikke få det til at virke
+       MongoCollection playground = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
         try {
             QueryUtils.updateWithPullObject(playground, "name", playgroundName, "assignedPedagogue", "username", username);
         } catch (DALException e) {
             e.printStackTrace();
         }
+        return true;*/
+        User removeUser = null;
+        Playground playground = Controller.getInstance().getPlayground(playgroundName);
+        for (User user : playground.getAssignedPedagogue()) {
+            if (user.getUsername().equalsIgnoreCase(username)) {
+                removeUser = user;
+                break;
+            }
+        }
+        playground.getAssignedPedagogue().remove(removeUser);
+        Controller.getInstance().updatePlayground(playground);
         return true;
     }
 
