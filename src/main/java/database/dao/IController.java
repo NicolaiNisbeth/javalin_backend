@@ -63,4 +63,8 @@ public interface IController {
     boolean removePlaygroundEvent(String eventID);
 
     boolean removePlaygroundMessage(String messageID);
+
+    List<Event> getEvents();
+
+    List<Message> getmessages();
 }

@@ -504,4 +504,24 @@ public class Controller implements IController {
 
         return isMessageDeleted;
     }
+
+    @Override
+    public List<Event> getEvents() {
+        try {
+            return eventDAO.getEventList();
+        } catch (DALException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<Message> getmessages() {
+        try {
+            return messageDAO.getMessageList();
+        } catch (DALException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
 }
