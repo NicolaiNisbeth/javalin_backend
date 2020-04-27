@@ -13,12 +13,22 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.nio.file.Paths;
 
 public class Main {
     public static Javalin app;
+    private static String hostAddress;
 
     public static void main(String[] args) throws Exception {
+        if (InetAddress.getLocalHost().getHostName().
+                equals("aws-ec2-javalin-hoster")) {
+            hostAddress = "18.185.121.182";
+        } else {
+            hostAddress = "localhost";
+        }
+        System.out.println("Starting server from " + hostAddress);
+
         buildDirectories();
         start();
     }
@@ -110,12 +120,10 @@ public class Main {
             //WORKS
             post(Path.Playground.PLAYGROUND_ALL, Post.PostPlayground.createPlaygroundPost);
             post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Post.PostEvent.createPlaygroundEventPost);
-            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Post.PostEvent.createUserToPlaygroundEventPost);
             post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Post.PostMessage.createPlaygroundMessagePost);
 
-
             //TODO: Implement this
-            post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Post.PostUser.createUserToPlaygroundPost);
+            //skal foregå under create/update user post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostUser.createUserToPlaygroundPost);
             post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.PostUser.createParticipantsToPlaygroundEventPost);
 
 
@@ -137,6 +145,7 @@ public class Main {
 
             //TODO: Test this
             put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Put.PutPedagogue.updatePedagogueToPlayGroundPut);
+            // put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
 
             //PUT EMLOYEES
             put(Path.Employee.UPDATE, Put.PutUser.updateUser);
@@ -151,13 +160,15 @@ public class Main {
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Delete.DeleteEvent.deleteEventFromPlaygroundDelete);
             delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Delete.DeleteMessage.deletePlaygroundMessageDelete);
 
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteEvent.remoteUserFromPlaygroundEventPost);
-
             //TODO: Test this
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
 
             //DELETE EMPLOYEES
             delete(Path.Employee.DELETE, Delete.DeleteUser.deleteUser);
         });
+    }
+
+    public static String getHostAddress() {
+        return hostAddress;
     }
 }

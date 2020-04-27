@@ -120,10 +120,10 @@ public class InitTestData {
 
                 usernames.add(data[0]);
                 user = new User.Builder(data[0])
-                        .password(data[1])
+                        .setPassword(data[1])
                         .setFirstname(data[2])
                         .setLastname(data[3])
-                        .email(data[4])
+                        .setEmail(data[4])
                         .phoneNumbers(data[5].split(" "))
                         .imagePath(data[6])
                         .status(data[7])

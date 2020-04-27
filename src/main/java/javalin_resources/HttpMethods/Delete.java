@@ -47,22 +47,17 @@ public class Delete implements Tag {
             String passwordAdmin = deleteUserModel.getString(PASSWORD_ADMIN);
             String username = deleteUserModel.getString(USERNAME);
             // todo slet ham fra legeplader også
-            //  JSONArray adminRightsOfNewUser = jsonObject.getJSONArray("userAdminRights");
+            // todo Nisbeth?? JSONArray adminRightsOfNewUser = jsonObject.getJSONArray("userAdminRights");
 
-            User admin = null;
-            try {
-                admin = Controller.getInstance().getUser(usernameAdmin);
-            } catch (DALException e) {
-                e.printStackTrace();
+            boolean adminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
+            if (!adminAuthorized) {
+                return;
             }
-            System.out.println(admin.getPassword());
-            System.out.println(passwordAdmin);
-            if (!admin.getPassword().equalsIgnoreCase(passwordAdmin)) {
-                ctx.status(401).result("Unauthorized - Forkert kodeord...");
-            } else {
-                Controller.getInstance().deleteUser(username);
-            }
-            ctx.json(Controller.getInstance().getUsers()).contentType("json");
+
+            Controller.getInstance().deleteUser(username);
+            ctx.status(222);
+            ctx.result("User deleted.");
+            ctx.json("User deleted").contentType("json");
         };
     }
 
