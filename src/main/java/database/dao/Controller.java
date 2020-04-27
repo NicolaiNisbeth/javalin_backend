@@ -402,12 +402,12 @@ public class Controller implements IController {
         //clientSession.startTransaction();
         try {
             // create message in message collection
-            message.setPlaygroundID(playgroundName);
+            // message.setPlaygroundID(playgroundName);
             result = messageDAO.createMessage(message);
 
             // update playground array with reference to message
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
-            QueryUtils.updateWithPush(playgrounds, "name", playgroundName, "messages", message);
+            QueryUtils.updateWithPush(playgrounds, "name", message.getPlaygroundName(), "messages", message);
 
             //   clientSession.commitTransaction();
         } catch (Exception e) {

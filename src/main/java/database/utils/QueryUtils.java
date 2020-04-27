@@ -28,9 +28,13 @@ public class QueryUtils {
                 .update("{# : #}", updateKey, updateValue)
                 .with("{$push : {# : #}}", withKey, withValue);
 
+        /*
+        if (ws.getN() == 0 || !ws.isUpdateOfExisting()) {
+            ws = collection
+                    .insert("{# : #}", updateKey, updateValue);
+        }*/
         if (ws.getN() == 0 || !ws.isUpdateOfExisting())
             throw new DALException(String.format("%s in %s was not updated with push: %s", withKey, collection.getName(), withValue));
-
     }
 
 }

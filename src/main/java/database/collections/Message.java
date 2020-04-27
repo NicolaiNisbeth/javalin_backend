@@ -124,6 +124,7 @@ public class Message implements Comparable<Message> {
             message.writtenByID = this.writtenByID;
             message.messageString = this.messageString;
             message.date = this.date;
+            message.playgroundID = this.playgroundID; //check dette
 
             return message;
         }
@@ -154,6 +155,10 @@ public class Message implements Comparable<Message> {
 
     public void setPlaygroundID(String playgroundID) {
         this.playgroundID = playgroundID;
+    }
+
+    public String getPlaygroundID() {
+        return playgroundID;
     }
 
     public String getCategory() {

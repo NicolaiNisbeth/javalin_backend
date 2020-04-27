@@ -130,25 +130,29 @@ public class Post implements Tag {
             Details details = new Details();
             Calendar cal = Calendar.getInstance();
 
-            cal.set(Calendar.YEAR, jsonObject.getInt(EVENT_YEAR));
-            cal.set(Calendar.DAY_OF_MONTH, jsonObject.getInt(EVENT_DAY));
-            cal.set(Calendar.MONTH, jsonObject.getInt(EVENT_MONTH));
+            //cal.set(Calendar.YEAR, jsonObject.getInt(EVENT_YEAR));
+            //cal.set(Calendar.DAY_OF_MONTH, jsonObject.getInt(EVENT_DAY));
+            //cal.set(Calendar.MONTH, jsonObject.getInt(EVENT_MONTH));
 
-            cal.set(Calendar.HOUR, jsonObject.getInt(EVENT_HOUR_START));
-            cal.set(Calendar.MINUTE, jsonObject.getInt(EVENT_MINUTE_START));
+            //cal.set(Calendar.HOUR, jsonObject.getInt(EVENT_HOUR_START));
+            //cal.set(Calendar.MINUTE, jsonObject.getInt(EVENT_MINUTE_START));
 
             Date date = cal.getTime();
 
             Message message = new Message.Builder()
                     .setMessageString(jsonObject.getString(MESSAGE_STRING))
-                    .set_id(jsonObject.getString(MESSAGE_ID))
+                    //.set_id(jsonObject.getString(MESSAGE_ID))
                     .setIcon(jsonObject.getString(MESSAGE_ICON))
                     .setCategory(jsonObject.getString(MESSAGE_CATEGORY))
                     .setPlaygroundID(jsonObject.getString(PLAYGROUND_ID))
-                    .setWrittenByID(jsonObject.getString(MESSAGE_WRITTENBY_ID))
                     .setDate(date)
+                    //.setWrittenByID(jsonObject.getString(MESSAGE_WRITTENBY_ID))
+                    //.setWrittenByID("s185036")
                     .build();
-
+/*
+            if (jsonObject.getString(MESSAGE_ID) != null) {
+                message.setId(jsonObject.getString(MESSAGE_ID));
+            }*/
 
             if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged()) {
                 ctx.status(200).result("Message posted");
