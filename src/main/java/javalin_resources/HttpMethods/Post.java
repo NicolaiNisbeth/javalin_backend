@@ -168,7 +168,10 @@ public class Post implements Tag {
             if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString("playgroundID"), message).wasAcknowledged()) { //PLAYGROUND_ID
                 ctx.status(200).result("Message posted");
                 ctx.json(Controller.getInstance().getMessage(message.getId()));
-                //if (bufferedImage != null) Shared.saveMessageImage(message.getId(), bufferedImage);
+                if (bufferedImage != null) {
+                    //Shared.saveMessageImage(message.getId(), bufferedImage);
+                    System.out.println("ikke prut!");
+                }
             } else {
                 ctx.status(404).result("Failed to post message");
             }
