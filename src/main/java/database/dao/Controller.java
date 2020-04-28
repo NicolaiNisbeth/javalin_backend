@@ -13,7 +13,6 @@ import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
 import org.mindrot.jbcrypt.BCrypt;
-import sun.management.jmxremote.ConnectorBootstrap;
 
 import java.util.*;
 
@@ -111,7 +110,6 @@ public class Controller implements IController {
     @Override
     public User getUser(String username) throws DALException {
         User user = userDAO.getUser(username);
-
         // fetch all events based on id
         Set<Event> events = user.getEvents();
         Set<Event> updatedEvents = new HashSet<>();
