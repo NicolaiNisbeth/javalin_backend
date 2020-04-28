@@ -79,7 +79,7 @@ public class Main {
                         server.setHandler(statisticsHandler);
                         return server;
                     });
-        }).start(8080);
+        }).start(8088);
 
         app.before(ctx -> {
             System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());
