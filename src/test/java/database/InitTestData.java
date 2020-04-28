@@ -27,11 +27,11 @@ public class InitTestData {
 
     @BeforeAll
     static void setup(){
-        controller = Controller.getInstance();
-        eventDAO = new EventDAO();
-        messageDAO = new MessageDAO();
-        playgroundDAO = new PlaygroundDAO();
-        userDAO = new UserDAO();
+        controller = Controller.getInstance(DataSource.getTestDB());
+        eventDAO = new EventDAO(DataSource.getProductionDB());
+        messageDAO = new MessageDAO(DataSource.getProductionDB());
+        playgroundDAO = new PlaygroundDAO(DataSource.getProductionDB());
+        userDAO = new UserDAO(DataSource.getProductionDB());
     }
 
     @AfterAll
@@ -43,9 +43,8 @@ public class InitTestData {
         userDAO = null;
     }
 
-
     @Test
-    void initFreshData() throws DALException {
+    void initFreshData(){
         killAll();
 
         List<String> usernames = initUsers();
@@ -59,19 +58,10 @@ public class InitTestData {
     }
 
     private static void killAll() {
-        try {
-            userDAO.deleteAllUsers();
-        } catch (DALException e){}
-        try {
-            eventDAO.deleteAllEvents();
-        } catch (DALException e){}
-
-        try {
-            messageDAO.deleteAllMessages();
-        } catch (DALException e){}
-        try {
-            playgroundDAO.deleteAllPlaygrounds();
-        } catch (DALException e){}
+        userDAO.deleteAllUsers();
+        eventDAO.deleteAllEvents();
+        messageDAO.deleteAllMessages();
+        playgroundDAO.deleteAllPlaygrounds();
         System.out.println("Collections are deleted");
     }
 
@@ -100,7 +90,7 @@ public class InitTestData {
                 controller.createPlayground(playground);
                 line = br.readLine();
             }
-        } catch (IOException e) {
+        } catch (IOException | NoModificationException e) {
             e.printStackTrace();
         }
         System.out.println("playgrounds are created");
@@ -132,7 +122,7 @@ public class InitTestData {
                 controller.createUser(user);
                 line = br.readLine();
             }
-        } catch (IOException e) {
+        } catch (IOException | NoModificationException e) {
             e.printStackTrace();
         }
 

@@ -1,51 +1,137 @@
 package database.dao;
 
+import com.mongodb.WriteResult;
 import database.DALException;
+import database.DataSource;
+import database.NoModificationException;
+import database.collections.Details;
+import database.collections.Event;
 import database.collections.Message;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Date;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 class MessageDAOTest {
-    static MessageDAO messageDAO;
+    static IMessageDAO messageDAO  = new MessageDAO(DataSource.getTestDB());
 
     @BeforeAll
-    public static void init(){
-        messageDAO = new MessageDAO();
+    static void killAll(){
+        messageDAO.deleteAllMessages();
     }
 
     @Test
-    void createMessage() throws DALException {
+    void createdMessageShouldBeFetchedMessage() throws NoModificationException {
         Message message = new Message.Builder()
                 .setMessageString("Husk løbesko til fodbold")
                 .build();
-        messageDAO.createMessage(message);
+
+        WriteResult ws = messageDAO.createMessage(message);
+        Message fetchedMessage = messageDAO.getMessage(ws.getUpsertedId().toString());
+        Assertions.assertEquals(message, fetchedMessage);
+
+        messageDAO.deleteMessage(ws.getUpsertedId().toString());
     }
 
     @Test
-    void getMessage() throws DALException {
-        System.out.println(messageDAO.getMessage("5e752c8452ab03398d28d262"));
+    void createTwoMessagesShouldFetchListSizeTwo() throws NoModificationException {
+        Message message = new Message.Builder()
+                .setMessageString("Husk løbesko til fodbold")
+                .build();
+
+        Message message2 = new Message.Builder()
+                .setMessageString("Husk badebukser")
+                .build();
+
+        WriteResult wr = messageDAO.createMessage(message);
+        WriteResult wr2 = messageDAO.createMessage(message2);
+
+        List<Message> messageList = messageDAO.getMessageList();
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(messageList.size(), 2),
+                () -> Assertions.assertEquals(messageList.get(0), message),
+                () -> Assertions.assertEquals(messageList.get(1), message2)
+        );
+
+        messageDAO.deleteMessage(wr.getUpsertedId().toString());
+        messageDAO.deleteMessage(wr2.getUpsertedId().toString());
     }
 
     @Test
-    void getMessageList() throws DALException {
-        for (Message playground : messageDAO.getMessageList()) {
-            System.out.println(playground);
-    }}
+    void updateEventShouldFetchUpdatedEvent() throws NoModificationException{
+        Message message = new Message.Builder()
+                .setMessageString("Husk løbesko til fodbold")
+                .build();
 
-    @Test
-    void updateMessage() throws DALException {
-        Message playground = messageDAO.getMessage("5e752c8452ab03398d28d262");
-        System.out.println(playground);
-        playground.setCategory("Ny cat");
-        playground.setMessageString("Husk nu at slå det toiletbræt ned, tak!");
-        messageDAO.updateMessage(playground);
-        System.out.println(messageDAO.getMessage("5e752c8452ab03398d28d262"));
+        WriteResult ws = messageDAO.createMessage(message);
+        message.setMessageString("ny string");
+        messageDAO.updateMessage(message);
 
+        Message updatedMessage = messageDAO.getMessage(ws.getUpsertedId().toString());
+        Assertions.assertEquals("ny string", updatedMessage.getMessageString());
+
+        messageDAO.deleteMessage(ws.getUpsertedId().toString());
     }
 
     @Test
-    void deleteMessage() throws DALException {
-        messageDAO.deleteMessage("5e7500a29c55065cb293b635");
+    void deleteAllMessagesInCollection() throws NoModificationException {
+        Message message = new Message.Builder()
+                .setMessageString("Husk løbesko til fodbold")
+                .build();
 
+        Message message2 = new Message.Builder()
+                .setMessageString("Husk badebukser")
+                .build();
+
+        WriteResult wr = messageDAO.createMessage(message);
+        WriteResult wr2 = messageDAO.createMessage(message2);
+
+        Assertions.assertAll(
+                () -> Assertions.assertNotNull(messageDAO.getMessage(wr.getUpsertedId().toString())),
+                () -> Assertions.assertNotNull(messageDAO.getMessage(wr2.getUpsertedId().toString()))
+        );
+
+        messageDAO.deleteAllMessages();
+        Assertions.assertThrows(NoSuchElementException.class, () -> messageDAO.getMessageList());
     }
+
+    @Test
+    void nullInCreateShouldThrowIllegalArgument(){
+        Assertions.assertThrows(IllegalArgumentException.class, () -> messageDAO.createMessage(null));
+    }
+
+    @Test
+    void nullInGetShouldThrowIlleArgument(){
+        Assertions.assertThrows(IllegalArgumentException.class, () -> messageDAO.getMessage(null));
+    }
+    @Test
+    void emptyIdInGetShouldThrowIlleArgument(){
+        Assertions.assertThrows(IllegalArgumentException.class, () -> messageDAO.getMessage(""));
+    }
+
+    @Test
+    void noEventsInGetEventsShouldThrowNoSuchElements(){
+        Assertions.assertThrows(NoSuchElementException.class, () -> messageDAO.getMessageList());
+    }
+
+    @Test
+    void nullInUpdateShouldThrowIlleArgument(){
+        Assertions.assertThrows(IllegalArgumentException.class, () -> messageDAO.updateMessage(null));
+    }
+
+    @Test
+    void nullInDeleteShouldThrowIlleArgument(){
+        Assertions.assertThrows(IllegalArgumentException.class, () -> messageDAO.deleteMessage(null));
+    }
+
+    @Test
+    void emptyIdInDeleteShouldThrowIlleArgument(){
+        Assertions.assertThrows(IllegalArgumentException.class, () -> messageDAO.deleteMessage(""));
+    }
+
 }

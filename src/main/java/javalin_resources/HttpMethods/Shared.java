@@ -1,10 +1,10 @@
 package javalin_resources.HttpMethods;
 
 import database.DALException;
+import database.DataSource;
 import database.collections.User;
 import database.dao.Controller;
 import io.javalin.http.Context;
-import org.json.JSONObject;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.imageio.ImageIO;
@@ -21,7 +21,7 @@ public class Shared {
         User admin;
         //Hent admin - den der opretter brugeren
         try {
-            admin = Controller.getInstance().getUser(username);
+            admin = Controller.getInstance(DataSource.getTestDB()).getUser(username);
         } catch (DALException e) {
             e.printStackTrace();
             ctx.status(401);

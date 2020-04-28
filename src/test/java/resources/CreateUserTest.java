@@ -1,8 +1,9 @@
 package resources;
 
 import com.google.gson.Gson;
-import com.mongodb.WriteResult;
 import database.DALException;
+import database.DataSource;
+import database.NoModificationException;
 import database.collections.Playground;
 import database.collections.User;
 import database.dao.*;
@@ -26,7 +27,7 @@ class CreateUserTest {
     }
 
     @BeforeEach
-    void setUpUser() {
+    void setUpUser() throws NoModificationException {
         userModel = new JsonModels.UserModel();
         userModel.usernameAdmin = "root";
         userModel.passwordAdmin = "root";
@@ -46,7 +47,7 @@ class CreateUserTest {
         json = gson.toJson(userModel);
 
         try {
-            Controller.getInstance().getUser("root");
+            Controller.getInstance(DataSource.getTestDB()).getUser("root");
         } catch (DALException e) {
             User root = new User.Builder("root")
                     .status("admin")
@@ -54,13 +55,13 @@ class CreateUserTest {
                     .setFirstname("Københavns")
                     .setLastname("Kommune")
                     .build();
-            Controller.getInstance().createUser(root);
+            Controller.getInstance(DataSource.getTestDB()).createUser(root);
         }
     }
 
     @AfterAll
-    static void printAll() throws DALException {
-        UserDAO userDAO = new UserDAO();
+    static void printAll() throws DALException, NoModificationException {
+        UserDAO userDAO = new UserDAO(DataSource.getTestDB());
         System.out.println("Test-userlist after test: ");
         for (User user : userDAO.getUserList()) {
             if (user.getUsername().length() < 1 || user.getUsername().substring(0, 3).equalsIgnoreCase("abc")) {
@@ -84,7 +85,7 @@ class CreateUserTest {
                 .setHasSoccerField(true)
                 .setImagePath("https://scontent-ams4-1.xx.fbcdn.net/v/t1.0-9/35925882_1752144438212095_2872486595854860288_o.jpg?_nc_cat=110&_nc_sid=6e5ad9&_nc_ohc=niAAIcBtSkEAX_InvHT&_nc_ht=scontent-ams4-1.xx&oh=9244ce211671c878bbb58aeb41d6e1d8&oe=5E9AE2B2")
                 .build();
-        Controller.getInstance().createPlayground(playground);
+        Controller.getInstance(DataSource.getTestDB()).createPlayground(playground);
 
         userModel.playgroundsIDs[0] = playground.getName();
 
@@ -99,12 +100,12 @@ class CreateUserTest {
         verify(ctx).status(201);
         verify(ctx).result("User created.");
 
-        User user = Controller.getInstance().getUser("abc-test-user");
+        User user = Controller.getInstance(DataSource.getTestDB()).getUser("abc-test-user");
         Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
         System.out.println("ids " + user.getPlaygroundsIDs());
-        Playground playground1 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken");
+        Playground playground1 = Controller.getInstance(DataSource.getTestDB()).getPlayground("KålPladsen i Kildevældsparken");
         Assertions.assertEquals(1, playground1.getAssignedPedagogue().size());
-        Controller.getInstance().deletePlayground("KålPladsen i Kildevældsparken");
+        Controller.getInstance(DataSource.getTestDB()).deletePlayground("KålPladsen i Kildevældsparken");
     }
 
     @Test
@@ -118,7 +119,7 @@ class CreateUserTest {
                 .setHasSoccerField(true)
                 .setImagePath("https://scontent-ams4-1.xx.fbcdn.net/v/t1.0-9/35925882_1752144438212095_2872486595854860288_o.jpg?_nc_cat=110&_nc_sid=6e5ad9&_nc_ohc=niAAIcBtSkEAX_InvHT&_nc_ht=scontent-ams4-1.xx&oh=9244ce211671c878bbb58aeb41d6e1d8&oe=5E9AE2B2")
                 .build();
-        Controller.getInstance().createPlayground(playground);
+        Controller.getInstance(DataSource.getTestDB()).createPlayground(playground);
 
         userModel.playgroundsIDs[0] = playground.getName();
 
@@ -133,21 +134,21 @@ class CreateUserTest {
         verify(ctx).status(201);
         verify(ctx).result("User created.");
 
-        User user = Controller.getInstance().getUser("abc-test-user-2");
+        User user = Controller.getInstance(DataSource.getTestDB()).getUser("abc-test-user-2");
         Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
         System.out.println("ids " + user.getPlaygroundsIDs());
-        Playground playground1 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken2");
+        Playground playground1 = Controller.getInstance(DataSource.getTestDB()).getPlayground("KålPladsen i Kildevældsparken2");
         Assertions.assertEquals(1, playground1.getAssignedPedagogue().size());
 
-        Controller.getInstance().deleteUser(user.getUsername());
-        Playground playground2 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken2");
+        Controller.getInstance(DataSource.getTestDB()).deleteUser(user.getUsername());
+        Playground playground2 = Controller.getInstance(DataSource.getTestDB()).getPlayground("KålPladsen i Kildevældsparken2");
         Assertions.assertEquals(0, playground2.getAssignedPedagogue().size());
 
         // System.out.println(playground2.getAssignedPedagogue());
         //Assertions.assertEquals(0, playground2.getAssignedPedagogue().size());
 
         System.out.println(playground2.getAssignedPedagogue());
-        Controller.getInstance().deletePlayground("KålPladsen i Kildevældsparken2");
+        Controller.getInstance(DataSource.getTestDB()).deletePlayground("KålPladsen i Kildevældsparken2");
     }
 
 
@@ -160,7 +161,7 @@ class CreateUserTest {
                 .setPassword("abc")
                 .status("pædagog")
                 .build();
-        Controller.getInstance().createUser(abcUser);
+        Controller.getInstance(DataSource.getTestDB()).createUser(abcUser);
 
         // Forsøg på oprettelse af user der allerede er i db
         ctx = mock(Context.class); // "mock-maker-inline" must be enabled
@@ -173,7 +174,7 @@ class CreateUserTest {
         verify(ctx).status(401);
         verify(ctx).result("Unauthorized - User already exists");
         //Clean up
-        Controller.getInstance().deleteUser("abc");
+        Controller.getInstance(DataSource.getTestDB()).deleteUser("abc");
     }
 
     @Test
@@ -219,7 +220,7 @@ class CreateUserTest {
                 .setPassword("abc-wrong-adm-stat")
                 .status("pædagog")
                 .build();
-        Controller.getInstance().createUser(abcUser);
+        Controller.getInstance(DataSource.getTestDB()).createUser(abcUser);
         ctx = mock(Context.class); // "mock-maker-inline" must be enabled
         ctx.result("");
         ctx.status(0);

@@ -1,8 +1,12 @@
 package database.dao;
 
+import com.mongodb.DB;
+import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
+import com.mongodb.client.ClientSession;
 import database.DALException;
 import database.DataSource;
+import database.NoModificationException;
 import database.collections.Event;
 import database.collections.Message;
 import database.collections.Playground;
@@ -17,94 +21,76 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.util.*;
 
 public class Controller implements IController {
-    private static Controller beta;
-    private PlaygroundDAO playgroundDAO;
-    private UserDAO userDAO;
-    private MessageDAO messageDAO;
-    private EventDAO eventDAO;
+    private static IController beta;
+    private IPlaygroundDAO playgroundDAO;
+    private IUserDAO userDAO;
+    private IMessageDAO messageDAO;
+    private IEventDAO eventDAO;
 
-    private Controller() {
-        this.playgroundDAO = new PlaygroundDAO();
-        this.userDAO = new UserDAO();
-        this.messageDAO = new MessageDAO();
-        this.eventDAO = new EventDAO();
+    private Controller(DB db) {
+        this.playgroundDAO = new PlaygroundDAO(db);
+        this.userDAO = new UserDAO(db);
+        this.messageDAO = new MessageDAO(db);
+        this.eventDAO = new EventDAO(db);
     }
 
-    public static Controller getInstance() {
+    public static IController getInstance(DB testDB) {
         if (beta == null) {
-            beta = new Controller();
+            beta = new Controller(testDB);
         }
         return beta;
     }
 
     @Override
-    public WriteResult createPlayground(Playground playground) {
-        WriteResult writeResult = null;
-        try {
-            writeResult = playgroundDAO.createPlayground(playground);
-        } catch (DALException e) {
-            e.printStackTrace();
-        }
-        return writeResult;
+    public WriteResult createPlayground(Playground playground) throws NoModificationException {
+        return playgroundDAO.createPlayground(playground);
     }
 
     @Override
-    public WriteResult createUser(User user) {
-        WriteResult writeResult = null;
-        try {
-            String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
-            user.setPassword(hashedPassword);
-            writeResult = userDAO.createUser(user);
-        } catch (DALException e) {
-            e.printStackTrace();
-        }
-        return writeResult;
+    public WriteResult createUser(User user) throws NoModificationException {
+        String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+        user.setPassword(hashedPassword);
+        return userDAO.createUser(user);
     }
 
     @Override
-    public Playground getPlayground(String playgroundName) {
-        try {
-            Playground playground = playgroundDAO.getPlayground(playgroundName);
+    public Playground getPlayground(String playgroundName) throws NoModificationException {
+        Playground playground = playgroundDAO.getPlayground(playgroundName);
 
-            // fetch assigned pedagogues based on username
-            Set<User> assignedPedagogue = playground.getAssignedPedagogue();
-            Set<User> updatedPedagogue = new HashSet<>();
-            if (!assignedPedagogue.isEmpty()) {
-                for (User usernameObj : assignedPedagogue) {
-                    User user = userDAO.getUser(usernameObj.getUsername());
-                    updatedPedagogue.add(user);
-                }
+        // fetch assigned pedagogues based on username
+        Set<User> assignedPedagogue = playground.getAssignedPedagogue();
+        Set<User> updatedPedagogue = new HashSet<>();
+        if (!assignedPedagogue.isEmpty()) {
+            for (User usernameObj : assignedPedagogue) {
+                User user = userDAO.getUser(usernameObj.getUsername());
+                updatedPedagogue.add(user);
             }
-            playground.setAssignedPedagogue(updatedPedagogue);
-
-            // fetch events based on id
-            Set<Event> events = playground.getEvents();
-            Set<Event> updatedEvents = new HashSet<>();
-            if (!events.isEmpty()) {
-                for (Event idObj : events) {
-                    Event event = eventDAO.getEvent(idObj.getId());
-                    updatedEvents.add(event);
-                }
-            }
-            playground.setEvents(updatedEvents);
-
-
-            // fetch messages based on id
-            Set<Message> messages = playground.getMessages();
-            Set<Message> updatedMessage = new HashSet<>();
-            if (!messages.isEmpty()) {
-                for (Message idObj : messages) {
-                    Message message = messageDAO.getMessage(idObj.getId());
-                    updatedMessage.add(message);
-                }
-            }
-            playground.setMessages(updatedMessage);
-            return playground;
-
-        } catch (DALException e) {
-            e.printStackTrace();
         }
-        return null;
+        playground.setAssignedPedagogue(updatedPedagogue);
+
+        // fetch events based on id
+        Set<Event> events = playground.getEvents();
+        Set<Event> updatedEvents = new HashSet<>();
+        if (!events.isEmpty()) {
+            for (Event idObj : events) {
+                Event event = eventDAO.getEvent(idObj.getId());
+                updatedEvents.add(event);
+            }
+        }
+        playground.setEvents(updatedEvents);
+
+
+        // fetch messages based on id
+        Set<Message> messages = playground.getMessages();
+        Set<Message> updatedMessage = new HashSet<>();
+        if (!messages.isEmpty()) {
+            for (Message idObj : messages) {
+                Message message = messageDAO.getMessage(idObj.getId());
+                updatedMessage.add(message);
+            }
+        }
+        playground.setMessages(updatedMessage);
+        return playground;
     }
 
     @Override
@@ -127,63 +113,41 @@ public class Controller implements IController {
     @Override
     public Event getEvent(String eventID) {
         Event event = null;
-        try {
-            event = eventDAO.getEvent(eventID);
+        event = eventDAO.getEvent(eventID);
 
-            // fetch all users based on id
-            Set<User> users = event.getAssignedUsers();
-            Set<User> updatedUser = new HashSet<>();
-            if (!users.isEmpty()) {
-                for (User user : users) {
-                    User u = userDAO.getUser(user.getUsername());
-                    updatedUser.add(u);
-                }
+        // fetch all users based on id
+        Set<User> users = event.getAssignedUsers();
+        Set<User> updatedUser = new HashSet<>();
+        if (!users.isEmpty()) {
+            for (User user : users) {
+                User u = userDAO.getUser(user.getUsername());
+                updatedUser.add(u);
             }
-            event.setAssignedUsers(updatedUser);
-
-        } catch (DALException e) {
-            e.printStackTrace();
         }
+        event.setAssignedUsers(updatedUser);
+
 
         return event;
     }
 
     @Override
-    public Message getMessage(String messageID) {
-        Message message = null;
-        try {
-            message = messageDAO.getMessage(messageID);
-        } catch (DALException e) {
-            e.printStackTrace();
-        }
-        return message;
+    public Message getMessage(String messageID) throws NoModificationException {
+        return messageDAO.getMessage(messageID);
     }
 
     @Override
     public List<Playground> getPlaygrounds() {
-        List<Playground> list = null;
-        try {
-            list = playgroundDAO.getPlaygroundList();
-        } catch (DALException e) {
-            e.printStackTrace();
-        }
-        return list;
+        return playgroundDAO.getPlaygroundList();
     }
 
     @Override
     public List<User> getUsers() {
-        List<User> list = null;
-        try {
-            list = userDAO.getUserList();
-        } catch (DALException e) {
-            e.printStackTrace();
-        }
-        return list;
+        return userDAO.getUserList();
     }
 
     @Override
     public List<Event> getPlaygroundEvents(String playgroundName) {
-        Jongo jongo = new Jongo(DataSource.getDB());
+        Jongo jongo = new Jongo(DataSource.getProductionDB());
         MongoCollection events = jongo.getCollection(IEventDAO.COLLECTION);
         MongoCursor<Event> cursor = events.find("{playground : #}", playgroundName).as(Event.class);
         List<Event> eventList = new ArrayList<>();
@@ -195,7 +159,7 @@ public class Controller implements IController {
 
     @Override
     public List<Message> getPlaygroundMessages(String playgroundName) {
-        Jongo jongo = new Jongo(DataSource.getDB());
+        Jongo jongo = new Jongo(DataSource.getProductionDB());
         MongoCollection messages = jongo.getCollection(IMessageDAO.COLLECTION);
         MongoCursor<Message> cursor = messages.find("{playgroundID : #}", playgroundName).as(Message.class);
         List<Message> messageList = new ArrayList<>();
@@ -206,59 +170,37 @@ public class Controller implements IController {
     }
 
     @Override
-    public boolean updatePlayground(Playground playground) {
-        boolean isUpdated = false;
-        try {
-            isUpdated = playgroundDAO.updatePlayground(playground);
-        } catch (DALException e) {
-            e.printStackTrace();
-        }
-        return isUpdated;
+    public WriteResult updatePlayground(Playground playground) throws NoModificationException {
+        return playgroundDAO.updatePlayground(playground);
     }
 
     @Override
-    public WriteResult updateUser(User user) {
-        WriteResult writeResult = null;
-        try {
-            writeResult = userDAO.updateUser(user);
-        } catch (DALException e) {
-            e.printStackTrace();
-        }
-        return writeResult;
+    public WriteResult updateUser(User user) throws NoModificationException {
+        return userDAO.updateUser(user);
     }
 
     @Override
-    public boolean updatePlaygroundEvent(Event event) {
-        boolean isUpdated = false;
-        try {
-            isUpdated = eventDAO.updateEvent(event);
-        } catch (DALException e) {
-            e.printStackTrace();
-        }
-        return isUpdated;
+    public WriteResult updatePlaygroundEvent(Event event) throws NoModificationException {
+        return eventDAO.updateEvent(event);
     }
 
     @Override
-    public boolean updatePlaygroundMessage(Message message) {
-        boolean isUpdated = false;
-        try {
-            isUpdated = messageDAO.updateMessage(message);
-        } catch (DALException e) {
-            e.printStackTrace();
-        }
-        return isUpdated;
+    public WriteResult updatePlaygroundMessage(Message message) throws NoModificationException {
+        return messageDAO.updateMessage(message);
     }
 
     @Override
-    public boolean deletePlayground(String playgroundName) {
-        //      final ClientSession session = DataSource.getClient().startSession();
-        boolean isPlaygroundDeleted = false;
-        //      session.startTransaction();
-        try {
+    public WriteResult deletePlayground(String playgroundName) throws DALException, NoModificationException {
+        WriteResult isPlaygroundDeleted = null;
+
+        final ClientSession session = DataSource.getProductionClient().startSession();
+        try (session){
+            session.startTransaction();
+
             Playground playground = playgroundDAO.getPlayground(playgroundName);
 
             // delete playground reference from pedagogues
-            MongoCollection usersCollection = new Jongo(DataSource.getDB()).getCollection(IUserDAO.COLLECTION);
+            MongoCollection usersCollection = new Jongo(DataSource.getProductionDB()).getCollection(IUserDAO.COLLECTION);
             for (User pedagogue : playground.getAssignedPedagogue())
                 QueryUtils.updateWithPullSimple(usersCollection, "username", pedagogue.getUsername(), "playgroundsIDs", playgroundName);
 
@@ -273,12 +215,9 @@ public class Controller implements IController {
             // delete playground
             isPlaygroundDeleted = playgroundDAO.deletePlayground(playgroundName);
 
-            //      session.commitTransaction();
-        } catch (Exception e) {
-            //       session.abortTransaction();
-            e.printStackTrace();
-        } finally {
-            //       session.close();
+            session.commitTransaction();
+        } catch (MongoException e){
+            session.abortTransaction();
         }
 
         return isPlaygroundDeleted;
@@ -326,7 +265,7 @@ public class Controller implements IController {
             userDAO.updateUser(pedagogue);
 
             // insert user reference in playground
-            MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
+            MongoCollection playgrounds = new Jongo(DataSource.getProductionDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", plagroundName, "assignedPedagogue", pedagogue);
 
             //        clientSession.commitTransaction();
@@ -346,9 +285,9 @@ public class Controller implements IController {
         try {
 
             for (String playgroundName : user.getPlaygroundsIDs()) {
-                Playground playground = Controller.getInstance().getPlayground(playgroundName);
+                Playground playground = Controller.getInstance(DataSource.getTestDB()).getPlayground(playgroundName);
                 playground.getAssignedPedagogue().add(user);
-                Controller.getInstance().updatePlayground(playground);
+                Controller.getInstance(DataSource.getTestDB()).updatePlayground(playground);
             }
 
 
@@ -375,7 +314,7 @@ public class Controller implements IController {
             userDAO.updateUser(user);
 
             // insert user reference in event
-            Jongo jongo = new Jongo(DataSource.getDB());
+            Jongo jongo = new Jongo(DataSource.getProductionDB());
             MongoCollection events = jongo.getCollection(IEventDAO.COLLECTION);
             QueryUtils.updateWithPush(events, "_id", new ObjectId(eventID), "assignedUsers", user);
 
@@ -401,7 +340,7 @@ public class Controller implements IController {
             result = eventDAO.createEvent(event);
 
             // insert event id in playground
-            MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
+            MongoCollection playgrounds = new Jongo(DataSource.getProductionDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", playgroundName, "events", event);
 
             //    clientSession.commitTransaction();
@@ -426,7 +365,7 @@ public class Controller implements IController {
             result = messageDAO.createMessage(message);
 
             // update playground array with reference to message
-            MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
+            MongoCollection playgrounds = new Jongo(DataSource.getProductionDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", playgroundName, "messages", message);
 
             //   clientSession.commitTransaction();
@@ -441,7 +380,7 @@ public class Controller implements IController {
     }
 
     @Override
-    public boolean removePedagogueFromPlayground(String playgroundName, String username) {
+    public boolean removePedagogueFromPlayground(String playgroundName, String username) throws NoModificationException {
        /* Kan ikke få det til at virke
        MongoCollection playground = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
         try {
@@ -451,7 +390,7 @@ public class Controller implements IController {
         }
         return true;*/
         User removeUser = null;
-        Playground playground = Controller.getInstance().getPlayground(playgroundName);
+        Playground playground = Controller.getInstance(DataSource.getTestDB()).getPlayground(playgroundName);
         for (User user : playground.getAssignedPedagogue()) {
             if (user.getUsername().equalsIgnoreCase(username)) {
                 removeUser = user;
@@ -459,7 +398,7 @@ public class Controller implements IController {
             }
         }
         playground.getAssignedPedagogue().remove(removeUser);
-        Controller.getInstance().updatePlayground(playground);
+        Controller.getInstance(DataSource.getTestDB()).updatePlayground(playground);
         return true;
     }
 
@@ -467,11 +406,11 @@ public class Controller implements IController {
     public boolean removeUserFromPlaygroundEvent(String eventID, String username) {
         try {
             // delete user reference in event
-            MongoCollection events = new Jongo(DataSource.getDB()).getCollection(IEventDAO.COLLECTION);
+            MongoCollection events = new Jongo(DataSource.getProductionDB()).getCollection(IEventDAO.COLLECTION);
             QueryUtils.updateWithPullObject(events, "_id", new ObjectId(eventID), "assignedUsers", "username", username);
 
             // delete event reference in user
-            MongoCollection users = new Jongo(DataSource.getDB()).getCollection(IUserDAO.COLLECTION);
+            MongoCollection users = new Jongo(DataSource.getProductionDB()).getCollection(IUserDAO.COLLECTION);
             QueryUtils.updateWithPullObject(users, "username", username, "events", "_id", new ObjectId(eventID));
         } catch (DALException e) {
             e.printStackTrace();
@@ -480,21 +419,21 @@ public class Controller implements IController {
     }
 
     @Override
-    public boolean removePlaygroundEvent(String eventID) {
+    public WriteResult removePlaygroundEvent(String eventID) {
         //ClientSession clientSession = DataSource.getClient().startSession();
-        boolean isEventDeleted = false;
+        WriteResult isEventDeleted = null;
         //clientSession.startTransaction();
         try {
             Event event = eventDAO.getEvent(eventID);
 
             // delete event reference in users
-            MongoCollection users = new Jongo(DataSource.getDB()).getCollection(IUserDAO.COLLECTION);
+            MongoCollection users = new Jongo(DataSource.getProductionDB()).getCollection(IUserDAO.COLLECTION);
             for (User user : event.getAssignedUsers()) {
                 QueryUtils.updateWithPullObject(users, "username", user.getUsername(), "events", "_id", new ObjectId(eventID));
             }
 
             // delete event reference in playground
-            MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
+            MongoCollection playgrounds = new Jongo(DataSource.getProductionDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPullObject(playgrounds, "name", event.getPlaygroundName(), "events", "_id", new ObjectId(eventID));
 
             // delete event
@@ -512,15 +451,15 @@ public class Controller implements IController {
     }
 
     @Override
-    public boolean removePlaygroundMessage(String messageID) {
+    public WriteResult removePlaygroundMessage(String messageID) {
         //ClientSession clientSession = DataSource.getClient().startSession();
-        boolean isMessageDeleted = false;
+        WriteResult isMessageDeleted = null;
         //clientSession.startTransaction();
         try {
             Message message = messageDAO.getMessage(messageID);
 
             // delete message reference in playground
-            MongoCollection playground = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
+            MongoCollection playground = new Jongo(DataSource.getProductionDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPullObject(playground, "name", message.getPlaygroundName(), "messages", "_id", new ObjectId(messageID));
 
             // delete message

@@ -7,10 +7,10 @@ class DataSourceTest {
     @Test
     void getDB() {
 
-        System.out.println(DataSource.getDB().getName());
+        System.out.println(DataSource.getProductionDB().getName());
 
 
-        for (String str : DataSource.getDB().getCollectionNames()) {
+        for (String str : DataSource.getProductionDB().getCollectionNames()) {
             System.out.println(str);
         }
 

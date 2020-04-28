@@ -1,12 +1,12 @@
 package resources;
 
 import com.google.gson.Gson;
-import com.mongodb.WriteResult;
 import database.DALException;
+import database.DataSource;
+import database.NoModificationException;
 import database.collections.Playground;
 import database.collections.User;
 import database.dao.Controller;
-import database.dao.UserDAO;
 import io.javalin.http.Context;
 import javalin_resources.HttpMethods.Put;
 import org.junit.jupiter.api.*;
@@ -23,12 +23,12 @@ class UpdateUserTest {
     private static String json;
 
     @BeforeAll
-    static void setUp() {
+    static void setUp() throws NoModificationException {
         //"mock-maker-inline" must be enabled
         ctx = mock(Context.class);
 
         try {
-            Controller.getInstance().getUser("root");
+            Controller.getInstance(DataSource.getTestDB()).getUser("root");
         } catch (DALException e) {
             User root = new User.Builder("root")
                     .status("admin")
@@ -36,7 +36,7 @@ class UpdateUserTest {
                     .setFirstname("Københavns")
                     .setLastname("Kommune")
                     .build();
-            Controller.getInstance().createUser(root);
+            Controller.getInstance(DataSource.getTestDB()).createUser(root);
         }
     }
 
@@ -88,10 +88,10 @@ class UpdateUserTest {
                 .setLastname(userModel.lastname)
                 .setStatus(userModel.status)
                 .build();
-        Controller.getInstance().createUser(updateUser);
+        Controller.getInstance(DataSource.getTestDB()).createUser(updateUser);
 
         Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
-        User fromDB = Controller.getInstance().getUser(updateUser.getUsername());
+        User fromDB = Controller.getInstance(DataSource.getTestDB()).getUser(updateUser.getUsername());
         System.out.println(fromDB.getPlaygroundsIDs());
 
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
@@ -106,10 +106,10 @@ class UpdateUserTest {
         verify(ctx).status(201);
         verify(ctx).result("User updated");
 
-        updateUser = Controller.getInstance().getUser(updateUser.getUsername());
+        updateUser = Controller.getInstance(DataSource.getTestDB()).getUser(updateUser.getUsername());
         Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
 
-        Controller.getInstance().deleteUser(userModel.username);
+        Controller.getInstance(DataSource.getTestDB()).deleteUser(userModel.username);
     }
 
     @Test
@@ -135,13 +135,13 @@ class UpdateUserTest {
                 .setCommune("København Ø")
                 .setZipCode(2100)
                 .build();
-        Controller.getInstance().createPlayground(playground);
+        Controller.getInstance(DataSource.getTestDB()).createPlayground(playground);
 
         Playground playground2 = new Playground.Builder("KålPladsen2")
                 .setCommune("København Ø")
                 .setZipCode(2100)
                 .build();
-        Controller.getInstance().createPlayground(playground2);
+        Controller.getInstance(DataSource.getTestDB()).createPlayground(playground2);
 
         String[] pgIDs = new String[2];
         pgIDs[0] = "KålPladsen1";
@@ -154,7 +154,7 @@ class UpdateUserTest {
                 .setStatus(userModel.status)
                 .build();
 
-        Controller.getInstance().createUser(updateUser);
+        Controller.getInstance(DataSource.getTestDB()).createUser(updateUser);
         Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
 
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
@@ -171,7 +171,7 @@ class UpdateUserTest {
         verify(ctx).status(201);
         verify(ctx).result("User updated");
 
-        updateUser = Controller.getInstance().getUser(updateUser.getUsername());
+        updateUser = Controller.getInstance(DataSource.getTestDB()).getUser(updateUser.getUsername());
         Assertions.assertEquals(2, updateUser.getPlaygroundsIDs().size());
 
       /*  playground = Controller.getInstance().getPlayground(playground.getName());
@@ -180,10 +180,10 @@ class UpdateUserTest {
         playground2 = Controller.getInstance().getPlayground(playground2.getName());
         Assertions.assertEquals(1, playground2.getAssignedPedagogue().size());
 */
-        Controller.getInstance().deletePlayground(playground.getName());
-        Controller.getInstance().deletePlayground(playground2.getName());
+        Controller.getInstance(DataSource.getTestDB()).deletePlayground(playground.getName());
+        Controller.getInstance(DataSource.getTestDB()).deletePlayground(playground2.getName());
 
-        Controller.getInstance().deleteUser(updateUser.getUsername());
+        Controller.getInstance(DataSource.getTestDB()).deleteUser(updateUser.getUsername());
     }
 
     /**
@@ -214,7 +214,7 @@ class UpdateUserTest {
 
         userModel.username = "";
         userModel.playgroundsIDs = new String[2];
-        List<Playground> playgrounds = Controller.getInstance().getPlaygrounds();
+        List<Playground> playgrounds = Controller.getInstance(DataSource.getTestDB()).getPlaygrounds();
         userModel.playgroundsIDs[0] = playgrounds.get(0).getId();
         userModel.playgroundsIDs[1] = playgrounds.get(1).getId();
 

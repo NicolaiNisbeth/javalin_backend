@@ -2,22 +2,24 @@ package database.dao;
 
 import com.mongodb.WriteResult;
 import database.DALException;
+import database.NoModificationException;
 import database.collections.Message;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public interface IMessageDAO {
     String COLLECTION = "messages";
 
-    WriteResult createMessage(Message message) throws DALException;
+    WriteResult createMessage(Message message) throws IllegalArgumentException, NoModificationException;
 
-    Message getMessage(String id) throws DALException;
+    Message getMessage(String id) throws IllegalArgumentException, NoModificationException;
 
-    List<Message> getMessageList() throws DALException;
+    List<Message> getMessageList() throws NoSuchElementException;
 
-    boolean updateMessage(Message message) throws DALException;
+    WriteResult updateMessage(Message message) throws IllegalArgumentException, NoModificationException;
 
-    boolean deleteMessage(String id) throws DALException;
+    WriteResult deleteMessage(String id) throws IllegalArgumentException, NoModificationException;
 
-    boolean deleteAllMessages() throws DALException;
+    WriteResult deleteAllMessages();
 }

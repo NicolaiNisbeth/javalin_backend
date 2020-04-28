@@ -2,6 +2,7 @@ package database.dao;
 
 import com.mongodb.WriteResult;
 import database.DALException;
+import database.NoModificationException;
 import database.collections.Event;
 import database.collections.Message;
 import database.collections.Playground;
@@ -12,18 +13,18 @@ import java.util.List;
 public interface IController {
 
     // CREATE
-    WriteResult createPlayground(Playground playground);
+    WriteResult createPlayground(Playground playground) throws NoModificationException;
 
-    WriteResult createUser(User user);
+    WriteResult createUser(User user) throws NoModificationException;
 
     // READ
-    Playground getPlayground(String playgroundName);
+    Playground getPlayground(String playgroundName) throws NoModificationException;
 
     User getUser(String username) throws DALException;
 
     Event getEvent(String eventID);
 
-    Message getMessage(String messageID);
+    Message getMessage(String messageID) throws NoModificationException;
 
     List<Playground> getPlaygrounds();
 
@@ -34,16 +35,16 @@ public interface IController {
     List<Message> getPlaygroundMessages(String playgroundName);
 
     // UPDATE
-    boolean updatePlayground(Playground playground);
+    WriteResult updatePlayground(Playground playground) throws NoModificationException;
 
-    WriteResult updateUser(User user);
+    WriteResult updateUser(User user) throws NoModificationException;
 
-    boolean updatePlaygroundEvent(Event event);
+    WriteResult updatePlaygroundEvent(Event event) throws NoModificationException;
 
-    boolean updatePlaygroundMessage(Message message);
+    WriteResult updatePlaygroundMessage(Message message) throws NoModificationException;
 
     // DELETE
-    boolean deletePlayground(String playgroundName);
+    WriteResult deletePlayground(String playgroundName) throws DALException, NoModificationException;
 
     WriteResult deleteUser(String username);
 
@@ -56,11 +57,11 @@ public interface IController {
 
     WriteResult addPlaygroundMessage(String playgroundName, Message message);
 
-    boolean removePedagogueFromPlayground(String playgroundName, String username);
+    boolean removePedagogueFromPlayground(String playgroundName, String username) throws NoModificationException;
 
     boolean removeUserFromPlaygroundEvent(String eventID, String username);
 
-    boolean removePlaygroundEvent(String eventID);
+    WriteResult removePlaygroundEvent(String eventID);
 
-    boolean removePlaygroundMessage(String messageID);
+    WriteResult removePlaygroundMessage(String messageID);
 }

@@ -1,5 +1,6 @@
 package javalin_resources.HttpMethods;
 
+import database.DataSource;
 import database.collections.Event;
 import database.collections.Message;
 import database.collections.User;
@@ -19,7 +20,7 @@ public class Get implements Tag {
     public static class GetEvent {
 
         public static Handler readOneEventGet = ctx -> {
-            Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
+            Event event = Controller.getInstance(DataSource.getTestDB()).getEvent(ctx.pathParam(EVENT_ID));
             if (event != null) {
                 ctx.json(event).contentType("json");
                 ctx.status(200);
@@ -28,7 +29,7 @@ public class Get implements Tag {
         };
 
         public static Handler readOneEventParticipantsGet = ctx -> {
-            Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
+            Event event = Controller.getInstance(DataSource.getTestDB()).getEvent(ctx.pathParam(EVENT_ID));
             if (event != null) {
                 ctx.json(event.getParticipants()).contentType("json");
                 ctx.status(200);
@@ -37,7 +38,7 @@ public class Get implements Tag {
         };
 
         public static Handler readOneEventOneParticipantGet = ctx -> {
-            Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
+            Event event = Controller.getInstance(DataSource.getTestDB()).getEvent(ctx.pathParam(EVENT_ID));
             for (User user : event.getAssignedUsers())
                 if (user.getUsername().equals(ctx.pathParam(USER_NAME))) {
                     ctx.json(user).contentType("json");
@@ -48,7 +49,7 @@ public class Get implements Tag {
         };
 
         public static Handler readOnePlayGroundAllEventsGet = ctx -> {
-            List<Event> events = Controller.getInstance().getPlaygroundEvents(ctx.pathParam(PLAYGROUND_NAME));
+            List<Event> events = Controller.getInstance(DataSource.getTestDB()).getPlaygroundEvents(ctx.pathParam(PLAYGROUND_NAME));
             if (events != null) {
                 ctx.json(events).contentType("json");
                 ctx.status(200);
@@ -61,27 +62,27 @@ public class Get implements Tag {
     public static class GetPlayground {
 
         public static Handler readAllPlaygroundsGet = ctx -> {
-            ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json");
+            ctx.json(Controller.getInstance(DataSource.getTestDB()).getPlaygrounds()).contentType("json");
         };
 
         public static Handler readOnePlaygroundGet = ctx -> {
-            ctx.json(Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME))).contentType("json");
+            ctx.json(Controller.getInstance(DataSource.getTestDB()).getPlayground(ctx.pathParam(PLAYGROUND_NAME))).contentType("json");
 
         };
 
         public static Handler readOnePlaygroundAllEmployeeGet = ctx -> {
-            ctx.json(Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME)).getAssignedPedagogue()).contentType("json");
+            ctx.json(Controller.getInstance(DataSource.getTestDB()).getPlayground(ctx.pathParam(PLAYGROUND_NAME)).getAssignedPedagogue()).contentType("json");
         };
 
         public static Handler readOnePlaygroundOneEmployeeGet = ctx -> {
-            ctx.json(Controller.getInstance().getUser(ctx.pathParam(USER_NAME))).contentType("json");
+            ctx.json(Controller.getInstance(DataSource.getTestDB()).getUser(ctx.pathParam(USER_NAME))).contentType("json");
         };
     }
 
     public static class GetMessage {
 
         public static Handler readOneMessageGet = ctx -> {
-            Message message = Controller.getInstance().getMessage(ctx.pathParam((MESSAGE_ID)));
+            Message message = Controller.getInstance(DataSource.getTestDB()).getMessage(ctx.pathParam((MESSAGE_ID)));
             if (message != null) {
                 ctx.json(message).contentType("json");
                 ctx.status(200);
@@ -90,7 +91,7 @@ public class Get implements Tag {
         };
 
         public static Handler readAllMessagesGet = ctx -> {
-            List<Message> messages = Controller.getInstance().getPlaygroundMessages(ctx.pathParam(PLAYGROUND_NAME));
+            List<Message> messages = Controller.getInstance(DataSource.getTestDB()).getPlaygroundMessages(ctx.pathParam(PLAYGROUND_NAME));
             if (messages != null) {
                 ctx.json(messages).contentType("json");
                 ctx.status(200);
@@ -127,7 +128,7 @@ public class Get implements Tag {
         };
 
         public static Handler getAllUsers = ctx -> {
-            ctx.json(Controller.getInstance().getUsers()).contentType("json");
+            ctx.json(Controller.getInstance(DataSource.getTestDB()).getUsers()).contentType("json");
         };
     }
 }

@@ -2,32 +2,33 @@ package database.dao;
 
 import com.mongodb.WriteResult;
 import database.DALException;
+import database.DataSource;
+import database.NoModificationException;
 import database.collections.Details;
 import database.collections.Event;
+import org.assertj.core.api.Assert;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 class EventDAOTest {
-    private EventDAO eventDAO;
+    private static IEventDAO eventDAO = new EventDAO(DataSource.getTestDB());
 
-    @BeforeEach
-    void setUp() {
-        eventDAO = new EventDAO();
-    }
-
-    @AfterEach
-    void tearDown() {
-        eventDAO = null;
+    @BeforeAll
+    static void killAll(){
+        eventDAO.deleteAllEvents();
     }
 
     @Test
-    void createEvent_DeleteEvent() throws DALException {
+    void createdEventShouldBeFetchedEvent() throws NoModificationException {
         Event event = new Event.Builder()
                 .name("Football")
                 .imagePath("asdasd9asdsad.jpg")
@@ -37,21 +38,13 @@ class EventDAOTest {
                 .build();
 
         WriteResult ws = eventDAO.createEvent(event);
-
         Event fetchedEvent = eventDAO.getEvent(ws.getUpsertedId().toString());
         Assertions.assertEquals(event, fetchedEvent);
-
         eventDAO.deleteEvent(ws.getUpsertedId().toString());
-
-        // try to fetch deleted event and confirm that exception is thrown with msg: no event
-        DALException thrown = Assertions.assertThrows(
-                DALException.class, () -> eventDAO.getEvent(ws.getUpsertedId().toString())
-        );
-        Assertions.assertTrue(thrown.getMessage().contains("No event"));
     }
 
     @Test
-    void createEvents_getEventList_deleteEvents() throws DALException {
+    void createTwoEventsShouldFetchListSizeTwo() throws NoModificationException {
         Event event1 = new Event.Builder()
                 .name("Football")
                 .imagePath("asdasd9asdsad.jpg")
@@ -82,7 +75,7 @@ class EventDAOTest {
     }
 
     @Test
-    void createEvent_UpdateEvent_deleteEvent() throws DALException {
+    void updateEventShouldFetchUpdatedEvent() throws NoModificationException {
         Event event = new Event.Builder()
                 .name("Football")
                 .imagePath("asdasd9asdsad.jpg")
@@ -92,21 +85,77 @@ class EventDAOTest {
                 .build();
 
         WriteResult ws = eventDAO.createEvent(event);
-
-        event.setParticipants(40);
+        event.setName("new name");
         eventDAO.updateEvent(event);
 
         Event updatedEvent = eventDAO.getEvent(ws.getUpsertedId().toString());
-        Assertions.assertEquals(40, updatedEvent.getParticipants());
+        Assertions.assertEquals("new name", updatedEvent.getName());
 
         eventDAO.deleteEvent(ws.getUpsertedId().toString());
     }
 
-    @Disabled("This test is disabled because it deletes all events in collection")
     @Test
-    void deleteAllUsersInCollection() throws DALException {
+    void deleteAllEventsInCollection() throws NoModificationException {
+        Event event1 = new Event.Builder()
+                .name("Football")
+                .imagePath("asdasd9asdsad.jpg")
+                .participants(20)
+                .description("Football near the bay...")
+                .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
+                .build();
+
+        Event event2 = new Event.Builder()
+                .name("Boardgames")
+                .imagePath("asd23asd9asds23ad.jpg")
+                .participants(3)
+                .description("Boardgames in library...")
+                .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
+                .build();
+
+        WriteResult ws = eventDAO.createEvent(event1);
+        WriteResult ws2 = eventDAO.createEvent(event2);
+
+        Assertions.assertNotNull(eventDAO.getEvent(ws.getUpsertedId().toString()));
+        Assertions.assertNotNull(eventDAO.getEvent(ws2.getUpsertedId().toString()));
+
         for (Event i: eventDAO.getEventList()) {
             eventDAO.deleteEvent(i.getId());
         }
+
+        Assertions.assertThrows(NoSuchElementException.class, () -> eventDAO.getEventList());
+    }
+
+    @Test
+    void nullInCreateShouldThrowIllegalArgument(){
+        Assertions.assertThrows(IllegalArgumentException.class, () -> eventDAO.createEvent(null));
+    }
+
+    @Test
+    void nullInGetShouldThrowIlleArgument(){
+        Assertions.assertThrows(IllegalArgumentException.class, () -> eventDAO.getEvent(null));
+    }
+    @Test
+    void emptyIdInGetShouldThrowIlleArgument(){
+        Assertions.assertThrows(IllegalArgumentException.class, () -> eventDAO.getEvent(""));
+    }
+
+    @Test
+    void noEventsInGetEventsShouldThrowNoSuchElements(){
+        Assertions.assertThrows(NoSuchElementException.class, () -> eventDAO.getEventList());
+    }
+
+    @Test
+    void nullInUpdateShouldThrowIlleArgument(){
+        Assertions.assertThrows(IllegalArgumentException.class, () -> eventDAO.updateEvent(null));
+    }
+
+    @Test
+    void nullInDeleteShouldThrowIlleArgument(){
+        Assertions.assertThrows(IllegalArgumentException.class, () -> eventDAO.deleteEvent(null));
+    }
+
+    @Test
+    void emptyIdInDeleteShouldThrowIlleArgument(){
+        Assertions.assertThrows(IllegalArgumentException.class, () -> eventDAO.deleteEvent(""));
     }
 }

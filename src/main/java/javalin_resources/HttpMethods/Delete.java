@@ -1,13 +1,10 @@
 package javalin_resources.HttpMethods;
 
-import database.DALException;
+import database.DataSource;
 import database.collections.User;
 import database.dao.Controller;
-import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import org.json.JSONObject;
-
-import java.util.List;
 
 public class Delete implements Tag {
 
@@ -18,7 +15,7 @@ public class Delete implements Tag {
             playgroundname = ctx.pathParam(PLAYGROUND_NAME);
 
             if (playgroundname != "") {
-                Controller.getInstance().deletePlayground(playgroundname);
+                Controller.getInstance(DataSource.getTestDB()).deletePlayground(playgroundname);
                 ctx.status(200);
                 System.out.println("Deleted playground with name " + playgroundname);
             } else {
@@ -33,7 +30,7 @@ public class Delete implements Tag {
 
         public static Handler deleteParticipantFromPlaygroundEventDelete = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
-            if (Controller.getInstance().removeUserFromPlaygroundEvent(jsonObject.getString(EVENT_ID), jsonObject.getString(USER_ID)))
+            if (Controller.getInstance(DataSource.getTestDB()).removeUserFromPlaygroundEvent(jsonObject.getString(EVENT_ID), jsonObject.getString(USER_ID)))
                 ctx.status(200).result("Removed user from event");
             else
                 ctx.status(404).result("Couldn't remove user from event");
@@ -54,7 +51,7 @@ public class Delete implements Tag {
                 return;
             }
 
-            Controller.getInstance().deleteUser(username);
+            Controller.getInstance(DataSource.getTestDB()).deleteUser(username);
             ctx.status(222);
             ctx.result("User deleted.");
             ctx.json("User deleted").contentType("json");
@@ -64,7 +61,7 @@ public class Delete implements Tag {
     public static class DeletePedagogue {
 
         public static Handler deletePedagogueFromPlaygroundDelete = ctx -> {
-            if (Controller.getInstance().removePedagogueFromPlayground(ctx.pathParam(PLAYGROUND_NAME), ctx.pathParam(USER_NAME)))
+            if (Controller.getInstance(DataSource.getTestDB()).removePedagogueFromPlayground(ctx.pathParam(PLAYGROUND_NAME), ctx.pathParam(USER_NAME)))
                 ctx.status(200).result("Pedagogue is removed from the playground");
             else
                 ctx.status(404).result("Couldn't remove pedagogue from playground");
@@ -75,7 +72,8 @@ public class Delete implements Tag {
     public static class DeleteEvent {
 
         public static Handler deleteEventFromPlaygroundDelete = ctx -> {
-            if (Controller.getInstance().removePlaygroundEvent(ctx.pathParam(EVENT_ID))) {
+            Controller.getInstance(DataSource.getTestDB()).removePlaygroundEvent(ctx.pathParam(EVENT_ID));
+            if (true) {
                 ctx.status(200).result("Event has been removed from the playground");
             } else {
                 ctx.status(404).result("Couldn't remove event from playground");
@@ -85,7 +83,7 @@ public class Delete implements Tag {
         public static Handler remoteUserFromPlaygroundEventPost = ctx -> {
             String id = ctx.pathParam("id");
             String username = ctx.pathParam("username");
-            Boolean successful = Controller.getInstance().removeUserFromPlaygroundEvent(id, username);
+            Boolean successful = Controller.getInstance(DataSource.getTestDB()).removeUserFromPlaygroundEvent(id, username);
             if (successful) {
                 ctx.status(200).result("Removal was successful");
                 ctx.json(new User.Builder(username));
@@ -99,7 +97,8 @@ public class Delete implements Tag {
     public static class DeleteMessage {
 
         public static Handler deletePlaygroundMessageDelete = ctx -> {
-            if (Controller.getInstance().removePlaygroundMessage(ctx.pathParam(PLAYGROUND_MESSAGE_ID)))
+            Controller.getInstance(DataSource.getTestDB()).removePlaygroundMessage(ctx.pathParam(PLAYGROUND_MESSAGE_ID));
+            if (true)
                 ctx.status(200).result("Message deleted successfully");
             else
                 ctx.status(404).result("Couldn't delete message");
