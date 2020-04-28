@@ -125,7 +125,10 @@ public class Post implements Tag {
 
         public static Handler createPlaygroundMessagePost = ctx -> {
 
-            JSONObject jsonObject = new JSONObject(ctx.body());
+            BufferedImage bufferedImage = null;
+            String messageJson = ctx.formParam(("message"));
+            //JSONObject jsonObject = new JSONObject(ctx.body());
+            JSONObject jsonObject = new JSONObject(messageJson);
 
             // TODO: Details
             Details details = new Details();
@@ -150,6 +153,13 @@ public class Post implements Tag {
                     //.setWrittenByID(jsonObject.getString(MESSAGE_WRITTENBY_ID))
                     //.setWrittenByID("s185036")
                     .build();
+
+            try {
+                bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+            } catch (Exception e) {
+                System.out.println("Server: No message image was added...");
+            }
+
 /*
             if (jsonObject.getString(MESSAGE_ID) != null) {
                 message.setId(jsonObject.getString(MESSAGE_ID));
@@ -157,6 +167,8 @@ public class Post implements Tag {
 
             if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString("playgroundID"), message).wasAcknowledged()) { //PLAYGROUND_ID
                 ctx.status(200).result("Message posted");
+                ctx.json(Controller.getInstance().getMessage(message.getId()));
+                //if (bufferedImage != null) Shared.saveMessageImage(message.getId(), bufferedImage);
             } else {
                 ctx.status(404).result("Failed to post message");
             }

@@ -8,6 +8,7 @@ import database.collections.Message;
 import database.collections.Playground;
 import database.collections.User;
 import database.utils.QueryUtils;
+import javalin_resources.HttpMethods.Shared;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
@@ -408,6 +409,8 @@ public class Controller implements IController {
             // update playground array with reference to message
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", message.getPlaygroundName(), "messages", message);
+
+            //Shared.saveMessageImage(message.getId(), bufferedImage);
 
             //   clientSession.commitTransaction();
         } catch (Exception e) {
