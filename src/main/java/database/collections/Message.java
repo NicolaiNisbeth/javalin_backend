@@ -214,6 +214,7 @@ public class Message implements Comparable<Message> {
                 ", outDated=" + outDated +
                 ", writtenByID='" + writtenByID + '\'' +
                 ", playgroundID='" + playgroundID + '\'' +
+                ", date=" + date +
                 '}';
     }
 
