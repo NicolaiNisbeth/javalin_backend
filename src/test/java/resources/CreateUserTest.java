@@ -1,10 +1,11 @@
 package resources;
 
 import com.google.gson.Gson;
+import database.Controller;
 import database.exceptions.NoModificationException;
 import database.TestDB;
-import database.collections.Playground;
-import database.collections.User;
+import database.dto.PlaygroundDTO;
+import database.dto.UserDTO;
 import database.dao.*;
 import io.javalin.http.Context;
 import javalin_resources.HttpMethods.Post;
@@ -50,7 +51,7 @@ class CreateUserTest {
         try {
             Controller.getInstance().getUser("root");
         } catch (NoSuchElementException e) {
-            User root = new User.Builder("root")
+            UserDTO root = new UserDTO.Builder("root")
                     .status("admin")
                     .setPassword("root")
                     .setFirstname("Københavns")
@@ -64,7 +65,7 @@ class CreateUserTest {
     static void printAll() throws NoModificationException {
         UserDAO userDAO = new UserDAO(TestDB.getInstance());
         System.out.println("Test-userlist after test: ");
-        for (User user : userDAO.getUserList()) {
+        for (UserDTO user : userDAO.getUserList()) {
             if (user.getUsername().length() < 1 || user.getUsername().substring(0, 3).equalsIgnoreCase("abc")) {
                 System.out.println(user);
                 System.out.println("Deleting test user: " + user.getUsername());
@@ -77,7 +78,7 @@ class CreateUserTest {
     void createUser() throws Exception {
         // Normal oprettelse af bruger
 
-        Playground playground = new Playground.Builder("KålPladsen i Kildevældsparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("KålPladsen i Kildevældsparken")
                 .setCommune("København Ø")
                 .setZipCode(2100)
                 .setStreetName("Vognmandsmarken")
@@ -97,21 +98,21 @@ class CreateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.PostUser.createUser.handle(ctx);
+        Post.User.createUser.handle(ctx);
         verify(ctx).status(201);
         verify(ctx).result("User created.");
 
-        User user = Controller.getInstance().getUser("abc-test-user");
+        UserDTO user = Controller.getInstance().getUser("abc-test-user");
         Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
         System.out.println("ids " + user.getPlaygroundsIDs());
-        Playground playground1 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken");
+        PlaygroundDTO playground1 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken");
         Assertions.assertEquals(1, playground1.getAssignedPedagogue().size());
         Controller.getInstance().deletePlayground("KålPladsen i Kildevældsparken");
     }
 
     @Test
     void deleteUser() throws Exception {
-        Playground playground = new Playground.Builder("KålPladsen i Kildevældsparken2")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("KålPladsen i Kildevældsparken2")
                 .setCommune("København Ø")
                 .setZipCode(2100)
                 .setStreetName("Vognmandsmarken")
@@ -131,18 +132,18 @@ class CreateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.PostUser.createUser.handle(ctx);
+        Post.User.createUser.handle(ctx);
         verify(ctx).status(201);
         verify(ctx).result("User created.");
 
-        User user = Controller.getInstance().getUser("abc-test-user-2");
+        UserDTO user = Controller.getInstance().getUser("abc-test-user-2");
         Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
         System.out.println("ids " + user.getPlaygroundsIDs());
-        Playground playground1 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken2");
+        PlaygroundDTO playground1 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken2");
         Assertions.assertEquals(1, playground1.getAssignedPedagogue().size());
 
         Controller.getInstance().deleteUser(user.getUsername());
-        Playground playground2 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken2");
+        PlaygroundDTO playground2 = Controller.getInstance().getPlayground("KålPladsen i Kildevældsparken2");
         Assertions.assertEquals(0, playground2.getAssignedPedagogue().size());
 
         // System.out.println(playground2.getAssignedPedagogue());
@@ -158,7 +159,7 @@ class CreateUserTest {
      */
     @Test
     void dublicateUserInDB() throws Exception {
-        User abcUser = new User.Builder("abc")
+        UserDTO abcUser = new UserDTO.Builder("abc")
                 .setPassword("abc")
                 .status("pædagog")
                 .build();
@@ -171,7 +172,7 @@ class CreateUserTest {
 
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.PostUser.createUser.handle(ctx);
+        Post.User.createUser.handle(ctx);
         verify(ctx).status(401);
         verify(ctx).result("Unauthorized - User already exists");
         //Clean up
@@ -189,7 +190,7 @@ class CreateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.PostUser.createUser.handle(ctx);
+        Post.User.createUser.handle(ctx);
         verify(ctx).status(400);
         verify(ctx).result("Bad Request - Error in user data");
 
@@ -206,7 +207,7 @@ class CreateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.PostUser.createUser.handle(ctx);
+        Post.User.createUser.handle(ctx);
         verify(ctx).status(400);
         verify(ctx).result("Bad Request - Error in user data");
     }
@@ -217,7 +218,7 @@ class CreateUserTest {
     @Test
     void wrongAdminStatus() throws Exception {
         // Forkert admin status
-        User abcUser = new User.Builder("abc-wrong-adm-stat")
+        UserDTO abcUser = new UserDTO.Builder("abc-wrong-adm-stat")
                 .setPassword("abc-wrong-adm-stat")
                 .status("pædagog")
                 .build();
@@ -232,7 +233,7 @@ class CreateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.PostUser.createUser.handle(ctx);
+        Post.User.createUser.handle(ctx);
         verify(ctx).status(401);
         verify(ctx).result("Unauthorized - Wrong admin status");
     }
@@ -247,7 +248,7 @@ class CreateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.PostUser.createUser.handle(ctx);
+        Post.User.createUser.handle(ctx);
         verify(ctx).status(401);
         verify(ctx).result("Unauthorized - Wrong admin username");
     }
@@ -262,7 +263,7 @@ class CreateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.PostUser.createUser.handle(ctx);
+        Post.User.createUser.handle(ctx);
         verify(ctx).status(401);
         verify(ctx).result("Unauthorized - Wrong admin setPassword");
     }

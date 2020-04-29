@@ -1,10 +1,11 @@
 package database.integration;
 
 import com.mongodb.WriteResult;
+import database.Controller;
+import database.IController;
 import database.exceptions.NoModificationException;
 import database.TestDB;
-import database.collections.*;
-import database.dao.*;
+import database.dto.*;
 import org.junit.jupiter.api.*;
 
 import java.util.Date;
@@ -26,7 +27,7 @@ class ControllerTest {
     @Test
     @DisplayName("Create and delete playground")
     void createdPlaygroundShouldBeFetchedPlayground() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -41,7 +42,7 @@ class ControllerTest {
         Assertions.assertThrows(NoSuchElementException.class, () -> controller.getPlayground(playground.getName()));
 
         controller.createPlayground(playground);
-        Playground fetchedPlayground = controller.getPlayground(playground.getName());
+        PlaygroundDTO fetchedPlayground = controller.getPlayground(playground.getName());
 
         // check that playground is present in db
         Assertions.assertAll(
@@ -55,7 +56,7 @@ class ControllerTest {
     @Test
     @DisplayName("Create and delete user")
     void createdUserShouldBeFetchedUser() throws NoModificationException {
-        User user = new User.Builder("s175565")
+        UserDTO user = new UserDTO.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
@@ -69,7 +70,7 @@ class ControllerTest {
         Assertions.assertThrows(NoSuchElementException.class, () -> controller.getUser(user.getUsername()));
 
         controller.createUser(user);
-        User fetchedUser = controller.getUser(user.getUsername());
+        UserDTO fetchedUser = controller.getUser(user.getUsername());
 
         // check that playground is present in db
         Assertions.assertAll(
@@ -82,7 +83,7 @@ class ControllerTest {
 
     @Test
     void addedAssociationsShouldBeFetchedAssociations() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -92,7 +93,7 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        User user = new User.Builder("s175565")
+        UserDTO user = new UserDTO.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
@@ -102,15 +103,15 @@ class ControllerTest {
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
 
-        Event playgroundEvent = new Event.Builder()
+        EventDTO playgroundEvent = new EventDTO.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
                 .participants(30)
                 .imagePath("asd98asd89asd.jpg")
-                .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
+                .details(new DetailsDTO(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
-        Message playgroundMessage = new Message.Builder()
+        MessageDTO playgroundMessage = new MessageDTO.Builder()
                 .setCategory("Networking")
                 .setIcon("asdasdads.jpg")
                 .setOutDated(false)
@@ -127,7 +128,7 @@ class ControllerTest {
         controller.createPlaygroundMessage(playground.getName(), playgroundMessage);
 
         // get playground
-        Playground fetchedPlayground = controller.getPlayground(playground.getName());
+        PlaygroundDTO fetchedPlayground = controller.getPlayground(playground.getName());
 
         // check references
         Assertions.assertAll(
@@ -136,7 +137,7 @@ class ControllerTest {
                 () -> assertEquals(playgroundMessage, fetchedPlayground.getMessages().iterator().next())
         );
 
-        List<Playground> list = controller.getPlaygrounds();
+        List<PlaygroundDTO> list = controller.getPlaygrounds();
 
         controller.deleteUser(user.getUsername());
         controller.deletePlayground(playground.getName());
@@ -144,7 +145,7 @@ class ControllerTest {
 
     @Test
     void addedEventToUserShouldBeInUserEventList() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -154,7 +155,7 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        User user = new User.Builder("s175565")
+        UserDTO user = new UserDTO.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
@@ -164,20 +165,20 @@ class ControllerTest {
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
 
-        Event event1 = new Event.Builder()
+        EventDTO event1 = new EventDTO.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
                 .participants(30)
                 .imagePath("asd98asd89asd.jpg")
-                .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
+                .details(new DetailsDTO(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
-        Event event2 = new Event.Builder()
+        EventDTO event2 = new EventDTO.Builder()
                 .name("Fangeleg")
                 .description("Fangeleg rundt om Snorrstrup sø")
                 .participants(10)
                 .imagePath("asdasdsa9d8dsa.jpg")
-                .details(new Details(new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis())))
+                .details(new DetailsDTO(new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis())))
                 .build();
 
         controller.createPlayground(playground);
@@ -189,9 +190,9 @@ class ControllerTest {
         controller.addUserToEvent(e2.getUpsertedId().toString(), user.getUsername());
 
         // get user
-        User fetchedUser = controller.getUser(user.getUsername());
-        Event fetchedEvent1 = controller.getEvent(e1.getUpsertedId().toString());
-        Event fetchedEvent2 = controller.getEvent(e2.getUpsertedId().toString());
+        UserDTO fetchedUser = controller.getUser(user.getUsername());
+        EventDTO fetchedEvent1 = controller.getEvent(e1.getUpsertedId().toString());
+        EventDTO fetchedEvent2 = controller.getEvent(e2.getUpsertedId().toString());
 
         // check associations
         Assertions.assertAll(
@@ -206,7 +207,7 @@ class ControllerTest {
 
     @Test
     void getEvent() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -216,7 +217,7 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        User user = new User.Builder("s175565")
+        UserDTO user = new UserDTO.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
@@ -226,12 +227,12 @@ class ControllerTest {
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
 
-        Event event = new Event.Builder()
+        EventDTO event = new EventDTO.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
                 .participants(30)
                 .imagePath("asd98asd89asd.jpg")
-                .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
+                .details(new DetailsDTO(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
         controller.createPlayground(playground);
@@ -241,7 +242,7 @@ class ControllerTest {
         controller.addUserToEvent(ws.getUpsertedId().toString(), user.getUsername());
 
         // get event
-        Event fetchedEvent = controller.getEvent(ws.getUpsertedId().toString());
+        EventDTO fetchedEvent = controller.getEvent(ws.getUpsertedId().toString());
 
         // check references
         Assertions.assertAll(
@@ -255,7 +256,7 @@ class ControllerTest {
 
     @Test
     void createdPlaygroundMessageShouldHavePlaygroundID() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -265,7 +266,7 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        Message playgroundMessage = new Message.Builder()
+        MessageDTO playgroundMessage = new MessageDTO.Builder()
                 .setCategory("Networking")
                 .setIcon("asdasdads.jpg")
                 .setOutDated(false)
@@ -277,8 +278,8 @@ class ControllerTest {
         controller.createPlaygroundMessage(playground.getName(), playgroundMessage);
 
         // get message
-        Playground fetchedPlayground = controller.getPlayground(playground.getName());
-        Message message = fetchedPlayground.getMessages().iterator().next();
+        PlaygroundDTO fetchedPlayground = controller.getPlayground(playground.getName());
+        MessageDTO message = fetchedPlayground.getMessages().iterator().next();
 
         // check references
         Assertions.assertAll(
@@ -290,7 +291,7 @@ class ControllerTest {
 
     @Test
     void addedEventShouldBeInPlayground() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -300,27 +301,27 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        Event playgroundEvent1 = new Event.Builder()
+        EventDTO playgroundEvent1 = new EventDTO.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
                 .participants(30)
                 .imagePath("asd98asd89asd.jpg")
-                .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
+                .details(new DetailsDTO(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
-        Event playgroundEvent2 = new Event.Builder()
+        EventDTO playgroundEvent2 = new EventDTO.Builder()
                 .name("Fangeleg")
                 .description("Fangeleg rundt om Snorrstrup sø")
                 .participants(10)
                 .imagePath("asdasdsa9d8dsa.jpg")
-                .details(new Details(new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis())))
+                .details(new DetailsDTO(new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis())))
                 .build();
 
         controller.createPlayground(playground);
         controller.createPlaygroundEvent(playground.getName(), playgroundEvent1);
         controller.createPlaygroundEvent(playground.getName(), playgroundEvent2);
 
-        List<Event> eventList = controller.getEventsInPlayground(playground.getName());
+        List<EventDTO> eventList = controller.getEventsInPlayground(playground.getName());
 
         Assertions.assertAll(
                 () -> assertEquals(playgroundEvent1, eventList.get(0)),
@@ -332,7 +333,7 @@ class ControllerTest {
 
     @Test
     void addedMessagesShouldBeInPlayground() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -342,7 +343,7 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        Message playgroundMessage1 = new Message.Builder()
+        MessageDTO playgroundMessage1 = new MessageDTO.Builder()
                 .setCategory("Networking")
                 .setIcon("asdasdads.jpg")
                 .setOutDated(false)
@@ -350,7 +351,7 @@ class ControllerTest {
                 .setDate(new Date(System.currentTimeMillis()))
                 .build();
 
-        Message playgroundMessage2 = new Message.Builder()
+        MessageDTO playgroundMessage2 = new MessageDTO.Builder()
                 .setCategory("Corona")
                 .setIcon("asdasd2323ads.jpg")
                 .setOutDated(false)
@@ -362,7 +363,7 @@ class ControllerTest {
         controller.createPlaygroundMessage(playground.getName(), playgroundMessage1);
         controller.createPlaygroundMessage(playground.getName(), playgroundMessage2);
 
-        List<Message> messageList = controller.getMessagesInPlayground(playground.getName());
+        List<MessageDTO> messageList = controller.getMessagesInPlayground(playground.getName());
         Assertions.assertAll(
                 () -> assertEquals(playgroundMessage1, messageList.get(0)),
                 () -> assertEquals(playgroundMessage2, messageList.get(1))
@@ -373,7 +374,7 @@ class ControllerTest {
 
     @Test
     void updatePlaygroundEvent() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -383,20 +384,20 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        Event playgroundEvent = new Event.Builder()
+        EventDTO playgroundEvent = new EventDTO.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
                 .participants(30)
                 .imagePath("asd98asd89asd.jpg")
-                .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
+                .details(new DetailsDTO(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
         controller.createPlayground(playground);
         controller.createPlaygroundEvent(playground.getName(), playgroundEvent);
 
         // check that playground and event is present in db, and the associations between them
-        Playground fetchedPlayground = controller.getPlayground(playground.getName());
-        Event fetchedEvent = fetchedPlayground.getEvents().iterator().next();
+        PlaygroundDTO fetchedPlayground = controller.getPlayground(playground.getName());
+        EventDTO fetchedEvent = fetchedPlayground.getEvents().iterator().next();
         Assertions.assertAll(
                 () -> assertEquals(fetchedPlayground.getName(), fetchedEvent.getPlaygroundName()),
                 () -> assertEquals(fetchedEvent, playgroundEvent)
@@ -409,7 +410,7 @@ class ControllerTest {
         controller.updatePlaygroundEvent(fetchedEvent);
 
         // check that event has updated values
-        Event updatedEvent = controller.getEvent(fetchedEvent.getId());
+        EventDTO updatedEvent = controller.getEvent(fetchedEvent.getId());
         Assertions.assertAll(
                 () -> assertEquals(fetchedEvent.getDescription(), updatedEvent.getDescription()),
                 () -> assertEquals(fetchedEvent.getParticipants(), updatedEvent.getParticipants()),
@@ -421,7 +422,7 @@ class ControllerTest {
 
     @Test
     void updatePlaygroundMessage() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -431,7 +432,7 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        Message playgroundMessage = new Message.Builder()
+        MessageDTO playgroundMessage = new MessageDTO.Builder()
                 .setCategory("Networking")
                 .setIcon("asdasdads.jpg")
                 .setOutDated(false)
@@ -443,8 +444,8 @@ class ControllerTest {
         controller.createPlaygroundMessage(playground.getName(), playgroundMessage);
 
         // check that playground and event is present in db, and the associations between them
-        Playground fetchedPlayground = controller.getPlayground(playground.getName());
-        Message fetchedMessage = fetchedPlayground.getMessages().iterator().next();
+        PlaygroundDTO fetchedPlayground = controller.getPlayground(playground.getName());
+        MessageDTO fetchedMessage = fetchedPlayground.getMessages().iterator().next();
         Assertions.assertAll(
                 () -> assertEquals(fetchedPlayground.getName(), fetchedMessage.getPlaygroundName()),
                 () -> assertEquals(fetchedMessage, playgroundMessage)
@@ -457,7 +458,7 @@ class ControllerTest {
         controller.updatePlaygroundMessage(fetchedMessage);
 
         // check that event has updated values
-        Message updatedMessage = controller.getMessage(fetchedMessage.getId());
+        MessageDTO updatedMessage = controller.getMessage(fetchedMessage.getId());
         Assertions.assertAll(
                 () -> assertEquals(fetchedMessage.getCategory(), updatedMessage.getCategory()),
                 () -> assertEquals(fetchedMessage.getIcon(), updatedMessage.getIcon()),
@@ -469,7 +470,7 @@ class ControllerTest {
 
     @Test
     void deletePlaygroundShouldRemoveReferenceInUser() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -479,7 +480,7 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        User user = new User.Builder("s175565")
+        UserDTO user = new UserDTO.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
@@ -489,15 +490,15 @@ class ControllerTest {
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
 
-        Event playgroundEvent = new Event.Builder()
+        EventDTO playgroundEvent = new EventDTO.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
                 .participants(30)
                 .imagePath("asd98asd89asd.jpg")
-                .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
+                .details(new DetailsDTO(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
-        Message playgroundMessage = new Message.Builder()
+        MessageDTO playgroundMessage = new MessageDTO.Builder()
                 .setCategory("Networking")
                 .setIcon("asdasdads.jpg")
                 .setOutDated(false)
@@ -513,14 +514,14 @@ class ControllerTest {
         controller.createPlaygroundMessage(playground.getName(), playgroundMessage);
 
         // check all the references
-        Playground fetchedPlayground = controller.getPlayground(playground.getName());
-        User playPovPedagogue = fetchedPlayground.getAssignedPedagogue().iterator().next();
-        Event playPovEvent = fetchedPlayground.getEvents().iterator().next();
-        Message playPovMessage = fetchedPlayground.getMessages().iterator().next();
+        PlaygroundDTO fetchedPlayground = controller.getPlayground(playground.getName());
+        UserDTO playPovPedagogue = fetchedPlayground.getAssignedPedagogue().iterator().next();
+        EventDTO playPovEvent = fetchedPlayground.getEvents().iterator().next();
+        MessageDTO playPovMessage = fetchedPlayground.getMessages().iterator().next();
 
-        User fetchedPedagogue = controller.getUser(playPovPedagogue.getUsername());
-        Event fetchedEvent = controller.getEvent(playPovEvent.getId());
-        Message fetchedMessage = controller.getMessage(playPovMessage.getId());
+        UserDTO fetchedPedagogue = controller.getUser(playPovPedagogue.getUsername());
+        EventDTO fetchedEvent = controller.getEvent(playPovEvent.getId());
+        MessageDTO fetchedMessage = controller.getMessage(playPovMessage.getId());
 
         Assertions.assertAll(
                 () -> assertEquals(playPovPedagogue.getUsername(), fetchedPedagogue.getUsername()),
@@ -532,7 +533,7 @@ class ControllerTest {
         controller.deletePlayground(playground.getName());
 
         // check that the references are gone
-        User updatedUser = controller.getUser(playPovPedagogue.getUsername());
+        UserDTO updatedUser = controller.getUser(playPovPedagogue.getUsername());
         Assertions.assertAll(() -> assertFalse(updatedUser.getPlaygroundsIDs().iterator().hasNext()));
 
         controller.deleteUser(updatedUser.getUsername());
@@ -540,7 +541,7 @@ class ControllerTest {
 
     @Test
     void deleteUserShouldRemoveReferenceInPlayground() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -550,7 +551,7 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        User user = new User.Builder("s175565")
+        UserDTO user = new UserDTO.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
@@ -560,12 +561,12 @@ class ControllerTest {
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
 
-        Event playgroundEvent = new Event.Builder()
+        EventDTO playgroundEvent = new EventDTO.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
                 .participants(30)
                 .imagePath("asd98asd89asd.jpg")
-                .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
+                .details(new DetailsDTO(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
         controller.createPlayground(playground);
@@ -580,9 +581,9 @@ class ControllerTest {
 
 
         // confirm the different references
-        User fetchedUser = controller.getUser(user.getUsername());
-        Playground fetchedPlayground = controller.getPlayground(playground.getName());
-        Event fetchedEvent = controller.getEvent(eventID);
+        UserDTO fetchedUser = controller.getUser(user.getUsername());
+        PlaygroundDTO fetchedPlayground = controller.getPlayground(playground.getName());
+        EventDTO fetchedEvent = controller.getEvent(eventID);
 
         Assertions.assertAll(
                 () -> assertEquals(eventID, fetchedUser.getEvents().iterator().next().getId()),
@@ -593,8 +594,8 @@ class ControllerTest {
 
         // delete user and check that references are removed
         controller.deleteUser(user.getUsername());
-        Playground updatedPlayground = controller.getPlayground(playground.getName());
-        Event updatedEvent = controller.getEvent(eventID);
+        PlaygroundDTO updatedPlayground = controller.getPlayground(playground.getName());
+        EventDTO updatedEvent = controller.getEvent(eventID);
 
         Assertions.assertAll(
                 () -> assertFalse(updatedPlayground.getAssignedPedagogue().iterator().hasNext()),
@@ -606,7 +607,7 @@ class ControllerTest {
 
     @Test
     void addPedagogueToPlayground() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -616,7 +617,7 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        User user = new User.Builder("s175565")
+        UserDTO user = new UserDTO.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
@@ -629,14 +630,14 @@ class ControllerTest {
         controller.createPlayground(playground);
         controller.createUser(user);
 
-        Playground fetchedPlayground = controller.getPlayground(playground.getName());
+        PlaygroundDTO fetchedPlayground = controller.getPlayground(playground.getName());
         assertFalse(fetchedPlayground.getAssignedPedagogue().iterator().hasNext());
 
         // add references
         controller.addPedagogueToPlayground(playground.getName(), user.getUsername());
 
         // check reference is correct
-        Playground updatedPlayground = controller.getPlayground(playground.getName());
+        PlaygroundDTO updatedPlayground = controller.getPlayground(playground.getName());
         Assertions.assertAll(
                 () -> assertTrue(updatedPlayground.getAssignedPedagogue().iterator().hasNext()),
                 () -> assertEquals(user, updatedPlayground.getAssignedPedagogue().iterator().next())
@@ -648,7 +649,7 @@ class ControllerTest {
 
     @Test
     void addUserToPlaygroundEvent() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -658,7 +659,7 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        User user = new User.Builder("s175565")
+        UserDTO user = new UserDTO.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
@@ -668,12 +669,12 @@ class ControllerTest {
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
 
-        Event playgroundEvent = new Event.Builder()
+        EventDTO playgroundEvent = new EventDTO.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
                 .participants(30)
                 .imagePath("asd98asd89asd.jpg")
-                .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
+                .details(new DetailsDTO(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
         controller.createPlayground(playground);
@@ -681,13 +682,13 @@ class ControllerTest {
         controller.createUser(user);
 
         // check that user is not in event
-        Event fetchedEvent = controller.getEvent(ws.getUpsertedId().toString());
+        EventDTO fetchedEvent = controller.getEvent(ws.getUpsertedId().toString());
         assertFalse(fetchedEvent.getAssignedUsers().iterator().hasNext());
 
         controller.addUserToEvent(ws.getUpsertedId().toString(), user.getUsername());
 
         // check that user is in event
-        Event updatedEvent = controller.getEvent(ws.getUpsertedId().toString());
+        EventDTO updatedEvent = controller.getEvent(ws.getUpsertedId().toString());
         Assertions.assertAll(
                 () -> assertTrue(updatedEvent.getAssignedUsers().iterator().hasNext()),
                 () -> assertEquals(user, updatedEvent.getAssignedUsers().iterator().next())
@@ -699,7 +700,7 @@ class ControllerTest {
 
     @Test
     void addPlaygroundEvent() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -709,12 +710,12 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        Event playgroundEvent = new Event.Builder()
+        EventDTO playgroundEvent = new EventDTO.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
                 .participants(30)
                 .imagePath("asd98asd89asd.jpg")
-                .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
+                .details(new DetailsDTO(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
         controller.createPlayground(playground);
@@ -722,8 +723,8 @@ class ControllerTest {
 
 
         // check that playground and event is present in db, and the associations between them
-        Playground fetchedPlayground = controller.getPlayground(playground.getName());
-        Event fetchedEvent = fetchedPlayground.getEvents().iterator().next();
+        PlaygroundDTO fetchedPlayground = controller.getPlayground(playground.getName());
+        EventDTO fetchedEvent = fetchedPlayground.getEvents().iterator().next();
         Assertions.assertAll(
                 () -> assertNotNull(fetchedPlayground),
                 () -> assertNotNull(fetchedEvent),
@@ -736,7 +737,7 @@ class ControllerTest {
 
     @Test
     void addPlaygroundMessage() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -746,7 +747,7 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        Message playgroundMessage = new Message.Builder()
+        MessageDTO playgroundMessage = new MessageDTO.Builder()
                 .setCategory("Networking")
                 .setIcon("asdasdads.jpg")
                 .setOutDated(false)
@@ -758,8 +759,8 @@ class ControllerTest {
         controller.createPlaygroundMessage(playground.getName(), playgroundMessage);
 
         // check that playground and message is present in db, and the associations between them
-        Playground fetchedPlayground = controller.getPlayground(playground.getName());
-        Message fetchedMessage = fetchedPlayground.getMessages().iterator().next();
+        PlaygroundDTO fetchedPlayground = controller.getPlayground(playground.getName());
+        MessageDTO fetchedMessage = fetchedPlayground.getMessages().iterator().next();
         Assertions.assertAll(
                 () -> assertNotNull(fetchedPlayground),
                 () -> assertNotNull(fetchedMessage),
@@ -772,7 +773,7 @@ class ControllerTest {
 
     @Test
     void removePedagogueFromPlayground() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -782,7 +783,7 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        User user = new User.Builder("s175565")
+        UserDTO user = new UserDTO.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
@@ -799,7 +800,7 @@ class ControllerTest {
         controller.addPedagogueToPlayground(playground.getName(), user.getUsername());
 
         // check reference is correct
-        Playground fetchedPlayground = controller.getPlayground(playground.getName());
+        PlaygroundDTO fetchedPlayground = controller.getPlayground(playground.getName());
         Assertions.assertAll(
                 () -> assertTrue(fetchedPlayground.getAssignedPedagogue().iterator().hasNext()),
                 () -> assertEquals(user, fetchedPlayground.getAssignedPedagogue().iterator().next())
@@ -809,7 +810,7 @@ class ControllerTest {
         controller.removePedagogueFromPlayground(playground.getName(), user.getUsername());
 
         // check references are removed
-        Playground updatedPlayground = controller.getPlayground(playground.getName());
+        PlaygroundDTO updatedPlayground = controller.getPlayground(playground.getName());
         assertFalse(updatedPlayground.getAssignedPedagogue().iterator().hasNext());
 
         controller.deleteUser(user.getUsername());
@@ -818,7 +819,7 @@ class ControllerTest {
 
     @Test
     void removeUserFromPlaygroundEvent() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -828,7 +829,7 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        User user = new User.Builder("s175565")
+        UserDTO user = new UserDTO.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
@@ -838,12 +839,12 @@ class ControllerTest {
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
 
-        Event playgroundEvent = new Event.Builder()
+        EventDTO playgroundEvent = new EventDTO.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
                 .participants(30)
                 .imagePath("asd98asd89asd.jpg")
-                .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
+                .details(new DetailsDTO(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
         controller.createPlayground(playground);
@@ -854,7 +855,7 @@ class ControllerTest {
         controller.addUserToEvent(ws.getUpsertedId().toString(), user.getUsername());
 
         // check that user is in event
-        Event fetchedEvent = controller.getEvent(ws.getUpsertedId().toString());
+        EventDTO fetchedEvent = controller.getEvent(ws.getUpsertedId().toString());
         Assertions.assertAll(
                 () -> assertTrue(fetchedEvent.getAssignedUsers().iterator().hasNext()),
                 () -> assertEquals(user, fetchedEvent.getAssignedUsers().iterator().next())
@@ -864,7 +865,7 @@ class ControllerTest {
         controller.removeUserFromEvent(ws.getUpsertedId().toString(), user.getUsername());
 
         // check that user is removed from event
-        Event updatedEvent = controller.getEvent(ws.getUpsertedId().toString());
+        EventDTO updatedEvent = controller.getEvent(ws.getUpsertedId().toString());
         assertFalse(updatedEvent.getAssignedUsers().iterator().hasNext());
 
         controller.deleteUser(user.getUsername());
@@ -873,7 +874,7 @@ class ControllerTest {
 
     @Test
     void removePlaygroundEvent() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -883,20 +884,20 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        Event playgroundEvent = new Event.Builder()
+        EventDTO playgroundEvent = new EventDTO.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
                 .participants(30)
                 .imagePath("asd98asd89asd.jpg")
-                .details(new Details(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
+                .details(new DetailsDTO(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
 
         controller.createPlayground(playground);
         controller.createPlaygroundEvent(playground.getName(), playgroundEvent);
 
         // check that playground and event is present in db, and the associations between them
-        Playground fetchedPlayground = controller.getPlayground(playground.getName());
-        Event fetchedEvent = fetchedPlayground.getEvents().iterator().next();
+        PlaygroundDTO fetchedPlayground = controller.getPlayground(playground.getName());
+        EventDTO fetchedEvent = fetchedPlayground.getEvents().iterator().next();
         Assertions.assertAll(
                 () -> assertNotNull(fetchedPlayground),
                 () -> assertNotNull(fetchedEvent),
@@ -908,7 +909,7 @@ class ControllerTest {
         controller.deletePlaygroundEvent(fetchedEvent.getId());
 
         // check that all event references are removed
-        Playground updatedPlayground = controller.getPlayground(playground.getName());
+        PlaygroundDTO updatedPlayground = controller.getPlayground(playground.getName());
         assertFalse(updatedPlayground.getEvents().iterator().hasNext());
 
         controller.deletePlayground(playground.getName());
@@ -916,7 +917,7 @@ class ControllerTest {
 
     @Test
     void removePlaygroundMessage() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegeparken")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
                 .setZipCode(3650)
@@ -926,7 +927,7 @@ class ControllerTest {
                 .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        Message playgroundMessage = new Message.Builder()
+        MessageDTO playgroundMessage = new MessageDTO.Builder()
                 .setCategory("Networking")
                 .setIcon("asdasdads.jpg")
                 .setOutDated(false)
@@ -938,8 +939,8 @@ class ControllerTest {
         controller.createPlaygroundMessage(playground.getName(), playgroundMessage);
 
         // check that playground and message is present in db, and the associations between them
-        Playground fetchedPlayground = controller.getPlayground(playground.getName());
-        Message fetchedMessage = fetchedPlayground.getMessages().iterator().next();
+        PlaygroundDTO fetchedPlayground = controller.getPlayground(playground.getName());
+        MessageDTO fetchedMessage = fetchedPlayground.getMessages().iterator().next();
         Assertions.assertAll(
                 () -> assertNotNull(fetchedPlayground),
                 () -> assertNotNull(fetchedMessage),
@@ -951,7 +952,7 @@ class ControllerTest {
         controller.deletePlaygroundMessage(fetchedMessage.getId());
 
         // check message references are removed
-        Playground updatedPlayground = controller.getPlayground(playground.getName());
+        PlaygroundDTO updatedPlayground = controller.getPlayground(playground.getName());
         assertFalse(updatedPlayground.getMessages().iterator().hasNext());
 
         controller.deletePlayground(playground.getName());

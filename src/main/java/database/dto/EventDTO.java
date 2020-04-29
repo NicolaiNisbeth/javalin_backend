@@ -1,4 +1,4 @@
-package database.collections;
+package database.dto;
 
 import org.jetbrains.annotations.NotNull;
 import org.jongo.marshall.jackson.oid.MongoId;
@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 
 
-public class Event implements Comparable<Event> {
+public class EventDTO implements Comparable<EventDTO> {
 
     @MongoObjectId
     @MongoId
@@ -18,21 +18,21 @@ public class Event implements Comparable<Event> {
     private String imagepath;
     private int participants;
     private String description;
-    private Details details;
-    private Set<User> assignedUsers = new HashSet<>();  // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
+    private DetailsDTO detailsModel;
+    private Set<UserDTO> assignedUsers = new HashSet<>();  // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
     private String playground;                      // 1-to-many
 
     //This constructor is used for MongoDB mapping
-    public Event() {
+    public EventDTO() {
     }
 
-    private Event(Builder builder) {
+    private EventDTO(Builder builder) {
         this.id = builder.id;
         this.name = builder.name;
         this.imagepath = builder.imagepath;
         this.participants = builder.participants;
         this.description = builder.description;
-        this.details = builder.details;
+        this.detailsModel = builder.detailsModel;
         this.assignedUsers = builder.assignedUsers;
         this.playground = builder.playground;
     }
@@ -77,19 +77,19 @@ public class Event implements Comparable<Event> {
         this.description = description;
     }
 
-    public Details getDetails() {
-        return details;
+    public DetailsDTO getDetailsModel() {
+        return detailsModel;
     }
 
-    public void setDetails(Details details) {
-        this.details = details;
+    public void setDetailsModel(DetailsDTO detailsModel) {
+        this.detailsModel = detailsModel;
     }
 
-    public Set<User> getAssignedUsers() {
+    public Set<UserDTO> getAssignedUsers() {
         return assignedUsers;
     }
 
-    public void setAssignedUsers(Set<User> assignedUsers) {
+    public void setAssignedUsers(Set<UserDTO> assignedUsers) {
         this.assignedUsers = assignedUsers;
     }
 
@@ -104,7 +104,7 @@ public class Event implements Comparable<Event> {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Event event = (Event) o;
+        EventDTO event = (EventDTO) o;
         return participants == event.participants &&
                 Objects.equals(id, event.id) &&
                 Objects.equals(name, event.name) &&
@@ -120,15 +120,15 @@ public class Event implements Comparable<Event> {
                 ", imagePath='" + imagepath + '\'' +
                 ", participants=" + participants +
                 ", description='" + description + '\'' +
-                ", details=" + details +
+                ", details=" + detailsModel +
                 ", assignedUsers=" + assignedUsers +
                 ", playground=" + playground +
                 '}';
     }
 
     @Override
-    public int compareTo(@NotNull Event event) {
-        return this.details.getDate().compareTo(event.getDetails().getDate());
+    public int compareTo(@NotNull EventDTO event) {
+        return this.detailsModel.getDate().compareTo(event.getDetailsModel().getDate());
     }
 
     public static class Builder {
@@ -137,8 +137,8 @@ public class Event implements Comparable<Event> {
         private String imagepath;
         private int participants;
         private String description;
-        private Details details;
-        private Set<User> assignedUsers = new HashSet<>();  // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
+        private DetailsDTO detailsModel;
+        private Set<UserDTO> assignedUsers = new HashSet<>();  // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
         private String playground;                      // 1-to-many
 
         public Builder() {
@@ -169,12 +169,12 @@ public class Event implements Comparable<Event> {
             return this;
         }
 
-        public Builder details(Details details) {
-            this.details = details;
+        public Builder details(DetailsDTO detailsModel) {
+            this.detailsModel = detailsModel;
             return this;
         }
 
-        public Builder assignedUsers(Set<User> assignedUsers) {
+        public Builder assignedUsers(Set<UserDTO> assignedUsers) {
             this.assignedUsers = assignedUsers;
             return this;
         }
@@ -184,8 +184,8 @@ public class Event implements Comparable<Event> {
             return this;
         }
 
-        public Event build() {
-            return new Event(this);
+        public EventDTO build() {
+            return new EventDTO(this);
         }
     }
 }

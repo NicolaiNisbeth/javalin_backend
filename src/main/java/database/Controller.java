@@ -1,15 +1,21 @@
-package database.dao;
+package database;
 
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 import com.mongodb.client.ClientSession;
-import database.IDataSource;
+import database.dao.EventDAO;
+import database.dao.IEventDAO;
+import database.dao.IMessageDAO;
+import database.dao.IPlaygroundDAO;
+import database.dao.IUserDAO;
+import database.dao.MessageDAO;
+import database.dao.PlaygroundDAO;
+import database.dao.UserDAO;
 import database.exceptions.NoModificationException;
-import database.ProductionDB;
-import database.collections.Event;
-import database.collections.Message;
-import database.collections.Playground;
-import database.collections.User;
+import database.dto.EventDTO;
+import database.dto.MessageDTO;
+import database.dto.PlaygroundDTO;
+import database.dto.UserDTO;
 import database.utils.QueryUtils;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
@@ -43,38 +49,38 @@ public class Controller implements IController {
     }
 
     @Override
-    public WriteResult createPlayground(Playground playground) throws IllegalArgumentException, NoModificationException {
+    public WriteResult createPlayground(PlaygroundDTO playground) throws IllegalArgumentException, NoModificationException {
         return playgroundDAO.createPlayground(playground);
     }
 
     @Override
-    public WriteResult createUser(User user) throws IllegalArgumentException, NoModificationException {
+    public WriteResult createUser(UserDTO user) throws IllegalArgumentException, NoModificationException {
         String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
         user.setPassword(hashedPassword);
         return userDAO.createUser(user);
     }
 
     @Override
-    public Playground getPlayground(String playgroundName) throws IllegalArgumentException, NoSuchElementException {
-        Playground playground = playgroundDAO.getPlayground(playgroundName);
+    public PlaygroundDTO getPlayground(String playgroundName) throws IllegalArgumentException, NoSuchElementException {
+        PlaygroundDTO playground = playgroundDAO.getPlayground(playgroundName);
 
         // fetch assigned pedagogues based on username
-        Set<User> updatedPedagogue = new HashSet<>();
-        Set<User> assignedPedagogue = playground.getAssignedPedagogue();
+        Set<UserDTO> updatedPedagogue = new HashSet<>();
+        Set<UserDTO> assignedPedagogue = playground.getAssignedPedagogue();
         if (!assignedPedagogue.isEmpty()) {
-            for (User usernameObj : assignedPedagogue) {
-                User user = userDAO.getUser(usernameObj.getUsername());
+            for (UserDTO usernameObj : assignedPedagogue) {
+                UserDTO user = userDAO.getUser(usernameObj.getUsername());
                 updatedPedagogue.add(user);
             }
         }
         playground.setAssignedPedagogue(updatedPedagogue);
 
         // fetch events based on id
-        Set<Event> updatedEvents = new HashSet<>();
-        Set<Event> events = playground.getEvents();
+        Set<EventDTO> updatedEvents = new HashSet<>();
+        Set<EventDTO> events = playground.getEvents();
         if (!events.isEmpty()) {
-            for (Event idObj : events) {
-                Event event = eventDAO.getEvent(idObj.getId());
+            for (EventDTO idObj : events) {
+                EventDTO event = eventDAO.getEvent(idObj.getId());
                 updatedEvents.add(event);
             }
         }
@@ -82,11 +88,11 @@ public class Controller implements IController {
 
 
         // fetch messages based on id
-        Set<Message> messages = playground.getMessages();
-        Set<Message> updatedMessage = new HashSet<>();
+        Set<MessageDTO> messages = playground.getMessages();
+        Set<MessageDTO> updatedMessage = new HashSet<>();
         if (!messages.isEmpty()) {
-            for (Message idObj : messages) {
-                Message message = messageDAO.getMessage(idObj.getId());
+            for (MessageDTO idObj : messages) {
+                MessageDTO message = messageDAO.getMessage(idObj.getId());
                 updatedMessage.add(message);
             }
         }
@@ -95,15 +101,15 @@ public class Controller implements IController {
     }
 
     @Override
-    public User getUser(String username) throws NoSuchElementException, IllegalArgumentException {
-        User user = userDAO.getUser(username);
+    public UserDTO getUser(String username) throws NoSuchElementException, IllegalArgumentException {
+        UserDTO user = userDAO.getUser(username);
 
         // fetch all events based on id
-        Set<Event> updatedEvents = new HashSet<>();
-        Set<Event> events = user.getEvents();
+        Set<EventDTO> updatedEvents = new HashSet<>();
+        Set<EventDTO> events = user.getEvents();
         if (!events.isEmpty()) {
-            for (Event value : events) {
-                Event event = eventDAO.getEvent(value.getId());
+            for (EventDTO value : events) {
+                EventDTO event = eventDAO.getEvent(value.getId());
                 updatedEvents.add(event);
             }
         }
@@ -112,15 +118,15 @@ public class Controller implements IController {
     }
 
     @Override
-    public Event getEvent(String eventID) throws IllegalArgumentException, NoSuchElementException {
-        Event event = eventDAO.getEvent(eventID);
+    public EventDTO getEvent(String eventID) throws IllegalArgumentException, NoSuchElementException {
+        EventDTO event = eventDAO.getEvent(eventID);
 
         // fetch all users based on id
-        Set<User> updatedUser = new HashSet<>();
-        Set<User> users = event.getAssignedUsers();
+        Set<UserDTO> updatedUser = new HashSet<>();
+        Set<UserDTO> users = event.getAssignedUsers();
         if (!users.isEmpty()) {
-            for (User user : users) {
-                User u = userDAO.getUser(user.getUsername());
+            for (UserDTO user : users) {
+                UserDTO u = userDAO.getUser(user.getUsername());
                 updatedUser.add(u);
             }
         }
@@ -131,63 +137,63 @@ public class Controller implements IController {
     }
 
     @Override
-    public Message getMessage(String messageID) throws IllegalArgumentException, NoSuchElementException {
+    public MessageDTO getMessage(String messageID) throws IllegalArgumentException, NoSuchElementException {
         return messageDAO.getMessage(messageID);
     }
 
     @Override
-    public List<Playground> getPlaygrounds() throws NoSuchElementException {
+    public List<PlaygroundDTO> getPlaygrounds() throws NoSuchElementException {
         return playgroundDAO.getPlaygroundList();
     }
 
     @Override
-    public List<User> getUsers() throws NoSuchElementException {
+    public List<UserDTO> getUsers() throws NoSuchElementException {
         return userDAO.getUserList();
     }
 
     @Override
-    public List<Event> getEventsInPlayground(String playgroundName) {
+    public List<EventDTO> getEventsInPlayground(String playgroundName) {
         Jongo jongo = new Jongo(datasource.getDatabase());
         MongoCollection events = jongo.getCollection(IEventDAO.COLLECTION);
-        MongoCursor<Event> cursor = events.find("{playground : #}", playgroundName).as(Event.class);
-        List<Event> eventList = new ArrayList<>();
-        for (Event event : cursor)
+        MongoCursor<EventDTO> cursor = events.find("{playground : #}", playgroundName).as(EventDTO.class);
+        List<EventDTO> eventList = new ArrayList<>();
+        for (EventDTO event : cursor)
             eventList.add(event);
 
         return eventList;
     }
 
     @Override
-    public List<Message> getMessagesInPlayground(String playgroundName) {
+    public List<MessageDTO> getMessagesInPlayground(String playgroundName) {
         Jongo jongo = new Jongo(datasource.getDatabase());
         MongoCollection messages = jongo.getCollection(IMessageDAO.COLLECTION);
-        MongoCursor<Message> cursor = messages.find("{playgroundID : #}", playgroundName).as(Message.class);
-        List<Message> messageList = new ArrayList<>();
-        for (Message message : cursor)
+        MongoCursor<MessageDTO> cursor = messages.find("{playgroundID : #}", playgroundName).as(MessageDTO.class);
+        List<MessageDTO> messageList = new ArrayList<>();
+        for (MessageDTO message : cursor)
             messageList.add(message);
 
         return messageList;
     }
 
     @Override
-    public WriteResult updatePlayground(Playground playground)
+    public WriteResult updatePlayground(PlaygroundDTO playground)
             throws IllegalArgumentException, NoModificationException {
         return playgroundDAO.updatePlayground(playground);
     }
 
     @Override
-    public WriteResult updateUser(User user) throws IllegalArgumentException, NoModificationException {
+    public WriteResult updateUser(UserDTO user) throws IllegalArgumentException, NoModificationException {
         return userDAO.updateUser(user);
     }
 
     @Override
-    public WriteResult updatePlaygroundEvent(Event event)
+    public WriteResult updatePlaygroundEvent(EventDTO event)
             throws IllegalArgumentException, NoModificationException {
         return eventDAO.updateEvent(event);
     }
 
     @Override
-    public WriteResult updatePlaygroundMessage(Message message)
+    public WriteResult updatePlaygroundMessage(MessageDTO message)
             throws IllegalArgumentException, NoModificationException {
         return messageDAO.updateMessage(message);
     }
@@ -200,18 +206,18 @@ public class Controller implements IController {
         final ClientSession session = datasource.getClient().startSession();
         try (session){
             session.startTransaction();
-            Playground playground = playgroundDAO.getPlayground(playgroundName);
+            PlaygroundDTO playground = playgroundDAO.getPlayground(playgroundName);
 
             // delete playground reference from pedagogues
-            for (User pedagogue : playground.getAssignedPedagogue())
+            for (UserDTO pedagogue : playground.getAssignedPedagogue())
                 removePedagogueFromPlayground(playgroundName, pedagogue.getUsername());
 
             // delete playground events
-            for (Event event : playground.getEvents())
+            for (EventDTO event : playground.getEvents())
                 deletePlaygroundEvent(event.getId());
 
             // delete playground messages
-            for (Message message : playground.getMessages())
+            for (MessageDTO message : playground.getMessages())
                 deletePlaygroundMessage(message.getId());
 
             // delete playground
@@ -243,14 +249,14 @@ public class Controller implements IController {
         WriteResult wr;
         try (session){
             session.startTransaction();
-            User user = userDAO.getUser(username);
+            UserDTO user = userDAO.getUser(username);
 
             // delete user reference from playground
             for (String playgroundName : user.getPlaygroundsIDs())
                 removePedagogueFromPlayground(playgroundName, username);
 
             // delete user reference in events
-            for (Event event : user.getEvents())
+            for (EventDTO event : user.getEvents())
                 removeUserFromEvent(event.getId(), username);
 
             // delete user
@@ -282,7 +288,7 @@ public class Controller implements IController {
         WriteResult wr;
         try(session) {
             session.startTransaction();
-            User pedagogue = userDAO.getUser(username);
+            UserDTO pedagogue = userDAO.getUser(username);
 
             // insert playground reference in user
             pedagogue.getPlaygroundsIDs().add(plagroundName);
@@ -353,10 +359,10 @@ public class Controller implements IController {
 
         try(session) {
             session.startTransaction();
-            User user = userDAO.getUser(username);
+            UserDTO user = userDAO.getUser(username);
 
             // update user with event reference
-            user.getEvents().add(new Event.Builder().id(new ObjectId(eventID).toString()).build());
+            user.getEvents().add(new EventDTO.Builder().id(new ObjectId(eventID).toString()).build());
             wr = userDAO.updateUser(user);
 
             // insert user reference in event
@@ -383,7 +389,7 @@ public class Controller implements IController {
     }
 
     @Override
-    public WriteResult createPlaygroundEvent(String playgroundName, Event event)
+    public WriteResult createPlaygroundEvent(String playgroundName, EventDTO event)
             throws NoModificationException, NoSuchElementException, MongoException {
 
         ClientSession session = datasource.getClient().startSession();
@@ -419,7 +425,7 @@ public class Controller implements IController {
     }
 
     @Override
-    public WriteResult createPlaygroundMessage(String playgroundName, Message message)
+    public WriteResult createPlaygroundMessage(String playgroundName, MessageDTO message)
             throws NoModificationException, NoSuchElementException, MongoException {
 
         ClientSession session = datasource.getClient().startSession();
@@ -507,7 +513,7 @@ public class Controller implements IController {
         WriteResult wr;
         try (session){
             session.startTransaction();
-            Message message = messageDAO.getMessage(messageID);
+            MessageDTO message = messageDAO.getMessage(messageID);
 
             // delete message reference in playground
             MongoCollection playground = new Jongo(datasource.getDatabase()).getCollection(IPlaygroundDAO.COLLECTION);
@@ -574,11 +580,11 @@ public class Controller implements IController {
 
         try (session) {
             session.startTransaction();
-            Event event = eventDAO.getEvent(eventID);
+            EventDTO event = eventDAO.getEvent(eventID);
 
             // delete event reference in users
             MongoCollection users = new Jongo(datasource.getDatabase()).getCollection(IUserDAO.COLLECTION);
-            for (User user : event.getAssignedUsers()) {
+            for (UserDTO user : event.getAssignedUsers()) {
                 QueryUtils.updateWithPullObject(users, "username", user.getUsername(), "events", "_id", new ObjectId(eventID));
             }
 

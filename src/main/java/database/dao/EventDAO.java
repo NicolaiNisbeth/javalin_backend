@@ -3,7 +3,7 @@ package database.dao;
 import com.mongodb.WriteResult;
 import database.IDataSource;
 import database.exceptions.NoModificationException;
-import database.collections.Event;
+import database.dto.EventDTO;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
@@ -27,7 +27,7 @@ public class EventDAO implements IEventDAO {
      * @throws NoModificationException when event is not created
      */
     @Override
-    public WriteResult createEvent(Event event) throws IllegalArgumentException, NoModificationException {
+    public WriteResult createEvent(EventDTO event) throws IllegalArgumentException, NoModificationException {
         if (event == null)
             throw new IllegalArgumentException(
                     String.format("Can't create event in %s collection when event is null", COLLECTION));
@@ -51,14 +51,14 @@ public class EventDAO implements IEventDAO {
      * @throws NoSuchElementException when event is not found in db
      */
     @Override
-    public Event getEvent(String id) throws IllegalArgumentException, NoSuchElementException {
+    public EventDTO getEvent(String id) throws IllegalArgumentException, NoSuchElementException {
         if (id == null || id.isEmpty())
             throw new IllegalArgumentException(
                     String.format("%s as ID is not valid in identifying an event", id));
 
         Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
-        Event event = collection.findOne(new ObjectId(id)).as(Event.class);
+        EventDTO event = collection.findOne(new ObjectId(id)).as(EventDTO.class);
 
         if (event == null)
             throw new NoSuchElementException(
@@ -73,11 +73,11 @@ public class EventDAO implements IEventDAO {
      * @throws NoSuchElementException when no events are found in db
      */
     @Override
-    public List<Event> getEventList() throws NoSuchElementException {
+    public List<EventDTO> getEventList() throws NoSuchElementException {
         Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
-        List<Event> eventList = new ArrayList<>();
-        for (Event event : collection.find().as(Event.class)) {
+        List<EventDTO> eventList = new ArrayList<>();
+        for (EventDTO event : collection.find().as(EventDTO.class)) {
             eventList.add(event);
         }
 
@@ -96,7 +96,7 @@ public class EventDAO implements IEventDAO {
      * @throws NoModificationException when no event is updated
      */
     @Override
-    public WriteResult updateEvent(Event event) throws IllegalArgumentException, NoModificationException {
+    public WriteResult updateEvent(EventDTO event) throws IllegalArgumentException, NoModificationException {
         if (event == null || event.getId() == null)
             throw new IllegalArgumentException(
                     String.format("Can't update event in %s collection when param is null", COLLECTION));

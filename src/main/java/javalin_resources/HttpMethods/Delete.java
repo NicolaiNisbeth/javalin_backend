@@ -1,13 +1,13 @@
 package javalin_resources.HttpMethods;
 
-import database.collections.User;
-import database.dao.Controller;
+import database.dto.UserDTO;
+import database.Controller;
 import io.javalin.http.Handler;
 import org.json.JSONObject;
 
 public class Delete implements Tag {
 
-    public static class DeletePlayground {
+    public static class Playground {
 
         public static Handler deleteOnePlaygroundDelete = ctx -> {
             String playgroundname = "";
@@ -25,7 +25,7 @@ public class Delete implements Tag {
 
     }
 
-    public static class DeleteUser {
+    public static class User {
 
         public static Handler deleteParticipantFromPlaygroundEventDelete = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
@@ -58,7 +58,7 @@ public class Delete implements Tag {
         };
     }
 
-    public static class DeletePedagogue {
+    public static class Pedagogue {
 
         public static Handler deletePedagogueFromPlaygroundDelete = ctx -> {
             Controller.getInstance().removePedagogueFromPlayground(ctx.pathParam(PLAYGROUND_NAME), ctx.pathParam(USER_NAME));
@@ -70,7 +70,7 @@ public class Delete implements Tag {
 
     }
 
-    public static class DeleteEvent {
+    public static class Event {
 
         public static Handler deleteEventFromPlaygroundDelete = ctx -> {
             Controller.getInstance().deletePlaygroundEvent(ctx.pathParam(EVENT_ID));
@@ -87,15 +87,15 @@ public class Delete implements Tag {
             Controller.getInstance().removeUserFromEvent(id, username);
             if (true) {
                 ctx.status(200).result("Removal was successful");
-                ctx.json(new User.Builder(username));
+                ctx.json(new UserDTO.Builder(username));
             } else {
                 ctx.status(404).result("Failed to remove");
-                ctx.json(new User.Builder(username));
+                ctx.json(new UserDTO.Builder(username));
             }
         };
     }
 
-    public static class DeleteMessage {
+    public static class Message {
 
         public static Handler deletePlaygroundMessageDelete = ctx -> {
             Controller.getInstance().deletePlaygroundMessage(ctx.pathParam(PLAYGROUND_MESSAGE_ID));

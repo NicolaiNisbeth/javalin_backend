@@ -2,9 +2,9 @@ package resources;
 
 import com.google.gson.Gson;
 import database.exceptions.NoModificationException;
-import database.collections.Playground;
-import database.collections.User;
-import database.dao.Controller;
+import database.dto.PlaygroundDTO;
+import database.dto.UserDTO;
+import database.Controller;
 import io.javalin.http.Context;
 import javalin_resources.HttpMethods.Put;
 import org.junit.jupiter.api.*;
@@ -29,7 +29,7 @@ class UpdateUserTest {
         try {
             Controller.getInstance().getUser("root");
         } catch (NoSuchElementException e) {
-            User root = new User.Builder("root")
+            UserDTO root = new UserDTO.Builder("root")
                     .status("admin")
                     .setPassword("root")
                     .setFirstname("Københavns")
@@ -81,7 +81,7 @@ class UpdateUserTest {
         gson = new Gson();
         json = gson.toJson(userModel);
 
-        User updateUser = new User.Builder(userModel.username)
+        UserDTO updateUser = new UserDTO.Builder(userModel.username)
                 .setPassword(userModel.password)
                 .setFirstname(userModel.firstname)
                 .setLastname(userModel.lastname)
@@ -90,7 +90,7 @@ class UpdateUserTest {
         Controller.getInstance().createUser(updateUser);
 
         Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
-        User fromDB = Controller.getInstance().getUser(updateUser.getUsername());
+        UserDTO fromDB = Controller.getInstance().getUser(updateUser.getUsername());
         System.out.println(fromDB.getPlaygroundsIDs());
 
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
@@ -99,7 +99,7 @@ class UpdateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Put.PutUser.updateUser.handle(ctx);
+        Put.User.updateUser.handle(ctx);
 
 
         verify(ctx).status(201);
@@ -130,13 +130,13 @@ class UpdateUserTest {
         gson = new Gson();
         json = gson.toJson(userModel);
 
-        Playground playground = new Playground.Builder("KålPladsen1")
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("KålPladsen1")
                 .setCommune("København Ø")
                 .setZipCode(2100)
                 .build();
         Controller.getInstance().createPlayground(playground);
 
-        Playground playground2 = new Playground.Builder("KålPladsen2")
+        PlaygroundDTO playground2 = new PlaygroundDTO.Builder("KålPladsen2")
                 .setCommune("København Ø")
                 .setZipCode(2100)
                 .build();
@@ -146,7 +146,7 @@ class UpdateUserTest {
         pgIDs[0] = "KålPladsen1";
         pgIDs[1] = "KålPladsen2";
 
-        User updateUser = new User.Builder(userModel.username)
+        UserDTO updateUser = new UserDTO.Builder(userModel.username)
                 .setPassword(userModel.password)
                 .setFirstname(userModel.firstname)
                 .setLastname(userModel.lastname)
@@ -166,7 +166,7 @@ class UpdateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Put.PutUser.updateUser.handle(ctx);
+        Put.User.updateUser.handle(ctx);
         verify(ctx).status(201);
         verify(ctx).result("User updated");
 
@@ -213,14 +213,14 @@ class UpdateUserTest {
 
         userModel.username = "";
         userModel.playgroundsIDs = new String[2];
-        List<Playground> playgrounds = Controller.getInstance().getPlaygrounds();
+        List<PlaygroundDTO> playgrounds = Controller.getInstance().getPlaygrounds();
         userModel.playgroundsIDs[0] = playgrounds.get(0).getId();
         userModel.playgroundsIDs[1] = playgrounds.get(1).getId();
 
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Put.PutUser.updateUser.handle(ctx);
+        Put.User.updateUser.handle(ctx);
         verify(ctx).status(400);
         verify(ctx).result("Bad Request - Error in user data");
     }

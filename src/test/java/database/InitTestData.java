@@ -1,12 +1,11 @@
 package database;
 
 import com.mongodb.WriteResult;
-import database.collections.Details;
-import database.collections.Event;
-import database.collections.Message;
-import database.collections.Playground;
-import database.collections.User;
-import database.dao.*;
+import database.dto.DetailsDTO;
+import database.dto.EventDTO;
+import database.dto.MessageDTO;
+import database.dto.PlaygroundDTO;
+import database.dto.UserDTO;
 import database.exceptions.NoModificationException;
 import org.junit.jupiter.api.Test;
 
@@ -22,22 +21,19 @@ public class InitTestData {
 
     @Test
     void initFreshData() throws NoModificationException {
-        killAll();
+        controller.killAll();
+        System.out.println("Collections are deleted");
 
         List<String> usernames = initUsers();
         List<String> playgroundNames = initPlaygrounds();
-
-        addPedagoguesToPlaygrounds(usernames, playgroundNames);
         List<String> eventIDs = addEventsToPlaygrounds(playgroundNames);
-        addMessagesToPlaygrounds(playgroundNames);
+
         addParticipantsToEvent(usernames, eventIDs);
+        addPedagoguesToPlaygrounds(usernames, playgroundNames);
+        addMessagesToPlaygrounds(playgroundNames);
         System.out.println("Database is ready with test data!");
     }
 
-    private static void killAll() {
-        controller.killAll();
-        System.out.println("Collections are deleted");
-    }
 
     private List<String> initPlaygrounds() {
         List<String> playgroundNames = null;
@@ -46,12 +42,12 @@ public class InitTestData {
             String line = br.readLine(); // skip first line
             line = br.readLine();
 
-            Playground playground;
+            PlaygroundDTO playground;
             while (line != null) {
                 String[] data = line.split(",");
 
                 playgroundNames.add(data[0]);
-                playground = new Playground.Builder(data[0])
+                playground = new PlaygroundDTO.Builder(data[0])
                         .setStreetName(data[1])
                         .setStreetNumber(Integer.parseInt(data[2]))
                         .setCommune(data[3])
@@ -78,12 +74,12 @@ public class InitTestData {
             String line = br.readLine(); // skip first line
             line = br.readLine();
 
-            User user;
+            UserDTO user;
             while (line != null) {
                 String[] data = line.split(",");
 
                 usernames.add(data[0]);
-                user = new User.Builder(data[0])
+                user = new UserDTO.Builder(data[0])
                         .setPassword(data[1])
                         .setFirstname(data[2])
                         .setLastname(data[3])
@@ -109,12 +105,12 @@ public class InitTestData {
             String line = br.readLine(); // skip first line
             line = br.readLine();
 
-            Message message;
+            MessageDTO message;
             int i = 0;
             while (line != null) {
                 String[] data = line.split(",");
 
-                message = new Message.Builder()
+                message = new MessageDTO.Builder()
                         .setCategory(data[0])
                         .setIcon(data[1])
                         .setMessageString(data[2])
@@ -137,16 +133,16 @@ public class InitTestData {
             String line = br.readLine(); // skip first line
             line = br.readLine();
 
-            Event event;
+            EventDTO event;
             int i = 0;
             while (line != null) {
                 String[] data = line.split(",");
 
-                event = new Event.Builder()
+                event = new EventDTO.Builder()
                         .name(data[0])
                         .description(data[1])
                         .imagePath(data[2])
-                        .details(new Details(new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis())))
+                        .details(new DetailsDTO(new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis())))
                         .build();
 
                 WriteResult wr = controller.createPlaygroundEvent(playgroundNames.get(i), event);

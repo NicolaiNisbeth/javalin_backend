@@ -1,9 +1,9 @@
 package javalin_resources.HttpMethods;
 
-import database.collections.Event;
-import database.collections.Message;
-import database.collections.User;
-import database.dao.Controller;
+import database.dto.EventDTO;
+import database.dto.MessageDTO;
+import database.dto.UserDTO;
+import database.Controller;
 import io.javalin.http.Handler;
 
 import java.io.File;
@@ -16,10 +16,10 @@ import java.util.List;
 
 public class Get implements Tag {
 
-    public static class GetEvent {
+    public static class Event {
 
         public static Handler readOneEventGet = ctx -> {
-            Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
+            EventDTO event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
             if (event != null) {
                 ctx.json(event).contentType("json");
                 ctx.status(200);
@@ -28,7 +28,7 @@ public class Get implements Tag {
         };
 
         public static Handler readOneEventParticipantsGet = ctx -> {
-            Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
+            EventDTO event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
             if (event != null) {
                 ctx.json(event.getParticipants()).contentType("json");
                 ctx.status(200);
@@ -37,8 +37,8 @@ public class Get implements Tag {
         };
 
         public static Handler readOneEventOneParticipantGet = ctx -> {
-            Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
-            for (User user : event.getAssignedUsers())
+            EventDTO event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
+            for (UserDTO user : event.getAssignedUsers())
                 if (user.getUsername().equals(ctx.pathParam(USER_NAME))) {
                     ctx.json(user).contentType("json");
                     ctx.status(200);
@@ -48,7 +48,7 @@ public class Get implements Tag {
         };
 
         public static Handler readOnePlayGroundAllEventsGet = ctx -> {
-            List<Event> events = Controller.getInstance().getEventsInPlayground(ctx.pathParam(PLAYGROUND_NAME));
+            List<EventDTO> events = Controller.getInstance().getEventsInPlayground(ctx.pathParam(PLAYGROUND_NAME));
             if (events != null) {
                 ctx.json(events).contentType("json");
                 ctx.status(200);
@@ -58,7 +58,7 @@ public class Get implements Tag {
         };
     }
 
-    public static class GetPlayground {
+    public static class Playground {
 
         public static Handler readAllPlaygroundsGet = ctx -> {
             ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json");
@@ -78,10 +78,10 @@ public class Get implements Tag {
         };
     }
 
-    public static class GetMessage {
+    public static class Message {
 
         public static Handler readOneMessageGet = ctx -> {
-            Message message = Controller.getInstance().getMessage(ctx.pathParam((MESSAGE_ID)));
+            MessageDTO message = Controller.getInstance().getMessage(ctx.pathParam((MESSAGE_ID)));
             if (message != null) {
                 ctx.json(message).contentType("json");
                 ctx.status(200);
@@ -90,7 +90,7 @@ public class Get implements Tag {
         };
 
         public static Handler readAllMessagesGet = ctx -> {
-            List<Message> messages = Controller.getInstance().getMessagesInPlayground(ctx.pathParam(PLAYGROUND_NAME));
+            List<MessageDTO> messages = Controller.getInstance().getMessagesInPlayground(ctx.pathParam(PLAYGROUND_NAME));
             if (messages != null) {
                 ctx.json(messages).contentType("json");
                 ctx.status(200);
@@ -99,7 +99,7 @@ public class Get implements Tag {
         };
     }
 
-    public static class GetUser {
+    public static class User {
 
         public static Handler getUserPicture = ctx -> {
             File homeFolder = new File(System.getProperty("user.home"));

@@ -3,7 +3,7 @@ package database.dao;
 import com.mongodb.WriteResult;
 import database.IDataSource;
 import database.exceptions.NoModificationException;
-import database.collections.User;
+import database.dto.UserDTO;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
@@ -27,7 +27,7 @@ public class UserDAO implements IUserDAO {
      * @throws NoModificationException when user is not created
      */
     @Override
-    public WriteResult createUser(User user) throws IllegalArgumentException, NoModificationException {
+    public WriteResult createUser(UserDTO user) throws IllegalArgumentException, NoModificationException {
         if (user == null)
             throw new IllegalArgumentException(
                     String.format("Can't create user in %s collection when user is null", COLLECTION));
@@ -51,14 +51,14 @@ public class UserDAO implements IUserDAO {
      * @throws NoSuchElementException when user is not found in db
      */
     @Override
-    public User getUser(String username) throws NoSuchElementException, IllegalArgumentException {
+    public UserDTO getUser(String username) throws NoSuchElementException, IllegalArgumentException {
         if (username == null || username.isEmpty())
             throw new IllegalArgumentException(
                     String.format("%s as ID is not valid in identifying a user", username));
 
         Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
-        User user = collection.findOne("{username: #}", username).as(User.class);
+        UserDTO user = collection.findOne("{username: #}", username).as(UserDTO.class);
 
         if (user == null)
             throw new NoSuchElementException(
@@ -73,11 +73,11 @@ public class UserDAO implements IUserDAO {
      * @throws NoSuchElementException when no users are found in db
      */
     @Override
-    public List<User> getUserList() throws NoSuchElementException {
+    public List<UserDTO> getUserList() throws NoSuchElementException {
         Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
-        List<User> userList = new ArrayList<>();
-        for (User user : collection.find().as(User.class)) {
+        List<UserDTO> userList = new ArrayList<>();
+        for (UserDTO user : collection.find().as(UserDTO.class)) {
             userList.add(user);
         }
 
@@ -96,7 +96,7 @@ public class UserDAO implements IUserDAO {
      * @throws NoModificationException when no user is updated
      */
     @Override
-    public WriteResult updateUser(User user) throws IllegalArgumentException, NoModificationException {
+    public WriteResult updateUser(UserDTO user) throws IllegalArgumentException, NoModificationException {
         if (user == null || user.getId() == null)
             throw new IllegalArgumentException(
                     String.format("Can't update user in %s collection when param is null", COLLECTION));

@@ -2,7 +2,7 @@ package database.unit;
 
 import database.exceptions.NoModificationException;
 import database.TestDB;
-import database.collections.User;
+import database.dto.UserDTO;
 import database.dao.IUserDAO;
 import database.dao.UserDAO;
 import org.junit.jupiter.api.Assertions;
@@ -24,7 +24,7 @@ class UserDAOTest {
 
     @Test
     void createdUserShouldBeFetchedUser() throws NoModificationException {
-        User user = new User.Builder("Nicolai")
+        UserDTO user = new UserDTO.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
                 .setEmail("nicolai.nisbeth@yahoo.com")
@@ -33,14 +33,14 @@ class UserDAOTest {
                 .build();
 
         userDAO.createUser(user);
-        User fetchedUser = userDAO.getUser(user.getUsername());
+        UserDTO fetchedUser = userDAO.getUser(user.getUsername());
         Assertions.assertEquals(user, fetchedUser);
         userDAO.deleteUser(user.getUsername());
     }
 
     @Test
     void createTwoUsersShouldFetchListSizeTwo() throws NoModificationException {
-        User user1 = new User.Builder("Nicolai")
+        UserDTO user1 = new UserDTO.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
                 .setEmail("nicolai.nisbeth@yahoo.com")
@@ -48,7 +48,7 @@ class UserDAOTest {
                 .phoneNumbers("+45 12 34 23 12", "+45 45 74 56 32")
                 .build();
 
-        User user2 = new User.Builder("Peter")
+        UserDTO user2 = new UserDTO.Builder("Peter")
                 .status("Admin")
                 .imagePath("asd97a9s343d.jpg")
                 .setEmail("peter.pavlidou@yahoo.com")
@@ -59,7 +59,7 @@ class UserDAOTest {
         userDAO.createUser(user1);
         userDAO.createUser(user2);
 
-        List<User> userList = userDAO.getUserList();
+        List<UserDTO> userList = userDAO.getUserList();
         Assertions.assertAll(
                 () -> Assertions.assertEquals(2, userList.size()),
                 () -> Assertions.assertEquals(user1, userList.get(0)),
@@ -72,7 +72,7 @@ class UserDAOTest {
 
     @Test
     void updateUserShouldFetchUpdatedUser() throws NoModificationException {
-        User user = new User.Builder("s175565")
+        UserDTO user = new UserDTO.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
@@ -83,7 +83,7 @@ class UserDAOTest {
                 .build();
 
         userDAO.createUser(user);
-        User fetchedUser = userDAO.getUser(user.getUsername());
+        UserDTO fetchedUser = userDAO.getUser(user.getUsername());
 
         // update values
         fetchedUser.setEmail("nicolai.nisbeth@hotmail.com");
@@ -92,7 +92,7 @@ class UserDAOTest {
         userDAO.updateUser(fetchedUser);
 
         // check that user has updated values
-        User updatedUser = userDAO.getUser(fetchedUser.getUsername());
+        UserDTO updatedUser = userDAO.getUser(fetchedUser.getUsername());
         Assertions.assertAll(
                 () -> assertEquals(fetchedUser.getEmail(), updatedUser.getEmail()),
                 () -> assertEquals(fetchedUser.getPassword(), updatedUser.getPassword()),
@@ -104,7 +104,7 @@ class UserDAOTest {
 
     @Test
     void deleteAllUsersInCollection() throws NoModificationException {
-        User user1 = new User.Builder("Nicolai")
+        UserDTO user1 = new UserDTO.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
                 .setEmail("nicolai.nisbeth@yahoo.com")
@@ -112,7 +112,7 @@ class UserDAOTest {
                 .phoneNumbers("+45 12 34 23 12", "+45 45 74 56 32")
                 .build();
 
-        User user2 = new User.Builder("Peter")
+        UserDTO user2 = new UserDTO.Builder("Peter")
                 .status("Admin")
                 .imagePath("asd97a9s343d.jpg")
                 .setEmail("peter.pavlidou@yahoo.com")

@@ -1,9 +1,9 @@
 package javalin_resources.HttpMethods;
 
 import database.exceptions.DALException;
-import database.collections.*;
-import database.collections.Event;
-import database.dao.Controller;
+import database.dto.*;
+import database.dto.EventDTO;
+import database.Controller;
 import io.javalin.http.Handler;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,12 +18,12 @@ import java.util.Set;
 
 public class Put implements Tag {
 
-    public static class PutEvent {
+    public static class Event {
 
         public static Handler updateEventToPlaygroundPut = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
-            Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
-            Playground playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
+            EventDTO event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
+            PlaygroundDTO playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
 
             if (playground != null) {
 
@@ -44,10 +44,10 @@ public class Put implements Tag {
                 }
                 if (jsonObject.has(EVENT_DETAILS)) {
                     //TODO: Change this
-                    event.setDetails(null);
+                    event.setDetailsModel(null);
                 }
                 if (jsonObject.has(EVENT_ASSIGNED_USERS)) {
-                    Set<User> assignedUsers = new HashSet<>();
+                    Set<UserDTO> assignedUsers = new HashSet<>();
                     for (int i = 0; i < jsonObject.getJSONArray(EVENT_ASSIGNED_USERS).length(); i++) {
                         String assignedUserId = jsonObject.getJSONArray(EVENT_ASSIGNED_USERS).getJSONObject(i).getString(EVENT_ASSIGNED_USERS);
                         assignedUsers.add(Controller.getInstance().getUser(assignedUserId));
@@ -68,17 +68,17 @@ public class Put implements Tag {
 
     }
 
-    public static class PutPlayground {
+    public static class Playground {
 
         public static Handler updatePlaygroundPut = ctx -> {
-            Playground playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
+            PlaygroundDTO playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
             JSONObject jsonObject = new JSONObject(ctx.body());
             if (playground != null) {
                 if (jsonObject.has(PLAYGROUND_STREET_NAME))
                     playground.setStreetName(jsonObject.getString(PLAYGROUND_STREET_NAME));
 
                 if (jsonObject.has(PLAYGROUND_PEDAGOGUES)) {
-                    Set<User> pedagoges = new HashSet<>();
+                    Set<UserDTO> pedagoges = new HashSet<>();
 
                     for (int i = 0; i < jsonObject.getJSONArray(PLAYGROUND_PEDAGOGUES).length(); i++) {
                         String username = jsonObject.getJSONArray(PLAYGROUND_PEDAGOGUES).getString(i);
@@ -91,7 +91,7 @@ public class Put implements Tag {
                     playground.setCommune(jsonObject.getString(PLAYGROUND_COMMUNE));
 
                 if (jsonObject.has(PLAYGROUND_EVENTS)) {
-                    Set<Event> eventSet = new HashSet<>();
+                    Set<EventDTO> eventSet = new HashSet<>();
                     for (int i = 0; i < jsonObject.getJSONArray(PLAYGROUND_EVENTS).length(); i++) {
                         String eventid = jsonObject.getJSONArray(PLAYGROUND_EVENTS).getJSONObject(i).getString(PLAYGROUND_EVENTS);
                         eventSet.add(Controller.getInstance().getEvent(eventid));
@@ -108,7 +108,7 @@ public class Put implements Tag {
                     playground.setImagePath(jsonObject.getString(PLAYGROUND_IMAGEPATH));
 
                 if (jsonObject.has(PLAYGROUND_MESSAGES)) {
-                    Set<Message> messagesSet = new HashSet<>();
+                    Set<MessageDTO> messagesSet = new HashSet<>();
                     for (int i = 0; i < jsonObject.getJSONArray(PLAYGROUND_MESSAGE_ID).length(); i++) {
                         String messageid = jsonObject.getJSONArray(PLAYGROUND_MESSAGE_ID).getJSONObject(i).getString(PLAYGROUND_MESSAGE_ID);
                         messagesSet.add(Controller.getInstance().getMessage(messageid));
@@ -138,12 +138,12 @@ public class Put implements Tag {
 
     }
 
-    public static class PutPedagogue {
+    public static class Pedagogue {
 
         public static Handler updatePedagogueToPlayGroundPut = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
-            Playground playground = Controller.getInstance().getPlayground(jsonObject.getString(PLAYGROUND_NAME));
-            User user = Controller.getInstance().getUser(jsonObject.getString(PEDAGOGUE));
+            PlaygroundDTO playground = Controller.getInstance().getPlayground(jsonObject.getString(PLAYGROUND_NAME));
+            UserDTO user = Controller.getInstance().getUser(jsonObject.getString(PEDAGOGUE));
             playground.getAssignedPedagogue().add(user);
             Controller.getInstance().updatePlayground(playground);
             if (jsonObject.getString(PEDAGOGUE) != null && jsonObject.getString(PLAYGROUND_NAME) != null) {
@@ -155,12 +155,12 @@ public class Put implements Tag {
 
     }
 
-    public static class PutUser {
+    public static class User {
 
         public static Handler resetPassword = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
             String username = jsonObject.getString(USERNAME);
-            User user = null;
+            UserDTO user = null;
 
             try {
                 user = Controller.getInstance().getUser(username);
@@ -215,7 +215,7 @@ public class Put implements Tag {
                 return;
             }
 
-            User userToUpdate = null;
+            UserDTO userToUpdate = null;
 
             //Hvis user ikke opdaterer sig selv, er det en admin der opdaterer
             if (!username.equalsIgnoreCase(usernameAdmin)) {
@@ -301,12 +301,12 @@ public class Put implements Tag {
         };
     }
 
-    public static class PutMessage {
+    public static class Message {
 
         public static Handler updatePlaygroundMessagePut = ctx -> {
 
             JSONObject jsonObject = new JSONObject(ctx.body());
-            Message message = Controller.getInstance().getMessage(ctx.pathParam("id"));
+            MessageDTO message = Controller.getInstance().getMessage(ctx.pathParam("id"));
 
             // TODO Hvordan kommer den detail parameter til at foregå?
             if (jsonObject.get(HOUR) != null) {

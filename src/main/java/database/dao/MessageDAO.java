@@ -2,7 +2,7 @@ package database.dao;
 
 import database.IDataSource;
 import database.exceptions.NoModificationException;
-import database.collections.Message;
+import database.dto.MessageDTO;
 import com.mongodb.WriteResult;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
@@ -31,7 +31,7 @@ public class MessageDAO implements IMessageDAO {
      * @throws NoModificationException when message is not created
      */
     @Override
-    public WriteResult createMessage(Message message) throws IllegalArgumentException, NoModificationException {
+    public WriteResult createMessage(MessageDTO message) throws IllegalArgumentException, NoModificationException {
         if (message == null)
             throw new IllegalArgumentException(
                     String.format("Can't create message in %s collection when message is null", COLLECTION));
@@ -55,13 +55,13 @@ public class MessageDAO implements IMessageDAO {
      * @throws NoSuchElementException when message is not found in db
      */
     @Override
-    public Message getMessage(String id) throws IllegalArgumentException, NoSuchElementException {
+    public MessageDTO getMessage(String id) throws IllegalArgumentException, NoSuchElementException {
         if (id == null || id.isEmpty())
             throw new IllegalArgumentException(
                     String.format("%s as ID is not valid in identifying an message", id));
 
         Jongo jongo = new Jongo(datasource.getDatabase());
-        Message message = jongo.getCollection(COLLECTION).findOne(withOid(id)).as(Message.class);
+        MessageDTO message = jongo.getCollection(COLLECTION).findOne(withOid(id)).as(MessageDTO.class);
 
         if (message == null)
             throw new NoSuchElementException(
@@ -76,10 +76,10 @@ public class MessageDAO implements IMessageDAO {
      * @throws NoSuchElementException when no messages are found in db
      */
     @Override
-    public List<Message> getMessageList() throws NoSuchElementException {
+    public List<MessageDTO> getMessageList() throws NoSuchElementException {
         Jongo jongo = new Jongo(datasource.getDatabase());
-        MongoCursor<Message> all = jongo.getCollection(COLLECTION).find("{}").as(Message.class);
-        List<Message> messages = new ArrayList<>();
+        MongoCursor<MessageDTO> all = jongo.getCollection(COLLECTION).find("{}").as(MessageDTO.class);
+        List<MessageDTO> messages = new ArrayList<>();
         while (all.hasNext()) {
             messages.add(all.next());
         }
@@ -99,7 +99,7 @@ public class MessageDAO implements IMessageDAO {
      * @throws NoModificationException when no message is updated
      */
     @Override
-    public WriteResult updateMessage(Message message) throws IllegalArgumentException, NoModificationException {
+    public WriteResult updateMessage(MessageDTO message) throws IllegalArgumentException, NoModificationException {
         if (message == null || message.getId() == null)
             throw new IllegalArgumentException(
                     String.format("Can't update message in %s collection when param is null", COLLECTION));

@@ -3,7 +3,7 @@ package database.unit;
 import com.mongodb.WriteResult;
 import database.exceptions.NoModificationException;
 import database.TestDB;
-import database.collections.Message;
+import database.dto.MessageDTO;
 import database.dao.IMessageDAO;
 import database.dao.MessageDAO;
 import org.junit.jupiter.api.Assertions;
@@ -23,12 +23,12 @@ class MessageDAOTest {
 
     @Test
     void createdMessageShouldBeFetchedMessage() throws NoModificationException {
-        Message message = new Message.Builder()
+        MessageDTO message = new MessageDTO.Builder()
                 .setMessageString("Husk løbesko til fodbold")
                 .build();
 
         WriteResult ws = messageDAO.createMessage(message);
-        Message fetchedMessage = messageDAO.getMessage(ws.getUpsertedId().toString());
+        MessageDTO fetchedMessage = messageDAO.getMessage(ws.getUpsertedId().toString());
         Assertions.assertEquals(message, fetchedMessage);
 
         messageDAO.deleteMessage(ws.getUpsertedId().toString());
@@ -36,18 +36,18 @@ class MessageDAOTest {
 
     @Test
     void createTwoMessagesShouldFetchListSizeTwo() throws NoModificationException {
-        Message message = new Message.Builder()
+        MessageDTO message = new MessageDTO.Builder()
                 .setMessageString("Husk løbesko til fodbold")
                 .build();
 
-        Message message2 = new Message.Builder()
+        MessageDTO message2 = new MessageDTO.Builder()
                 .setMessageString("Husk badebukser")
                 .build();
 
         WriteResult wr = messageDAO.createMessage(message);
         WriteResult wr2 = messageDAO.createMessage(message2);
 
-        List<Message> messageList = messageDAO.getMessageList();
+        List<MessageDTO> messageList = messageDAO.getMessageList();
         Assertions.assertAll(
                 () -> Assertions.assertEquals(messageList.size(), 2),
                 () -> Assertions.assertEquals(messageList.get(0), message),
@@ -60,7 +60,7 @@ class MessageDAOTest {
 
     @Test
     void updateEventShouldFetchUpdatedEvent() throws NoModificationException{
-        Message message = new Message.Builder()
+        MessageDTO message = new MessageDTO.Builder()
                 .setMessageString("Husk løbesko til fodbold")
                 .build();
 
@@ -68,7 +68,7 @@ class MessageDAOTest {
         message.setMessageString("ny string");
         messageDAO.updateMessage(message);
 
-        Message updatedMessage = messageDAO.getMessage(ws.getUpsertedId().toString());
+        MessageDTO updatedMessage = messageDAO.getMessage(ws.getUpsertedId().toString());
         Assertions.assertEquals("ny string", updatedMessage.getMessageString());
 
         messageDAO.deleteMessage(ws.getUpsertedId().toString());
@@ -76,11 +76,11 @@ class MessageDAOTest {
 
     @Test
     void deleteAllMessagesInCollection() throws NoModificationException {
-        Message message = new Message.Builder()
+        MessageDTO message = new MessageDTO.Builder()
                 .setMessageString("Husk løbesko til fodbold")
                 .build();
 
-        Message message2 = new Message.Builder()
+        MessageDTO message2 = new MessageDTO.Builder()
                 .setMessageString("Husk badebukser")
                 .build();
 

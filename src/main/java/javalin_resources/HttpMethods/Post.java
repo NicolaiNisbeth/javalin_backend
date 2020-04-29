@@ -4,10 +4,9 @@ import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import com.mongodb.WriteResult;
 import database.exceptions.DALException;
-import database.IDataSource;
 import database.exceptions.NoModificationException;
-import database.collections.*;
-import database.dao.Controller;
+import database.dto.*;
+import database.Controller;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.ContentType;
 import org.json.JSONArray;
@@ -22,16 +21,11 @@ import java.util.*;
 
 public class Post implements Tag {
 
-    private IDataSource datasource;
-    public Post(IDataSource datasource){
-        this.datasource = datasource;
-    }
-
-    public static class PostPlayground {
+    public static class Playground {
 
         public static Handler createPlaygroundPost = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
-            Set<User> users = new HashSet<>();
+            Set<UserDTO> users = new HashSet<>();
             for (int i = 0; i < jsonObject.getJSONArray(USERS).length(); i++) {
                 String userId = (String) jsonObject.getJSONArray(USERS).get(i);
                 try {
@@ -41,7 +35,7 @@ public class Post implements Tag {
                 }
             }
 
-            Playground playground = new Playground.Builder(jsonObject.getString(PLAYGROUND_NAME))
+            PlaygroundDTO playground = new PlaygroundDTO.Builder(jsonObject.getString(PLAYGROUND_NAME))
                     .setStreetName(jsonObject.getString(PLAYGROUND_STREET_NAME))
                     .setStreetNumber(jsonObject.getInt(PLAYGROUND_STREET_NUMBER))
                     .setZipCode(jsonObject.getInt(PLAYGROUND_ZIPCODE))
@@ -61,43 +55,43 @@ public class Post implements Tag {
 
     }
 
-    public static class PostEvent {
+    public static class Event {
 
         public static Handler createPlaygroundEventPost = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
-            Event event = new Event();
+            EventDTO event = new EventDTO();
 
-            Set<User> users = new HashSet<>();
+            Set<UserDTO> users = new HashSet<>();
             for (int i = 0; i < jsonObject.getJSONArray(USERS).length(); i++) {
                 String userid = jsonObject.getJSONArray(USERS).getString(i);
                 users.add(Controller.getInstance().getUser(userid));
             }
 
-            Details details = new Details();
+            DetailsDTO detailsModel = new DetailsDTO();
             Calendar cal = Calendar.getInstance();
 
             cal.set(Calendar.YEAR, jsonObject.getInt(EVENT_YEAR));
             cal.set(Calendar.DAY_OF_MONTH, jsonObject.getInt(EVENT_DAY));
             cal.set(Calendar.MONTH, jsonObject.getInt(EVENT_MONTH));
 
-            details.setDate(cal.getTime());
+            detailsModel.setDate(cal.getTime());
 
             cal.set(Calendar.HOUR, jsonObject.getInt(EVENT_HOUR_START));
             cal.set(Calendar.MINUTE, jsonObject.getInt(EVENT_MINUTE_START));
 
-            details.setStartTime(cal.getTime());
+            detailsModel.setStartTime(cal.getTime());
 
             cal.set(Calendar.HOUR, jsonObject.getInt(EVENT_HOUR_END));
             cal.set(Calendar.MINUTE, jsonObject.getInt(EVENT_MINUTE_END));
 
-            details.setStartTime(cal.getTime());
+            detailsModel.setStartTime(cal.getTime());
 
             event.setPlayground(jsonObject.getString(PLAYGROUND_NAME));
             event.setName(jsonObject.getString(EVENT_NAME));
             event.setParticipants(jsonObject.getInt(EVENT_PARTICIPANTS));
             event.setImagepath(jsonObject.getString(EVENT_IMAGEPATH));
             event.setAssignedUsers(users);
-            event.setDetails(details);
+            event.setDetailsModel(detailsModel);
             event.setDescription(jsonObject.getString(EVENT_DESCRIPTION));
 
             if (Controller.getInstance().createPlaygroundEvent(jsonObject.getString(PLAYGROUND_NAME), event).wasAcknowledged()) {
@@ -115,25 +109,25 @@ public class Post implements Tag {
             WriteResult successful = Controller.getInstance().addUserToEvent(id, username);
             if (true) {
                 ctx.status(200).result("Update successful");
-                ctx.json(new User.Builder(username));
+                ctx.json(new UserDTO.Builder(username));
                 return;
             } else {
                 ctx.status(404).result("Failed to update");
-                ctx.json(new User.Builder(username));
+                ctx.json(new UserDTO.Builder(username));
             }
 
         };
 
     }
 
-    public static class PostMessage {
+    public static class Message {
 
         public static Handler createPlaygroundMessagePost = ctx -> {
 
             JSONObject jsonObject = new JSONObject(ctx.body());
 
             // TODO: Details
-            Details details = new Details();
+            DetailsDTO detailsModel = new DetailsDTO();
             Calendar cal = Calendar.getInstance();
 
             cal.set(Calendar.YEAR, jsonObject.getInt(EVENT_YEAR));
@@ -145,7 +139,7 @@ public class Post implements Tag {
 
             Date date = cal.getTime();
 
-            Message message = new Message.Builder()
+            MessageDTO message = new MessageDTO.Builder()
                     .setMessageString(jsonObject.getString(MESSAGE_STRING))
                     .set_id(jsonObject.getString(MESSAGE_ID))
                     .setIcon(jsonObject.getString(MESSAGE_ICON))
@@ -174,7 +168,7 @@ public class Post implements Tag {
         };
     }*/
 
-    public static class PostUser {
+    public static class User {
         public static Handler createParticipantsToPlaygroundEventPost = ctx -> {
 
         };
@@ -220,7 +214,7 @@ public class Post implements Tag {
                 return;
             }
 
-            User newUser = null;
+            UserDTO newUser = null;
             boolean adminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
             if (!adminAuthorized) {
                 return;
@@ -238,7 +232,7 @@ public class Post implements Tag {
                 return;
             }
 
-            newUser = new User.Builder(username)
+            newUser = new UserDTO.Builder(username)
                     .setPassword(password)
                     .setFirstname(firstName)
                     .setLastname(lastName)
@@ -301,7 +295,7 @@ public class Post implements Tag {
                 return;
             }
 
-            User user;
+            UserDTO user;
             boolean root = username.equalsIgnoreCase("root");
             if (root) {
                 user = getRootUser(username);
@@ -323,7 +317,7 @@ public class Post implements Tag {
 
             // if user exists in nordfalk but not in db
             if (user == null) {
-                user = new User.Builder(bruger.brugernavn)
+                user = new UserDTO.Builder(bruger.brugernavn)
                         .setFirstname(bruger.fornavn)
                         .setLastname(bruger.efternavn)
                         .setEmail(bruger.email)
@@ -364,7 +358,7 @@ public class Post implements Tag {
             }
         };
 
-        private static User getUserInMongo(String username) {
+        private static UserDTO getUserInMongo(String username) {
             try {
                 return Controller.getInstance().getUser(username);
             } catch (NoSuchElementException e) {
@@ -383,13 +377,13 @@ public class Post implements Tag {
             return bruger;
         }
 
-        private static User getRootUser(String username) throws NoModificationException {
-            User root;
+        private static UserDTO getRootUser(String username) throws NoModificationException {
+            UserDTO root;
             try {
                 root = Controller.getInstance().getUser(username);
             } catch (NoSuchElementException e) {
                 System.out.println("Opretter root");
-                root = new User.Builder("root")
+                root = new UserDTO.Builder("root")
                         .status("admin")
                         .setPassword("root")
                         .setFirstname("Københavns")

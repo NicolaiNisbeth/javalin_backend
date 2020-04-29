@@ -2,7 +2,7 @@ package database.dao;
 
 import database.IDataSource;
 import database.exceptions.NoModificationException;
-import database.collections.Playground;
+import database.dto.PlaygroundDTO;
 import com.mongodb.*;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
@@ -28,7 +28,7 @@ public class PlaygroundDAO implements IPlaygroundDAO {
      * @throws NoModificationException when playground is not created
      */
     @Override
-    public WriteResult createPlayground(Playground playground) throws IllegalArgumentException, NoModificationException {
+    public WriteResult createPlayground(PlaygroundDTO playground) throws IllegalArgumentException, NoModificationException {
         if (playground == null)
             throw new IllegalArgumentException(
                     String.format("Can't create playground in %s collection when playground is null", COLLECTION));
@@ -52,14 +52,14 @@ public class PlaygroundDAO implements IPlaygroundDAO {
      * @throws NoSuchElementException when playground is not found in db
      */
     @Override
-    public Playground getPlayground(String playgroundName) throws IllegalArgumentException, NoSuchElementException {
+    public PlaygroundDTO getPlayground(String playgroundName) throws IllegalArgumentException, NoSuchElementException {
         if (playgroundName == null || playgroundName.isEmpty())
             throw new IllegalArgumentException(
                     String.format("%s as ID is not valid in identifying an playground", playgroundName));
 
         Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
-        Playground playground = collection.findOne("{name : #}", playgroundName).as(Playground.class);
+        PlaygroundDTO playground = collection.findOne("{name : #}", playgroundName).as(PlaygroundDTO.class);
 
         if (playground == null)
             throw new NoSuchElementException(
@@ -74,10 +74,10 @@ public class PlaygroundDAO implements IPlaygroundDAO {
      * @throws NoSuchElementException when no playgrounds are found in db
      */
     @Override
-    public List<Playground> getPlaygroundList() throws NoSuchElementException {
-        List<Playground> playgrounds = new ArrayList<>();
+    public List<PlaygroundDTO> getPlaygroundList() throws NoSuchElementException {
+        List<PlaygroundDTO> playgrounds = new ArrayList<>();
         Jongo jongo = new Jongo(dataSource.getDatabase());
-        MongoCursor<Playground> all = jongo.getCollection(COLLECTION).find("{}").as(Playground.class);
+        MongoCursor<PlaygroundDTO> all = jongo.getCollection(COLLECTION).find("{}").as(PlaygroundDTO.class);
         while (all.hasNext()) {
             playgrounds.add(all.next());
         }
@@ -97,7 +97,7 @@ public class PlaygroundDAO implements IPlaygroundDAO {
      * @throws NoModificationException when no playground is updated
      */
     @Override
-    public WriteResult updatePlayground(Playground playground) throws IllegalArgumentException, NoModificationException {
+    public WriteResult updatePlayground(PlaygroundDTO playground) throws IllegalArgumentException, NoModificationException {
         if (playground == null || playground.getId() == null)
             throw new IllegalArgumentException(
                     String.format("Can't update playground in %s collection when param is null", COLLECTION));

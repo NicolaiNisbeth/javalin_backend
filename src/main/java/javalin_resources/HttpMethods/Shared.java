@@ -1,7 +1,7 @@
 package javalin_resources.HttpMethods;
 
-import database.collections.User;
-import database.dao.Controller;
+import database.dto.UserDTO;
+import database.Controller;
 import io.javalin.http.Context;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
 
 public class Shared {
     public static boolean checkAdminCredentials(String username, String password, Context ctx) {
-        User admin;
+        UserDTO admin;
         //Hent admin - den der opretter brugeren
         try {
             admin = Controller.getInstance().getUser(username);

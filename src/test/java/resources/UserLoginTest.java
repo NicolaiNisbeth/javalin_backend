@@ -43,7 +43,7 @@ public class UserLoginTest {
         String inputBody = gson.toJson(model);
 
         when(ctx.body()).thenReturn(inputBody);
-        Post.PostUser.userLogin.handle(ctx);
+        Post.User.userLogin.handle(ctx);
 
         verify(ctx).status(200);
         verify(ctx).result("user login with root was successful");
@@ -60,7 +60,7 @@ public class UserLoginTest {
         String inputBody = gson.toJson(model);
 
         when(ctx.body()).thenReturn(inputBody);
-        Post.PostUser.userLogin.handle(ctx);
+        Post.User.userLogin.handle(ctx);
 
         verify(ctx).status(404);
         verify(ctx).result("Unauthorized - No such username!");
@@ -77,7 +77,7 @@ public class UserLoginTest {
         String inputBody = gson.toJson(model);
 
         when(ctx.body()).thenReturn(inputBody);
-        Post.PostUser.userLogin.handle(ctx);
+        Post.User.userLogin.handle(ctx);
 
         verify(ctx).status(400);
         verify(ctx).result("body has no username and password");
@@ -89,7 +89,7 @@ public class UserLoginTest {
         ctx.status(EMPTY_STATUS);
         ctx.result(EMPTY_RESULT);
 
-        Post.PostUser.userLogin.handle(ctx);
+        Post.User.userLogin.handle(ctx);
 
         verify(ctx).status(400);
         verify(ctx).result("body has no username and password");
@@ -106,7 +106,7 @@ public class UserLoginTest {
         String inputBody = gson.toJson(model);
 
         when(ctx.body()).thenReturn(inputBody);
-        Post.PostUser.userLogin.handle(ctx);
+        Post.User.userLogin.handle(ctx);
 
         verify(ctx).status(200);
         verify(ctx).result("user login was successful");
@@ -123,7 +123,7 @@ public class UserLoginTest {
         String inputBody = gson.toJson(model);
 
         when(ctx.body()).thenReturn(inputBody);
-        Post.PostUser.userLogin.handle(ctx);
+        Post.User.userLogin.handle(ctx);
 
         verify(ctx).status(401);
         verify(ctx).result("Unauthorized - Wrong password");
