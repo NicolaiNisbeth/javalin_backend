@@ -53,9 +53,7 @@ public class JavalinJWT {
     }
 
     public static Handler createHeaderDecodeHandler(JWTProvider jwtProvider) {
-        return context -> getTokenFromHeader(context)
-                .flatMap(jwtProvider::validateToken)
-                .ifPresent(jwt -> JavalinJWT.addDecodedToContext(context, jwt));
+        return context -> getTokenFromHeader(context).flatMap(jwtProvider::validateToken).ifPresent(jwt -> JavalinJWT.addDecodedToContext(context, jwt));
     }
 
     public static Handler createCookieDecodeHandler(JWTProvider jwtProvider) {

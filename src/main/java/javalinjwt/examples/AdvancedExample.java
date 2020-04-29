@@ -55,7 +55,6 @@ public class AdvancedExample {
 
         // set the paths
         app.before(decodeHandler);
-        app.before(generateHandler);
 
         app.get("/generate",  generateHandler, Collections.singleton(Roles.ANYONE));
         app.get("/validate", validateHandler, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.USER, Roles.ADMIN)));

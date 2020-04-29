@@ -56,6 +56,7 @@ public class Get implements Tag {
                 ctx.status(404).result("Couldn't find any events for this playground");
             }
         };
+
         public static Handler readAllEventsGet = ctx -> {
             List<Event> events = Controller.getInstance().getPlaygroundEvents(ctx.pathParam(PLAYGROUND_NAME));
             if (events != null) {

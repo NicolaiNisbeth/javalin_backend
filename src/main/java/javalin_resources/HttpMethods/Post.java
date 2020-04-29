@@ -8,6 +8,8 @@ import database.collections.*;
 import database.dao.Controller;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import javalinjwt.JWTProvider;
+import javalinjwt.examples.JWTResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mindrot.jbcrypt.BCrypt;
@@ -295,6 +297,7 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
                     Controller.getInstance().createUser(user);
                 }
                 ctx.json(user).contentType("json");
+
                 return;
             }
 
@@ -319,6 +322,8 @@ HUSK: Kodeord må aldrig opbevares i clear-text!!!!
             try {
                 user = Controller.getInstance().getUser(username);
                 if (BCrypt.checkpw(password, user.getPassword())) {
+                    String token = JWTHandler.provider.generateToken(user);
+                    ctx.json(new JWTResponse(token));
                     ctx.json(user).contentType("json").status(200);
                 } else {
                     ctx.status(401).result("Unauthorized - Wrong password");
