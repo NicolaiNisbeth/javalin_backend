@@ -1,7 +1,7 @@
 package database.dao;
 
-import database.DataSource;
-import database.NoModificationException;
+import database.IDataSource;
+import database.exceptions.NoModificationException;
 import database.collections.Playground;
 import com.mongodb.*;
 import org.bson.types.ObjectId;
@@ -14,10 +14,10 @@ import java.util.NoSuchElementException;
 
 public class PlaygroundDAO implements IPlaygroundDAO {
 
-    private final DB db;
+    private IDataSource dataSource;
 
-    public PlaygroundDAO(DB db) {
-        this.db = db;
+    public PlaygroundDAO(IDataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     /**
@@ -33,7 +33,7 @@ public class PlaygroundDAO implements IPlaygroundDAO {
             throw new IllegalArgumentException(
                     String.format("Can't create playground in %s collection when playground is null", COLLECTION));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         WriteResult wr = collection.save(playground);
 
@@ -57,7 +57,7 @@ public class PlaygroundDAO implements IPlaygroundDAO {
             throw new IllegalArgumentException(
                     String.format("%s as ID is not valid in identifying an playground", playgroundName));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         Playground playground = collection.findOne("{name : #}", playgroundName).as(Playground.class);
 
@@ -76,7 +76,7 @@ public class PlaygroundDAO implements IPlaygroundDAO {
     @Override
     public List<Playground> getPlaygroundList() throws NoSuchElementException {
         List<Playground> playgrounds = new ArrayList<>();
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCursor<Playground> all = jongo.getCollection(COLLECTION).find("{}").as(Playground.class);
         while (all.hasNext()) {
             playgrounds.add(all.next());
@@ -102,7 +102,7 @@ public class PlaygroundDAO implements IPlaygroundDAO {
             throw new IllegalArgumentException(
                     String.format("Can't update playground in %s collection when param is null", COLLECTION));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         WriteResult wr = collection
                 .update(new ObjectId(playground.getId()))
@@ -128,7 +128,7 @@ public class PlaygroundDAO implements IPlaygroundDAO {
             throw new IllegalArgumentException(
                     String.format("%s as ID is not valid in identifying an playground", playgroundName));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         WriteResult wr = collection.remove("{name : #}", playgroundName);
 
@@ -144,8 +144,13 @@ public class PlaygroundDAO implements IPlaygroundDAO {
      * @return writeResult where ids of deleted events can be derived
      */
     public WriteResult deleteAllPlaygrounds() {
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         return collection.remove("{}");
+    }
+
+    @Override
+    public void setDataSource(IDataSource dataSource) {
+        this.dataSource = dataSource;
     }
 }

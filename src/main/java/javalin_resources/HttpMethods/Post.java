@@ -3,9 +3,9 @@ package javalin_resources.HttpMethods;
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import com.mongodb.WriteResult;
-import database.DALException;
-import database.DataSource;
-import database.NoModificationException;
+import database.exceptions.DALException;
+import database.IDataSource;
+import database.exceptions.NoModificationException;
 import database.collections.*;
 import database.dao.Controller;
 import io.javalin.http.Handler;
@@ -22,6 +22,11 @@ import java.util.*;
 
 public class Post implements Tag {
 
+    private IDataSource datasource;
+    public Post(IDataSource datasource){
+        this.datasource = datasource;
+    }
+
     public static class PostPlayground {
 
         public static Handler createPlaygroundPost = ctx -> {
@@ -30,8 +35,8 @@ public class Post implements Tag {
             for (int i = 0; i < jsonObject.getJSONArray(USERS).length(); i++) {
                 String userId = (String) jsonObject.getJSONArray(USERS).get(i);
                 try {
-                    users.add(Controller.getInstance(DataSource.getTestDB()).getUser(userId));
-                } catch (DALException e) {
+                    users.add(Controller.getInstance().getUser(userId));
+                } catch (NoSuchElementException e) {
                     e.printStackTrace();
                 }
             }
@@ -46,7 +51,7 @@ public class Post implements Tag {
                     .setAssignedPedagogue(users)
                     .build();
 
-            WriteResult ws = Controller.getInstance(DataSource.getTestDB()).createPlayground(playground);
+            WriteResult ws = Controller.getInstance().createPlayground(playground);
             if (ws.wasAcknowledged()) {
                 ctx.status(200).result("Playground was created");
             } else {
@@ -65,7 +70,7 @@ public class Post implements Tag {
             Set<User> users = new HashSet<>();
             for (int i = 0; i < jsonObject.getJSONArray(USERS).length(); i++) {
                 String userid = jsonObject.getJSONArray(USERS).getString(i);
-                users.add(Controller.getInstance(DataSource.getTestDB()).getUser(userid));
+                users.add(Controller.getInstance().getUser(userid));
             }
 
             Details details = new Details();
@@ -95,7 +100,7 @@ public class Post implements Tag {
             event.setDetails(details);
             event.setDescription(jsonObject.getString(EVENT_DESCRIPTION));
 
-            if (Controller.getInstance(DataSource.getTestDB()).createPlaygroundEvent(jsonObject.getString(PLAYGROUND_NAME), event).wasAcknowledged()) {
+            if (Controller.getInstance().createPlaygroundEvent(jsonObject.getString(PLAYGROUND_NAME), event).wasAcknowledged()) {
                 ctx.status(200).result("Event Created");
                 System.out.println("inserted event");
             } else {
@@ -107,7 +112,7 @@ public class Post implements Tag {
         public static Handler createUserToPlaygroundEventPost = ctx -> {
             String id = ctx.pathParam("id");
             String username = ctx.pathParam("username");
-            WriteResult successful = Controller.getInstance(DataSource.getTestDB()).addUserToEvent(id, username);
+            WriteResult successful = Controller.getInstance().addUserToEvent(id, username);
             if (true) {
                 ctx.status(200).result("Update successful");
                 ctx.json(new User.Builder(username));
@@ -151,7 +156,7 @@ public class Post implements Tag {
                     .build();
 
 
-            if (Controller.getInstance(DataSource.getTestDB()).addPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged()) {
+            if (Controller.getInstance().createPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged()) {
                 ctx.status(200).result("Message posted");
             } else {
                 ctx.status(404).result("Failed to post message");
@@ -175,7 +180,7 @@ public class Post implements Tag {
         };
 
         public static Handler createUserToPlaygroundPost = ctx -> {
-            WriteResult successful = Controller.getInstance(DataSource.getTestDB()).addPedagogueToPlayground(ctx.pathParam("name"), ctx.pathParam("username"));
+            WriteResult successful = Controller.getInstance().addPedagogueToPlayground(ctx.pathParam("name"), ctx.pathParam("username"));
             if (true) {
                 ctx.status(200).result("Update successful");
             } else {
@@ -223,8 +228,8 @@ public class Post implements Tag {
 
             //Se om brugeren allerede er oprettet
             try {
-                newUser = Controller.getInstance(DataSource.getTestDB()).getUser(username);
-            } catch (DALException e) {
+                newUser = Controller.getInstance().getUser(username);
+            } catch (NoSuchElementException e) {
                 //Brugeren er ikke i databasen og kan derfor oprettes
             }
             if (newUser != null) {
@@ -267,7 +272,7 @@ public class Post implements Tag {
                 }
             }
 
-            WriteResult ws = Controller.getInstance(DataSource.getTestDB()).createUser(newUser);
+            WriteResult ws = Controller.getInstance().createUser(newUser);
             if (ws.wasAcknowledged()) {
                 ctx.status(201);
                 ctx.result("User created.");
@@ -328,7 +333,7 @@ public class Post implements Tag {
                         .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn))
                         .build();
 
-                Controller.getInstance(DataSource.getTestDB()).createUser(user);
+                Controller.getInstance().createUser(user);
             }
 
             boolean userIsCreatedByAdmin = !user.isLoggedIn() && bruger != null;
@@ -341,7 +346,7 @@ public class Post implements Tag {
                 user.setWebsite(bruger.ekstraFelter.get("webside").toString());
                 user.setLoggedIn(true);
                 user.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn));
-                Controller.getInstance(DataSource.getTestDB()).updateUser(user);
+                Controller.getInstance().updateUser(user);
             }
 
             // validate credentials
@@ -361,8 +366,8 @@ public class Post implements Tag {
 
         private static User getUserInMongo(String username) {
             try {
-                return Controller.getInstance(DataSource.getTestDB()).getUser(username);
-            } catch (DALException e) {
+                return Controller.getInstance().getUser(username);
+            } catch (NoSuchElementException e) {
                 return null;
             }
         }
@@ -381,8 +386,8 @@ public class Post implements Tag {
         private static User getRootUser(String username) throws NoModificationException {
             User root;
             try {
-                root = Controller.getInstance(DataSource.getTestDB()).getUser(username);
-            } catch (DALException e) {
+                root = Controller.getInstance().getUser(username);
+            } catch (NoSuchElementException e) {
                 System.out.println("Opretter root");
                 root = new User.Builder("root")
                         .status("admin")
@@ -390,7 +395,7 @@ public class Post implements Tag {
                         .setFirstname("Københavns")
                         .setLastname("Kommune")
                         .build();
-                Controller.getInstance(DataSource.getTestDB()).createUser(root);
+                Controller.getInstance().createUser(root);
             }
             return root;
         }

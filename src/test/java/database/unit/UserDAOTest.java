@@ -1,16 +1,12 @@
 package database.unit;
 
-import database.DALException;
-import database.DataSource;
-import database.NoModificationException;
+import database.exceptions.NoModificationException;
+import database.TestDB;
 import database.collections.User;
 import database.dao.IUserDAO;
 import database.dao.UserDAO;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -19,7 +15,7 @@ import java.util.NoSuchElementException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UserDAOTest {
-    private static IUserDAO userDAO = new UserDAO(DataSource.getTestDB());
+    private static IUserDAO userDAO = new UserDAO(TestDB.getInstance());
 
     @BeforeAll
     static void killAll(){

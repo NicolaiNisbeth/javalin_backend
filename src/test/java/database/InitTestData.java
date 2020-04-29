@@ -7,8 +7,7 @@ import database.collections.Message;
 import database.collections.Playground;
 import database.collections.User;
 import database.dao.*;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import database.exceptions.NoModificationException;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
@@ -19,29 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 public class InitTestData {
-    static IController controller;
-    static IEventDAO eventDAO;
-    static IMessageDAO messageDAO;
-    static IPlaygroundDAO playgroundDAO;
-    static IUserDAO userDAO;
-
-    @BeforeAll
-    static void setup(){
-        controller = Controller.getInstance(DataSource.getTestDB());
-        eventDAO = new EventDAO(DataSource.getProductionDB());
-        messageDAO = new MessageDAO(DataSource.getProductionDB());
-        playgroundDAO = new PlaygroundDAO(DataSource.getProductionDB());
-        userDAO = new UserDAO(DataSource.getProductionDB());
-    }
-
-    @AfterAll
-    static void tearDown(){
-        controller = null;
-        eventDAO = null;
-        messageDAO = null;
-        playgroundDAO = null;
-        userDAO = null;
-    }
+    static IController controller = Controller.getInstance();
 
     @Test
     void initFreshData() throws NoModificationException {
@@ -58,10 +35,7 @@ public class InitTestData {
     }
 
     private static void killAll() {
-        userDAO.deleteAllUsers();
-        eventDAO.deleteAllEvents();
-        messageDAO.deleteAllMessages();
-        playgroundDAO.deleteAllPlaygrounds();
+        controller.killAll();
         System.out.println("Collections are deleted");
     }
 
@@ -146,7 +120,7 @@ public class InitTestData {
                         .setMessageString(data[2])
                         .build();
 
-                controller.addPlaygroundMessage(playgroundNames.get(i), message);
+                controller.createPlaygroundMessage(playgroundNames.get(i), message);
                 i = (i + 1) % playgroundNames.size();
                 line = br.readLine();
             }

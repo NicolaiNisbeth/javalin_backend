@@ -1,9 +1,8 @@
 package database.dao;
 
-import com.mongodb.DB;
 import com.mongodb.WriteResult;
-import database.DataSource;
-import database.NoModificationException;
+import database.IDataSource;
+import database.exceptions.NoModificationException;
 import database.collections.Event;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
@@ -14,10 +13,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class EventDAO implements IEventDAO {
-    private final DB db;
+    private IDataSource dataSource;
 
-    public EventDAO(DB db){
-        this.db = db;
+    public EventDAO(IDataSource dataSource){
+        this.dataSource = dataSource;
     }
 
     /**
@@ -33,7 +32,7 @@ public class EventDAO implements IEventDAO {
             throw new IllegalArgumentException(
                     String.format("Can't create event in %s collection when event is null", COLLECTION));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         WriteResult wr = collection.save(event);
 
@@ -57,7 +56,7 @@ public class EventDAO implements IEventDAO {
             throw new IllegalArgumentException(
                     String.format("%s as ID is not valid in identifying an event", id));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         Event event = collection.findOne(new ObjectId(id)).as(Event.class);
 
@@ -75,7 +74,7 @@ public class EventDAO implements IEventDAO {
      */
     @Override
     public List<Event> getEventList() throws NoSuchElementException {
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         List<Event> eventList = new ArrayList<>();
         for (Event event : collection.find().as(Event.class)) {
@@ -102,7 +101,7 @@ public class EventDAO implements IEventDAO {
             throw new IllegalArgumentException(
                     String.format("Can't update event in %s collection when param is null", COLLECTION));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         WriteResult wr = collection
                 .update(new ObjectId(event.getId()))
@@ -128,7 +127,7 @@ public class EventDAO implements IEventDAO {
             throw new IllegalArgumentException(
                     String.format("%s as ID is not valid in identifying an event", id));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         WriteResult wr = collection.remove(new ObjectId(id));
 
@@ -145,8 +144,13 @@ public class EventDAO implements IEventDAO {
      */
     @Override
     public WriteResult deleteAllEvents(){
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         return collection.remove("{}");
+    }
+
+    @Override
+    public void setDataSource(IDataSource dataSource) {
+        this.dataSource = dataSource;
     }
 }

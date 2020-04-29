@@ -1,9 +1,8 @@
 package database.dao;
 
-import com.mongodb.DB;
 import com.mongodb.WriteResult;
-import database.DataSource;
-import database.NoModificationException;
+import database.IDataSource;
+import database.exceptions.NoModificationException;
 import database.collections.User;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
@@ -14,10 +13,10 @@ import java.util.NoSuchElementException;
 
 public class UserDAO implements IUserDAO {
 
-    private final DB db;
+    private IDataSource dataSource;
 
-    public UserDAO(DB db) {
-        this.db = db;
+    public UserDAO(IDataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     /**
@@ -33,7 +32,7 @@ public class UserDAO implements IUserDAO {
             throw new IllegalArgumentException(
                     String.format("Can't create user in %s collection when user is null", COLLECTION));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         WriteResult wr = collection.save(user);
 
@@ -57,7 +56,7 @@ public class UserDAO implements IUserDAO {
             throw new IllegalArgumentException(
                     String.format("%s as ID is not valid in identifying a user", username));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         User user = collection.findOne("{username: #}", username).as(User.class);
 
@@ -75,7 +74,7 @@ public class UserDAO implements IUserDAO {
      */
     @Override
     public List<User> getUserList() throws NoSuchElementException {
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         List<User> userList = new ArrayList<>();
         for (User user : collection.find().as(User.class)) {
@@ -102,7 +101,7 @@ public class UserDAO implements IUserDAO {
             throw new IllegalArgumentException(
                     String.format("Can't update user in %s collection when param is null", COLLECTION));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
 
         WriteResult wr = collection
@@ -128,7 +127,7 @@ public class UserDAO implements IUserDAO {
             throw new IllegalArgumentException(
                     String.format("%s as ID is not valid in identifying a user", username));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         WriteResult wr = collection.remove("{username : #}", username);
 
@@ -145,8 +144,13 @@ public class UserDAO implements IUserDAO {
      */
     @Override
     public WriteResult deleteAllUsers() {
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         return collection.remove("{}");
+    }
+
+    @Override
+    public void setDataSource(IDataSource dataSource) {
+        this.dataSource = dataSource;
     }
 }

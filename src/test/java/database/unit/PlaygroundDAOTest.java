@@ -1,9 +1,8 @@
 package database.unit;
 
 import com.mongodb.WriteResult;
-import database.DALException;
-import database.DataSource;
-import database.NoModificationException;
+import database.exceptions.NoModificationException;
+import database.TestDB;
 import database.collections.Playground;
 import database.dao.IPlaygroundDAO;
 import database.dao.PlaygroundDAO;
@@ -17,7 +16,7 @@ import java.util.NoSuchElementException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PlaygroundDAOTest {
-    static IPlaygroundDAO playgroundDAO = new PlaygroundDAO(DataSource.getTestDB());
+    static IPlaygroundDAO playgroundDAO = new PlaygroundDAO(TestDB.getInstance());
 
     @BeforeAll
     static void killAll(){

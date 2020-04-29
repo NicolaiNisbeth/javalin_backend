@@ -1,7 +1,5 @@
 package javalin_resources.HttpMethods;
 
-import database.DALException;
-import database.DataSource;
 import database.collections.User;
 import database.dao.Controller;
 import io.javalin.http.Context;
@@ -15,14 +13,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.NoSuchElementException;
 
 public class Shared {
     public static boolean checkAdminCredentials(String username, String password, Context ctx) {
         User admin;
         //Hent admin - den der opretter brugeren
         try {
-            admin = Controller.getInstance(DataSource.getTestDB()).getUser(username);
-        } catch (DALException e) {
+            admin = Controller.getInstance().getUser(username);
+        } catch (NoSuchElementException e) {
             e.printStackTrace();
             ctx.status(401);
             ctx.result("Unauthorized - Wrong admin username");

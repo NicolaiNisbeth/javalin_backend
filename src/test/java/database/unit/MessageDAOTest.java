@@ -1,26 +1,20 @@
 package database.unit;
 
 import com.mongodb.WriteResult;
-import database.DALException;
-import database.DataSource;
-import database.NoModificationException;
-import database.collections.Details;
-import database.collections.Event;
+import database.exceptions.NoModificationException;
+import database.TestDB;
 import database.collections.Message;
 import database.dao.IMessageDAO;
 import database.dao.MessageDAO;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 class MessageDAOTest {
-    static IMessageDAO messageDAO  = new MessageDAO(DataSource.getTestDB());
+    static IMessageDAO messageDAO  = new MessageDAO(TestDB.getInstance());
 
     @BeforeAll
     static void killAll(){

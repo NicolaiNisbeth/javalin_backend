@@ -1,7 +1,7 @@
 package database.utils;
 
 import com.mongodb.WriteResult;
-import database.NoModificationException;
+import database.exceptions.NoModificationException;
 import org.jongo.MongoCollection;
 
 public class QueryUtils {

@@ -1,20 +1,14 @@
 package database.unit;
 
 import com.mongodb.WriteResult;
-import database.DALException;
-import database.DataSource;
-import database.NoModificationException;
+import database.exceptions.NoModificationException;
+import database.TestDB;
 import database.collections.Details;
 import database.collections.Event;
 import database.dao.EventDAO;
 import database.dao.IEventDAO;
-import org.assertj.core.api.Assert;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -22,7 +16,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 class EventDAOTest {
-    private static IEventDAO eventDAO = new EventDAO(DataSource.getTestDB());
+    private static IEventDAO eventDAO = new EventDAO(TestDB.getInstance());
 
     @BeforeAll
     static void killAll(){

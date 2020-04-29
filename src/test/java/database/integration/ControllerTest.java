@@ -1,9 +1,8 @@
 package database.integration;
 
 import com.mongodb.WriteResult;
-import database.DALException;
-import database.DataSource;
-import database.NoModificationException;
+import database.exceptions.NoModificationException;
+import database.TestDB;
 import database.collections.*;
 import database.dao.*;
 import org.junit.jupiter.api.*;
@@ -16,23 +15,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ControllerTest {
 
-    static IController controller = Controller.getInstance(DataSource.getTestDB());
-    static IEventDAO eventDAO = new EventDAO(DataSource.getTestDB());
-    static IMessageDAO messageDAO = new MessageDAO(DataSource.getTestDB());
-    static IPlaygroundDAO playgroundDAO = new PlaygroundDAO(DataSource.getTestDB());
-    static IUserDAO userDAO = new UserDAO(DataSource.getTestDB());
+    static IController controller = Controller.getInstance();
 
     @BeforeAll
     static void killAll(){
-        playgroundDAO.deleteAllPlaygrounds();
-        userDAO.deleteAllUsers();
-        messageDAO.deleteAllMessages();
-        eventDAO.deleteAllEvents();
+        controller.setDataSource(TestDB.getInstance());
+        controller.killAll();
     }
 
     @Test
     @DisplayName("Create and delete playground")
-    void createdPlaygroundShouldBeFetchedPlayground() throws NoModificationException, DALException {
+    void createdPlaygroundShouldBeFetchedPlayground() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -61,7 +54,7 @@ class ControllerTest {
 
     @Test
     @DisplayName("Create and delete user")
-    void createdUserShouldBeFetchedUser() throws DALException, NoModificationException {
+    void createdUserShouldBeFetchedUser() throws NoModificationException {
         User user = new User.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
@@ -88,7 +81,7 @@ class ControllerTest {
     }
 
     @Test
-    void addedAssociationsShouldBeFetchedAssociations() throws NoModificationException, DALException {
+    void addedAssociationsShouldBeFetchedAssociations() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -131,7 +124,7 @@ class ControllerTest {
         // add associations
         controller.addPedagogueToPlayground(playground.getName(), user.getUsername());
         controller.createPlaygroundEvent(playground.getName(), playgroundEvent);
-        controller.addPlaygroundMessage(playground.getName(), playgroundMessage);
+        controller.createPlaygroundMessage(playground.getName(), playgroundMessage);
 
         // get playground
         Playground fetchedPlayground = controller.getPlayground(playground.getName());
@@ -150,7 +143,7 @@ class ControllerTest {
     }
 
     @Test
-    void addedEventToUserShouldBeInUserEventList() throws DALException, NoModificationException {
+    void addedEventToUserShouldBeInUserEventList() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -212,7 +205,7 @@ class ControllerTest {
     }
 
     @Test
-    void getEvent() throws NoModificationException, DALException {
+    void getEvent() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -261,7 +254,7 @@ class ControllerTest {
     }
 
     @Test
-    void createdPlaygroundMessageShouldHavePlaygroundID() throws NoModificationException, DALException {
+    void createdPlaygroundMessageShouldHavePlaygroundID() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -281,7 +274,7 @@ class ControllerTest {
                 .build();
 
         controller.createPlayground(playground);
-        controller.addPlaygroundMessage(playground.getName(), playgroundMessage);
+        controller.createPlaygroundMessage(playground.getName(), playgroundMessage);
 
         // get message
         Playground fetchedPlayground = controller.getPlayground(playground.getName());
@@ -296,7 +289,7 @@ class ControllerTest {
     }
 
     @Test
-    void addedEventShouldBeInPlayground() throws NoModificationException, DALException {
+    void addedEventShouldBeInPlayground() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -338,7 +331,7 @@ class ControllerTest {
     }
 
     @Test
-    void addedMessagesShouldBeInPlayground() throws NoModificationException, DALException {
+    void addedMessagesShouldBeInPlayground() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -366,8 +359,8 @@ class ControllerTest {
                 .build();
 
         controller.createPlayground(playground);
-        controller.addPlaygroundMessage(playground.getName(), playgroundMessage1);
-        controller.addPlaygroundMessage(playground.getName(), playgroundMessage2);
+        controller.createPlaygroundMessage(playground.getName(), playgroundMessage1);
+        controller.createPlaygroundMessage(playground.getName(), playgroundMessage2);
 
         List<Message> messageList = controller.getMessagesInPlayground(playground.getName());
         Assertions.assertAll(
@@ -379,7 +372,7 @@ class ControllerTest {
     }
 
     @Test
-    void updatePlaygroundEvent() throws NoModificationException, DALException {
+    void updatePlaygroundEvent() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -427,7 +420,7 @@ class ControllerTest {
     }
 
     @Test
-    void updatePlaygroundMessage() throws NoModificationException, DALException {
+    void updatePlaygroundMessage() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -447,7 +440,7 @@ class ControllerTest {
                 .build();
 
         controller.createPlayground(playground);
-        controller.addPlaygroundMessage(playground.getName(), playgroundMessage);
+        controller.createPlaygroundMessage(playground.getName(), playgroundMessage);
 
         // check that playground and event is present in db, and the associations between them
         Playground fetchedPlayground = controller.getPlayground(playground.getName());
@@ -475,7 +468,7 @@ class ControllerTest {
     }
 
     @Test
-    void deletePlaygroundShouldRemoveReferenceInUser() throws DALException, NoModificationException {
+    void deletePlaygroundShouldRemoveReferenceInUser() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -517,7 +510,7 @@ class ControllerTest {
         controller.createUser(user);
         controller.addPedagogueToPlayground(playground.getName(), user.getUsername());
         controller.createPlaygroundEvent(playground.getName(), playgroundEvent);
-        controller.addPlaygroundMessage(playground.getName(), playgroundMessage);
+        controller.createPlaygroundMessage(playground.getName(), playgroundMessage);
 
         // check all the references
         Playground fetchedPlayground = controller.getPlayground(playground.getName());
@@ -546,7 +539,7 @@ class ControllerTest {
     }
 
     @Test
-    void deleteUserShouldRemoveReferenceInPlayground() throws DALException, NoModificationException {
+    void deleteUserShouldRemoveReferenceInPlayground() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -612,7 +605,7 @@ class ControllerTest {
     }
 
     @Test
-    void addPedagogueToPlayground() throws NoModificationException, DALException {
+    void addPedagogueToPlayground() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -654,7 +647,7 @@ class ControllerTest {
     }
 
     @Test
-    void addUserToPlaygroundEvent() throws NoModificationException, DALException {
+    void addUserToPlaygroundEvent() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -705,7 +698,7 @@ class ControllerTest {
     }
 
     @Test
-    void addPlaygroundEvent() throws NoModificationException, DALException {
+    void addPlaygroundEvent() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -742,7 +735,7 @@ class ControllerTest {
     }
 
     @Test
-    void addPlaygroundMessage() throws NoModificationException, DALException {
+    void addPlaygroundMessage() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -762,7 +755,7 @@ class ControllerTest {
                 .build();
 
         controller.createPlayground(playground);
-        controller.addPlaygroundMessage(playground.getName(), playgroundMessage);
+        controller.createPlaygroundMessage(playground.getName(), playgroundMessage);
 
         // check that playground and message is present in db, and the associations between them
         Playground fetchedPlayground = controller.getPlayground(playground.getName());
@@ -778,7 +771,7 @@ class ControllerTest {
     }
 
     @Test
-    void removePedagogueFromPlayground() throws NoModificationException, DALException {
+    void removePedagogueFromPlayground() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -813,7 +806,7 @@ class ControllerTest {
         );
 
         // delete pedagogue from playground
-        controller.removePedagoguePlaygroundAssociation(playground.getName(), user.getUsername());
+        controller.removePedagogueFromPlayground(playground.getName(), user.getUsername());
 
         // check references are removed
         Playground updatedPlayground = controller.getPlayground(playground.getName());
@@ -824,7 +817,7 @@ class ControllerTest {
     }
 
     @Test
-    void removeUserFromPlaygroundEvent() throws NoModificationException, DALException {
+    void removeUserFromPlaygroundEvent() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -868,7 +861,7 @@ class ControllerTest {
         );
 
         // remove user from event
-        controller.removeUserEventAssociation(ws.getUpsertedId().toString(), user.getUsername());
+        controller.removeUserFromEvent(ws.getUpsertedId().toString(), user.getUsername());
 
         // check that user is removed from event
         Event updatedEvent = controller.getEvent(ws.getUpsertedId().toString());
@@ -879,7 +872,7 @@ class ControllerTest {
     }
 
     @Test
-    void removePlaygroundEvent() throws NoModificationException, DALException {
+    void removePlaygroundEvent() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -912,7 +905,7 @@ class ControllerTest {
         );
 
         // remove event from playground
-        controller.removePlaygroundEvent(fetchedEvent.getId());
+        controller.deletePlaygroundEvent(fetchedEvent.getId());
 
         // check that all event references are removed
         Playground updatedPlayground = controller.getPlayground(playground.getName());
@@ -922,7 +915,7 @@ class ControllerTest {
     }
 
     @Test
-    void removePlaygroundMessage() throws NoModificationException, DALException {
+    void removePlaygroundMessage() throws NoModificationException {
         Playground playground = new Playground.Builder("Vandlegeparken")
                 .setStreetName("Agervænget")
                 .setStreetNumber(34)
@@ -942,7 +935,7 @@ class ControllerTest {
                 .build();
 
         controller.createPlayground(playground);
-        controller.addPlaygroundMessage(playground.getName(), playgroundMessage);
+        controller.createPlaygroundMessage(playground.getName(), playgroundMessage);
 
         // check that playground and message is present in db, and the associations between them
         Playground fetchedPlayground = controller.getPlayground(playground.getName());
@@ -955,7 +948,7 @@ class ControllerTest {
         );
 
         // remove playground message
-        controller.removeMessagePlaygroundAssociation(fetchedMessage.getId());
+        controller.deletePlaygroundMessage(fetchedMessage.getId());
 
         // check message references are removed
         Playground updatedPlayground = controller.getPlayground(playground.getName());

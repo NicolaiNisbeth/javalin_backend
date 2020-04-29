@@ -1,8 +1,7 @@
 package database.dao;
 
-import com.mongodb.DB;
-import database.DataSource;
-import database.NoModificationException;
+import database.IDataSource;
+import database.exceptions.NoModificationException;
 import database.collections.Message;
 import com.mongodb.WriteResult;
 import org.bson.types.ObjectId;
@@ -18,10 +17,10 @@ import static org.jongo.Oid.withOid;
 
 public class MessageDAO implements IMessageDAO {
 
-    private final DB db;
+    private IDataSource datasource;
 
-    public MessageDAO(DB db) {
-        this.db = db;
+    public MessageDAO(IDataSource datasource) {
+        this.datasource = datasource;
     }
 
     /**
@@ -37,7 +36,7 @@ public class MessageDAO implements IMessageDAO {
             throw new IllegalArgumentException(
                     String.format("Can't create message in %s collection when message is null", COLLECTION));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(datasource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         WriteResult wr = collection.save(message);
 
@@ -61,7 +60,7 @@ public class MessageDAO implements IMessageDAO {
             throw new IllegalArgumentException(
                     String.format("%s as ID is not valid in identifying an message", id));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(datasource.getDatabase());
         Message message = jongo.getCollection(COLLECTION).findOne(withOid(id)).as(Message.class);
 
         if (message == null)
@@ -78,7 +77,7 @@ public class MessageDAO implements IMessageDAO {
      */
     @Override
     public List<Message> getMessageList() throws NoSuchElementException {
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(datasource.getDatabase());
         MongoCursor<Message> all = jongo.getCollection(COLLECTION).find("{}").as(Message.class);
         List<Message> messages = new ArrayList<>();
         while (all.hasNext()) {
@@ -105,7 +104,7 @@ public class MessageDAO implements IMessageDAO {
             throw new IllegalArgumentException(
                     String.format("Can't update message in %s collection when param is null", COLLECTION));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(datasource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         WriteResult wr = collection
                 .update(new ObjectId(message.getId()))
@@ -131,7 +130,7 @@ public class MessageDAO implements IMessageDAO {
             throw new IllegalArgumentException(
                     String.format("%s as ID is not valid in identifying an message", id));
 
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(datasource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         WriteResult wr = collection.remove(new ObjectId(id));
 
@@ -149,9 +148,13 @@ public class MessageDAO implements IMessageDAO {
      */
     @Override
     public WriteResult deleteAllMessages() {
-        Jongo jongo = new Jongo(db);
+        Jongo jongo = new Jongo(datasource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
-        WriteResult wr = collection.remove("{}");
-        return wr;
+        return collection.remove("{}");
+    }
+
+    @Override
+    public void setDataSource(IDataSource dataSource) {
+        this.datasource = dataSource;
     }
 }

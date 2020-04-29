@@ -1,8 +1,8 @@
 package database.dao;
 
 import com.mongodb.WriteResult;
-import database.DALException;
-import database.NoModificationException;
+import database.IDataSource;
+import database.exceptions.NoModificationException;
 import database.collections.Event;
 
 import java.util.List;
@@ -10,6 +10,8 @@ import java.util.NoSuchElementException;
 
 public interface IEventDAO {
     String COLLECTION = "events";
+
+    void setDataSource(IDataSource dataSource);
 
     WriteResult createEvent(Event event) throws IllegalArgumentException, NoModificationException;
 
