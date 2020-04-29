@@ -271,7 +271,7 @@ public class Post implements Tag {
             WriteResult ws = Controller.getInstance().createUser(newUser);
             if (ws.wasAcknowledged()) {
                 ctx.status(201);
-                ctx.result("User created.");
+                ctx.json("Created - User created");
                 ctx.json(newUser);
 
 
@@ -291,8 +291,8 @@ public class Post implements Tag {
                 password = jsonObject.getString(PASSWORD);
             } catch (JSONException | NullPointerException e) {
                 ctx.status(400);
+                ctx.json("Bad request - body has no username or password");
                 ctx.contentType(ContentType.JSON);
-                ctx.result("body has no username and password");
                 return;
             }
 
@@ -301,7 +301,7 @@ public class Post implements Tag {
             if (root) {
                 user = getRootUser(username);
                 ctx.status(200);
-                ctx.result("user login with root was successful");
+                ctx.json("Success - User login successful");
                 ctx.json(user);
                 ctx.contentType(ContentType.JSON);
                 return;
@@ -309,11 +309,12 @@ public class Post implements Tag {
 
             Bruger bruger = getUserInNordfalk(username, password);
             user = getUserInMongo(username);
+
             System.out.println("USER in mongo " + user);
             if (bruger == null && user == null) {
                 ctx.status(404);
+                ctx.json("Not found - No such username");
                 ctx.contentType(ContentType.JSON);
-                ctx.result("Unauthorized - No such username!");
                 return;
             }
 
@@ -349,13 +350,13 @@ public class Post implements Tag {
             String hashed = user.getPassword();
             if (BCrypt.checkpw(password, hashed)) {
                 ctx.status(200);
-                ctx.result("user login was successful");
+                ctx.json("Success - User login successful");
                 ctx.json(user);
                 ctx.contentType(ContentType.JSON);
             } else {
                 ctx.status(401);
+                ctx.json("Unauthorized - Wrong password");
                 ctx.contentType(ContentType.JSON);
-                ctx.result("Unauthorized - Wrong password");
 
             }
         };

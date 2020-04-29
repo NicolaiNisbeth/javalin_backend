@@ -1,11 +1,16 @@
 package resources;
 import com.google.gson.Gson;
+import database.DALException;
+import database.collections.User;
+import database.dao.Controller;
 import io.javalin.http.Context;
 import io.javalin.plugin.openapi.annotations.ContentType;
 import javalin_resources.HttpMethods.Post;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.awt.*;
 
 import static org.mockito.Mockito.*;
 
@@ -17,13 +22,23 @@ public class UserLoginTest {
     private final String EMPTY_RESULT = "";
     private JsonModels.LoginModel model;
     private Gson gson;
-
+    private static User rootUser;
 
     @BeforeEach
     void setup(){
         ctx = mock(Context.class);
         model = new JsonModels.LoginModel();
         gson = new Gson();
+
+        /*try {
+            rootUser = Controller.getInstance().getUser("root");
+        } catch (DALException e) {
+            //root er oprettet
+        }
+        if (rootUser == null){
+
+        }*/
+
     }
 
     @AfterEach
@@ -44,12 +59,13 @@ public class UserLoginTest {
 
         when(ctx.body()).thenReturn(inputBody);
         Post.PostUser.userLogin.handle(ctx);
-
         verify(ctx).status(200);
-        verify(ctx).result("user login with root was successful");
+        verify(ctx).json("Success - User login successful");
+        verify(ctx).json(Controller.getInstance().getUser("root"));
         verify(ctx).contentType(ContentType.JSON);
     }
 
+    //NJL Forstår ikke promlemet her
     @Test
     void invalidInfoShouldReturn404() throws Exception {
         ctx.status(EMPTY_STATUS);
@@ -63,7 +79,7 @@ public class UserLoginTest {
         Post.PostUser.userLogin.handle(ctx);
 
         verify(ctx).status(404);
-        verify(ctx).result("Unauthorized - No such username!");
+        verify(ctx).json("Not found - No such username!");
         verify(ctx).contentType(ContentType.JSON);
     }
 
@@ -80,7 +96,7 @@ public class UserLoginTest {
         Post.PostUser.userLogin.handle(ctx);
 
         verify(ctx).status(400);
-        verify(ctx).result("body has no username and password");
+        verify(ctx).json("Bad request - body has no username or password");
         verify(ctx).contentType(ContentType.JSON);
     }
 
@@ -92,7 +108,7 @@ public class UserLoginTest {
         Post.PostUser.userLogin.handle(ctx);
 
         verify(ctx).status(400);
-        verify(ctx).result("body has no username and password");
+        verify(ctx).json("Bad request - body has no username or password");
         verify(ctx).contentType(ContentType.JSON);
     }
 
@@ -109,7 +125,8 @@ public class UserLoginTest {
         Post.PostUser.userLogin.handle(ctx);
 
         verify(ctx).status(200);
-        verify(ctx).result("user login was successful");
+        verify(ctx).json("Success - User login successful");
+        verify(ctx).json(Controller.getInstance().getUser("s175565"));
         verify(ctx).contentType(ContentType.JSON);
     }
 
@@ -126,7 +143,7 @@ public class UserLoginTest {
         Post.PostUser.userLogin.handle(ctx);
 
         verify(ctx).status(401);
-        verify(ctx).result("Unauthorized - Wrong password");
+        verify(ctx).json("Unauthorized - Wrong password");
         verify(ctx).contentType(ContentType.JSON);
     }
 }
