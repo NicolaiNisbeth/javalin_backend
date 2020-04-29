@@ -13,7 +13,7 @@ public interface IMessageDAO {
 
     WriteResult createMessage(Message message) throws IllegalArgumentException, NoModificationException;
 
-    Message getMessage(String id) throws IllegalArgumentException, NoModificationException;
+    Message getMessage(String id) throws IllegalArgumentException, NoSuchElementException;
 
     List<Message> getMessageList() throws NoSuchElementException;
 

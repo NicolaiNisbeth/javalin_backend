@@ -30,9 +30,9 @@ public interface IController {
 
     List<User> getUsers();
 
-    List<Event> getPlaygroundEvents(String playgroundName);
+    List<Event> getEventsInPlayground(String playgroundName);
 
-    List<Message> getPlaygroundMessages(String playgroundName);
+    List<Message> getMessagesInPlayground(String playgroundName);
 
     // UPDATE
     WriteResult updatePlayground(Playground playground) throws NoModificationException;
@@ -46,22 +46,22 @@ public interface IController {
     // DELETE
     WriteResult deletePlayground(String playgroundName) throws DALException, NoModificationException;
 
-    WriteResult deleteUser(String username);
+    WriteResult deleteUser(String username) throws NoModificationException;
 
     // ASSOCIATIONS
-    boolean addPedagogueToPlayground(String plagroundName, String username);
+    WriteResult addPedagogueToPlayground(String plagroundName, String username) throws NoModificationException;
 
-    boolean addUserToPlaygroundEvent(String eventID, String username);
+    WriteResult addUserToEvent(String eventID, String username) throws NoModificationException;
 
-    WriteResult addPlaygroundEvent(String playgroundName, Event event);
+    WriteResult createPlaygroundEvent(String playgroundName, Event event) throws NoModificationException;
 
-    WriteResult addPlaygroundMessage(String playgroundName, Message message);
+    WriteResult addPlaygroundMessage(String playgroundName, Message message) throws NoModificationException;
 
-    boolean removePedagogueFromPlayground(String playgroundName, String username) throws NoModificationException;
+    void removePedagoguePlaygroundAssociation(String playgroundName, String username) throws NoModificationException;
 
-    boolean removeUserFromPlaygroundEvent(String eventID, String username);
+    void removeUserEventAssociation(String eventID, String username) throws NoModificationException;
 
-    WriteResult removePlaygroundEvent(String eventID);
+    WriteResult removePlaygroundEvent(String eventID) throws NoModificationException;
 
-    WriteResult removePlaygroundMessage(String messageID);
+    WriteResult removeMessagePlaygroundAssociation(String messageID) throws NoModificationException;
 }

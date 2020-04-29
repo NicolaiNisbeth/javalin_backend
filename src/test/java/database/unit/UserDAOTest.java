@@ -1,9 +1,11 @@
-package database.dao;
+package database.unit;
 
 import database.DALException;
 import database.DataSource;
 import database.NoModificationException;
 import database.collections.User;
+import database.dao.IUserDAO;
+import database.dao.UserDAO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,6 +15,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UserDAOTest {
     private static IUserDAO userDAO = new UserDAO(DataSource.getTestDB());
@@ -72,21 +76,34 @@ class UserDAOTest {
 
     @Test
     void updateUserShouldFetchUpdatedUser() throws NoModificationException {
-        User user1 = new User.Builder("Nicolai")
-                .status("Admin")
-                .imagePath("asd97a9sd.jpg")
-                .setEmail("nicolai.nisbeth@yahoo.com")
-                .setPassword("asd123")
-                .phoneNumbers("+45 12 34 23 12", "+45 45 74 56 32")
+        User user = new User.Builder("s175565")
+                .setFirstname("Nicolai")
+                .setLastname("Nisbeth")
+                .status("admin")
+                .setEmail("s175565@student.dtu.dk")
+                .setPassword("nicolai123456789")
+                .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
+                .imagePath("asd9as9d8a89sd.jpg")
                 .build();
 
-        userDAO.createUser(user1);
-        user1.setPassword("ny string");
-        userDAO.updateUser(user1);
+        userDAO.createUser(user);
+        User fetchedUser = userDAO.getUser(user.getUsername());
 
-        User updatedUser = userDAO.getUser(user1.getUsername());
-        Assertions.assertEquals("ny string", updatedUser.getPassword());
-        userDAO.deleteUser(user1.getUsername());
+        // update values
+        fetchedUser.setEmail("nicolai.nisbeth@hotmail.com");
+        fetchedUser.setPassword("kodenwhn");
+        fetchedUser.setStatus("pedagogue");
+        userDAO.updateUser(fetchedUser);
+
+        // check that user has updated values
+        User updatedUser = userDAO.getUser(fetchedUser.getUsername());
+        Assertions.assertAll(
+                () -> assertEquals(fetchedUser.getEmail(), updatedUser.getEmail()),
+                () -> assertEquals(fetchedUser.getPassword(), updatedUser.getPassword()),
+                () -> assertEquals(fetchedUser.getStatus(), updatedUser.getStatus())
+        );
+
+        userDAO.deleteUser(user.getUsername());
     }
 
     @Test

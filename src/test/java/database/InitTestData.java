@@ -44,7 +44,7 @@ public class InitTestData {
     }
 
     @Test
-    void initFreshData(){
+    void initFreshData() throws NoModificationException {
         killAll();
 
         List<String> usernames = initUsers();
@@ -150,7 +150,7 @@ public class InitTestData {
                 i = (i + 1) % playgroundNames.size();
                 line = br.readLine();
             }
-        } catch (IOException e) {
+        } catch (IOException | NoModificationException e) {
             e.printStackTrace();
         }
         System.out.println("Messages are added to playgrounds");
@@ -175,19 +175,19 @@ public class InitTestData {
                         .details(new Details(new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis())))
                         .build();
 
-                WriteResult wr = controller.addPlaygroundEvent(playgroundNames.get(i), event);
+                WriteResult wr = controller.createPlaygroundEvent(playgroundNames.get(i), event);
                 eventID.add(wr.getUpsertedId().toString());
                 i = (i + 1) % playgroundNames.size();
                 line = br.readLine();
             }
-        } catch (IOException e) {
+        } catch (IOException | NoModificationException e) {
             e.printStackTrace();
         }
         System.out.println("Events are added to playgrounds");
         return eventID;
     }
 
-    private void addPedagoguesToPlaygrounds(List<String> usernames, List<String> playgroundNames) {
+    private void addPedagoguesToPlaygrounds(List<String> usernames, List<String> playgroundNames) throws NoModificationException {
         controller.addPedagogueToPlayground(playgroundNames.get(0), usernames.get(1));
         controller.addPedagogueToPlayground(playgroundNames.get(0), usernames.get(2));
 
@@ -211,11 +211,11 @@ public class InitTestData {
         System.out.println("Pedagogues are added to playgrounds");
     }
 
-    private void addParticipantsToEvent(List<String> usernames, List<String> eventID) {
+    private void addParticipantsToEvent(List<String> usernames, List<String> eventID) throws NoModificationException {
         for (String id : eventID){
             int i = (int) (Math.random() * usernames.size() + 1) ;
             for (int j = 0; j < i; j++) {
-                controller.addUserToPlaygroundEvent(id, usernames.get(j));
+                controller.addUserToEvent(id, usernames.get(j));
             }
         }
         System.out.println("Participants are added to events");

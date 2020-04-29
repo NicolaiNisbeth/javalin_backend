@@ -95,7 +95,7 @@ public class Post implements Tag {
             event.setDetails(details);
             event.setDescription(jsonObject.getString(EVENT_DESCRIPTION));
 
-            if (Controller.getInstance(DataSource.getTestDB()).addPlaygroundEvent(jsonObject.getString(PLAYGROUND_NAME), event).wasAcknowledged()) {
+            if (Controller.getInstance(DataSource.getTestDB()).createPlaygroundEvent(jsonObject.getString(PLAYGROUND_NAME), event).wasAcknowledged()) {
                 ctx.status(200).result("Event Created");
                 System.out.println("inserted event");
             } else {
@@ -107,8 +107,8 @@ public class Post implements Tag {
         public static Handler createUserToPlaygroundEventPost = ctx -> {
             String id = ctx.pathParam("id");
             String username = ctx.pathParam("username");
-            Boolean successful = Controller.getInstance(DataSource.getTestDB()).addUserToPlaygroundEvent(id, username);
-            if (successful) {
+            WriteResult successful = Controller.getInstance(DataSource.getTestDB()).addUserToEvent(id, username);
+            if (true) {
                 ctx.status(200).result("Update successful");
                 ctx.json(new User.Builder(username));
                 return;
@@ -175,8 +175,8 @@ public class Post implements Tag {
         };
 
         public static Handler createUserToPlaygroundPost = ctx -> {
-            boolean successful = Controller.getInstance(DataSource.getTestDB()).addPedagogueToPlayground(ctx.pathParam("name"), ctx.pathParam("username"));
-            if (successful) {
+            WriteResult successful = Controller.getInstance(DataSource.getTestDB()).addPedagogueToPlayground(ctx.pathParam("name"), ctx.pathParam("username"));
+            if (true) {
                 ctx.status(200).result("Update successful");
             } else {
                 ctx.status(404).result("Failed to update");

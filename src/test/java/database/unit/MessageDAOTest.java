@@ -1,4 +1,4 @@
-package database.dao;
+package database.unit;
 
 import com.mongodb.WriteResult;
 import database.DALException;
@@ -7,6 +7,8 @@ import database.NoModificationException;
 import database.collections.Details;
 import database.collections.Event;
 import database.collections.Message;
+import database.dao.IMessageDAO;
+import database.dao.MessageDAO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

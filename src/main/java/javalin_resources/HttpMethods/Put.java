@@ -262,7 +262,7 @@ public class Put implements Tag {
             if (usersOldPGIds != null || usersOldPGIds.size() > 0) {
                 for (String oldPlaygroundName : usersOldPGIds) {
                     if (!usersNewPGIds.contains(oldPlaygroundName)) {
-                        Controller.getInstance(DataSource.getTestDB()).removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
+                        Controller.getInstance(DataSource.getTestDB()).removePedagoguePlaygroundAssociation(oldPlaygroundName, userToUpdate.getUsername());
                     }
                 }
             }

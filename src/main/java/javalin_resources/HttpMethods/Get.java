@@ -49,7 +49,7 @@ public class Get implements Tag {
         };
 
         public static Handler readOnePlayGroundAllEventsGet = ctx -> {
-            List<Event> events = Controller.getInstance(DataSource.getTestDB()).getPlaygroundEvents(ctx.pathParam(PLAYGROUND_NAME));
+            List<Event> events = Controller.getInstance(DataSource.getTestDB()).getEventsInPlayground(ctx.pathParam(PLAYGROUND_NAME));
             if (events != null) {
                 ctx.json(events).contentType("json");
                 ctx.status(200);
@@ -91,7 +91,7 @@ public class Get implements Tag {
         };
 
         public static Handler readAllMessagesGet = ctx -> {
-            List<Message> messages = Controller.getInstance(DataSource.getTestDB()).getPlaygroundMessages(ctx.pathParam(PLAYGROUND_NAME));
+            List<Message> messages = Controller.getInstance(DataSource.getTestDB()).getMessagesInPlayground(ctx.pathParam(PLAYGROUND_NAME));
             if (messages != null) {
                 ctx.json(messages).contentType("json");
                 ctx.status(200);

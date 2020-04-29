@@ -1,6 +1,10 @@
 package database;
 
 public class NoModificationException extends Exception {
+
+    public NoModificationException() {
+
+    }
     public NoModificationException(String msg) {
         super(msg);
     }

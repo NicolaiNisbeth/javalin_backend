@@ -1,4 +1,4 @@
-package database.dao;
+package database.unit;
 
 import com.mongodb.WriteResult;
 import database.DALException;
@@ -6,6 +6,8 @@ import database.DataSource;
 import database.NoModificationException;
 import database.collections.Details;
 import database.collections.Event;
+import database.dao.EventDAO;
+import database.dao.IEventDAO;
 import org.assertj.core.api.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;

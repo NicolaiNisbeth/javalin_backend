@@ -1,16 +1,20 @@
-package database.dao;
+package database.unit;
 
 import com.mongodb.WriteResult;
 import database.DALException;
 import database.DataSource;
 import database.NoModificationException;
 import database.collections.Playground;
+import database.dao.IPlaygroundDAO;
+import database.dao.PlaygroundDAO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PlaygroundDAOTest {
     static IPlaygroundDAO playgroundDAO = new PlaygroundDAO(DataSource.getTestDB());
@@ -116,22 +120,36 @@ class PlaygroundDAOTest {
 
     @Test
     void updatePlaygroundShouldFetchUpdatedPlayground() throws NoModificationException {
-        Playground playground = new Playground.Builder("Vandlegepladsen i Fælledparken")
-                .setCommune("København Ø")
-                .setZipCode(2100)
-                .setStreetName("Gunnar Nu Hansens Plads")
-                .setStreetNumber(10)
-                .setImagePath("https://www.google.com/imgres?imgurl=https%3A%2F%2Fberlingske.bmcdn.dk%2Fmedia%2Fcache%2Fresolve%2Fembedded_image_600x%2Fimage%2F29%2F297771%2F17762859-vandlegepladsen1.jpg&imgrefurl=https%3A%2F%2Fwww.berlingske.dk%2Fdet-gode-liv%2Fsommerferie-med-boern-her-er-6-af-de-bedste-legepladser-i-koebenhavn&tbnid=8KS7AmfvvL2R9M&vet=12ahUKEwip7qn96qnoAhXTNuwKHWZvBakQMygAegUIARDKAQ..i&docid=NnIEE3O_4_SjKM&w=600&h=400&q=Vandlegepladsen&ved=2ahUKEwip7qn96qnoAhXTNuwKHWZvBakQMygAegUIARDKAQ")
+        Playground playground = new Playground.Builder("Vandlegeparken")
+                .setStreetName("Agervænget")
+                .setStreetNumber(34)
+                .setZipCode(3650)
+                .setCommune("Egedal")
+                .setToiletPossibilities(true)
+                .setHasSoccerField(true)
+                .setImagePath("asd97a9s8d89asd.jpg")
                 .build();
 
-        WriteResult wr = playgroundDAO.createPlayground(playground);
-        playground.setCommune("ny string");
-        playgroundDAO.updatePlayground(playground);
+        playgroundDAO.createPlayground(playground);
+        Playground fetchedPlayground = playgroundDAO.getPlayground(playground.getName());
 
-        Playground updatedPlayground = playgroundDAO.getPlayground(playground.getName());
-        Assertions.assertEquals("ny string", updatedPlayground.getCommune());
+        // update values
+        fetchedPlayground.setStreetName("Sohoj");
+        fetchedPlayground.setStreetNumber(12);
+        fetchedPlayground.setZipCode(1223);
+        fetchedPlayground.setCommune("Ballerup");
+        playgroundDAO.updatePlayground(fetchedPlayground);
 
-        playgroundDAO.deletePlayground(playground.getName());
+        // check that playground has updated values
+        Playground updatedPlayground = playgroundDAO.getPlayground(fetchedPlayground.getName());
+        Assertions.assertAll(
+                () -> assertEquals("Sohoj", updatedPlayground.getStreetName()),
+                () -> assertEquals(12, updatedPlayground.getStreetNumber()),
+                () -> assertEquals(1223, updatedPlayground.getZipCode()),
+                () -> assertEquals("Ballerup", updatedPlayground.getCommune())
+        );
+
+        playgroundDAO.deletePlayground(updatedPlayground.getName());
     }
 
     @Test

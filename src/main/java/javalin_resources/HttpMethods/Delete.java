@@ -1,5 +1,6 @@
 package javalin_resources.HttpMethods;
 
+import com.mongodb.WriteResult;
 import database.DataSource;
 import database.collections.User;
 import database.dao.Controller;
@@ -30,7 +31,8 @@ public class Delete implements Tag {
 
         public static Handler deleteParticipantFromPlaygroundEventDelete = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
-            if (Controller.getInstance(DataSource.getTestDB()).removeUserFromPlaygroundEvent(jsonObject.getString(EVENT_ID), jsonObject.getString(USER_ID)))
+            Controller.getInstance(DataSource.getTestDB()).removeUserEventAssociation(jsonObject.getString(EVENT_ID), jsonObject.getString(USER_ID));
+            if (true)
                 ctx.status(200).result("Removed user from event");
             else
                 ctx.status(404).result("Couldn't remove user from event");
@@ -61,7 +63,8 @@ public class Delete implements Tag {
     public static class DeletePedagogue {
 
         public static Handler deletePedagogueFromPlaygroundDelete = ctx -> {
-            if (Controller.getInstance(DataSource.getTestDB()).removePedagogueFromPlayground(ctx.pathParam(PLAYGROUND_NAME), ctx.pathParam(USER_NAME)))
+            Controller.getInstance(DataSource.getTestDB()).removePedagoguePlaygroundAssociation(ctx.pathParam(PLAYGROUND_NAME), ctx.pathParam(USER_NAME));
+            if (true)
                 ctx.status(200).result("Pedagogue is removed from the playground");
             else
                 ctx.status(404).result("Couldn't remove pedagogue from playground");
@@ -83,8 +86,8 @@ public class Delete implements Tag {
         public static Handler remoteUserFromPlaygroundEventPost = ctx -> {
             String id = ctx.pathParam("id");
             String username = ctx.pathParam("username");
-            Boolean successful = Controller.getInstance(DataSource.getTestDB()).removeUserFromPlaygroundEvent(id, username);
-            if (successful) {
+            Controller.getInstance(DataSource.getTestDB()).removeUserEventAssociation(id, username);
+            if (true) {
                 ctx.status(200).result("Removal was successful");
                 ctx.json(new User.Builder(username));
             } else {
@@ -97,7 +100,7 @@ public class Delete implements Tag {
     public static class DeleteMessage {
 
         public static Handler deletePlaygroundMessageDelete = ctx -> {
-            Controller.getInstance(DataSource.getTestDB()).removePlaygroundMessage(ctx.pathParam(PLAYGROUND_MESSAGE_ID));
+            Controller.getInstance(DataSource.getTestDB()).removeMessagePlaygroundAssociation(ctx.pathParam(PLAYGROUND_MESSAGE_ID));
             if (true)
                 ctx.status(200).result("Message deleted successfully");
             else
