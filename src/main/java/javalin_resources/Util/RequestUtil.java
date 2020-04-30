@@ -23,7 +23,7 @@ public class RequestUtil {
     }
 
     public static String getQueryPassword(Context ctx) {
-        return ctx.formParam("password");
+        return ctx.formParam("setPassword");
     }
 
     public static String getQueryLoginRedirect(Context ctx) {

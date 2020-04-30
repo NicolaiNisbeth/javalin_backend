@@ -12,6 +12,7 @@ import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.jongo.MongoCursor;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.*;
 
@@ -51,6 +52,8 @@ public class Controller implements IController {
     public WriteResult createUser(User user) {
         WriteResult writeResult = null;
         try {
+            String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+            user.setPassword(hashedPassword);
             writeResult = userDAO.createUser(user);
         } catch (DALException e) {
             e.printStackTrace();
@@ -104,12 +107,9 @@ public class Controller implements IController {
         return null;
     }
 
-
-    // todo rettet af NJL
     @Override
     public User getUser(String username) throws DALException {
         User user = userDAO.getUser(username);
-
         // fetch all events based on id
         Set<Event> events = user.getEvents();
         Set<Event> updatedEvents = new HashSet<>();
@@ -314,7 +314,6 @@ public class Controller implements IController {
         return writeResult;
     }
 
-    // todo fix it
     @Override
     public boolean addPedagogueToPlayground(String plagroundName, String username) {
 //        final ClientSession clientSession = DataSource.getClient().startSession();
@@ -328,6 +327,29 @@ public class Controller implements IController {
             // insert user reference in playground
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", plagroundName, "assignedPedagogue", pedagogue);
+
+            //        clientSession.commitTransaction();
+        } catch (Exception e) {
+            //      clientSession.abortTransaction();
+            e.printStackTrace();
+        } finally {
+            //    clientSession.close();
+        }
+
+        return true;
+    }
+
+    public boolean addPedagogueToPlayground(User user) {
+//        final ClientSession clientSession = DataSource.getClient().startSession();
+        //  clientSession.startTransaction();
+        try {
+
+            for (String playgroundName : user.getPlaygroundsIDs()) {
+                Playground playground = Controller.getInstance().getPlayground(playgroundName);
+                playground.getAssignedPedagogue().add(user);
+                Controller.getInstance().updatePlayground(playground);
+            }
+
 
             //        clientSession.commitTransaction();
         } catch (Exception e) {
@@ -419,12 +441,24 @@ public class Controller implements IController {
 
     @Override
     public boolean removePedagogueFromPlayground(String playgroundName, String username) {
-        MongoCollection playground = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
+       /* Kan ikke få det til at virke
+       MongoCollection playground = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
         try {
             QueryUtils.updateWithPullObject(playground, "name", playgroundName, "assignedPedagogue", "username", username);
         } catch (DALException e) {
             e.printStackTrace();
         }
+        return true;*/
+        User removeUser = null;
+        Playground playground = Controller.getInstance().getPlayground(playgroundName);
+        for (User user : playground.getAssignedPedagogue()) {
+            if (user.getUsername().equalsIgnoreCase(username)) {
+                removeUser = user;
+                break;
+            }
+        }
+        playground.getAssignedPedagogue().remove(removeUser);
+        Controller.getInstance().updatePlayground(playground);
         return true;
     }
 

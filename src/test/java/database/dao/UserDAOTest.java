@@ -28,8 +28,8 @@ class UserDAOTest {
         User user = new User.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
-                .email("nicolai.nisbeth@yahoo.com")
-                .password("asd123")
+                .setEmail("nicolai.nisbeth@yahoo.com")
+                .setPassword("asd123")
                 .phoneNumbers("+45 12 34 23 12", "+45 45 74 56 32")
                 .build();
 
@@ -53,16 +53,16 @@ class UserDAOTest {
         User user1 = new User.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
-                .email("nicolai.nisbeth@yahoo.com")
-                .password("asd123")
+                .setEmail("nicolai.nisbeth@yahoo.com")
+                .setPassword("asd123")
                 .phoneNumbers("+45 12 34 23 12", "+45 45 74 56 32")
                 .build();
 
         User user2 = new User.Builder("Peter")
                 .status("Admin")
                 .imagePath("asd97a9s343d.jpg")
-                .email("peter.pavlidou@yahoo.com")
-                .password("poggersinthechat3")
+                .setEmail("peter.pavlidou@yahoo.com")
+                .setPassword("poggersinthechat3")
                 .phoneNumbers("+45 45 74 56 32")
                 .build();
 
@@ -84,8 +84,8 @@ class UserDAOTest {
         User user = new User.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
-                .email("nicolai.nisbeth@yahoo.com")
-                .password("asd123")
+                .setEmail("nicolai.nisbeth@yahoo.com")
+                .setPassword("asd123")
                 .phoneNumbers("+45 12 34 23 12", "+45 45 74 56 32")
                 .build();
 
@@ -119,14 +119,13 @@ class UserDAOTest {
        /*
         User user2 = new User.Builder("s123")
                 .status("pedagog")
-                .password("123")
+                .setPassword("123")
                 .setFirstname("Svend")
                 .setLastname("Blåtand")
                 .build();
         userDAO.createUser(user2);*/
 
-       /* userDAO.deleteUser(user1.getUsername());
-        userDAO.deleteUser(user2.getUsername());*/
+        userDAO.deleteUser("abc");
 
      /*  User user = userDAO.getUserWithUserName("s185020");
        user.setStatus("admin");
@@ -135,12 +134,12 @@ class UserDAOTest {
             userDAO.deleteUser(user2.getUsername());
         }
 */
-        User user1 = new User.Builder("root")
+      /*  User user1 = new User.Builder("root")
                 .status("admin")
-                .password("root")
+                .setPassword("root")
                 .setFirstname("Base")
                 .setLastname("Admin")
                 .build();
-        userDAO.createUser(user1);
+        userDAO.createUser(user1);*/
     }
 }

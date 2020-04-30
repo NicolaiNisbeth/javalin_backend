@@ -18,7 +18,7 @@ class ControllerTest {
     static IPlaygroundDAO playgroundDAO;
     static IUserDAO userDAO;
 
-    final static User ADMIN_USER = new User.Builder("admin").status("admin").build();;
+    final static User ADMIN_USER = new User.Builder("admin").status("admin").build();
 
     @BeforeAll
     static void setup(){
@@ -82,8 +82,8 @@ class ControllerTest {
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
-                .email("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setEmail("s175565@student.dtu.dk")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -120,8 +120,8 @@ class ControllerTest {
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
-                .email("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setEmail("s175565@student.dtu.dk")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -178,8 +178,8 @@ class ControllerTest {
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
-                .email("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setEmail("s175565@student.dtu.dk")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -235,8 +235,8 @@ class ControllerTest {
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
-                .email("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setEmail("s175565@student.dtu.dk")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -284,8 +284,8 @@ class ControllerTest {
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
-                .email("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setEmail("s175565@student.dtu.dk")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -359,8 +359,8 @@ class ControllerTest {
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
-                .email("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setEmail("s175565@student.dtu.dk")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -369,8 +369,8 @@ class ControllerTest {
                 .setFirstname("Bente")
                 .setLastname("Børge")
                 .status("pedagogue")
-                .email("s123345@student.dtu.dk")
-                .password("bentabørge123321")
+                .setEmail("s123345@student.dtu.dk")
+                .setPassword("bentabørge123321")
                 .phoneNumbers("+45 12 32 21 32")
                 .imagePath("asd9as9d8a89s323d.jpg")
                 .build();
@@ -518,8 +518,8 @@ class ControllerTest {
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
-                .email("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setEmail("s175565@student.dtu.dk")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -662,8 +662,8 @@ class ControllerTest {
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
-                .email("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setEmail("s175565@student.dtu.dk")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -736,8 +736,8 @@ class ControllerTest {
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
-                .email("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setEmail("s175565@student.dtu.dk")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -802,8 +802,8 @@ class ControllerTest {
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
-                .email("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setEmail("s175565@student.dtu.dk")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -844,8 +844,8 @@ class ControllerTest {
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
-                .email("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setEmail("s175565@student.dtu.dk")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -981,8 +981,8 @@ class ControllerTest {
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
-                .email("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setEmail("s175565@student.dtu.dk")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();
@@ -1027,8 +1027,8 @@ class ControllerTest {
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
                 .status("admin")
-                .email("s175565@student.dtu.dk")
-                .password("nicolai123456789")
+                .setEmail("s175565@student.dtu.dk")
+                .setPassword("nicolai123456789")
                 .phoneNumbers("+45 23 45 23 12", "+45 27 38 94 21")
                 .imagePath("asd9as9d8a89sd.jpg")
                 .build();

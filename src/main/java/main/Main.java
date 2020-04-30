@@ -37,11 +37,13 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 import static io.javalin.core.security.SecurityUtil.roles;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.nio.file.Paths;
 import java.util.*;
 
 public class Main {
     public static Javalin app;
+    private static String hostAddress;
     public static HashMap<String, Role> rolesmapping;
     public static HashSet<Role> anyone;
     public static HashSet<Role> pedagogues;
@@ -53,6 +55,13 @@ public class Main {
 
 
     public static void main(String[] args) throws Exception {
+        if (InetAddress.getLocalHost().getHostName().equals("aws-ec2-javalin-hoster")) {
+            hostAddress = "18.185.121.182";
+        } else {
+            hostAddress = "localhost";
+        }
+        System.out.println("Starting server from " + hostAddress);
+
         buildDirectories();
 
         rolesmapping = new HashMap<>();
@@ -130,15 +139,15 @@ public class Main {
                         server.setHandler(statisticsHandler);
                         return server;
                     });
-        }).start(8088);
+        }).start(8080);
 
-
+        app.before(ctx -> {
+            System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());
+        });
         app.exception(Exception.class, (e, ctx) -> {
             e.printStackTrace();
         });
         app.config.addStaticFiles("webapp");
-
-
 
         // REST endpoints
         app.routes(() -> {
@@ -175,21 +184,22 @@ public class Main {
             /**
              * GET
              **/
+
             //GET PLAYGROUNDS
-            get(Path.Playground.PLAYGROUND_ALL, Get.GetPlayground.readAllPlaygroundsGet, roles(User.roles.ANYONE));
-            get(Path.Playground.PLAYGROUND_ONE, Get.GetPlayground.readOnePlaygroundGet, roles(User.roles.ANYONE));
-            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Get.GetPlayground.readOnePlaygroundOneEmployeeGet, roles(User.roles.ANYONE));
-            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Get.GetPlayground.readOnePlaygroundAllEmployeeGet, roles(User.roles.ANYONE));
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Get.GetEvent.readOneEventParticipantsGet, roles(User.roles.ANYONE));
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Get.GetEvent.readOneEventOneParticipantGet, roles(User.roles.ANYONE));
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Get.GetEvent.readOnePlayGroundAllEventsGet, roles(User.roles.ANYONE));
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Get.GetEvent.readOneEventGet, roles(User.roles.ANYONE));
-            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Get.GetMessage.readAllMessagesGet, roles(User.roles.ANYONE));
-            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Get.GetMessage.readOneMessageGet, roles(User.roles.ANYONE));
+            get(Path.Playground.PLAYGROUND_ALL, Get.GetPlayground.readAllPlaygroundsGet);
+            get(Path.Playground.PLAYGROUND_ONE, Get.GetPlayground.readOnePlaygroundGet);
+            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Get.GetPlayground.readOnePlaygroundOneEmployeeGet);
+            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Get.GetPlayground.readOnePlaygroundAllEmployeeGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Get.GetEvent.readOneEventParticipantsGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Get.GetEvent.readOneEventOneParticipantGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Get.GetEvent.readOnePlayGroundAllEventsGet);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Get.GetEvent.readOneEventGet);
+            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Get.GetMessage.readAllMessagesGet);
+            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Get.GetMessage.readOneMessageGet);
 
             //GET EMPLOYEES
-            get(Path.Employee.EMPLOYEE_ALL, Get.GetUser.getAllUsers, roles(User.roles.ANYONE));
-            get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, Get.GetUser.getUserPicture, roles(User.roles.ANYONE));
+            get(Path.Employee.EMPLOYEE_ALL, Get.GetUser.getAllUsers);
+            get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, Get.GetUser.getUserPicture);
 
             /**
              * POST
@@ -203,7 +213,7 @@ public class Main {
             post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Post.PostMessage.createPlaygroundMessagePost, roles(User.roles.ANYONE));
 
             //TODO: Implement this
-            post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Post.PostUser.createUserToPlaygroundPost, roles(User.roles.ANYONE));
+            //skal foregå under create/update user post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostUser.createUserToPlaygroundPost);
             post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.PostUser.createParticipantsToPlaygroundEventPost, roles(User.roles.ANYONE));
 
 
@@ -222,8 +232,8 @@ public class Main {
             put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Put.PutEvent.updateEventToPlaygroundPut, roles(User.roles.ANYONE));
 
             //TODO: Test this
-            put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Put.PutPedagogue.updatePedagogueToPlayGroundPut, roles(User.roles.ANYONE));
-            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUser, roles(User.roles.ANYONE));
+            put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Put.PutPedagogue.updatePedagogueToPlayGroundPut);
+            // put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
 
             //PUT EMLOYEES
             put(Path.Employee.UPDATE, Put.PutUser.updateUser, roles(User.roles.ANYONE));
@@ -238,14 +248,18 @@ public class Main {
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Delete.DeleteEvent.deleteEventFromPlaygroundDelete, roles(User.roles.ANYONE));
             delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Delete.DeleteMessage.deletePlaygroundMessageDelete, roles(User.roles.ANYONE));
 
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteEvent.remoteUserFromPlaygroundEventPost, roles(User.roles.ANYONE));
-
             //TODO: Test this
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete, roles(User.roles.ANYONE));
+            //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteEvent.remoteUserFromPlaygroundEventPost);
+
 
             //DELETE EMPLOYEES
             delete(Path.Employee.DELETE, Delete.DeleteUser.deleteUser, roles(User.roles.ANYONE));
         });
+    }
+
+    public static String getHostAddress() {
+        return hostAddress;
     }
 
 
@@ -272,5 +286,3 @@ public class Main {
     };
 
 }
-
-
