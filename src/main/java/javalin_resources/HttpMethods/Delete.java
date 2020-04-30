@@ -30,6 +30,8 @@ public class Delete implements Tag {
         public static Handler deleteParticipantFromPlaygroundEventDelete = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
             Controller.getInstance().removeUserFromEvent(jsonObject.getString(EVENT_ID), jsonObject.getString(USER_ID));
+            // TODO: remove true and catch exception and set corresponding status code
+
             if (true)
                 ctx.status(200).result("Removed user from event");
             else
@@ -62,6 +64,7 @@ public class Delete implements Tag {
 
         public static Handler deletePedagogueFromPlaygroundDelete = ctx -> {
             Controller.getInstance().removePedagogueFromPlayground(ctx.pathParam(PLAYGROUND_NAME), ctx.pathParam(USER_NAME));
+            // TODO: remove true and catch exception and set corresponding status code
             if (true)
                 ctx.status(200).result("Pedagogue is removed from the playground");
             else
@@ -74,6 +77,8 @@ public class Delete implements Tag {
 
         public static Handler deleteEventFromPlaygroundDelete = ctx -> {
             Controller.getInstance().deletePlaygroundEvent(ctx.pathParam(EVENT_ID));
+            // TODO: remove true and catch exception and set corresponding status code
+
             if (true) {
                 ctx.status(200).result("Event has been removed from the playground");
             } else {
@@ -85,6 +90,8 @@ public class Delete implements Tag {
             String id = ctx.pathParam("id");
             String username = ctx.pathParam("username");
             Controller.getInstance().removeUserFromEvent(id, username);
+            // TODO: remove true and catch exception and set corresponding status code
+
             if (true) {
                 ctx.status(200).result("Removal was successful");
                 ctx.json(new UserDTO.Builder(username));
@@ -99,6 +106,9 @@ public class Delete implements Tag {
 
         public static Handler deletePlaygroundMessageDelete = ctx -> {
             Controller.getInstance().deletePlaygroundMessage(ctx.pathParam(PLAYGROUND_MESSAGE_ID));
+            // TODO: remove true and catch exception and set corresponding status code
+
+
             if (true)
                 ctx.status(200).result("Message deleted successfully");
             else

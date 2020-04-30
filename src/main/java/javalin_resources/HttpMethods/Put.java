@@ -58,6 +58,8 @@ public class Put implements Tag {
                     event.setPlayground(PLAYGROUND_NAME);
                 }
                 Controller.getInstance().updatePlaygroundEvent(event);
+                // TODO: remove true and catch exception and set corresponding status code
+
                 if (true) {
                     ctx.status(200).result("Event is updated");
                 }
@@ -126,6 +128,8 @@ public class Put implements Tag {
                     playground.setZipCode(jsonObject.getInt(PLAYGROUND_ZIPCODE));
 
                 Controller.getInstance().updatePlayground(playground);
+                // TODO: remove true and catch exception and set corresponding status code
+
                 if (true) {
                     ctx.status(200).result("Playground updated");
                     //Test

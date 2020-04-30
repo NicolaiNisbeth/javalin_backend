@@ -108,6 +108,8 @@ public class Post implements Tag {
             String id = ctx.pathParam("id");
             String username = ctx.pathParam("username");
             WriteResult successful = Controller.getInstance().addUserToEvent(id, username);
+            // TODO: remove true and catch exception and set corresponding status code
+
             if (true) {
                 ctx.status(200).result("Update successful");
                 ctx.json(new UserDTO.Builder(username));
