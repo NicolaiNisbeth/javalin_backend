@@ -3,6 +3,7 @@ import com.google.gson.Gson;
 import database.Controller;
 import database.IController;
 import database.TestDB;
+import database.dto.UserDTO;
 import io.javalin.http.Context;
 import io.javalin.plugin.openapi.annotations.ContentType;
 import javalin_resources.HttpMethods.Post;
@@ -27,8 +28,8 @@ public class UserLoginTest {
     @BeforeAll
     static void beforeAll(){
         controller.setDataSource(TestDB.getInstance());
+        controller.killAll();
     }
-    private static User rootUser;
 
     @BeforeEach
     void setup(){
@@ -59,7 +60,7 @@ public class UserLoginTest {
     }
 
     @Test
-    void invalidInfoShouldReturn404() throws Exception {
+    void invalidInfoShouldReturn401() throws Exception {
         model.username = "testUsername";
         model.password = "testPassword";
         String inputBody = gson.toJson(model);
@@ -67,7 +68,7 @@ public class UserLoginTest {
         when(ctx.body()).thenReturn(inputBody);
         Post.User.userLogin.handle(ctx);
 
-        verify(ctx).status(HttpStatus.NOT_FOUND_404);
+        verify(ctx).status(HttpStatus.UNAUTHORIZED_401);
         verify(ctx).contentType(ContentType.JSON);
     }
 

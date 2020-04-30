@@ -209,31 +209,54 @@ public class Controller implements IController {
             PlaygroundDTO playground = playgroundDAO.getPlayground(playgroundName);
 
             // delete playground reference from pedagogues
-            for (UserDTO pedagogue : playground.getAssignedPedagogue())
-                removePedagogueFromPlayground(playgroundName, pedagogue.getUsername());
+            for (UserDTO pedagogue : playground.getAssignedPedagogue()){
+                // remove user reference in playground
+                MongoCollection collection = new Jongo(datasource.getDatabase()).getCollection(IPlaygroundDAO.COLLECTION);
+                QueryUtils.updateWithPullObject(collection, "name", playgroundName, "assignedPedagogue", "username", pedagogue.getUsername());
+
+                // remove playground reference in user
+                MongoCollection user = new Jongo(datasource.getDatabase()).getCollection(IUserDAO.COLLECTION);
+                QueryUtils.updateWithPullSimple(user, "username", pedagogue.getUsername(), "playgroundsIDs", playgroundName);
+            }
 
             // delete playground events
-            for (EventDTO event : playground.getEvents())
-                deletePlaygroundEvent(event.getId());
+            for (EventDTO event : playground.getEvents()){
+                // delete event reference in users
+                MongoCollection users = new Jongo(datasource.getDatabase()).getCollection(IUserDAO.COLLECTION);
+                for (UserDTO user : event.getAssignedUsers()) {
+                    QueryUtils.updateWithPullObject(users, "username", user.getUsername(), "events", "_id", new ObjectId(event.getId()));
+                }
+
+                // delete event reference in playground
+                MongoCollection playgrounds = new Jongo(datasource.getDatabase()).getCollection(IPlaygroundDAO.COLLECTION);
+                QueryUtils.updateWithPullObject(playgrounds, "name", event.getPlaygroundName(), "events", "_id", new ObjectId(event.getId()));
+
+                // delete event
+                eventDAO.deleteEvent(event.getId());
+            }
 
             // delete playground messages
-            for (MessageDTO message : playground.getMessages())
-                deletePlaygroundMessage(message.getId());
+            for (MessageDTO message : playground.getMessages()){
+                // delete message reference in playground
+                MongoCollection collection = new Jongo(datasource.getDatabase()).getCollection(IPlaygroundDAO.COLLECTION);
+                QueryUtils.updateWithPullObject(collection, "name", message.getPlaygroundName(), "messages", "_id", new ObjectId(message.getId()));
+
+                // delete message
+                messageDAO.deleteMessage(message.getId());
+            }
+
 
             // delete playground
             wr = playgroundDAO.deletePlayground(playgroundName);
             session.commitTransaction();
 
         } catch (NoSuchElementException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
         } catch (NoModificationException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoModificationException(e.getMessage());
         } catch (MongoException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new MongoException("Internal error");
         }
@@ -252,27 +275,39 @@ public class Controller implements IController {
             UserDTO user = userDAO.getUser(username);
 
             // delete user reference from playground
-            for (String playgroundName : user.getPlaygroundsIDs())
-                removePedagogueFromPlayground(playgroundName, username);
+            for (String playgroundName : user.getPlaygroundsIDs()){
+                // remove user reference in playground
+                MongoCollection collection = new Jongo(datasource.getDatabase()).getCollection(IPlaygroundDAO.COLLECTION);
+                QueryUtils.updateWithPullObject(collection, "name", playgroundName, "assignedPedagogue", "username", user.getUsername());
+
+                // remove playground reference in user
+                MongoCollection collection2 = new Jongo(datasource.getDatabase()).getCollection(IUserDAO.COLLECTION);
+                QueryUtils.updateWithPullSimple(collection2, "username", user.getUsername(), "playgroundsIDs", playgroundName);
+            }
+
 
             // delete user reference in events
-            for (EventDTO event : user.getEvents())
-                removeUserFromEvent(event.getId(), username);
+            for (EventDTO event : user.getEvents()){
+                // delete user reference in event
+                MongoCollection events = new Jongo(datasource.getDatabase()).getCollection(IEventDAO.COLLECTION);
+                QueryUtils.updateWithPullObject(events, "_id", new ObjectId(event.getId()), "assignedUsers", "username", username);
+
+                // delete event reference in user
+                MongoCollection users = new Jongo(datasource.getDatabase()).getCollection(IUserDAO.COLLECTION);
+                QueryUtils.updateWithPullObject(users, "username", username, "events", "_id", new ObjectId(event.getId()));
+            }
 
             // delete user
             wr = userDAO.deleteUser(username);
             session.commitTransaction();
 
         } catch (NoSuchElementException e) {
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
         } catch (NoModificationException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoModificationException(e.getMessage());
         } catch (MongoException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new MongoException("Internal error");
         }
@@ -301,15 +336,12 @@ public class Controller implements IController {
 
             session.commitTransaction();
         } catch (NoSuchElementException e) {
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
         } catch (NoModificationException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoModificationException(e.getMessage());
         } catch (MongoException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new MongoException("Internal error");
         }
@@ -334,15 +366,12 @@ public class Controller implements IController {
 
             session.commitTransaction();
         } catch (NoSuchElementException e) {
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
         } catch (NoModificationException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoModificationException(e.getMessage());
         } catch (MongoException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new MongoException("Internal error");
         }
@@ -372,15 +401,12 @@ public class Controller implements IController {
 
             session.commitTransaction();
         } catch (NoSuchElementException e) {
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
         } catch (NoModificationException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoModificationException(e.getMessage());
         } catch (MongoException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new MongoException("Internal error");
         }
@@ -408,15 +434,12 @@ public class Controller implements IController {
 
             session.commitTransaction();
         } catch (NoSuchElementException e) {
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
         } catch (NoModificationException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoModificationException(e.getMessage());
         } catch (MongoException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new MongoException("Internal error");
         }
@@ -444,15 +467,12 @@ public class Controller implements IController {
 
             session.commitTransaction();
         } catch (NoSuchElementException e) {
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
         } catch (NoModificationException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoModificationException(e.getMessage());
         } catch (MongoException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new MongoException("Internal error");
         }
@@ -477,15 +497,12 @@ public class Controller implements IController {
             QueryUtils.updateWithPullSimple(user, "username", username, "playgroundsIDs", playgroundName);
             session.commitTransaction();
         } catch (NoSuchElementException e) {
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
         } catch (NoModificationException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoModificationException(e.getMessage());
         } catch (MongoException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new MongoException("Internal error");
         }
@@ -523,15 +540,12 @@ public class Controller implements IController {
             wr = messageDAO.deleteMessage(messageID);
             session.commitTransaction();
         } catch (NoSuchElementException e) {
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
         } catch (NoModificationException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoModificationException(e.getMessage());
         } catch (MongoException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new MongoException("Internal error");
         }
@@ -557,15 +571,12 @@ public class Controller implements IController {
             session.commitTransaction();
 
         }catch (NoSuchElementException e) {
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
         } catch (NoModificationException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoModificationException(e.getMessage());
         } catch (MongoException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new MongoException("Internal error");
         }
@@ -597,15 +608,12 @@ public class Controller implements IController {
             session.commitTransaction();
 
         } catch (NoSuchElementException e) {
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
         } catch (NoModificationException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new NoModificationException(e.getMessage());
         } catch (MongoException e){
-            session.abortTransaction();
             e.printStackTrace();
             throw new MongoException("Internal error");
         }

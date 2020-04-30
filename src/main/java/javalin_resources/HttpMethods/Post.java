@@ -265,7 +265,7 @@ public class Post implements Tag {
                 ctx.json(newUser);
 
 
-                Controller.getInstance().addPedagogueToPlayground(newUser);
+                //Controller.getInstance().addPedagogueToPlayground(newUser);
 
             } else {
                 ctx.status(401);
@@ -321,9 +321,9 @@ public class Post implements Tag {
 
             // user was not found in user authorization and database
             if (bruger == null && fetchedUser == null) {
-                ctx.status(HttpStatus.NOT_FOUND_404);
+                ctx.status(HttpStatus.UNAUTHORIZED_401);
                 ctx.contentType(ContentType.JSON);
-                ctx.result("Not found - Wrong username or password");
+                ctx.result("Unauthorized - Wrong username or password");
                 return;
             }
 
@@ -359,7 +359,7 @@ public class Post implements Tag {
             String hashed = fetchedUser.getPassword();
             if (BCrypt.checkpw(password, hashed)) {
                 ctx.status(HttpStatus.OK_200);
-                ctx.result("Succes - User login was successful");
+                ctx.result("Success - User login was successful");
                 ctx.json(fetchedUser);
                 ctx.contentType(ContentType.JSON);
             } else {

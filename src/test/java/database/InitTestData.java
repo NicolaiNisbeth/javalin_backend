@@ -17,10 +17,10 @@ import java.util.Date;
 import java.util.List;
 
 public class InitTestData {
-    static IController controller = Controller.getInstance();
+    static IController controller = Controller.getInstance(); // production database by default
 
-    @Test
-    void initFreshData() throws NoModificationException {
+
+    public static void main(String[] args) throws NoModificationException {
         controller.killAll();
         System.out.println("Collections are deleted");
 
@@ -34,8 +34,7 @@ public class InitTestData {
         System.out.println("Database is ready with test data!");
     }
 
-
-    private List<String> initPlaygrounds() {
+    private static List<String> initPlaygrounds() {
         List<String> playgroundNames = null;
         try(BufferedReader br = new BufferedReader(new FileReader("src/test/data/playgroundData"))) {
             playgroundNames = new ArrayList<>();
@@ -67,7 +66,7 @@ public class InitTestData {
         return playgroundNames;
     }
 
-    private List<String> initUsers() {
+    private static List<String> initUsers() {
         List<String> usernames = null;
         try(BufferedReader br = new BufferedReader(new FileReader("src/test/data/userData"))) {
             usernames = new ArrayList<>();
@@ -100,7 +99,7 @@ public class InitTestData {
         return usernames;
     }
 
-    private void addMessagesToPlaygrounds(List<String> playgroundNames) {
+    private static void addMessagesToPlaygrounds(List<String> playgroundNames) {
         try(BufferedReader br = new BufferedReader(new FileReader("src/test/data/messageData"))) {
             String line = br.readLine(); // skip first line
             line = br.readLine();
@@ -126,7 +125,7 @@ public class InitTestData {
         System.out.println("Messages are added to playgrounds");
     }
 
-    private List<String> addEventsToPlaygrounds(List<String> playgroundNames) {
+    private static List<String> addEventsToPlaygrounds(List<String> playgroundNames) {
         List<String> eventID = null;
         try(BufferedReader br = new BufferedReader(new FileReader("src/test/data/eventData"))) {
             eventID = new ArrayList<>();
@@ -157,7 +156,7 @@ public class InitTestData {
         return eventID;
     }
 
-    private void addPedagoguesToPlaygrounds(List<String> usernames, List<String> playgroundNames) throws NoModificationException {
+    private static void addPedagoguesToPlaygrounds(List<String> usernames, List<String> playgroundNames) throws NoModificationException {
         controller.addPedagogueToPlayground(playgroundNames.get(0), usernames.get(1));
         controller.addPedagogueToPlayground(playgroundNames.get(0), usernames.get(2));
 
@@ -181,7 +180,7 @@ public class InitTestData {
         System.out.println("Pedagogues are added to playgrounds");
     }
 
-    private void addParticipantsToEvent(List<String> usernames, List<String> eventID) throws NoModificationException {
+    private static void addParticipantsToEvent(List<String> usernames, List<String> eventID) throws NoModificationException {
         for (String id : eventID){
             int i = (int) (Math.random() * usernames.size() + 1) ;
             for (int j = 0; j < i; j++) {

@@ -1,6 +1,8 @@
 package resources;
 
 import com.google.gson.Gson;
+import database.IController;
+import database.TestDB;
 import database.exceptions.NoModificationException;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
@@ -20,14 +22,17 @@ class UpdateUserTest {
     private JsonModels.UserModel userModel = new JsonModels.UserModel();
     private static Gson gson;
     private static String json;
+    private static IController controller = Controller.getInstance();
 
     @BeforeAll
     static void setUp() throws NoModificationException {
         //"mock-maker-inline" must be enabled
         ctx = mock(Context.class);
+        controller.setDataSource(TestDB.getInstance());
+        controller.killAll();
 
         try {
-            Controller.getInstance().getUser("root");
+            controller.getUser("root");
         } catch (NoSuchElementException e) {
             UserDTO root = new UserDTO.Builder("root")
                     .status("admin")
@@ -87,10 +92,10 @@ class UpdateUserTest {
                 .setLastname(userModel.lastname)
                 .setStatus(userModel.status)
                 .build();
-        Controller.getInstance().createUser(updateUser);
+        controller.createUser(updateUser);
 
         Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
-        UserDTO fromDB = Controller.getInstance().getUser(updateUser.getUsername());
+        UserDTO fromDB = controller.getUser(updateUser.getUsername());
         System.out.println(fromDB.getPlaygroundsIDs());
 
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
@@ -105,10 +110,10 @@ class UpdateUserTest {
         verify(ctx).status(201);
         verify(ctx).result("User updated");
 
-        updateUser = Controller.getInstance().getUser(updateUser.getUsername());
+        updateUser = controller.getUser(updateUser.getUsername());
         Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
 
-        Controller.getInstance().deleteUser(userModel.username);
+        controller.deleteUser(userModel.username);
     }
 
     @Test
@@ -134,13 +139,13 @@ class UpdateUserTest {
                 .setCommune("København Ø")
                 .setZipCode(2100)
                 .build();
-        Controller.getInstance().createPlayground(playground);
+        controller.createPlayground(playground);
 
         PlaygroundDTO playground2 = new PlaygroundDTO.Builder("KålPladsen2")
                 .setCommune("København Ø")
                 .setZipCode(2100)
                 .build();
-        Controller.getInstance().createPlayground(playground2);
+        controller.createPlayground(playground2);
 
         String[] pgIDs = new String[2];
         pgIDs[0] = "KålPladsen1";
@@ -153,7 +158,7 @@ class UpdateUserTest {
                 .setStatus(userModel.status)
                 .build();
 
-        Controller.getInstance().createUser(updateUser);
+        controller.createUser(updateUser);
         Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
 
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
@@ -170,19 +175,19 @@ class UpdateUserTest {
         verify(ctx).status(201);
         verify(ctx).result("User updated");
 
-        updateUser = Controller.getInstance().getUser(updateUser.getUsername());
+        updateUser = controller.getUser(updateUser.getUsername());
         Assertions.assertEquals(2, updateUser.getPlaygroundsIDs().size());
 
-      /*  playground = Controller.getInstance().getPlayground(playground.getName());
+      /*  playground = controller.getPlayground(playground.getName());
         Assertions.assertEquals(1, playground.getAssignedPedagogue().size());
 
-        playground2 = Controller.getInstance().getPlayground(playground2.getName());
+        playground2 = controller.getPlayground(playground2.getName());
         Assertions.assertEquals(1, playground2.getAssignedPedagogue().size());
 */
-        Controller.getInstance().deletePlayground(playground.getName());
-        Controller.getInstance().deletePlayground(playground2.getName());
+        controller.deleteUser(updateUser.getUsername());
+        controller.deletePlayground(playground.getName());
+        controller.deletePlayground(playground2.getName());
 
-        Controller.getInstance().deleteUser(updateUser.getUsername());
     }
 
     /**
@@ -207,13 +212,24 @@ class UpdateUserTest {
         gson = new Gson();
         json = gson.toJson(userModel);
 
+        PlaygroundDTO playground = new PlaygroundDTO.Builder("KålPladsen1")
+                .setCommune("København Ø")
+                .setZipCode(2100)
+                .build();
+        controller.createPlayground(playground);
+
+        PlaygroundDTO playground2 = new PlaygroundDTO.Builder("KålPladsen2")
+                .setCommune("København Ø")
+                .setZipCode(2100)
+                .build();
+        controller.createPlayground(playground2);
+
+
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
-        ctx.result("");
-        ctx.status(0);
 
         userModel.username = "";
         userModel.playgroundsIDs = new String[2];
-        List<PlaygroundDTO> playgrounds = Controller.getInstance().getPlaygrounds();
+        List<PlaygroundDTO> playgrounds = controller.getPlaygrounds();
         userModel.playgroundsIDs[0] = playgrounds.get(0).getId();
         userModel.playgroundsIDs[1] = playgrounds.get(1).getId();
 
