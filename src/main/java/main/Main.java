@@ -67,104 +67,70 @@ public class Main {
         initializePrometheus(statisticsHandler, queuedThreadPool);
 
         if (app != null) return;
-        app = Javalin.create(config -> {
-            config.enableCorsForAllOrigins()
-                    .addSinglePageRoot("", "/webapp/index.html")
-                    .server(() -> {
-                        Server server = new Server(queuedThreadPool);
-                        server.setHandler(statisticsHandler);
-                        return server;
-                    });
-        }).start(8080);
+        app = Javalin.create(config -> config.enableCorsForAllOrigins()
+                .addSinglePageRoot("", "/webapp/index.html")
+                .server(() -> {
+                    Server server = new Server(queuedThreadPool);
+                    server.setHandler(statisticsHandler);
+                    return server;
+                })).start(8080);
 
-        app.before(ctx -> {
-            System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());
-        });
-        app.exception(Exception.class, (e, ctx) -> {
-            e.printStackTrace();
-        });
+        app.before(ctx -> System.out.println(
+                String.format("Javalin Server fik %s på %s med query %s og form %s",
+                ctx.method(), ctx.url(), ctx.queryParamMap(), ctx.formParamMap()))
+        );
+
+        app.exception(Exception.class, (e, ctx) -> e.printStackTrace());
         app.config.addStaticFiles("webapp");
 
         // REST endpoints
         app.routes(() -> {
+            /** GET **/
+            get(Path.Employee.EMPLOYEE_ALL,                                 Get.User.getAllUsers);
+            get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE,                 Get.User.getUserPicture);
+            get(Path.Playground.PLAYGROUND_ONE,                             Get.Playground.readOnePlayground);
+            get(Path.Playground.PLAYGROUND_ALL,                             Get.Playground.readAllPlaygrounds);
+            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE,               Get.Playground.readOnePlaygroundOneEmployee);
+            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL,               Get.Playground.readOnePlaygroundAllEmployee);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE,                  Get.Event.readOneEvent);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE,  Get.Event.readOneEventOneParticipant);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Get.Event.readOneEventParticipants);
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL,                 Get.Event.readOnePlayGroundAllEvents);
+            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE,                 Get.Message.readOneMessage);
+            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL,                 Get.Message.readAllMessages);
 
-            /**
-             * GET
-             **/
-
-            //GET PLAYGROUNDS
-            get(Path.Playground.PLAYGROUND_ALL, Get.Playground.readAllPlaygroundsGet);
-            get(Path.Playground.PLAYGROUND_ONE, Get.Playground.readOnePlaygroundGet);
-            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Get.Playground.readOnePlaygroundOneEmployeeGet);
-            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Get.Playground.readOnePlaygroundAllEmployeeGet);
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Get.Event.readOneEventParticipantsGet);
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Get.Event.readOneEventOneParticipantGet);
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Get.Event.readOnePlayGroundAllEventsGet);
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Get.Event.readOneEventGet);
-            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Get.Message.readAllMessagesGet);
-            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Get.Message.readOneMessageGet);
-
-            //GET EMPLOYEES
-            get(Path.Employee.EMPLOYEE_ALL, Get.User.getAllUsers);
-            get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, Get.User.getUserPicture);
-
-            /**
-             * POST
-             **/
-
-            //POST PLAYGROUNDS
-            //WORKS
-            post(Path.Playground.PLAYGROUND_ALL, Post.Playground.createPlaygroundPost);
-            post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Post.Event.createPlaygroundEventPost);
-            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Post.Event.createUserToPlaygroundEventPost);
-            post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Post.Message.createPlaygroundMessagePost);
-
+            /** POST **/
+            post(Path.Employee.LOGIN,                                       Post.User.userLogin);
+            post(Path.Employee.CREATE,                                      Post.User.createUser);
+            post(Path.Playground.PLAYGROUND_ALL,                            Post.Playground.createPlayground);
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL,                Post.Event.createPlaygroundEvent);
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Post.Event.createUserToPlaygroundEvent);
+            post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL,                Post.Message.createPlaygroundMessage);
             //TODO: Implement this
             //skal foregå under create/update user post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostUser.createUserToPlaygroundPost);
-            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.User.createParticipantsToPlaygroundEventPost);
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.User.createParticipantsToPlaygroundEvent);
+            post("/rest/employee/imagetest", context -> Shared.saveProfilePicture2(context));
 
-
-            //POST EMPLOYEES
-            post(Path.Employee.LOGIN, Post.User.userLogin);
-            post(Path.Employee.CREATE, Post.User.createUser);
-            post("/rest/employee/imagetest", context -> {
-                Shared.saveProfilePicture2(context);
-            });
-
-
-            /**
-             * PUT
-             **/
-            //PUT PLAYGROUNDS
-            put(Path.Playground.PLAYGROUND_ONE, Put.Playground.updatePlaygroundPut);
-            put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Put.Message.updatePlaygroundMessagePut);
-            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Put.Event.updateEventToPlaygroundPut);
-
+            /** PUT **/
+            put(Path.Employee.UPDATE,                                       Put.User.updateUser);
+            put(Path.Employee.RESET_PASSWORD,                               Put.User.resetPassword);
+            put(Path.Playground.PLAYGROUND_ONE,                             Put.Playground.updatePlayground);
+            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE,                  Put.Event.updateEventToPlayground);
+            put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE,                 Put.Message.updatePlaygroundMessage);
             //TODO: Test this
-            put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Put.Pedagogue.updatePedagogueToPlayGroundPut);
+            put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE,               Put.Pedagogue.updatePedagogueToPlayGround);
             // put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
 
-            //PUT EMLOYEES
-            put(Path.Employee.UPDATE, Put.User.updateUser);
-            put(Path.Employee.RESET_PASSWORD, Put.User.resetPassword);
-
-            /**
-             * DELETE
-             **/
-            //DELETE PLAYGROUNDS
-            delete(Path.Playground.PLAYGROUND_ONE, Delete.Playground.deleteOnePlaygroundDelete);
-            delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Delete.Pedagogue.deletePedagogueFromPlaygroundDelete);
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Delete.Event.deleteEventFromPlaygroundDelete);
-            delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Delete.Message.deletePlaygroundMessageDelete);
-
+            /** DELETE **/
+            delete(Path.Employee.DELETE,                                    Delete.User.deleteUser);
+            delete(Path.Playground.PLAYGROUND_ONE,                          Delete.Playground.deleteOnePlayground);
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE,               Delete.Event.deleteEventFromPlayground);
+            delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE,              Delete.Message.deletePlaygroundMessage);
+            delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE,            Delete.Pedagogue.deletePedagogueFromPlayground);
             //TODO: Test this
             //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.Event.remoteUserFromPlaygroundEventPost);
-
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.User.deleteParticipantFromPlaygroundEventDelete);
-
-            //DELETE EMPLOYEES
-            delete(Path.Employee.DELETE, Delete.User.deleteUser);
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.Event.remoteUserFromPlaygroundEvent);
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.User.deleteParticipantFromPlaygroundEvent);
         });
     }
 

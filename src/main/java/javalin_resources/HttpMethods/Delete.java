@@ -9,7 +9,7 @@ public class Delete implements Tag {
 
     public static class Playground {
 
-        public static Handler deleteOnePlaygroundDelete = ctx -> {
+        public static Handler deleteOnePlayground = ctx -> {
             String playgroundname = "";
             playgroundname = ctx.pathParam(PLAYGROUND_NAME);
 
@@ -27,7 +27,7 @@ public class Delete implements Tag {
 
     public static class User {
 
-        public static Handler deleteParticipantFromPlaygroundEventDelete = ctx -> {
+        public static Handler deleteParticipantFromPlaygroundEvent = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
             Controller.getInstance().removeUserFromEvent(jsonObject.getString(EVENT_ID), jsonObject.getString(USER_ID));
             // TODO: remove true and catch exception and set corresponding status code
@@ -62,7 +62,7 @@ public class Delete implements Tag {
 
     public static class Pedagogue {
 
-        public static Handler deletePedagogueFromPlaygroundDelete = ctx -> {
+        public static Handler deletePedagogueFromPlayground = ctx -> {
             Controller.getInstance().removePedagogueFromPlayground(ctx.pathParam(PLAYGROUND_NAME), ctx.pathParam(USER_NAME));
             // TODO: remove true and catch exception and set corresponding status code
             if (true)
@@ -75,7 +75,7 @@ public class Delete implements Tag {
 
     public static class Event {
 
-        public static Handler deleteEventFromPlaygroundDelete = ctx -> {
+        public static Handler deleteEventFromPlayground = ctx -> {
             Controller.getInstance().deletePlaygroundEvent(ctx.pathParam(EVENT_ID));
             // TODO: remove true and catch exception and set corresponding status code
 
@@ -86,7 +86,7 @@ public class Delete implements Tag {
             }
         };
 
-        public static Handler remoteUserFromPlaygroundEventPost = ctx -> {
+        public static Handler remoteUserFromPlaygroundEvent = ctx -> {
             String id = ctx.pathParam("id");
             String username = ctx.pathParam("username");
             Controller.getInstance().removeUserFromEvent(id, username);
@@ -104,7 +104,7 @@ public class Delete implements Tag {
 
     public static class Message {
 
-        public static Handler deletePlaygroundMessageDelete = ctx -> {
+        public static Handler deletePlaygroundMessage = ctx -> {
             Controller.getInstance().deletePlaygroundMessage(ctx.pathParam(PLAYGROUND_MESSAGE_ID));
             // TODO: remove true and catch exception and set corresponding status code
 

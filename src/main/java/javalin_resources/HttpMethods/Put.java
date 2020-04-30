@@ -20,7 +20,7 @@ public class Put implements Tag {
 
     public static class Event {
 
-        public static Handler updateEventToPlaygroundPut = ctx -> {
+        public static Handler updateEventToPlayground = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
             EventDTO event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
             PlaygroundDTO playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
@@ -72,7 +72,7 @@ public class Put implements Tag {
 
     public static class Playground {
 
-        public static Handler updatePlaygroundPut = ctx -> {
+        public static Handler updatePlayground = ctx -> {
             PlaygroundDTO playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
             JSONObject jsonObject = new JSONObject(ctx.body());
             if (playground != null) {
@@ -144,7 +144,7 @@ public class Put implements Tag {
 
     public static class Pedagogue {
 
-        public static Handler updatePedagogueToPlayGroundPut = ctx -> {
+        public static Handler updatePedagogueToPlayGround = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
             PlaygroundDTO playground = Controller.getInstance().getPlayground(jsonObject.getString(PLAYGROUND_NAME));
             UserDTO user = Controller.getInstance().getUser(jsonObject.getString(PEDAGOGUE));
@@ -307,7 +307,7 @@ public class Put implements Tag {
 
     public static class Message {
 
-        public static Handler updatePlaygroundMessagePut = ctx -> {
+        public static Handler updatePlaygroundMessage = ctx -> {
 
             JSONObject jsonObject = new JSONObject(ctx.body());
             MessageDTO message = Controller.getInstance().getMessage(ctx.pathParam("id"));

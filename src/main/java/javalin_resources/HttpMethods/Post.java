@@ -24,7 +24,7 @@ public class Post implements Tag {
 
     public static class Playground {
 
-        public static Handler createPlaygroundPost = ctx -> {
+        public static Handler createPlayground = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
             Set<UserDTO> users = new HashSet<>();
             for (int i = 0; i < jsonObject.getJSONArray(USERS).length(); i++) {
@@ -58,7 +58,7 @@ public class Post implements Tag {
 
     public static class Event {
 
-        public static Handler createPlaygroundEventPost = ctx -> {
+        public static Handler createPlaygroundEvent = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
             EventDTO event = new EventDTO();
 
@@ -104,7 +104,7 @@ public class Post implements Tag {
             }
         };
 
-        public static Handler createUserToPlaygroundEventPost = ctx -> {
+        public static Handler createUserToPlaygroundEvent = ctx -> {
             String id = ctx.pathParam("id");
             String username = ctx.pathParam("username");
             WriteResult successful = Controller.getInstance().addUserToEvent(id, username);
@@ -125,7 +125,7 @@ public class Post implements Tag {
 
     public static class Message {
 
-        public static Handler createPlaygroundMessagePost = ctx -> {
+        public static Handler createPlaygroundMessage = ctx -> {
 
             JSONObject jsonObject = new JSONObject(ctx.body());
 
@@ -172,7 +172,7 @@ public class Post implements Tag {
     }*/
 
     public static class User {
-        public static Handler createParticipantsToPlaygroundEventPost = ctx -> {
+        public static Handler createParticipantsToPlaygroundEvent = ctx -> {
 
         };
 
