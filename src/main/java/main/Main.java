@@ -24,6 +24,7 @@ public class Main {
         String hostName = InetAddress.getLocalHost().getHostName();
         hostAddress = hostName.equals("aws-ec2-javalin-hoster") ? "18.185.121.182" : "localhost";
         System.out.println("Starting server from " + hostAddress);
+        System.out.println(String.format("Listening on %s", InetAddress.getLocalHost().getHostAddress()));
 
         buildDirectories();
         start();

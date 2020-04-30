@@ -2,6 +2,7 @@ package javalin_resources.HttpMethods;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
+import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
@@ -107,7 +108,22 @@ public class Post implements Tag {
         public static Handler createUserToPlaygroundEvent = ctx -> {
             String id = ctx.pathParam("id");
             String username = ctx.pathParam("username");
-            WriteResult successful = Controller.getInstance().addUserToEvent(id, username);
+            if (id.isEmpty() || username.isEmpty()){
+                ctx.status(HttpStatus.BAD_REQUEST_400);
+                ctx.result("Bad request - No event id or username in path param");
+                ctx.contentType(ContentType.JSON);
+            }
+
+            try {
+                WriteResult successful = Controller.getInstance().addUserToEvent(id, username);
+            } catch (NoSuchElementException e){
+                ctx.status(HttpStatus.NOT_FOUND_404);
+                ctx.result("Not found - event or user is not in database");
+                ctx.contentType(ContentType.JSON);
+            } catch (NoModificationException e){
+            } catch (MongoException e){
+
+            }
             // TODO: remove true and catch exception and set corresponding status code
 
             if (true) {

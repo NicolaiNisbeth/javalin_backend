@@ -1,9 +1,6 @@
 package database;
 
-import com.mongodb.DB;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
+import com.mongodb.*;
 
 import java.util.Collections;
 
@@ -32,7 +29,7 @@ public class ProductionDB implements IDataSource {
     public MongoClient getClient() {
         if (mongoClient == null) {
             MongoCredential credential = MongoCredential.createCredential(user, adminDatabase, password);
-            mongoClient = new MongoClient(new ServerAddress(HOST, PORT), Collections.singletonList(credential));
+            mongoClient = new MongoClient(new ServerAddress(HOST, PORT), Collections.singletonList(credential), MongoClientOptions.builder().build());
         }
         return mongoClient;
     }
