@@ -24,16 +24,17 @@ public class Shared {
         } catch (NoSuchElementException e) {
             e.printStackTrace();
             ctx.status(401);
-            ctx.result("Unauthorized - Wrong admin username");
+            ctx.json("Unauthorized - Wrong admin username");
+            ctx.contentType("json");
             return false;
         }
 
         if (!admin.getStatus().equalsIgnoreCase("admin")) {
             ctx.status(401);
-            ctx.result("Unauthorized - Wrong admin status");
+            ctx.json("Unauthorized - Wrong admin status");
+            ctx.contentType("json");
             return false;
         }
-
 
         if (password.equalsIgnoreCase(admin.getPassword())) {
             return true;
@@ -43,7 +44,8 @@ public class Shared {
             return true;
         } else {
             ctx.status(401);
-            ctx.result("Unauthorized - Wrong admin setPassword");
+            ctx.json("Unauthorized - Wrong admin password");
+            ctx.contentType("json");
             return false;
         }
     }

@@ -158,6 +158,9 @@ public class Main {
             delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Delete.Message.deletePlaygroundMessageDelete);
 
             //TODO: Test this
+            //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteEvent.remoteUserFromPlaygroundEventPost);
+
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.User.deleteParticipantFromPlaygroundEventDelete);
 
             //DELETE EMPLOYEES

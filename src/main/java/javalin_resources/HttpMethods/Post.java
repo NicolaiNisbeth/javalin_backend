@@ -261,11 +261,11 @@ public class Post implements Tag {
             WriteResult ws = Controller.getInstance().createUser(newUser);
             if (ws.wasAcknowledged()) {
                 ctx.status(201);
-                ctx.result("User created.");
+                ctx.json("Created - User created");
                 ctx.json(newUser);
 
 
-                //Controller.getInstance().addPedagogueToPlayground(newUser);
+                Controller.getInstance().addPedagogueToPlayground(newUser);
 
             } else {
                 ctx.status(401);
@@ -281,8 +281,8 @@ public class Post implements Tag {
                 password = jsonObject.getString(PASSWORD);
             } catch (JSONException | NullPointerException e) {
                 ctx.status(HttpStatus.BAD_REQUEST_400);
+                ctx.json("Bad request - Body has no username or password");
                 ctx.contentType(ContentType.JSON);
-                ctx.result("Body has no username or password");
                 return;
             }
 
@@ -292,14 +292,14 @@ public class Post implements Tag {
                 try {
                     fetchedUser = getOrCreateRootUser(username);
                     ctx.status(HttpStatus.OK_200);
-                    ctx.result("User login with root was successful");
+                    ctx.result("Success - User login with root was successful");
                     ctx.json(fetchedUser);
                     ctx.contentType(ContentType.JSON);
                     return;
                 } catch (Exception e){
                     ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
                     ctx.contentType(ContentType.JSON);
-                    ctx.result("Creating root user failed");
+                    ctx.result("Internal error - Creating root user failed");
                     return;
                 }
             }
@@ -307,6 +307,7 @@ public class Post implements Tag {
             Bruger bruger = getUserInBrugerAuthorization(username, password);
             try {
                 fetchedUser = Controller.getInstance().getUser(username);
+                System.out.println("USER in mongo " + fetchedUser);
             } catch (NoSuchElementException | IllegalArgumentException e) {
                 fetchedUser = null;
             } catch (Exception e){
@@ -314,7 +315,7 @@ public class Post implements Tag {
                 // in bruger authorization module
                 ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
                 ctx.contentType(ContentType.JSON);
-                ctx.result("Couldn't connect to database");
+                ctx.result("Internal error - Couldn't connect to database");
                 return;
             }
 
@@ -322,7 +323,7 @@ public class Post implements Tag {
             if (bruger == null && fetchedUser == null) {
                 ctx.status(HttpStatus.NOT_FOUND_404);
                 ctx.contentType(ContentType.JSON);
-                ctx.result("Wrong username or password");
+                ctx.result("Not found - Wrong username or password");
                 return;
             }
 
@@ -358,13 +359,13 @@ public class Post implements Tag {
             String hashed = fetchedUser.getPassword();
             if (BCrypt.checkpw(password, hashed)) {
                 ctx.status(HttpStatus.OK_200);
-                ctx.result("user login was successful");
+                ctx.result("Succes - User login was successful");
                 ctx.json(fetchedUser);
                 ctx.contentType(ContentType.JSON);
             } else {
                 ctx.status(HttpStatus.UNAUTHORIZED_401);
                 ctx.contentType(ContentType.JSON);
-                ctx.result("wrong password");
+                ctx.result("Unauthorized - Wrong password");
 
             }
         };

@@ -12,6 +12,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.awt.*;
+
 import static org.mockito.Mockito.*;
 
 
@@ -26,6 +28,7 @@ public class UserLoginTest {
     static void beforeAll(){
         controller.setDataSource(TestDB.getInstance());
     }
+    private static User rootUser;
 
     @BeforeEach
     void setup(){
@@ -51,6 +54,7 @@ public class UserLoginTest {
         Post.User.userLogin.handle(ctx);
 
         verify(ctx).status(HttpStatus.OK_200);
+        verify(ctx).json(Controller.getInstance().getUser("root"));
         verify(ctx).contentType(ContentType.JSON);
     }
 
@@ -98,6 +102,7 @@ public class UserLoginTest {
         Post.User.userLogin.handle(ctx);
 
         verify(ctx).status(HttpStatus.OK_200);
+        verify(ctx).json(Controller.getInstance().getUser("s175565"));
         verify(ctx).contentType(ContentType.JSON);
     }
 
