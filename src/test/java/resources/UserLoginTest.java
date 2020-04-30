@@ -1,9 +1,14 @@
 package resources;
 import com.google.gson.Gson;
+import database.Controller;
+import database.IController;
+import database.TestDB;
 import io.javalin.http.Context;
 import io.javalin.plugin.openapi.annotations.ContentType;
 import javalin_resources.HttpMethods.Post;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +22,12 @@ public class UserLoginTest {
     private final String EMPTY_RESULT = "";
     private JsonModels.LoginModel model;
     private Gson gson;
+    private static IController controller = Controller.getInstance();
 
+    @BeforeAll
+    static void beforeAll(){
+        controller.setDataSource(TestDB.getInstance());
+    }
 
     @BeforeEach
     void setup(){
@@ -45,8 +55,7 @@ public class UserLoginTest {
         when(ctx.body()).thenReturn(inputBody);
         Post.User.userLogin.handle(ctx);
 
-        verify(ctx).status(200);
-        verify(ctx).result("user login with root was successful");
+        verify(ctx).status(HttpStatus.OK_200);
         verify(ctx).contentType(ContentType.JSON);
     }
 
@@ -62,8 +71,7 @@ public class UserLoginTest {
         when(ctx.body()).thenReturn(inputBody);
         Post.User.userLogin.handle(ctx);
 
-        verify(ctx).status(404);
-        verify(ctx).result("Unauthorized - No such username!");
+        verify(ctx).status(HttpStatus.NOT_FOUND_404);
         verify(ctx).contentType(ContentType.JSON);
     }
 
@@ -79,8 +87,7 @@ public class UserLoginTest {
         when(ctx.body()).thenReturn(inputBody);
         Post.User.userLogin.handle(ctx);
 
-        verify(ctx).status(400);
-        verify(ctx).result("body has no username and password");
+        verify(ctx).status(HttpStatus.BAD_REQUEST_400);
         verify(ctx).contentType(ContentType.JSON);
     }
 
@@ -91,8 +98,7 @@ public class UserLoginTest {
 
         Post.User.userLogin.handle(ctx);
 
-        verify(ctx).status(400);
-        verify(ctx).result("body has no username and password");
+        verify(ctx).status(HttpStatus.BAD_REQUEST_400);
         verify(ctx).contentType(ContentType.JSON);
     }
 
@@ -108,8 +114,7 @@ public class UserLoginTest {
         when(ctx.body()).thenReturn(inputBody);
         Post.User.userLogin.handle(ctx);
 
-        verify(ctx).status(200);
-        verify(ctx).result("user login was successful");
+        verify(ctx).status(HttpStatus.OK_200);
         verify(ctx).contentType(ContentType.JSON);
     }
 
@@ -126,7 +131,6 @@ public class UserLoginTest {
         Post.User.userLogin.handle(ctx);
 
         verify(ctx).status(401);
-        verify(ctx).result("Unauthorized - Wrong password");
         verify(ctx).contentType(ContentType.JSON);
     }
 }

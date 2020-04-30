@@ -21,12 +21,8 @@ public class Main {
     private static String hostAddress;
 
     public static void main(String[] args) throws Exception {
-        if (InetAddress.getLocalHost().getHostName().
-                equals("aws-ec2-javalin-hoster")) {
-            hostAddress = "18.185.121.182";
-        } else {
-            hostAddress = "localhost";
-        }
+        String hostName = InetAddress.getLocalHost().getHostName();
+        hostAddress = hostName.equals("aws-ec2-javalin-hoster") ? "18.185.121.182" : "localhost";
         System.out.println("Starting server from " + hostAddress);
 
         buildDirectories();

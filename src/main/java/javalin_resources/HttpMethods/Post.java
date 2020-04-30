@@ -9,6 +9,7 @@ import database.dto.*;
 import database.Controller;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.ContentType;
+import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -282,42 +283,61 @@ public class Post implements Tag {
         };
 
         public static Handler userLogin = ctx -> {
-
             String username, password;
             try {
                 JSONObject jsonObject = new JSONObject(ctx.body());
                 username = jsonObject.getString(USERNAME);
                 password = jsonObject.getString(PASSWORD);
             } catch (JSONException | NullPointerException e) {
-                ctx.status(400);
+                ctx.status(HttpStatus.BAD_REQUEST_400);
                 ctx.contentType(ContentType.JSON);
-                ctx.result("body has no username and password");
+                ctx.result("Body has no username or password");
                 return;
             }
 
-            UserDTO user;
+            UserDTO fetchedUser;
             boolean root = username.equalsIgnoreCase("root");
             if (root) {
-                user = getRootUser(username);
-                ctx.status(200);
-                ctx.result("user login with root was successful");
-                ctx.json(user);
+                try {
+                    fetchedUser = getOrCreateRootUser(username);
+                    ctx.status(HttpStatus.OK_200);
+                    ctx.result("User login with root was successful");
+                    ctx.json(fetchedUser);
+                    ctx.contentType(ContentType.JSON);
+                    return;
+                } catch (Exception e){
+                    ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                    ctx.contentType(ContentType.JSON);
+                    ctx.result("Creating root user failed");
+                    return;
+                }
+            }
+
+            Bruger bruger = getUserInBrugerAuthorization(username, password);
+            try {
+                fetchedUser = Controller.getInstance().getUser(username);
+            } catch (NoSuchElementException | IllegalArgumentException e) {
+                fetchedUser = null;
+            } catch (Exception e){
+                // if database is down - don't allow login even if user is valid
+                // in bruger authorization module
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
                 ctx.contentType(ContentType.JSON);
+                ctx.result("Couldn't connect to database");
                 return;
             }
 
-            Bruger bruger = getUserInNordfalk(username, password);
-            user = getUserInMongo(username);
-            if (bruger == null && user == null) {
-                ctx.status(404);
+            // user was not found in user authorization and database
+            if (bruger == null && fetchedUser == null) {
+                ctx.status(HttpStatus.NOT_FOUND_404);
                 ctx.contentType(ContentType.JSON);
-                ctx.result("Unauthorized - No such username!");
+                ctx.result("Wrong username or password");
                 return;
             }
 
             // if user exists in nordfalk but not in db
-            if (user == null) {
-                user = new UserDTO.Builder(bruger.brugernavn)
+            if (fetchedUser == null) {
+                fetchedUser = new UserDTO.Builder(bruger.brugernavn)
                         .setFirstname(bruger.fornavn)
                         .setLastname(bruger.efternavn)
                         .setEmail(bruger.email)
@@ -326,47 +346,38 @@ public class Post implements Tag {
                         .setWebsite(bruger.ekstraFelter.get("webside").toString())
                         .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn))
                         .build();
-
-                Controller.getInstance().createUser(user);
+                Controller.getInstance().createUser(fetchedUser);
             }
 
-            boolean userIsCreatedByAdmin = !user.isLoggedIn() && bruger != null;
+            boolean userIsCreatedByAdmin = !fetchedUser.isLoggedIn() && bruger != null;
             if (userIsCreatedByAdmin) {
-                user.setFirstname(bruger.fornavn);
-                user.setLastname(bruger.efternavn);
-                user.setEmail(bruger.email);
-                user.setStatus(user.getStatus());
+                fetchedUser.setFirstname(bruger.fornavn);
+                fetchedUser.setLastname(bruger.efternavn);
+                fetchedUser.setEmail(bruger.email);
+                fetchedUser.setStatus(fetchedUser.getStatus());
                 //user.setPassword(user.getPassword());
-                user.setWebsite(bruger.ekstraFelter.get("webside").toString());
-                user.setLoggedIn(true);
-                user.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn));
-                Controller.getInstance().updateUser(user);
+                fetchedUser.setWebsite(bruger.ekstraFelter.get("webside").toString());
+                fetchedUser.setLoggedIn(true);
+                fetchedUser.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn));
+                Controller.getInstance().updateUser(fetchedUser);
             }
 
             // validate credentials
-            String hashed = user.getPassword();
+            String hashed = fetchedUser.getPassword();
             if (BCrypt.checkpw(password, hashed)) {
-                ctx.status(200);
+                ctx.status(HttpStatus.OK_200);
                 ctx.result("user login was successful");
-                ctx.json(user);
+                ctx.json(fetchedUser);
                 ctx.contentType(ContentType.JSON);
             } else {
-                ctx.status(401);
+                ctx.status(HttpStatus.UNAUTHORIZED_401);
                 ctx.contentType(ContentType.JSON);
-                ctx.result("Unauthorized - Wrong password");
+                ctx.result("wrong password");
 
             }
         };
 
-        private static UserDTO getUserInMongo(String username) {
-            try {
-                return Controller.getInstance().getUser(username);
-            } catch (NoSuchElementException e) {
-                return null;
-            }
-        }
-
-        private static Bruger getUserInNordfalk(String username, String password) {
+        private static Bruger getUserInBrugerAuthorization(String username, String password) {
             Bruger bruger = null;
             try {
                 Brugeradmin ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
@@ -377,12 +388,11 @@ public class Post implements Tag {
             return bruger;
         }
 
-        private static UserDTO getRootUser(String username) throws NoModificationException {
+        private static UserDTO getOrCreateRootUser(String username) throws NoModificationException {
             UserDTO root;
             try {
                 root = Controller.getInstance().getUser(username);
             } catch (NoSuchElementException e) {
-                System.out.println("Opretter root");
                 root = new UserDTO.Builder("root")
                         .status("admin")
                         .setPassword("root")
