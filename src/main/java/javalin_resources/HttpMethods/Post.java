@@ -93,7 +93,7 @@ public class Post implements Tag {
             event.setParticipants(jsonObject.getInt(EVENT_PARTICIPANTS));
             event.setImagepath(jsonObject.getString(EVENT_IMAGEPATH));
             event.setAssignedUsers(users);
-            event.setDetailsDTO(detailsModel);
+            event.setDetails(detailsModel);
             event.setDescription(jsonObject.getString(EVENT_DESCRIPTION));
 
             if (Controller.getInstance().createPlaygroundEvent(jsonObject.getString(PLAYGROUND_NAME), event).wasAcknowledged()) {
@@ -112,29 +112,24 @@ public class Post implements Tag {
                 ctx.status(HttpStatus.BAD_REQUEST_400);
                 ctx.result("Bad request - No event id or username in path param");
                 ctx.contentType(ContentType.JSON);
+                return;
             }
 
             try {
-                WriteResult successful = Controller.getInstance().addUserToEvent(id, username);
+                WriteResult writeResult = Controller.getInstance().addUserToEvent(id, username);
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("OK - user joined event successfully");
+                ctx.json(new UserDTO.Builder(username));
+                ctx.contentType(ContentType.JSON);
             } catch (NoSuchElementException e){
                 ctx.status(HttpStatus.NOT_FOUND_404);
-                ctx.result("Not found - event or user is not in database");
+                ctx.result(String.format("Not found - event %s or user %s is not in database", id, username));
                 ctx.contentType(ContentType.JSON);
-            } catch (NoModificationException e){
-            } catch (MongoException e){
-
+            } catch (NoModificationException | MongoException e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Internal error - user failed to join event");
+                ctx.contentType(ContentType.JSON);
             }
-            // TODO: remove true and catch exception and set corresponding status code
-
-            if (true) {
-                ctx.status(200).result("Update successful");
-                ctx.json(new UserDTO.Builder(username));
-                return;
-            } else {
-                ctx.status(404).result("Failed to update");
-                ctx.json(new UserDTO.Builder(username));
-            }
-
         };
 
     }

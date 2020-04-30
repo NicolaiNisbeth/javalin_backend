@@ -109,7 +109,6 @@ public class Main {
             post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL,                Post.Message.createPlaygroundMessage);
             //TODO: Implement this
             //skal foregå under create/update user post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostUser.createUserToPlaygroundPost);
-            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.User.createParticipantsToPlaygroundEvent);
             post("/rest/employee/imagetest", context -> Shared.saveProfilePicture2(context));
 
             /** PUT **/
@@ -130,8 +129,8 @@ public class Main {
             delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE,            Delete.Pedagogue.deletePedagogueFromPlayground);
             //TODO: Test this
             //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.Event.remoteUserFromPlaygroundEvent);
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.User.deleteParticipantFromPlaygroundEvent);
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.Event.removeUserFromPlaygroundEvent);
+            //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.User.deleteParticipantFromPlaygroundEvent);
         });
     }
 

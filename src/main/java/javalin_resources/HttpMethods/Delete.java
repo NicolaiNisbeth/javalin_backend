@@ -1,9 +1,16 @@
 package javalin_resources.HttpMethods;
 
+import com.mongodb.MongoException;
+import com.mongodb.WriteResult;
 import database.dto.UserDTO;
 import database.Controller;
+import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
+import io.javalin.plugin.openapi.annotations.ContentType;
+import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONObject;
+
+import java.util.NoSuchElementException;
 
 public class Delete implements Tag {
 
@@ -33,7 +40,7 @@ public class Delete implements Tag {
             // TODO: remove true and catch exception and set corresponding status code
 
             if (true)
-                ctx.status(200).result("Removed user from event");
+                ctx.status(200).result("delete participant from playground event");
             else
                 ctx.status(404).result("Couldn't remove user from event");
         };
@@ -86,18 +93,30 @@ public class Delete implements Tag {
             }
         };
 
-        public static Handler remoteUserFromPlaygroundEvent = ctx -> {
+        public static Handler removeUserFromPlaygroundEvent = ctx -> {
             String id = ctx.pathParam("id");
             String username = ctx.pathParam("username");
-            Controller.getInstance().removeUserFromEvent(id, username);
-            // TODO: remove true and catch exception and set corresponding status code
+            if (id.isEmpty() || username.isEmpty()){
+                ctx.status(HttpStatus.BAD_REQUEST_400);
+                ctx.result("Bad request - No event id or username in path param");
+                ctx.contentType(ContentType.JSON);
+                return;
+            }
 
-            if (true) {
-                ctx.status(200).result("Removal was successful");
+            try {
+                Controller.getInstance().removeUserFromEvent(id, username);
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("OK - user was removed from event successfully");
                 ctx.json(new UserDTO.Builder(username));
-            } else {
-                ctx.status(404).result("Failed to remove");
-                ctx.json(new UserDTO.Builder(username));
+                ctx.contentType(ContentType.JSON);
+            } catch (NoSuchElementException e){
+                ctx.status(HttpStatus.NOT_FOUND_404);
+                ctx.result(String.format("Not found - event %s or user %s is not in database", id, username));
+                ctx.contentType(ContentType.JSON);
+            } catch (NoModificationException | MongoException e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Internal error - failed to remove user from event");
+                ctx.contentType(ContentType.JSON);
             }
         };
     }

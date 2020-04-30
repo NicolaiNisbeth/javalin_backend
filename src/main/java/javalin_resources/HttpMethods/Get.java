@@ -1,10 +1,15 @@
 package javalin_resources.HttpMethods;
 
+import com.mongodb.MongoException;
+import com.mongodb.WriteResult;
 import database.dto.EventDTO;
 import database.dto.MessageDTO;
+import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.Controller;
 import io.javalin.http.Handler;
+import io.javalin.plugin.openapi.annotations.ContentType;
+import org.eclipse.jetty.http.HttpStatus;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,6 +18,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class Get implements Tag {
 
@@ -61,7 +67,21 @@ public class Get implements Tag {
     public static class Playground {
 
         public static Handler readAllPlaygrounds = ctx -> {
-            ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json");
+            try {
+                List<PlaygroundDTO> playgrounds = Controller.getInstance().getPlaygrounds();
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("Ok - playgrounds were fetched successfully");
+                ctx.json(playgrounds);
+                ctx.contentType(ContentType.JSON);
+            } catch (NoSuchElementException e){
+                ctx.status(HttpStatus.NOT_FOUND_404);
+                ctx.result("Not found - no playgrounds in database");
+                ctx.contentType(ContentType.JSON);
+            } catch (Exception e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Internal error - failed to fetch playgrounds in database");
+                ctx.contentType(ContentType.JSON);
+            }
         };
 
         public static Handler readOnePlayground = ctx -> {
