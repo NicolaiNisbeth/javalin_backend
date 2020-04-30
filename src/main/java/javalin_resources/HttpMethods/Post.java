@@ -92,7 +92,7 @@ public class Post implements Tag {
             event.setParticipants(jsonObject.getInt(EVENT_PARTICIPANTS));
             event.setImagepath(jsonObject.getString(EVENT_IMAGEPATH));
             event.setAssignedUsers(users);
-            event.setDetailsModel(detailsModel);
+            event.setDetailsDTO(detailsModel);
             event.setDescription(jsonObject.getString(EVENT_DESCRIPTION));
 
             if (Controller.getInstance().createPlaygroundEvent(jsonObject.getString(PLAYGROUND_NAME), event).wasAcknowledged()) {

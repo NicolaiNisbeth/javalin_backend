@@ -44,7 +44,7 @@ public class Put implements Tag {
                 }
                 if (jsonObject.has(EVENT_DETAILS)) {
                     //TODO: Change this
-                    event.setDetailsModel(null);
+                    event.setDetailsDTO(null);
                 }
                 if (jsonObject.has(EVENT_ASSIGNED_USERS)) {
                     Set<UserDTO> assignedUsers = new HashSet<>();

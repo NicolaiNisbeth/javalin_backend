@@ -18,7 +18,7 @@ public class EventDTO implements Comparable<EventDTO> {
     private String imagepath;
     private int participants;
     private String description;
-    private DetailsDTO detailsModel;
+    private DetailsDTO detailsDTO;
     private Set<UserDTO> assignedUsers = new HashSet<>();  // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
     private String playground;                      // 1-to-many
 
@@ -32,7 +32,7 @@ public class EventDTO implements Comparable<EventDTO> {
         this.imagepath = builder.imagepath;
         this.participants = builder.participants;
         this.description = builder.description;
-        this.detailsModel = builder.detailsModel;
+        this.detailsDTO = builder.detailsDTO;
         this.assignedUsers = builder.assignedUsers;
         this.playground = builder.playground;
     }
@@ -77,12 +77,12 @@ public class EventDTO implements Comparable<EventDTO> {
         this.description = description;
     }
 
-    public DetailsDTO getDetailsModel() {
-        return detailsModel;
+    public DetailsDTO getDetailsDTO() {
+        return detailsDTO;
     }
 
-    public void setDetailsModel(DetailsDTO detailsModel) {
-        this.detailsModel = detailsModel;
+    public void setDetailsDTO(DetailsDTO detailsDTO) {
+        this.detailsDTO = detailsDTO;
     }
 
     public Set<UserDTO> getAssignedUsers() {
@@ -120,7 +120,7 @@ public class EventDTO implements Comparable<EventDTO> {
                 ", imagePath='" + imagepath + '\'' +
                 ", participants=" + participants +
                 ", description='" + description + '\'' +
-                ", details=" + detailsModel +
+                ", details=" + detailsDTO +
                 ", assignedUsers=" + assignedUsers +
                 ", playground=" + playground +
                 '}';
@@ -128,7 +128,7 @@ public class EventDTO implements Comparable<EventDTO> {
 
     @Override
     public int compareTo(@NotNull EventDTO event) {
-        return this.detailsModel.getDate().compareTo(event.getDetailsModel().getDate());
+        return this.detailsDTO.getDate().compareTo(event.getDetailsDTO().getDate());
     }
 
     public static class Builder {
@@ -137,7 +137,7 @@ public class EventDTO implements Comparable<EventDTO> {
         private String imagepath;
         private int participants;
         private String description;
-        private DetailsDTO detailsModel;
+        private DetailsDTO detailsDTO;
         private Set<UserDTO> assignedUsers = new HashSet<>();  // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
         private String playground;                      // 1-to-many
 
@@ -170,7 +170,7 @@ public class EventDTO implements Comparable<EventDTO> {
         }
 
         public Builder details(DetailsDTO detailsModel) {
-            this.detailsModel = detailsModel;
+            this.detailsDTO = detailsModel;
             return this;
         }
 
