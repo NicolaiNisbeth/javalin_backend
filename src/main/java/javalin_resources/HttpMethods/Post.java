@@ -332,8 +332,10 @@ public class Post implements Tag {
                         .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn))
                         .build();
 
+/*
                 String token = JWTHandler.provider.generateToken(user);
                 ctx.json(new JWTResponse(token));
+*/
 
                 Controller.getInstance().createUser(user);
             }
@@ -356,9 +358,10 @@ public class Post implements Tag {
             if (BCrypt.checkpw(password, hashed)) {
                 ctx.result("user login was successful");
                 String token = JWTHandler.provider.generateToken(user);
-                ctx.json(new JWTResponse(token));
+               String str = new JWTResponse(token).toString();
                 ctx.json(user);
                 ctx.status(200);
+                ctx.header("jwt", str);
                 ctx.contentType(ContentType.JSON);
             } else {
                 ctx.status(401);

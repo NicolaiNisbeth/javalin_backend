@@ -1,10 +1,10 @@
 package javalin_resources.HttpMethods;
 
-import brugerautorisation.data.Bruger;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import database.collections.User;
 import javalinjwt.JWTGenerator;
 import javalinjwt.JWTProvider;
 
@@ -25,10 +25,10 @@ public class JWTHandler {
     /*
     For generating token
      */
-    static JWTGenerator<Bruger> generator = (user, alg) -> {
+    static JWTGenerator<User> generator = (user, alg) -> {
         JWTCreator.Builder token = JWT.create()
-                .withClaim("name", user.brugernavn)
-                .withClaim("password", user.adgangskode);
+                .withClaim("name", user.getUsername())
+                .withClaim("password", user.getPassword());
         return token.sign(alg);
     };
 
