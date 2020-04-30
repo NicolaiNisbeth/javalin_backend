@@ -1,57 +1,33 @@
 package main;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTCreator;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.sun.org.apache.xml.internal.security.algorithms.JCEMapper;
-import database.collections.User;
-import database.dao.Controller;
 import io.javalin.Javalin;
 import io.prometheus.client.exporter.HTTPServer;
 import javalin_resources.HttpMethods.*;
-import io.javalin.core.security.Role;
-import io.javalin.http.Handler;
-import io.javalin.http.UnauthorizedResponse;
 import javalin_resources.HttpMethods.Delete;
 import javalin_resources.HttpMethods.Get;
 import javalin_resources.HttpMethods.Post;
 import javalin_resources.HttpMethods.Put;
-import javalin_resources.Util.JWebToken;
 import javalin_resources.Util.Path;
+import javalinjwt.JavalinJWT;
 import monitor.QueuedThreadPoolCollector;
 import monitor.StatisticsHandlerCollector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import javalinjwt.JWTAccessManager;
-import javalinjwt.JWTGenerator;
-import javalinjwt.JWTProvider;
-import javalinjwt.JavalinJWT;
-import javalinjwt.examples.JWTResponse;
-import org.json.JSONObject;
 
 
 import static io.javalin.apibuilder.ApiBuilder.*;
-import static io.javalin.core.security.SecurityUtil.roles;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Optional;
 
 public class Main {
     public static Javalin app;
     private static String hostAddress;
-    public static HashMap<String, Role> rolesmapping;
-    public static HashSet<Role> anyone;
-    public static HashSet<Role> pedagogues;
-    public static HashSet<Role> admin;
 
-    static Algorithm algorithm = Algorithm.HMAC256("Bennys_polser"); //ja tak venner let's go.
-    static JWTProvider provider;
-    static JWTVerifier verifier;
 
 
     public static void main(String[] args) throws Exception {
@@ -64,19 +40,6 @@ public class Main {
 
         buildDirectories();
 
-        rolesmapping = new HashMap<>();
-        rolesmapping.put("anyone", User.roles.ANYONE);
-        rolesmapping.put("pedagogue", User.roles.PEDAGOGUE);
-        rolesmapping.put("admin", User.roles.ADMIN);
-
-        anyone = new HashSet<>();
-        anyone.add(User.roles.ANYONE);
-
-        pedagogues = new HashSet<>();
-        pedagogues.add(User.roles.PEDAGOGUE);
-
-        admin = new HashSet<>();
-        admin.add(User.roles.ADMIN);
 
         start();
     }
@@ -120,26 +83,19 @@ public class Main {
 
         if (app != null) return;
 
-        JWTGenerator<User> generator = (user, alg) -> {
-            JWTCreator.Builder token = JWT.create().withClaim("Username", user.getUsername()).withClaim("Role", user.getRole());
-            return token.sign(alg);
-        };
 
 
-        verifier = JWT.require(algorithm).build();
-        provider = new JWTProvider(algorithm, generator, verifier);
-        JWTAccessManager accessManager = new JWTAccessManager("Role", rolesmapping, User.roles.ANYONE);
+
 
         app = Javalin.create(config -> {
             config.enableCorsForAllOrigins()
-                    .accessManager(accessManager)
                     .addSinglePageRoot("", "/webapp/index.html")
                     .server(() -> {
                         Server server = new Server(queuedThreadPool);
                         server.setHandler(statisticsHandler);
                         return server;
                     });
-        }).start(8080);
+        }).start(8088);
 
         app.before(ctx -> {
             System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());
@@ -157,30 +113,20 @@ public class Main {
              */
 
             before(ctx -> { System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap()); });
-            before("/rest/playgrounds", ctx -> {
-                System.out.println("before handler");
+
+            app.before("/*", ctx -> {
                 String source = "Authfilter";
 
                 Optional<DecodedJWT> decodedJWT = JavalinJWT.getTokenFromHeader(ctx).flatMap(JWTHandler.provider::validateToken);
-
+                System.out.println(source);
                 if (!decodedJWT.isPresent()) {
-                    System.out.println(source+": No token");
+                    System.out.println(source+": No/or altered token");
 
                     //Redirection to a responsemessage, providing with informaion on how to post a login request.
-                    //ctx.status(401).result("Missing or invalid token");
-                }
-                else {
-                    System.out.println("token available");
-                    ctx.result("Hi " + decodedJWT.get().getClaim("name").asString());
-                }
-            });
-            // before(JavalinJWT.createHeaderDecodeHandler(provider)); // This takes care of validating the JWT. It then adds it to the ctx for future use.
 
-            get("/test",Get.GetPlayground.readAllPlaygroundsGet, roles(User.roles.ANYONE, User.roles.PEDAGOGUE, User.roles.ADMIN));
-            get("/test1",Get.GetPlayground.readAllPlaygroundsGet, roles(User.roles.PEDAGOGUE, User.roles.ADMIN));
-            get("/test2", Get.GetPlayground.readAllPlaygroundsGet, roles(User.roles.ADMIN));
-            get("/validate", validateJWTHandler, anyone);
-            get("/generate", generateJWTHandler, anyone);
+                }
+
+            });
             /**
              * GET
              **/
@@ -207,19 +153,19 @@ public class Main {
 
             //POST PLAYGROUNDS
             //WORKS
-            post(Path.Playground.PLAYGROUND_ALL, Post.PostPlayground.createPlaygroundPost, roles(User.roles.ANYONE));
-            post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Post.PostEvent.createPlaygroundEventPost, roles(User.roles.ANYONE));
-            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Post.PostEvent.createUserToPlaygroundEventPost, roles(User.roles.ANYONE));
-            post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Post.PostMessage.createPlaygroundMessagePost, roles(User.roles.ANYONE));
+            post(Path.Playground.PLAYGROUND_ALL, Post.PostPlayground.createPlaygroundPost);
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Post.PostEvent.createPlaygroundEventPost);
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Post.PostEvent.createUserToPlaygroundEventPost);
+            post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Post.PostMessage.createPlaygroundMessagePost);
 
             //TODO: Implement this
             //skal foregå under create/update user post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostUser.createUserToPlaygroundPost);
-            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.PostUser.createParticipantsToPlaygroundEventPost, roles(User.roles.ANYONE));
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.PostUser.createParticipantsToPlaygroundEventPost);
 
 
             //POST EMPLOYEES
-            post(Path.Employee.LOGIN, Post.PostUser.userLogin, roles(User.roles.ANYONE));
-            post(Path.Employee.CREATE, Post.PostUser.createUser, roles(User.roles.ANYONE));
+            post(Path.Employee.LOGIN, Post.PostUser.userLogin);
+            post(Path.Employee.CREATE, Post.PostUser.createUser);
             post("/rest/employee/imagetest", context -> { Shared.saveProfilePicture2(context); });
 
 
@@ -227,26 +173,26 @@ public class Main {
              * PUT
              **/
             //PUT PLAYGROUNDS
-            put(Path.Playground.PLAYGROUND_ONE, Put.PutPlayground.updatePlaygroundPut, roles(User.roles.ANYONE));
-            put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Put.PutMessage.updatePlaygroundMessagePut, roles(User.roles.ANYONE));
-            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Put.PutEvent.updateEventToPlaygroundPut, roles(User.roles.ANYONE));
+            put(Path.Playground.PLAYGROUND_ONE, Put.PutPlayground.updatePlaygroundPut);
+            put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Put.PutMessage.updatePlaygroundMessagePut);
+            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Put.PutEvent.updateEventToPlaygroundPut);
 
             //TODO: Test this
             put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Put.PutPedagogue.updatePedagogueToPlayGroundPut);
             // put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
 
             //PUT EMLOYEES
-            put(Path.Employee.UPDATE, Put.PutUser.updateUser, roles(User.roles.ANYONE));
-            put(Path.Employee.RESET_PASSWORD, Put.PutUser.resetPassword, roles(User.roles.ANYONE));
+            put(Path.Employee.UPDATE, Put.PutUser.updateUser);
+            put(Path.Employee.RESET_PASSWORD, Put.PutUser.resetPassword);
 
             /**
              * DELETE
              **/
             //DELETE PLAYGROUNDS
-            delete(Path.Playground.PLAYGROUND_ONE, Delete.DeletePlayground.deleteOnePlaygroundDelete, roles(User.roles.ANYONE));
-            delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Delete.DeletePedagogue.deletePedagogueFromPlaygroundDelete, roles(User.roles.ANYONE));
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Delete.DeleteEvent.deleteEventFromPlaygroundDelete, roles(User.roles.ANYONE));
-            delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Delete.DeleteMessage.deletePlaygroundMessageDelete, roles(User.roles.ANYONE));
+            delete(Path.Playground.PLAYGROUND_ONE, Delete.DeletePlayground.deleteOnePlaygroundDelete);
+            delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Delete.DeletePedagogue.deletePedagogueFromPlaygroundDelete);
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Delete.DeleteEvent.deleteEventFromPlaygroundDelete);
+            delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Delete.DeleteMessage.deletePlaygroundMessageDelete);
 
             //TODO: Test this
             //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
@@ -254,7 +200,7 @@ public class Main {
 
 
             //DELETE EMPLOYEES
-            delete(Path.Employee.DELETE, Delete.DeleteUser.deleteUser, roles(User.roles.ANYONE));
+            delete(Path.Employee.DELETE, Delete.DeleteUser.deleteUser);
         });
     }
 
@@ -262,27 +208,11 @@ public class Main {
         return hostAddress;
     }
 
+    private static String unpackToken(io.javalin.http.Context ctx, String infoToRetrive){
+        Optional<DecodedJWT> decodedJWT = JavalinJWT.getTokenFromHeader(ctx)
+                .flatMap(JWTHandler.provider::validateToken);
 
+        return decodedJWT.get().getClaim(infoToRetrive).asString();
 
-    public static Handler generateJWTHandler = ctx -> {
-        //JSONObject jsonObject = new JSONObject(ctx.body());
-       User user = null;
-      // if (jsonObject.has(Get.USER_NAME)) {
-      //      user = Controller.getInstance().getUser(jsonObject.getString(Get.USER_NAME));
-      //  }
-
-        if (user == null) {
-            user = new User.Builder("AnonymousUser").build();
-            user.setRoleSet(admin);
-            user.setRole("ADMIN");
-        }
-        String token = provider.generateToken(user);
-        ctx.json(new JWTResponse(token));
-    };
-
-    public static Handler validateJWTHandler = context -> {
-        DecodedJWT decodedJWT = JavalinJWT.getDecodedFromContext(context);
-        context.result("Hi " + decodedJWT.getClaim("username").asString());
-    };
-
+    }
 }

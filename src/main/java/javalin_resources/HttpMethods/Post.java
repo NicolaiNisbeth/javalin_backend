@@ -8,6 +8,7 @@ import database.collections.*;
 import database.dao.Controller;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.ContentType;
+import javalinjwt.examples.JWTResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -300,6 +301,8 @@ public class Post implements Tag {
             boolean root = username.equalsIgnoreCase("root");
             if (root) {
                 user = getRootUser(username);
+                String token = JWTHandler.provider.generateToken(user);
+                ctx.json(new JWTResponse(token));
                 ctx.status(200);
                 ctx.result("user login with root was successful");
                 ctx.json(user);
@@ -329,6 +332,9 @@ public class Post implements Tag {
                         .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn))
                         .build();
 
+                String token = JWTHandler.provider.generateToken(user);
+                ctx.json(new JWTResponse(token));
+
                 Controller.getInstance().createUser(user);
             }
 
@@ -348,9 +354,11 @@ public class Post implements Tag {
             // validate credentials
             String hashed = user.getPassword();
             if (BCrypt.checkpw(password, hashed)) {
-                ctx.status(200);
                 ctx.result("user login was successful");
+                String token = JWTHandler.provider.generateToken(user);
+                ctx.json(new JWTResponse(token));
                 ctx.json(user);
+                ctx.status(200);
                 ctx.contentType(ContentType.JSON);
             } else {
                 ctx.status(401);
