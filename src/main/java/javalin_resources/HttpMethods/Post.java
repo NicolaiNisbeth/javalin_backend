@@ -174,15 +174,6 @@ public class Post implements Tag {
 
         };
 
-        public static Handler createUserToPlaygroundPost = ctx -> {
-            WriteResult successful = Controller.getInstance().addPedagogueToPlayground(ctx.pathParam("name"), ctx.pathParam("username"));
-            if (true) {
-                ctx.status(200).result("Update successful");
-            } else {
-                ctx.status(404).result("Failed to update");
-            }
-        };
-
         public static Handler createUser = ctx -> {
             BufferedImage bufferedImage;
             String usernameAdmin, passwordAdmin, username, password,
@@ -335,7 +326,7 @@ public class Post implements Tag {
                 return;
             }
 
-            // if user exists in nordfalk but not in db
+            // if user exists in nordfalk but not in database
             if (fetchedUser == null) {
                 fetchedUser = new UserDTO.Builder(bruger.brugernavn)
                         .setFirstname(bruger.fornavn)
@@ -344,6 +335,7 @@ public class Post implements Tag {
                         .setPassword(bruger.adgangskode)
                         .status(STATUS_PEDAGOG)
                         .setWebsite(bruger.ekstraFelter.get("webside").toString())
+                        .setLoggedIn(true)
                         .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn))
                         .build();
                 Controller.getInstance().createUser(fetchedUser);
