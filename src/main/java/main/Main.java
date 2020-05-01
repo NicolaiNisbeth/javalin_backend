@@ -126,7 +126,6 @@ public class Main {
              * BEFORE
              */
 
-            before(ctx -> { System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap()); });
 
             app.before("/*", ctx -> {
                 String source = "Authfilter";

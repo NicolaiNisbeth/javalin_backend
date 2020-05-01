@@ -36,18 +36,17 @@ public class JavalinJWT {
 
     public static Optional<String> getTokenFromHeader(Context context) {
         String authHeader = context.header("Authorization");
-/*
 
 
-        return Optional.ofNullable(x1)
+        return Optional.ofNullable(authHeader)
                 .flatMap(header -> {
                     String[] split = header.split(" ");
                     if (split.length != 2 || !split[0].equals("Bearer")) {
                         return Optional.empty();
                     }
- */
+
                     return Optional.of(authHeader);
-               // });
+                });
     }
 
     public static Optional<String> getTokenFromCookie(Context context) {
