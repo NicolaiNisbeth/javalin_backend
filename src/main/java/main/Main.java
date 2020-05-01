@@ -1,9 +1,15 @@
 package main;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import io.javalin.Javalin;
 import io.prometheus.client.exporter.HTTPServer;
 import javalin_resources.HttpMethods.*;
+import javalin_resources.HttpMethods.Delete;
+import javalin_resources.HttpMethods.Get;
+import javalin_resources.HttpMethods.Post;
+import javalin_resources.HttpMethods.Put;
 import javalin_resources.Util.Path;
+import javalinjwt.JavalinJWT;
 import monitor.QueuedThreadPoolCollector;
 import monitor.StatisticsHandlerCollector;
 import org.eclipse.jetty.server.Server;
@@ -15,10 +21,14 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.nio.file.Paths;
+import java.security.AccessControlContext;
+import java.util.Optional;
 
 public class Main {
     public static Javalin app;
     private static String hostAddress;
+
+
 
     public static void main(String[] args) throws Exception {
         if (InetAddress.getLocalHost().getHostName().
@@ -72,13 +82,19 @@ public class Main {
         initializePrometheus(statisticsHandler, queuedThreadPool);
 
         if (app != null) return;
-        app = Javalin.create(config -> config.enableCorsForAllOrigins()
-                .addSinglePageRoot("", "/webapp/index.html")
-                .server(() -> {
-                    Server server = new Server(queuedThreadPool);
-                    server.setHandler(statisticsHandler);
-                    return server;
-                })).start(8080);
+
+
+
+        app = Javalin.create(config -> {
+            config.enableCorsForAllOrigins()
+                    .addSinglePageRoot("", "/webapp/index.html")
+                    .server(() -> {
+                        Server server = new Server(queuedThreadPool);
+                        server.setHandler(statisticsHandler);
+                        return server;
+                    });
+        }).start(8080);
+
 
 
         app.before(ctx -> System.out.println(
@@ -87,6 +103,7 @@ public class Main {
         );
 
         app.exception(Exception.class, (e, ctx) -> e.printStackTrace());
+
         app.config.addStaticFiles("webapp");
 
         // REST endpoints
@@ -104,6 +121,32 @@ public class Main {
             get(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL,                 Get.Event.readOnePlayGroundAllEvents);
             get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE,                 Get.Message.readOneMessage);
             get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL,                 Get.Message.readAllMessages);
+
+            /**
+             * BEFORE
+             */
+
+            before(ctx -> { System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap()); });
+
+            app.before("/*", ctx -> {
+                String source = "Authfilter";
+
+                Optional<DecodedJWT> decodedJWT = JavalinJWT.getTokenFromHeader(ctx).flatMap(JWTHandler.provider::validateToken);
+                System.out.println(source);
+
+                if (!decodedJWT.isPresent()) {
+                    System.out.println(source+": No/or altered token");
+
+                    //Redirection to a responsemessage, providing with informaion on how to post a login request.
+
+                } else {
+                    System.out.println("Token is present");
+                }
+
+            });
+            /**
+             * GET
+             **/
 
             /** POST **/
             post(Path.Employee.LOGIN,                                       Post.User.userLogin);
@@ -141,5 +184,13 @@ public class Main {
 
     public static String getHostAddress() {
         return hostAddress;
+    }
+
+    private static String unpackToken(io.javalin.http.Context ctx, String infoToRetrive){
+        Optional<DecodedJWT> decodedJWT = JavalinJWT.getTokenFromHeader(ctx)
+                .flatMap(JWTHandler.provider::validateToken);
+
+        return decodedJWT.get().getClaim(infoToRetrive).asString();
+
     }
 }

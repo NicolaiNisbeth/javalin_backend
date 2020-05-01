@@ -10,6 +10,7 @@ import database.dto.*;
 import database.Controller;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.ContentType;
+import javalinjwt.examples.JWTResponse;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -373,6 +374,13 @@ public class Post implements Tag {
             if (BCrypt.checkpw(password, hashed)) {
                 ctx.status(HttpStatus.OK_200);
                 ctx.result("Success - User login was successful");
+                ctx.json(fetchedUser);
+                ctx.result("user login was successful");
+                String token = JWTHandler.provider.generateToken(fetchedUser);
+                ctx.header("Authorization", new JWTResponse(token).jwt);
+                ctx.status(200);
+                // the golden line. All hail this statement
+                ctx.header("Access-Control-Expose-Headers","Authorization");
                 ctx.json(fetchedUser);
                 ctx.contentType(ContentType.JSON);
             } else {
