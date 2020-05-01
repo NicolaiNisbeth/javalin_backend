@@ -81,6 +81,8 @@ public class Shared {
         File imageFile = new File(path.toString());
         if (imageFile.delete()) {
             System.out.println("Image delete for message with ID: " + messageID);
+        } else {
+            System.out.println("No image found for the deleted message.");
         }
     }
 }
