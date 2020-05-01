@@ -97,6 +97,27 @@ public class Get implements Tag {
             } else
                 ctx.status(404).result("Failed to retrieve any messages");
         };
+
+        public static Handler getMessageImage = ctx -> {
+            File homeFolder = new File(System.getProperty("user.home"));
+            Path path = Paths.get(String.format(homeFolder.toPath() +
+                    "/server_resource/message_images/%s.png", ctx.pathParam("id")));
+
+            File initialFile = new File(path.toString());
+            InputStream targetStream = null;
+            try {
+                targetStream = new FileInputStream(initialFile);
+         /*   BufferedImage in = ImageIO.read(initialFile);
+            UserAdminResource.printImage(in);*/
+
+            } catch (IOException e) {
+                System.out.println("Server: The message have no image...");
+            }
+
+            if (targetStream != null) {
+                ctx.result(targetStream).contentType("image/png");
+            }
+        };
     }
 
     public static class GetUser {

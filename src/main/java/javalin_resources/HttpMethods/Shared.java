@@ -72,4 +72,15 @@ public class Shared {
             e.printStackTrace();
         }
     }
+
+    public static void deleteMessageImage(String messageID) {
+        File homeFolder = new File(System.getProperty("user.home"));
+        Path path = Paths.get(String.format(homeFolder.toPath() +
+                "/server_resource/message_images/%s.png", messageID));
+
+        File imageFile = new File(path.toString());
+        if (imageFile.delete()) {
+            System.out.println("Image delete for message with ID: " + messageID);
+        }
+    }
 }

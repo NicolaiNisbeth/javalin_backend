@@ -48,6 +48,7 @@ public interface Tag {
     String MESSAGE_STRING = "messageString";
     String MESSAGE_OUTDATED = "outDated";
     String MESSAGE_WRITTENBY_ID = "writtenByID";
+    String MESSAGE_HASIMAGE = "hasImage";
 
     String YEAR = "year";
     String MONTH = "month";

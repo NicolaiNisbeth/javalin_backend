@@ -21,6 +21,7 @@ public class Message implements Comparable<Message> {
         private String messageString;
         private String playgroundID;
         private Date date;
+        private boolean hasImage;
 
         public String getMessageString() {
             return messageString;
@@ -111,6 +112,11 @@ public class Message implements Comparable<Message> {
 
         }
 
+        public Builder setHasImage(boolean hasImage) {
+            this.hasImage = hasImage;
+            return this;
+        }
+
         public Message build() {
             //Here we create the actual playground object, which is always in a fully initialised state when it's returned.
             Message message = new Message();  //Since the builder is in the class, we can invoke its private constructor.
@@ -125,6 +131,7 @@ public class Message implements Comparable<Message> {
             message.messageString = this.messageString;
             message.date = this.date;
             message.playgroundID = this.playgroundID; //check dette
+            message.hasImage = this.hasImage;
 
             return message;
         }
@@ -140,6 +147,7 @@ public class Message implements Comparable<Message> {
     private String messageString;
     private String playgroundID;
     private Date date;
+    private boolean hasImage;
 
     public String getMessageString() {
         return messageString;
@@ -203,6 +211,14 @@ public class Message implements Comparable<Message> {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public void setHasImage(boolean hasImage) {
+        this.hasImage = hasImage;
+    }
+
+    public boolean getHasImage() {
+        return hasImage;
     }
 
     @Override

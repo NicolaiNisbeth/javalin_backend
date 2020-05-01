@@ -146,10 +146,11 @@ public class Post implements Tag {
             Message message = new Message.Builder()
                     .setMessageString(jsonObject.getString(MESSAGE_STRING))
                     //.set_id(jsonObject.getString(MESSAGE_ID))
-                    .setIcon(jsonObject.getString(MESSAGE_ICON))
+                    //.setIcon(jsonObject.getString(String.format(IMAGEPATH + "/%s/message-image", "id"))) //MESSAGE_ICON
                     .setCategory(jsonObject.getString(MESSAGE_CATEGORY))
                     .setPlaygroundID(jsonObject.getString("playgroundID"))
                     .setDate(date)
+                    .setHasImage(jsonObject.getBoolean(MESSAGE_HASIMAGE))
                     //.setWrittenByID(jsonObject.getString(MESSAGE_WRITTENBY_ID))
                     //.setWrittenByID("s185036")
                     .build();
@@ -165,12 +166,13 @@ public class Post implements Tag {
                 message.setId(jsonObject.getString(MESSAGE_ID));
             }*/
 
+            //boolean acknowledged =
+
             if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString("playgroundID"), message).wasAcknowledged()) { //PLAYGROUND_ID
                 ctx.status(200).result("Message posted");
                 ctx.json(Controller.getInstance().getMessage(message.getId()));
                 if (bufferedImage != null) {
-                    //Shared.saveMessageImage(message.getId(), bufferedImage);
-                    System.out.println("ikke prut!");
+                    Shared.saveMessageImage(message.getId(), bufferedImage);
                 }
             } else {
                 ctx.status(404).result("Failed to post message");

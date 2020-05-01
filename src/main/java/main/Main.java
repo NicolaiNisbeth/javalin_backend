@@ -43,6 +43,8 @@ public class Main {
 
         java.nio.file.Path pathProfileImages = Paths.get(homeFolder.toPath().toString() + "/server_resource/profile_images");
         File serverResProfileImages = new File(pathProfileImages.toString());
+        java.nio.file.Path pathMessageImages = Paths.get(homeFolder.toPath().toString() + "/server_resource/message_images");
+        File serverResMessageImages = new File(pathMessageImages.toString());
         java.nio.file.Path pathPlaygrounds = Paths.get(homeFolder.toPath().toString() + "/server_resource/playgrounds");
         File serverResPlaygrounds = new File(pathPlaygrounds.toString());
 
@@ -52,6 +54,15 @@ public class Main {
             boolean dirCreated = serverResProfileImages.mkdirs();
             boolean dir2Created = serverResPlaygrounds.mkdir();
             if (dirCreated && dir2Created) {
+                System.out.println("Server: Directories is build at path: " + homeFolder.toString());
+            }
+        }
+
+        if (serverResMessageImages.exists()) {
+            System.out.println("Server: Directories exists from path: " + homeFolder.toString());
+        } else {
+            boolean dirCreated = serverResMessageImages.mkdirs();
+            if (dirCreated) {
                 System.out.println("Server: Directories is build at path: " + homeFolder.toString());
             }
         }
@@ -115,6 +126,9 @@ public class Main {
             //GET EMPLOYEES
             get(Path.Employee.EMPLOYEE_ALL, Get.GetUser.getAllUsers);
             get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, Get.GetUser.getUserPicture);
+
+            //GET MESSAGES
+            get(Path.Message.MESSAGE_IMAGE_ONE, Get.GetMessage.getMessageImage);
 
             /**
              * POST

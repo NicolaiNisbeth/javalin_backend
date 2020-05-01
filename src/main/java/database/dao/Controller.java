@@ -17,6 +17,8 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.*;
 
+import static javalin_resources.HttpMethods.Tag.IMAGEPATH;
+
 public class Controller implements IController {
     private static Controller beta;
     private PlaygroundDAO playgroundDAO;
@@ -406,6 +408,9 @@ public class Controller implements IController {
             // message.setPlaygroundID(playgroundName);
             result = messageDAO.createMessage(message);
 
+            //update with path to image
+            //message.setIcon(String.format(IMAGEPATH + "/%s/message-image", "id"));
+
             // update playground array with reference to message
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", message.getPlaygroundName(), "messages", message);
@@ -496,6 +501,9 @@ public class Controller implements IController {
 
             // delete message
             isMessageDeleted = messageDAO.deleteMessage(messageID);
+
+            //delete message image
+            Shared.deleteMessageImage(messageID);
 
             //clientSession.commitTransaction();
         } catch (Exception e) {
