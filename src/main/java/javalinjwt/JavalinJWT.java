@@ -8,7 +8,9 @@ import io.javalin.http.InternalServerErrorResponse;
 import java.util.Optional;
 
 public class JavalinJWT {
-
+    /**
+     * I need this package because i have made changes from his github repo.
+     */
     private final static String CONTEXT_ATTRIBUTE = "jwt";
     private final static String COOKIE_KEY = "jwt";
 
@@ -33,7 +35,9 @@ public class JavalinJWT {
     }
 
     public static Optional<String> getTokenFromHeader(Context context) {
-        String x1 = context.header("Authorization");
+        String authHeader = context.header("Authorization");
+/*
+
 
         return Optional.ofNullable(x1)
                 .flatMap(header -> {
@@ -41,9 +45,9 @@ public class JavalinJWT {
                     if (split.length != 2 || !split[0].equals("Bearer")) {
                         return Optional.empty();
                     }
-
-                    return Optional.of(split[1]);
-                });
+ */
+                    return Optional.of(authHeader);
+               // });
     }
 
     public static Optional<String> getTokenFromCookie(Context context) {
