@@ -1,23 +1,27 @@
 package database.dao;
 
 import com.mongodb.WriteResult;
-import database.DALException;
-import database.collections.Playground;
+import database.IDataSource;
+import database.exceptions.NoModificationException;
+import database.dto.PlaygroundDTO;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public interface IPlaygroundDAO {
     String COLLECTION = "playgrounds";
 
-    WriteResult createPlayground(Playground playground) throws DALException;
+    void setDataSource(IDataSource dataSource);
 
-    Playground getPlayground(String id) throws DALException;
+    WriteResult createPlayground(PlaygroundDTO playground) throws IllegalArgumentException, NoModificationException;
 
-    List<Playground> getPlaygroundList() throws DALException;
+    PlaygroundDTO getPlayground(String id) throws IllegalArgumentException, NoSuchElementException;
 
-    boolean updatePlayground(Playground playground) throws DALException;
+    List<PlaygroundDTO> getPlaygroundList() throws NoSuchElementException;
 
-    boolean deletePlayground(String id) throws DALException;
+    WriteResult updatePlayground(PlaygroundDTO playground) throws IllegalArgumentException, NoModificationException;
 
-    boolean deleteAllPlaygrounds() throws DALException;
+    WriteResult deletePlayground(String id) throws IllegalArgumentException, NoModificationException;
+
+    WriteResult deleteAllPlaygrounds();
 }

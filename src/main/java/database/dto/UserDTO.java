@@ -1,7 +1,6 @@
-package database.collections;
+package database.dto;
 
 
-import io.javalin.apibuilder.CrudHandler;
 import org.jongo.marshall.jackson.oid.MongoId;
 import org.jongo.marshall.jackson.oid.MongoObjectId;
 
@@ -11,7 +10,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class User implements Serializable {
+public class UserDTO implements Serializable {
     private static final long serialVersionUID = 12233;
 
     @MongoObjectId
@@ -27,7 +26,7 @@ public class User implements Serializable {
     private String website;
     private boolean loggedIn;
     private String[] phonenumbers;
-    private Set<Event> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
+    private Set<EventDTO> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
     private Set<String> playgroundsIDs = new HashSet<>();
 
 
@@ -58,7 +57,7 @@ public class User implements Serializable {
 
 
     //This constructor is used for MongoDB mapping
-    private User() {
+    private UserDTO() {
     }
 
     public String getFirstname() {
@@ -77,7 +76,7 @@ public class User implements Serializable {
         this.lastname = lastname;
     }
 
-    private User(Builder builder) {
+    private UserDTO(Builder builder) {
         this.id = builder.id;
         this.firstname = builder.firstname;
         this.lastname = builder.lastname;
@@ -149,18 +148,18 @@ public class User implements Serializable {
         this.phonenumbers = phonenumbers;
     }
 
-    public Set<Event> getEvents() {
+    public Set<EventDTO> getEvents() {
         return events;
     }
 
-    public void setEvents(Set<Event> events) {
+    public void setEvents(Set<EventDTO> events) {
         this.events = events;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
+        UserDTO user = (UserDTO) o;
         return Objects.equals(id, user.id) &&
                 Objects.equals(firstname, user.firstname) &&
                 Objects.equals(status, user.status) &&
@@ -194,7 +193,7 @@ public class User implements Serializable {
         private String email;
         private String password;
         private String[] phonenumbers;
-        private Set<Event> events = new HashSet<>();
+        private Set<EventDTO> events = new HashSet<>();
         private Set<String> playgroundsIDs = new HashSet<>();
         private String firstname;
         private String lastname;
@@ -270,11 +269,11 @@ public class User implements Serializable {
 
         }
 
-        public Set<Event> getEvents() {
+        public Set<EventDTO> getEvents() {
             return events;
         }
 
-        public Builder setEvents(Set<Event> events) {
+        public Builder setEvents(Set<EventDTO> events) {
             this.events = events;
             return this;
 
@@ -309,7 +308,7 @@ public class User implements Serializable {
             return this;
         }
 
-        public Builder events(Set<Event> events) {
+        public Builder events(Set<EventDTO> events) {
             this.events = events;
             return this;
         }
@@ -341,8 +340,8 @@ public class User implements Serializable {
             return this;
         }
 
-        public User build() {
-            return new User(this);
+        public UserDTO build() {
+            return new UserDTO(this);
         }
 
         public String getWebsite() {

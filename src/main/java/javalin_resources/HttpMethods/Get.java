@@ -1,10 +1,15 @@
 package javalin_resources.HttpMethods;
 
-import database.collections.Event;
-import database.collections.Message;
-import database.collections.User;
-import database.dao.Controller;
+import com.mongodb.MongoException;
+import com.mongodb.WriteResult;
+import database.dto.EventDTO;
+import database.dto.MessageDTO;
+import database.dto.PlaygroundDTO;
+import database.dto.UserDTO;
+import database.Controller;
 import io.javalin.http.Handler;
+import io.javalin.plugin.openapi.annotations.ContentType;
+import org.eclipse.jetty.http.HttpStatus;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,13 +18,14 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class Get implements Tag {
 
-    public static class GetEvent {
+    public static class Event {
 
-        public static Handler readOneEventGet = ctx -> {
-            Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
+        public static Handler readOneEvent = ctx -> {
+            EventDTO event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
             if (event != null) {
                 ctx.json(event).contentType("json");
                 ctx.status(200);
@@ -27,8 +33,8 @@ public class Get implements Tag {
                 ctx.status(404).result("Couldn't find an event");
         };
 
-        public static Handler readOneEventParticipantsGet = ctx -> {
-            Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
+        public static Handler readOneEventParticipants = ctx -> {
+            EventDTO event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
             if (event != null) {
                 ctx.json(event.getParticipants()).contentType("json");
                 ctx.status(200);
@@ -36,9 +42,9 @@ public class Get implements Tag {
                 ctx.status(404).result("Couldn't find any participants for this event");
         };
 
-        public static Handler readOneEventOneParticipantGet = ctx -> {
-            Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
-            for (User user : event.getAssignedUsers())
+        public static Handler readOneEventOneParticipant = ctx -> {
+            EventDTO event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
+            for (UserDTO user : event.getAssignedUsers())
                 if (user.getUsername().equals(ctx.pathParam(USER_NAME))) {
                     ctx.json(user).contentType("json");
                     ctx.status(200);
@@ -47,8 +53,8 @@ public class Get implements Tag {
                     ctx.status(404).result("Couldn't find the participant for this event");
         };
 
-        public static Handler readOnePlayGroundAllEventsGet = ctx -> {
-            List<Event> events = Controller.getInstance().getPlaygroundEvents(ctx.pathParam(PLAYGROUND_NAME));
+        public static Handler readOnePlayGroundAllEvents = ctx -> {
+            List<EventDTO> events = Controller.getInstance().getEventsInPlayground(ctx.pathParam(PLAYGROUND_NAME));
             if (events != null) {
                 ctx.json(events).contentType("json");
                 ctx.status(200);
@@ -56,42 +62,46 @@ public class Get implements Tag {
                 ctx.status(404).result("Couldn't find any events for this playground");
             }
         };
-        public static Handler readAllEventsGet = ctx -> {
-            List<Event> events = Controller.getInstance().getPlaygroundEvents(ctx.pathParam(PLAYGROUND_NAME));
-            if (events != null) {
-                ctx.json(events).contentType("json");
-                ctx.status(200);
-            } else {
-                ctx.status(404).result("Couldn't find any events for this playground");
-            }
-        };
-
     }
 
+    public static class Playground {
 
-    public static class GetPlayground {
-
-        public static Handler readAllPlaygroundsGet = ctx -> {
-            ctx.json(Controller.getInstance().getPlaygrounds()).contentType("json");
+        public static Handler readAllPlaygrounds = ctx -> {
+            try {
+                List<PlaygroundDTO> playgrounds = Controller.getInstance().getPlaygrounds();
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("Ok - playgrounds were fetched successfully");
+                ctx.json(playgrounds);
+                ctx.contentType(ContentType.JSON);
+            } catch (NoSuchElementException e){
+                ctx.status(HttpStatus.NOT_FOUND_404);
+                ctx.result("Not found - no playgrounds in database");
+                ctx.contentType(ContentType.JSON);
+            } catch (Exception e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Internal error - failed to fetch playgrounds in database");
+                ctx.contentType(ContentType.JSON);
+            }
         };
 
-        public static Handler readOnePlaygroundGet = ctx -> {
-            ctx.json(String.valueOf(ctx.json(Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME))).contentType("json")));
+        public static Handler readOnePlayground = ctx -> {
+            ctx.json(Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME))).contentType("json");
+
         };
 
-        public static Handler readOnePlaygroundAllEmployeeGet = ctx -> {
+        public static Handler readOnePlaygroundAllEmployee = ctx -> {
             ctx.json(Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME)).getAssignedPedagogue()).contentType("json");
         };
 
-        public static Handler readOnePlaygroundOneEmployeeGet = ctx -> {
+        public static Handler readOnePlaygroundOneEmployee = ctx -> {
             ctx.json(Controller.getInstance().getUser(ctx.pathParam(USER_NAME))).contentType("json");
         };
     }
 
-    public static class GetMessage {
+    public static class Message {
 
-        public static Handler readOneMessageGet = ctx -> {
-            Message message = Controller.getInstance().getMessage(ctx.pathParam((MESSAGE_ID)));
+        public static Handler readOneMessage = ctx -> {
+            MessageDTO message = Controller.getInstance().getMessage(ctx.pathParam((MESSAGE_ID)));
             if (message != null) {
                 ctx.json(message).contentType("json");
                 ctx.status(200);
@@ -99,8 +109,8 @@ public class Get implements Tag {
                 ctx.status(404).result("Failed to retrieve message");
         };
 
-        public static Handler readAllMessagesGet = ctx -> {
-            List<Message> messages = Controller.getInstance().getPlaygroundMessages(ctx.pathParam(PLAYGROUND_NAME));
+        public static Handler readAllMessages = ctx -> {
+            List<MessageDTO> messages = Controller.getInstance().getMessagesInPlayground(ctx.pathParam(PLAYGROUND_NAME));
             if (messages != null) {
                 ctx.json(messages).contentType("json");
                 ctx.status(200);
@@ -109,7 +119,7 @@ public class Get implements Tag {
         };
     }
 
-    public static class GetUser {
+    public static class User {
 
         public static Handler getUserPicture = ctx -> {
             File homeFolder = new File(System.getProperty("user.home"));

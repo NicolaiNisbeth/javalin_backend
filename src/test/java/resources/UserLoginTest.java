@@ -1,11 +1,19 @@
 package resources;
 import com.google.gson.Gson;
+import database.Controller;
+import database.IController;
+import database.TestDB;
+import database.dto.UserDTO;
 import io.javalin.http.Context;
 import io.javalin.plugin.openapi.annotations.ContentType;
 import javalin_resources.HttpMethods.Post;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.awt.*;
 
 import static org.mockito.Mockito.*;
 
@@ -13,11 +21,15 @@ import static org.mockito.Mockito.*;
 public class UserLoginTest {
 
     private static Context ctx;
-    private final int EMPTY_STATUS = 0;
-    private final String EMPTY_RESULT = "";
     private JsonModels.LoginModel model;
     private Gson gson;
+    private static IController controller = Controller.getInstance();
 
+    @BeforeAll
+    static void beforeAll(){
+        controller.setDataSource(TestDB.getInstance());
+        controller.killAll();
+    }
 
     @BeforeEach
     void setup(){
@@ -35,98 +47,79 @@ public class UserLoginTest {
 
     @Test
     void rootShouldReturn200() throws Exception {
-        ctx.status(EMPTY_STATUS);
-        ctx.result(EMPTY_RESULT);
-
         model.username = "root";
         model.password = "root";
         String inputBody = gson.toJson(model);
 
         when(ctx.body()).thenReturn(inputBody);
-        Post.PostUser.userLogin.handle(ctx);
+        Post.User.userLogin.handle(ctx);
 
-        verify(ctx).status(200);
-        verify(ctx).result("user login with root was successful");
+        verify(ctx).status(HttpStatus.OK_200);
+        verify(ctx).json(Controller.getInstance().getUser("root"));
         verify(ctx).contentType(ContentType.JSON);
     }
 
     @Test
-    void invalidInfoShouldReturn404() throws Exception {
-        ctx.status(EMPTY_STATUS);
-        ctx.result(EMPTY_RESULT);
-
-        model.username = "testUsername";
-        model.password = "testPassword";
+    void unknownUsernameShouldReturn404() throws Exception {
+        model.username = "unknownUsername";
+        model.password = "unknownUsername";
         String inputBody = gson.toJson(model);
 
         when(ctx.body()).thenReturn(inputBody);
-        Post.PostUser.userLogin.handle(ctx);
+        Post.User.userLogin.handle(ctx);
 
-        verify(ctx).status(404);
-        verify(ctx).result("Unauthorized - No such username!");
+        verify(ctx).status(HttpStatus.NOT_FOUND_404);
         verify(ctx).contentType(ContentType.JSON);
     }
 
     @Test
     void nullShouldReturn400() throws Exception {
-        ctx.status(EMPTY_STATUS);
-        ctx.result(EMPTY_RESULT);
-
         model.username = null;
         model.password = null;
         String inputBody = gson.toJson(model);
 
         when(ctx.body()).thenReturn(inputBody);
-        Post.PostUser.userLogin.handle(ctx);
+        Post.User.userLogin.handle(ctx);
 
-        verify(ctx).status(400);
-        verify(ctx).result("body has no username and password");
+        verify(ctx).status(HttpStatus.BAD_REQUEST_400);
         verify(ctx).contentType(ContentType.JSON);
     }
 
     @Test
     void noBodyShouldReturn400() throws Exception {
-        ctx.status(EMPTY_STATUS);
-        ctx.result(EMPTY_RESULT);
+        Post.User.userLogin.handle(ctx);
 
-        Post.PostUser.userLogin.handle(ctx);
-
-        verify(ctx).status(400);
-        verify(ctx).result("body has no username and password");
+        verify(ctx).status(HttpStatus.BAD_REQUEST_400);
         verify(ctx).contentType(ContentType.JSON);
     }
 
     @Test
     void validInfoShouldReturn200() throws Exception {
-        ctx.status(EMPTY_STATUS);
-        ctx.result(EMPTY_RESULT);
-
         model.username = "s175565";
         model.password = "kodeNWHN";
         String inputBody = gson.toJson(model);
 
         when(ctx.body()).thenReturn(inputBody);
-        Post.PostUser.userLogin.handle(ctx);
+        Post.User.userLogin.handle(ctx);
 
-        verify(ctx).status(200);
-        verify(ctx).result("user login was successful");
+        verify(ctx).status(HttpStatus.OK_200);
+        verify(ctx).json(Controller.getInstance().getUser("s175565"));
         verify(ctx).contentType(ContentType.JSON);
     }
 
     @Test
     void wrongPasswordShouldReturn401() throws Exception {
-        ctx.status(EMPTY_STATUS);
-        ctx.result(EMPTY_RESULT);
 
         model.username = "s175565";
         model.password = "wrongpassword";
         String inputBody = gson.toJson(model);
 
+        controller.createUser(new UserDTO.Builder(model.username).build());
         when(ctx.body()).thenReturn(inputBody);
-        Post.PostUser.userLogin.handle(ctx);
+        Post.User.userLogin.handle(ctx);
 
-        verify(ctx).status(401);
-        verify(ctx).result("Unauthorized - Wrong password");
+        verify(ctx).status(HttpStatus.UNAUTHORIZED_401);
         verify(ctx).contentType(ContentType.JSON);
+        controller.deleteUser(model.username);
     }
 }

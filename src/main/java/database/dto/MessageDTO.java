@@ -1,4 +1,4 @@
-package database.collections;
+package database.dto;
 
 import org.jetbrains.annotations.NotNull;
 import org.jongo.marshall.jackson.oid.MongoId;
@@ -7,7 +7,7 @@ import org.jongo.marshall.jackson.oid.MongoObjectId;
 import java.util.Date;
 import java.util.Objects;
 
-public class Message implements Comparable<Message> {
+public class MessageDTO implements Comparable<MessageDTO> {
 
 
     public static class Builder {
@@ -111,9 +111,9 @@ public class Message implements Comparable<Message> {
 
         }
 
-        public Message build() {
+        public MessageDTO build() {
             //Here we create the actual playground object, which is always in a fully initialised state when it's returned.
-            Message message = new Message();  //Since the builder is in the class, we can invoke its private constructor.
+            MessageDTO message = new MessageDTO();  //Since the builder is in the class, we can invoke its private constructor.
             message.id = this._id;
             if (this.category == null)
                 message.category = "general";
@@ -216,7 +216,7 @@ public class Message implements Comparable<Message> {
     }
 
 
-    private Message() {
+    private MessageDTO() {
     }
 
     @Override
@@ -225,7 +225,7 @@ public class Message implements Comparable<Message> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Message message = (Message) o;
+        MessageDTO message = (MessageDTO) o;
 
         if (outDated != message.outDated) return false;
         if (!Objects.equals(id, message.id)) return false;
@@ -240,7 +240,7 @@ public class Message implements Comparable<Message> {
     }
 
     @Override
-    public int compareTo(@NotNull Message o) {
+    public int compareTo(@NotNull MessageDTO o) {
         return date.compareTo(o.date);
     }
 }

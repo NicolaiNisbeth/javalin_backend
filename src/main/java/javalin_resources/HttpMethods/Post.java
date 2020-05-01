@@ -2,12 +2,15 @@ package javalin_resources.HttpMethods;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
+import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
-import database.DALException;
-import database.collections.*;
-import database.dao.Controller;
+import database.exceptions.DALException;
+import database.exceptions.NoModificationException;
+import database.dto.*;
+import database.Controller;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.ContentType;
+import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,29 +18,26 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.net.MalformedURLException;
 import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.util.*;
 
 public class Post implements Tag {
 
-    public static class PostPlayground {
+    public static class Playground {
 
-        public static Handler createPlaygroundPost = ctx -> {
+        public static Handler createPlayground = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
-            Set<User> users = new HashSet<>();
+            Set<UserDTO> users = new HashSet<>();
             for (int i = 0; i < jsonObject.getJSONArray(USERS).length(); i++) {
                 String userId = (String) jsonObject.getJSONArray(USERS).get(i);
                 try {
                     users.add(Controller.getInstance().getUser(userId));
-                } catch (DALException e) {
+                } catch (NoSuchElementException e) {
                     e.printStackTrace();
                 }
             }
 
-            Playground playground = new Playground.Builder(jsonObject.getString(PLAYGROUND_NAME))
+            PlaygroundDTO playground = new PlaygroundDTO.Builder(jsonObject.getString(PLAYGROUND_NAME))
                     .setStreetName(jsonObject.getString(PLAYGROUND_STREET_NAME))
                     .setStreetNumber(jsonObject.getInt(PLAYGROUND_STREET_NUMBER))
                     .setZipCode(jsonObject.getInt(PLAYGROUND_ZIPCODE))
@@ -57,46 +57,46 @@ public class Post implements Tag {
 
     }
 
-    public static class PostEvent {
+    public static class Event {
 
-        public static Handler createPlaygroundEventPost = ctx -> {
+        public static Handler createPlaygroundEvent = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
-            Event event = new Event();
+            EventDTO event = new EventDTO();
 
-            Set<User> users = new HashSet<>();
+            Set<UserDTO> users = new HashSet<>();
             for (int i = 0; i < jsonObject.getJSONArray(USERS).length(); i++) {
                 String userid = jsonObject.getJSONArray(USERS).getString(i);
                 users.add(Controller.getInstance().getUser(userid));
             }
 
-            Details details = new Details();
+            DetailsDTO detailsModel = new DetailsDTO();
             Calendar cal = Calendar.getInstance();
 
             cal.set(Calendar.YEAR, jsonObject.getInt(EVENT_YEAR));
             cal.set(Calendar.DAY_OF_MONTH, jsonObject.getInt(EVENT_DAY));
             cal.set(Calendar.MONTH, jsonObject.getInt(EVENT_MONTH));
 
-            details.setDate(cal.getTime());
+            detailsModel.setDate(cal.getTime());
 
             cal.set(Calendar.HOUR, jsonObject.getInt(EVENT_HOUR_START));
             cal.set(Calendar.MINUTE, jsonObject.getInt(EVENT_MINUTE_START));
 
-            details.setStartTime(cal.getTime());
+            detailsModel.setStartTime(cal.getTime());
 
             cal.set(Calendar.HOUR, jsonObject.getInt(EVENT_HOUR_END));
             cal.set(Calendar.MINUTE, jsonObject.getInt(EVENT_MINUTE_END));
 
-            details.setStartTime(cal.getTime());
+            detailsModel.setStartTime(cal.getTime());
 
             event.setPlayground(jsonObject.getString(PLAYGROUND_NAME));
             event.setName(jsonObject.getString(EVENT_NAME));
             event.setParticipants(jsonObject.getInt(EVENT_PARTICIPANTS));
             event.setImagepath(jsonObject.getString(EVENT_IMAGEPATH));
             event.setAssignedUsers(users);
-            event.setDetails(details);
+            event.setDetails(detailsModel);
             event.setDescription(jsonObject.getString(EVENT_DESCRIPTION));
 
-            if (Controller.getInstance().addPlaygroundEvent(jsonObject.getString(PLAYGROUND_NAME), event).wasAcknowledged()) {
+            if (Controller.getInstance().createPlaygroundEvent(jsonObject.getString(PLAYGROUND_NAME), event).wasAcknowledged()) {
                 ctx.status(200).result("Event Created");
                 System.out.println("inserted event");
             } else {
@@ -105,31 +105,43 @@ public class Post implements Tag {
             }
         };
 
-        public static Handler createUserToPlaygroundEventPost = ctx -> {
+        public static Handler createUserToPlaygroundEvent = ctx -> {
             String id = ctx.pathParam("id");
             String username = ctx.pathParam("username");
-            Boolean successful = Controller.getInstance().addUserToPlaygroundEvent(id, username);
-            if (successful) {
-                ctx.status(200).result("Update successful");
-                ctx.json(new User.Builder(username));
+            if (id.isEmpty() || username.isEmpty()){
+                ctx.status(HttpStatus.BAD_REQUEST_400);
+                ctx.result("Bad request - No event id or username in path param");
+                ctx.contentType(ContentType.JSON);
                 return;
-            } else {
-                ctx.status(404).result("Failed to update");
-                ctx.json(new User.Builder(username));
             }
 
+            try {
+                WriteResult writeResult = Controller.getInstance().addUserToEvent(id, username);
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("OK - user joined event successfully");
+                ctx.json(new UserDTO.Builder(username));
+                ctx.contentType(ContentType.JSON);
+            } catch (NoSuchElementException e){
+                ctx.status(HttpStatus.NOT_FOUND_404);
+                ctx.result(String.format("Not found - event %s or user %s is not in database", id, username));
+                ctx.contentType(ContentType.JSON);
+            } catch (NoModificationException | MongoException e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Internal error - user failed to join event");
+                ctx.contentType(ContentType.JSON);
+            }
         };
 
     }
 
-    public static class PostMessage {
+    public static class Message {
 
-        public static Handler createPlaygroundMessagePost = ctx -> {
+        public static Handler createPlaygroundMessage = ctx -> {
 
             JSONObject jsonObject = new JSONObject(ctx.body());
 
             // TODO: Details
-            Details details = new Details();
+            DetailsDTO detailsModel = new DetailsDTO();
             Calendar cal = Calendar.getInstance();
 
             cal.set(Calendar.YEAR, jsonObject.getInt(EVENT_YEAR));
@@ -141,7 +153,7 @@ public class Post implements Tag {
 
             Date date = cal.getTime();
 
-            Message message = new Message.Builder()
+            MessageDTO message = new MessageDTO.Builder()
                     .setMessageString(jsonObject.getString(MESSAGE_STRING))
                     .set_id(jsonObject.getString(MESSAGE_ID))
                     .setIcon(jsonObject.getString(MESSAGE_ICON))
@@ -152,7 +164,7 @@ public class Post implements Tag {
                     .build();
 
 
-            if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged()) {
+            if (Controller.getInstance().createPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged()) {
                 ctx.status(200).result("Message posted");
             } else {
                 ctx.status(404).result("Failed to post message");
@@ -170,18 +182,9 @@ public class Post implements Tag {
         };
     }*/
 
-    public static class PostUser {
-        public static Handler createParticipantsToPlaygroundEventPost = ctx -> {
+    public static class User {
+        public static Handler createParticipantsToPlaygroundEvent = ctx -> {
 
-        };
-
-        public static Handler createUserToPlaygroundPost = ctx -> {
-            boolean successful = Controller.getInstance().addPedagogueToPlayground(ctx.pathParam("name"), ctx.pathParam("username"));
-            if (successful) {
-                ctx.status(200).result("Update successful");
-            } else {
-                ctx.status(404).result("Failed to update");
-            }
         };
 
         public static Handler createUser = ctx -> {
@@ -216,7 +219,7 @@ public class Post implements Tag {
                 return;
             }
 
-            User newUser = null;
+            UserDTO newUser = null;
             boolean adminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
             if (!adminAuthorized) {
                 return;
@@ -225,7 +228,7 @@ public class Post implements Tag {
             //Se om brugeren allerede er oprettet
             try {
                 newUser = Controller.getInstance().getUser(username);
-            } catch (DALException e) {
+            } catch (NoSuchElementException e) {
                 //Brugeren er ikke i databasen og kan derfor oprettes
             }
             if (newUser != null) {
@@ -234,7 +237,7 @@ public class Post implements Tag {
                 return;
             }
 
-            newUser = new User.Builder(username)
+            newUser = new UserDTO.Builder(username)
                     .setPassword(password)
                     .setFirstname(firstName)
                     .setLastname(lastName)
@@ -271,11 +274,11 @@ public class Post implements Tag {
             WriteResult ws = Controller.getInstance().createUser(newUser);
             if (ws.wasAcknowledged()) {
                 ctx.status(201);
-                ctx.result("User created.");
+                ctx.json("Created - User created");
                 ctx.json(newUser);
 
 
-                Controller.getInstance().addPedagogueToPlayground(newUser);
+                //Controller.getInstance().addPedagogueToPlayground(newUser);
 
             } else {
                 ctx.status(401);
@@ -290,86 +293,97 @@ public class Post implements Tag {
                 username = jsonObject.getString(USERNAME);
                 password = jsonObject.getString(PASSWORD);
             } catch (JSONException | NullPointerException e) {
-                ctx.status(400);
+                ctx.status(HttpStatus.BAD_REQUEST_400);
+                ctx.json("Bad request - Body has no username or password");
                 ctx.contentType(ContentType.JSON);
-                ctx.result("body has no username and password");
                 return;
             }
 
-            User user;
+            UserDTO fetchedUser;
             boolean root = username.equalsIgnoreCase("root");
             if (root) {
-                user = getRootUser(username);
-                ctx.status(200);
-                ctx.result("user login with root was successful");
-                ctx.json(user);
+                try {
+                    fetchedUser = getOrCreateRootUser(username);
+                    ctx.status(HttpStatus.OK_200);
+                    ctx.result("Success - User login with root was successful");
+                    ctx.json(fetchedUser);
+                    ctx.contentType(ContentType.JSON);
+                    return;
+                } catch (Exception e){
+                    ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                    ctx.contentType(ContentType.JSON);
+                    ctx.result("Internal error - Creating root user failed");
+                    return;
+                }
+            }
+
+            Bruger bruger = getUserInBrugerAuthorization(username, password);
+            try {
+                fetchedUser = Controller.getInstance().getUser(username);
+                System.out.println("USER in mongo " + fetchedUser);
+            } catch (NoSuchElementException | IllegalArgumentException e) {
+                fetchedUser = null;
+            } catch (Exception e){
+                // if database is down - don't allow login even if user is valid
+                // in bruger authorization module
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
                 ctx.contentType(ContentType.JSON);
+                ctx.result("Internal error - Couldn't connect to database");
                 return;
             }
 
-            Bruger bruger = getUserInNordfalk(username, password);
-            user = getUserInMongo(username);
-            System.out.println("USER in mongo " + user);
-            if (bruger == null && user == null) {
-                ctx.status(404);
+            // user was not found in user authorization and database
+            if (bruger == null && fetchedUser == null) {
+                ctx.status(HttpStatus.NOT_FOUND_404);
                 ctx.contentType(ContentType.JSON);
-                ctx.result("Unauthorized - No such username!");
+                ctx.result("Not found - wrong username");
                 return;
             }
 
-            // if user exists in nordfalk but not in db
-            if (user == null) {
-                user = new User.Builder(bruger.brugernavn)
+            // if user exists in nordfalk but not in database
+            if (fetchedUser == null) {
+                fetchedUser = new UserDTO.Builder(bruger.brugernavn)
                         .setFirstname(bruger.fornavn)
                         .setLastname(bruger.efternavn)
                         .setEmail(bruger.email)
                         .setPassword(bruger.adgangskode)
                         .status(STATUS_PEDAGOG)
                         .setWebsite(bruger.ekstraFelter.get("webside").toString())
+                        .setLoggedIn(true)
                         .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn))
                         .build();
-
-                Controller.getInstance().createUser(user);
+                Controller.getInstance().createUser(fetchedUser);
             }
 
-            boolean userIsCreatedByAdmin = !user.isLoggedIn() && bruger != null;
+            boolean userIsCreatedByAdmin = !fetchedUser.isLoggedIn() && bruger != null;
             if (userIsCreatedByAdmin) {
-                user.setFirstname(bruger.fornavn);
-                user.setLastname(bruger.efternavn);
-                user.setEmail(bruger.email);
-                user.setStatus(user.getStatus());
+                fetchedUser.setFirstname(bruger.fornavn);
+                fetchedUser.setLastname(bruger.efternavn);
+                fetchedUser.setEmail(bruger.email);
+                fetchedUser.setStatus(fetchedUser.getStatus());
                 //user.setPassword(user.getPassword());
-                user.setWebsite(bruger.ekstraFelter.get("webside").toString());
-                user.setLoggedIn(true);
-                user.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn));
-                Controller.getInstance().updateUser(user);
+                fetchedUser.setWebsite(bruger.ekstraFelter.get("webside").toString());
+                fetchedUser.setLoggedIn(true);
+                fetchedUser.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn));
+                Controller.getInstance().updateUser(fetchedUser);
             }
 
             // validate credentials
-            String hashed = user.getPassword();
+            String hashed = fetchedUser.getPassword();
             if (BCrypt.checkpw(password, hashed)) {
-                ctx.status(200);
-                ctx.result("user login was successful");
-                ctx.json(user);
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("Success - User login was successful");
+                ctx.json(fetchedUser);
                 ctx.contentType(ContentType.JSON);
             } else {
-                ctx.status(401);
+                ctx.status(HttpStatus.UNAUTHORIZED_401);
                 ctx.contentType(ContentType.JSON);
                 ctx.result("Unauthorized - Wrong password");
 
             }
         };
 
-        private static User getUserInMongo(String username) {
-            try {
-                return Controller.getInstance().getUser(username);
-            } catch (DALException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        private static Bruger getUserInNordfalk(String username, String password) {
+        private static Bruger getUserInBrugerAuthorization(String username, String password) {
             Bruger bruger = null;
             try {
                 Brugeradmin ba = (Brugeradmin) Naming.lookup(Brugeradmin.URL);
@@ -380,13 +394,12 @@ public class Post implements Tag {
             return bruger;
         }
 
-        private static User getRootUser(String username) {
-            User root;
+        private static UserDTO getOrCreateRootUser(String username) throws NoModificationException {
+            UserDTO root;
             try {
                 root = Controller.getInstance().getUser(username);
-            } catch (DALException e) {
-                System.out.println("Opretter root");
-                root = new User.Builder("root")
+            } catch (NoSuchElementException e) {
+                root = new UserDTO.Builder("root")
                         .status("admin")
                         .setPassword("root")
                         .setFirstname("Københavns")

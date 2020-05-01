@@ -1,4 +1,4 @@
-package database.collections;
+package database.dto;
 
 import org.jongo.marshall.jackson.oid.MongoId;
 import org.jongo.marshall.jackson.oid.MongoObjectId;
@@ -6,9 +6,8 @@ import org.jongo.marshall.jackson.oid.MongoObjectId;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
 
-public class Playground {
+public class PlaygroundDTO {
 
     public static class Builder {
         @MongoId // auto
@@ -23,9 +22,9 @@ public class Playground {
         private int streetNumber;
         private String commune;
         private int zipCode;
-        private Set<User> assignedPedagogue = new HashSet<>();
-        private Set<Event> events = new HashSet<>();
-        private Set<Message> messages = new HashSet<>();
+        private Set<UserDTO> assignedPedagogue = new HashSet<>();
+        private Set<EventDTO> events = new HashSet<>();
+        private Set<MessageDTO> messages = new HashSet<>();
 
         public Builder(String name) {
             this.name = name;
@@ -112,36 +111,36 @@ public class Playground {
             return this;
         }
 
-        public Set<User> getAssignedPedagogue() {
+        public Set<UserDTO> getAssignedPedagogue() {
             return assignedPedagogue;
         }
 
-        public Builder setAssignedPedagogue(Set<User> assignedPedagogue) {
+        public Builder setAssignedPedagogue(Set<UserDTO> assignedPedagogue) {
             this.assignedPedagogue = assignedPedagogue;
             return this;
         }
 
-        public Set<Event> getEvents() {
+        public Set<EventDTO> getEvents() {
             return events;
         }
 
-        public Builder setEvents(Set<Event> events) {
+        public Builder setEvents(Set<EventDTO> events) {
             this.events = events;
             return this;
         }
 
-        public Set<Message> getMessages() {
+        public Set<MessageDTO> getMessages() {
             return messages;
         }
 
-        public Builder setMessages(Set<Message> messages) {
+        public Builder setMessages(Set<MessageDTO> messages) {
             this.messages = messages;
             return this;
         }
 
-        public Playground build() {
+        public PlaygroundDTO build() {
             //Here we create the actual playground object, which is always in a fully initialised state when it's returned.
-            Playground playground = new Playground();  //Since the builder is in the class, we can invoke its private constructor.
+            PlaygroundDTO playground = new PlaygroundDTO();  //Since the builder is in the class, we can invoke its private constructor.
             playground.id = this._id;
             playground.name = this.name;
             playground.imagePath = this.imagePath;
@@ -170,11 +169,11 @@ public class Playground {
     private int streetNumber;
     private String commune;
     private int zipCode;
-    private Set<User> assignedPedagogue = new HashSet<>();
-    private Set<Event> events = new HashSet<>();
-    private Set<Message> messages = new HashSet<>();
+    private Set<UserDTO> assignedPedagogue = new HashSet<>();
+    private Set<EventDTO> events = new HashSet<>();
+    private Set<MessageDTO> messages = new HashSet<>();
 
-    private Playground() {
+    private PlaygroundDTO() {
     }
 
 
@@ -268,27 +267,27 @@ public class Playground {
         this.zipCode = zipCode;
     }
 
-    public Set<User> getAssignedPedagogue() {
+    public Set<UserDTO> getAssignedPedagogue() {
         return assignedPedagogue;
     }
 
-    public void setAssignedPedagogue(Set<User> assignedPedagogue) {
+    public void setAssignedPedagogue(Set<UserDTO> assignedPedagogue) {
         this.assignedPedagogue = assignedPedagogue;
     }
 
-    public Set<Event> getEvents() {
+    public Set<EventDTO> getEvents() {
         return events;
     }
 
-    public void setEvents(Set<Event> events) {
+    public void setEvents(Set<EventDTO> events) {
         this.events = events;
     }
 
-    public Set<Message> getMessages() {
+    public Set<MessageDTO> getMessages() {
         return messages;
     }
 
-    public void setMessages(Set<Message> messages) {
+    public void setMessages(Set<MessageDTO> messages) {
         this.messages = messages;
     }
 
@@ -298,7 +297,7 @@ public class Playground {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Playground that = (Playground) o;
+        PlaygroundDTO that = (PlaygroundDTO) o;
 
         if (toiletPossibilities != that.toiletPossibilities) return false;
         if (hasSoccerField != that.hasSoccerField) return false;

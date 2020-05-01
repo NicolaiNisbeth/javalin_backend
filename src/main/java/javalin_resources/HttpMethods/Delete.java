@@ -1,19 +1,22 @@
 package javalin_resources.HttpMethods;
 
-import database.DALException;
-import database.collections.User;
-import database.dao.Controller;
-import io.javalin.http.Context;
+import com.mongodb.MongoException;
+import com.mongodb.WriteResult;
+import database.dto.UserDTO;
+import database.Controller;
+import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
+import io.javalin.plugin.openapi.annotations.ContentType;
+import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONObject;
 
-import java.util.List;
+import java.util.NoSuchElementException;
 
 public class Delete implements Tag {
 
-    public static class DeletePlayground {
+    public static class Playground {
 
-        public static Handler deleteOnePlaygroundDelete = ctx -> {
+        public static Handler deleteOnePlayground = ctx -> {
             String playgroundname = "";
             playgroundname = ctx.pathParam(PLAYGROUND_NAME);
 
@@ -29,16 +32,7 @@ public class Delete implements Tag {
 
     }
 
-    public static class DeleteUser {
-
-        public static Handler deleteParticipantFromPlaygroundEventDelete = ctx -> {
-            JSONObject jsonObject = new JSONObject(ctx.body());
-            if (Controller.getInstance().removeUserFromPlaygroundEvent(jsonObject.getString(EVENT_ID), jsonObject.getString(USER_ID)))
-                ctx.status(200).result("Removed user from event");
-            else
-                ctx.status(404).result("Couldn't remove user from event");
-        };
-
+    public static class User {
         public static Handler deleteUser = ctx -> {
             JSONObject jsonObject, deleteUserModel;
             jsonObject = new JSONObject(ctx.body());
@@ -55,54 +49,101 @@ public class Delete implements Tag {
             }
 
             Controller.getInstance().deleteUser(username);
-            ctx.status(222);
-            ctx.result("User deleted.");
-            ctx.json("User deleted").contentType("json");
+            ctx.status(200);
+            ctx.json("OK - User deleted");
+            ctx.contentType("json");
         };
     }
 
-    public static class DeletePedagogue {
+    public static class Pedagogue {
+        public static Handler deletePedagogueFromPlayground = ctx -> {
+            String playgroundName = ctx.pathParam(PLAYGROUND_NAME);
+            String username = ctx.pathParam(USER_NAME);
 
-        public static Handler deletePedagogueFromPlaygroundDelete = ctx -> {
-            if (Controller.getInstance().removePedagogueFromPlayground(ctx.pathParam(PLAYGROUND_NAME), ctx.pathParam(USER_NAME)))
-                ctx.status(200).result("Pedagogue is removed from the playground");
-            else
-                ctx.status(404).result("Couldn't remove pedagogue from playground");
+            try {
+                Controller.getInstance().removePedagogueFromPlayground(playgroundName, username);
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("Success - pedagogue was deleted successfully");
+                ctx.contentType(ContentType.JSON);
+            } catch (NoSuchElementException e){
+                ctx.status(HttpStatus.NOT_FOUND_404);
+                ctx.result(String.format("Not found - pedagogue with username=%s was not found", username));
+                ctx.contentType(ContentType.JSON);
+            } catch (NoModificationException | MongoException e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Server error - pedagogue could not be deleted");
+                ctx.contentType(ContentType.JSON);
+            }
         };
-
     }
 
-    public static class DeleteEvent {
+    public static class Event {
+        public static Handler deleteEventFromPlayground = ctx -> {
+            String id = ctx.pathParam(EVENT_ID);
 
-        public static Handler deleteEventFromPlaygroundDelete = ctx -> {
-            if (Controller.getInstance().removePlaygroundEvent(ctx.pathParam(EVENT_ID))) {
-                ctx.status(200).result("Event has been removed from the playground");
-            } else {
-                ctx.status(404).result("Couldn't remove event from playground");
+            try {
+                Controller.getInstance().deletePlaygroundEvent(id);
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("Success - event was deleted successfully");
+                ctx.contentType(ContentType.JSON);
+            } catch (NoSuchElementException e){
+                ctx.status(HttpStatus.NOT_FOUND_404);
+                ctx.result(String.format("Not found - event with id=%s was not found",id));
+                ctx.contentType(ContentType.JSON);
+            } catch (NoModificationException | MongoException e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Server error - event could not be deleted");
+                ctx.contentType(ContentType.JSON);
             }
         };
 
-        public static Handler remoteUserFromPlaygroundEventPost = ctx -> {
+        public static Handler removeUserFromPlaygroundEvent = ctx -> {
             String id = ctx.pathParam("id");
             String username = ctx.pathParam("username");
-            Boolean successful = Controller.getInstance().removeUserFromPlaygroundEvent(id, username);
-            if (successful) {
-                ctx.status(200).result("Removal was successful");
-                ctx.json(new User.Builder(username));
-            } else {
-                ctx.status(404).result("Failed to remove");
-                ctx.json(new User.Builder(username));
+            if (id.isEmpty() || username.isEmpty()){
+                ctx.status(HttpStatus.BAD_REQUEST_400);
+                ctx.result("Bad request - No event id or username in path param");
+                ctx.contentType(ContentType.JSON);
+                return;
+            }
+
+            try {
+                Controller.getInstance().removeUserFromEvent(id, username);
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("OK - user was removed from event successfully");
+                ctx.json(new UserDTO.Builder(username));
+                ctx.contentType(ContentType.JSON);
+            } catch (NoSuchElementException e){
+                ctx.status(HttpStatus.NOT_FOUND_404);
+                ctx.result(String.format("Not found - event %s or user %s is not in database", id, username));
+                ctx.contentType(ContentType.JSON);
+            } catch (NoModificationException | MongoException e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Internal error - failed to remove user from event");
+                ctx.contentType(ContentType.JSON);
             }
         };
     }
 
-    public static class DeleteMessage {
+    public static class Message {
 
-        public static Handler deletePlaygroundMessageDelete = ctx -> {
-            if (Controller.getInstance().removePlaygroundMessage(ctx.pathParam(PLAYGROUND_MESSAGE_ID)))
-                ctx.status(200).result("Message deleted successfully");
-            else
-                ctx.status(404).result("Couldn't delete message");
+        public static Handler deletePlaygroundMessage = ctx -> {
+            String id = ctx.pathParam(PLAYGROUND_MESSAGE_ID);
+            try {
+                Controller.getInstance().deletePlaygroundMessage(id);
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("Success - playground message was deleted");
+                ctx.contentType(ContentType.JSON);
+            } catch (NoSuchElementException e){
+                ctx.status(HttpStatus.NOT_FOUND_404);
+                ctx.result(String.format("Not found - No playground message with ID=%s", id));
+                ctx.contentType(ContentType.JSON);
+            } catch (MongoException | NoModificationException e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Server error - playground message could not be deleted");
+                ctx.contentType(ContentType.JSON);
+            }
+
         };
 
     }

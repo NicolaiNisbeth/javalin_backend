@@ -1,84 +1,90 @@
 package javalin_resources.HttpMethods;
 
-import database.DALException;
-import database.collections.*;
-import database.collections.Event;
-import database.dao.Controller;
+import database.exceptions.DALException;
+import database.dto.*;
+import database.dto.EventDTO;
+import database.Controller;
+import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
+import io.javalin.plugin.openapi.annotations.ContentType;
+import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
 import javax.mail.MessagingException;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Calendar;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class Put implements Tag {
 
-    public static class PutEvent {
+    public static class Event {
 
-        public static Handler updateEventToPlaygroundPut = ctx -> {
+        public static Handler updateEventToPlayground = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
-            Event event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
-            Playground playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
+            EventDTO event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
+            PlaygroundDTO playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
 
-            if (playground != null) {
-
-                if (jsonObject.has(EVENT_ID)) {
-                    event.setId(jsonObject.getString(EVENT_ID));
-                }
-                if (jsonObject.has(EVENT_NAME)) {
-                    event.setName(jsonObject.getString(EVENT_NAME));
-                }
-                if (jsonObject.has(EVENT_IMAGEPATH)) {
-                    event.setImagepath(jsonObject.getString(EVENT_IMAGEPATH));
-                }
-                if (jsonObject.has(EVENT_PARTICIPANTS)) {
-                    event.setParticipants(jsonObject.getInt(EVENT_PARTICIPANTS));
-                }
-                if (jsonObject.has(EVENT_DESCRIPTION)) {
-                    event.setDescription(jsonObject.getString(EVENT_DESCRIPTION));
-                }
-                if (jsonObject.has(EVENT_DETAILS)) {
-                    //TODO: Change this
-                    event.setDetails(null);
-                }
-                if (jsonObject.has(EVENT_ASSIGNED_USERS)) {
-                    Set<User> assignedUsers = new HashSet<>();
-                    for (int i = 0; i < jsonObject.getJSONArray(EVENT_ASSIGNED_USERS).length(); i++) {
-                        String assignedUserId = jsonObject.getJSONArray(EVENT_ASSIGNED_USERS).getJSONObject(i).getString(EVENT_ASSIGNED_USERS);
-                        assignedUsers.add(Controller.getInstance().getUser(assignedUserId));
-                    }
-                    event.setAssignedUsers(assignedUsers);
-                }
-                if (jsonObject.has(PLAYGROUND_NAME)) {
-                    event.setPlayground(PLAYGROUND_NAME);
-                }
-
-                if (Controller.getInstance().updatePlaygroundEvent(event)) {
-                    ctx.status(200).result("Event is updated");
-                }
-            } else {
-                ctx.status(404).result("Couldn't update event");
+            if (jsonObject.has(EVENT_ID)) {
+                event.setId(jsonObject.getString(EVENT_ID));
             }
+            if (jsonObject.has(EVENT_NAME)) {
+                event.setName(jsonObject.getString(EVENT_NAME));
+            }
+            if (jsonObject.has(EVENT_IMAGEPATH)) {
+                event.setImagepath(jsonObject.getString(EVENT_IMAGEPATH));
+            }
+            if (jsonObject.has(EVENT_PARTICIPANTS)) {
+                event.setParticipants(jsonObject.getInt(EVENT_PARTICIPANTS));
+            }
+            if (jsonObject.has(EVENT_DESCRIPTION)) {
+                event.setDescription(jsonObject.getString(EVENT_DESCRIPTION));
+            }
+            if (jsonObject.has(EVENT_DETAILS)) {
+                //TODO: Change this
+                event.setDetails(null);
+            }
+            if (jsonObject.has(EVENT_ASSIGNED_USERS)) {
+                Set<UserDTO> assignedUsers = new HashSet<>();
+                for (int i = 0; i < jsonObject.getJSONArray(EVENT_ASSIGNED_USERS).length(); i++) {
+                    String assignedUserId = jsonObject.getJSONArray(EVENT_ASSIGNED_USERS).getJSONObject(i).getString(EVENT_ASSIGNED_USERS);
+                    assignedUsers.add(Controller.getInstance().getUser(assignedUserId));
+                }
+                event.setAssignedUsers(assignedUsers);
+            }
+            if (jsonObject.has(PLAYGROUND_NAME)) {
+                event.setPlayground(PLAYGROUND_NAME);
+            }
+
+            try {
+                Controller.getInstance().updatePlaygroundEvent(event);
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("Successful - playground event was updated successfully");
+                ctx.contentType(ContentType.JSON);
+            } catch (NoModificationException e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Internal error - playground event could not be updated");
+                ctx.contentType(ContentType.JSON);
+            }
+
         };
 
     }
 
-    public static class PutPlayground {
+    public static class Playground {
 
-        public static Handler updatePlaygroundPut = ctx -> {
-            Playground playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
+        public static Handler updatePlayground = ctx -> {
+            PlaygroundDTO playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
             JSONObject jsonObject = new JSONObject(ctx.body());
             if (playground != null) {
                 if (jsonObject.has(PLAYGROUND_STREET_NAME))
                     playground.setStreetName(jsonObject.getString(PLAYGROUND_STREET_NAME));
 
                 if (jsonObject.has(PLAYGROUND_PEDAGOGUES)) {
-                    Set<User> pedagoges = new HashSet<>();
+                    Set<UserDTO> pedagoges = new HashSet<>();
 
                     for (int i = 0; i < jsonObject.getJSONArray(PLAYGROUND_PEDAGOGUES).length(); i++) {
                         String username = jsonObject.getJSONArray(PLAYGROUND_PEDAGOGUES).getString(i);
@@ -91,7 +97,7 @@ public class Put implements Tag {
                     playground.setCommune(jsonObject.getString(PLAYGROUND_COMMUNE));
 
                 if (jsonObject.has(PLAYGROUND_EVENTS)) {
-                    Set<Event> eventSet = new HashSet<>();
+                    Set<EventDTO> eventSet = new HashSet<>();
                     for (int i = 0; i < jsonObject.getJSONArray(PLAYGROUND_EVENTS).length(); i++) {
                         String eventid = jsonObject.getJSONArray(PLAYGROUND_EVENTS).getJSONObject(i).getString(PLAYGROUND_EVENTS);
                         eventSet.add(Controller.getInstance().getEvent(eventid));
@@ -108,7 +114,7 @@ public class Put implements Tag {
                     playground.setImagePath(jsonObject.getString(PLAYGROUND_IMAGEPATH));
 
                 if (jsonObject.has(PLAYGROUND_MESSAGES)) {
-                    Set<Message> messagesSet = new HashSet<>();
+                    Set<MessageDTO> messagesSet = new HashSet<>();
                     for (int i = 0; i < jsonObject.getJSONArray(PLAYGROUND_MESSAGE_ID).length(); i++) {
                         String messageid = jsonObject.getJSONArray(PLAYGROUND_MESSAGE_ID).getJSONObject(i).getString(PLAYGROUND_MESSAGE_ID);
                         messagesSet.add(Controller.getInstance().getMessage(messageid));
@@ -125,11 +131,19 @@ public class Put implements Tag {
                 if (jsonObject.has(PLAYGROUND_ZIPCODE))
                     playground.setZipCode(jsonObject.getInt(PLAYGROUND_ZIPCODE));
 
-                if (Controller.getInstance().updatePlayground(playground)) {
-                    ctx.status(200).result("Playground updated");
-                    //Test
-                    System.out.println("update playground with name " + playground.getName());
+                // TODO: remove true and catch exception and set corresponding status code
+
+                try {
+                    Controller.getInstance().updatePlayground(playground);
+                    ctx.status(HttpStatus.OK_200);
+                    ctx.result("Successful - playground was updated successfully");
+                    ctx.contentType(ContentType.JSON);
+                } catch (NoModificationException e){
+                    ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                    ctx.result("Internal error - playground could not be updated");
+                    ctx.contentType(ContentType.JSON);
                 }
+
             } else {
                 ctx.status(404).result("Playground didn't update");
             }
@@ -137,12 +151,12 @@ public class Put implements Tag {
 
     }
 
-    public static class PutPedagogue {
+    public static class Pedagogue {
 
-        public static Handler updatePedagogueToPlayGroundPut = ctx -> {
+        public static Handler updatePedagogueToPlayGround = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
-            Playground playground = Controller.getInstance().getPlayground(jsonObject.getString(PLAYGROUND_NAME));
-            User user = Controller.getInstance().getUser(jsonObject.getString(PEDAGOGUE));
+            PlaygroundDTO playground = Controller.getInstance().getPlayground(jsonObject.getString(PLAYGROUND_NAME));
+            UserDTO user = Controller.getInstance().getUser(jsonObject.getString(PEDAGOGUE));
             playground.getAssignedPedagogue().add(user);
             Controller.getInstance().updatePlayground(playground);
             if (jsonObject.getString(PEDAGOGUE) != null && jsonObject.getString(PLAYGROUND_NAME) != null) {
@@ -154,16 +168,16 @@ public class Put implements Tag {
 
     }
 
-    public static class PutUser {
+    public static class User {
 
         public static Handler resetPassword = ctx -> {
             JSONObject jsonObject = new JSONObject(ctx.body());
             String username = jsonObject.getString(USERNAME);
-            User user = null;
+            UserDTO user = null;
 
             try {
                 user = Controller.getInstance().getUser(username);
-            } catch (DALException e) {
+            } catch (NoSuchElementException e) {
                 ctx.status(401).result("Unauthorized");
                 e.printStackTrace();
             }
@@ -176,7 +190,7 @@ public class Put implements Tag {
                     Controller.getInstance().updateUser(user);
                     Controller.getInstance().getUser(user.getUsername());
                     SendMail.sendMail("Your new setPassword", "Your new setPassword is: " + newPassword, user.getEmail());
-                } catch (MessagingException | DALException e) {
+                } catch (MessagingException | NoSuchElementException e) {
                     e.printStackTrace();
                 }
             }
@@ -214,7 +228,7 @@ public class Put implements Tag {
                 return;
             }
 
-            User userToUpdate = null;
+            UserDTO userToUpdate = null;
 
             //Hvis user ikke opdaterer sig selv, er det en admin der opdaterer
             if (!username.equalsIgnoreCase(usernameAdmin)) {
@@ -226,7 +240,7 @@ public class Put implements Tag {
 
             try {
                 userToUpdate = Controller.getInstance().getUser(username);
-            } catch (DALException e) {
+            } catch (NoSuchElementException e) {
                 ctx.status(401);
                 ctx.result("Unauthorized - Username doesn't exist");
             }
@@ -291,7 +305,7 @@ public class Put implements Tag {
                 ctx.json(userToUpdate);
 
                 //Tilføj brugeren til de playgrounds han er tilknyttet
-                Controller.getInstance().addPedagogueToPlayground(userToUpdate);
+                //Controller.getInstance().addPedagogueToPlayground(userToUpdate);
 
             } else {
                 ctx.status(500);
@@ -300,12 +314,12 @@ public class Put implements Tag {
         };
     }
 
-    public static class PutMessage {
+    public static class Message {
 
-        public static Handler updatePlaygroundMessagePut = ctx -> {
+        public static Handler updatePlaygroundMessage = ctx -> {
 
             JSONObject jsonObject = new JSONObject(ctx.body());
-            Message message = Controller.getInstance().getMessage(ctx.pathParam("id"));
+            MessageDTO message = Controller.getInstance().getMessage(ctx.pathParam("id"));
 
             // TODO Hvordan kommer den detail parameter til at foregå?
             if (jsonObject.get(HOUR) != null) {
@@ -335,7 +349,7 @@ public class Put implements Tag {
             if (jsonObject.get(MESSAGE_WRITTENBY_ID) != null)
                 message.setWrittenByID(MESSAGE_WRITTENBY_ID);
 
-            if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged())
+            if (Controller.getInstance().createPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged())
                 ctx.status(200).result("The message was created for the playground " + jsonObject.getString(PLAYGROUND_ID));
 
             else {

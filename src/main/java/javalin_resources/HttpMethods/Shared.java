@@ -1,10 +1,8 @@
 package javalin_resources.HttpMethods;
 
-import database.DALException;
-import database.collections.User;
-import database.dao.Controller;
+import database.dto.UserDTO;
+import database.Controller;
 import io.javalin.http.Context;
-import org.json.JSONObject;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.imageio.ImageIO;
@@ -15,26 +13,28 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.NoSuchElementException;
 
 public class Shared {
     public static boolean checkAdminCredentials(String username, String password, Context ctx) {
-        User admin;
+        UserDTO admin;
         //Hent admin - den der opretter brugeren
         try {
             admin = Controller.getInstance().getUser(username);
-        } catch (DALException e) {
+        } catch (NoSuchElementException e) {
             e.printStackTrace();
             ctx.status(401);
-            ctx.result("Unauthorized - Wrong admin username");
+            ctx.json("Unauthorized - Wrong admin username");
+            ctx.contentType("json");
             return false;
         }
 
         if (!admin.getStatus().equalsIgnoreCase("admin")) {
             ctx.status(401);
-            ctx.result("Unauthorized - Wrong admin status");
+            ctx.json("Unauthorized - Wrong admin status");
+            ctx.contentType("json");
             return false;
         }
-
 
         if (password.equalsIgnoreCase(admin.getPassword())) {
             return true;
@@ -44,7 +44,8 @@ public class Shared {
             return true;
         } else {
             ctx.status(401);
-            ctx.result("Unauthorized - Wrong admin setPassword");
+            ctx.json("Unauthorized - Wrong admin password");
+            ctx.contentType("json");
             return false;
         }
     }

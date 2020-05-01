@@ -1,17 +1,17 @@
-package database.collections;
+package database.dto;
 
 import java.util.Date;
 
-public class Details {
+public class DetailsDTO {
 
     private Date date;
     private Date startTime;
     private Date endTime;
 
-    public Details() {
+    public DetailsDTO() {
     }
 
-    public Details(Date date, Date startTime, Date endTime) {
+    public DetailsDTO(Date date, Date startTime, Date endTime) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
