@@ -334,9 +334,9 @@ public class Post implements Tag {
 
             // user was not found in user authorization and database
             if (bruger == null && fetchedUser == null) {
-                ctx.status(HttpStatus.UNAUTHORIZED_401);
+                ctx.status(HttpStatus.NOT_FOUND_404);
                 ctx.contentType(ContentType.JSON);
-                ctx.result("Unauthorized - Wrong username or password");
+                ctx.result("Not found - wrong username");
                 return;
             }
 

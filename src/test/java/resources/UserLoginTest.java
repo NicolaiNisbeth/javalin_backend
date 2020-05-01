@@ -60,15 +60,15 @@ public class UserLoginTest {
     }
 
     @Test
-    void invalidInfoShouldReturn401() throws Exception {
-        model.username = "testUsername";
-        model.password = "testPassword";
+    void unknownUsernameShouldReturn404() throws Exception {
+        model.username = "unknownUsername";
+        model.password = "unknownUsername";
         String inputBody = gson.toJson(model);
 
         when(ctx.body()).thenReturn(inputBody);
         Post.User.userLogin.handle(ctx);
 
-        verify(ctx).status(HttpStatus.UNAUTHORIZED_401);
+        verify(ctx).status(HttpStatus.NOT_FOUND_404);
         verify(ctx).contentType(ContentType.JSON);
     }
 
@@ -109,14 +109,17 @@ public class UserLoginTest {
 
     @Test
     void wrongPasswordShouldReturn401() throws Exception {
+
         model.username = "s175565";
         model.password = "wrongpassword";
         String inputBody = gson.toJson(model);
 
+        controller.createUser(new UserDTO.Builder(model.username).build());
         when(ctx.body()).thenReturn(inputBody);
         Post.User.userLogin.handle(ctx);
 
         verify(ctx).status(HttpStatus.UNAUTHORIZED_401);
         verify(ctx).contentType(ContentType.JSON);
+        controller.deleteUser(model.username);
     }
 }

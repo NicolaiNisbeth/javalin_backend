@@ -33,18 +33,6 @@ public class Delete implements Tag {
     }
 
     public static class User {
-
-        public static Handler deleteParticipantFromPlaygroundEvent = ctx -> {
-            JSONObject jsonObject = new JSONObject(ctx.body());
-            Controller.getInstance().removeUserFromEvent(jsonObject.getString(EVENT_ID), jsonObject.getString(USER_ID));
-            // TODO: remove true and catch exception and set corresponding status code
-
-            if (true)
-                ctx.status(200).result("delete participant from playground event");
-            else
-                ctx.status(404).result("Couldn't remove user from event");
-        };
-
         public static Handler deleteUser = ctx -> {
             JSONObject jsonObject, deleteUserModel;
             jsonObject = new JSONObject(ctx.body());
@@ -68,28 +56,44 @@ public class Delete implements Tag {
     }
 
     public static class Pedagogue {
-
         public static Handler deletePedagogueFromPlayground = ctx -> {
-            Controller.getInstance().removePedagogueFromPlayground(ctx.pathParam(PLAYGROUND_NAME), ctx.pathParam(USER_NAME));
-            // TODO: remove true and catch exception and set corresponding status code
-            if (true)
-                ctx.status(200).result("Pedagogue is removed from the playground");
-            else
-                ctx.status(404).result("Couldn't remove pedagogue from playground");
-        };
+            String playgroundName = ctx.pathParam(PLAYGROUND_NAME);
+            String username = ctx.pathParam(USER_NAME);
 
+            try {
+                Controller.getInstance().removePedagogueFromPlayground(playgroundName, username);
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("Success - pedagogue was deleted successfully");
+                ctx.contentType(ContentType.JSON);
+            } catch (NoSuchElementException e){
+                ctx.status(HttpStatus.NOT_FOUND_404);
+                ctx.result(String.format("Not found - pedagogue with username=%s was not found", username));
+                ctx.contentType(ContentType.JSON);
+            } catch (NoModificationException | MongoException e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Server error - pedagogue could not be deleted");
+                ctx.contentType(ContentType.JSON);
+            }
+        };
     }
 
     public static class Event {
-
         public static Handler deleteEventFromPlayground = ctx -> {
-            Controller.getInstance().deletePlaygroundEvent(ctx.pathParam(EVENT_ID));
-            // TODO: remove true and catch exception and set corresponding status code
+            String id = ctx.pathParam(EVENT_ID);
 
-            if (true) {
-                ctx.status(200).result("Event has been removed from the playground");
-            } else {
-                ctx.status(404).result("Couldn't remove event from playground");
+            try {
+                Controller.getInstance().deletePlaygroundEvent(id);
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("Success - event was deleted successfully");
+                ctx.contentType(ContentType.JSON);
+            } catch (NoSuchElementException e){
+                ctx.status(HttpStatus.NOT_FOUND_404);
+                ctx.result(String.format("Not found - event with id=%s was not found",id));
+                ctx.contentType(ContentType.JSON);
+            } catch (NoModificationException | MongoException e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Server error - event could not be deleted");
+                ctx.contentType(ContentType.JSON);
             }
         };
 
@@ -124,14 +128,22 @@ public class Delete implements Tag {
     public static class Message {
 
         public static Handler deletePlaygroundMessage = ctx -> {
-            Controller.getInstance().deletePlaygroundMessage(ctx.pathParam(PLAYGROUND_MESSAGE_ID));
-            // TODO: remove true and catch exception and set corresponding status code
+            String id = ctx.pathParam(PLAYGROUND_MESSAGE_ID);
+            try {
+                Controller.getInstance().deletePlaygroundMessage(id);
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("Success - playground message was deleted");
+                ctx.contentType(ContentType.JSON);
+            } catch (NoSuchElementException e){
+                ctx.status(HttpStatus.NOT_FOUND_404);
+                ctx.result(String.format("Not found - No playground message with ID=%s", id));
+                ctx.contentType(ContentType.JSON);
+            } catch (MongoException | NoModificationException e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Server error - playground message could not be deleted");
+                ctx.contentType(ContentType.JSON);
+            }
 
-
-            if (true)
-                ctx.status(200).result("Message deleted successfully");
-            else
-                ctx.status(404).result("Couldn't delete message");
         };
 
     }

@@ -4,7 +4,10 @@ import database.exceptions.DALException;
 import database.dto.*;
 import database.dto.EventDTO;
 import database.Controller;
+import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
+import io.javalin.plugin.openapi.annotations.ContentType;
+import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -25,47 +28,48 @@ public class Put implements Tag {
             EventDTO event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
             PlaygroundDTO playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
 
-            if (playground != null) {
-
-                if (jsonObject.has(EVENT_ID)) {
-                    event.setId(jsonObject.getString(EVENT_ID));
-                }
-                if (jsonObject.has(EVENT_NAME)) {
-                    event.setName(jsonObject.getString(EVENT_NAME));
-                }
-                if (jsonObject.has(EVENT_IMAGEPATH)) {
-                    event.setImagepath(jsonObject.getString(EVENT_IMAGEPATH));
-                }
-                if (jsonObject.has(EVENT_PARTICIPANTS)) {
-                    event.setParticipants(jsonObject.getInt(EVENT_PARTICIPANTS));
-                }
-                if (jsonObject.has(EVENT_DESCRIPTION)) {
-                    event.setDescription(jsonObject.getString(EVENT_DESCRIPTION));
-                }
-                if (jsonObject.has(EVENT_DETAILS)) {
-                    //TODO: Change this
-                    event.setDetails(null);
-                }
-                if (jsonObject.has(EVENT_ASSIGNED_USERS)) {
-                    Set<UserDTO> assignedUsers = new HashSet<>();
-                    for (int i = 0; i < jsonObject.getJSONArray(EVENT_ASSIGNED_USERS).length(); i++) {
-                        String assignedUserId = jsonObject.getJSONArray(EVENT_ASSIGNED_USERS).getJSONObject(i).getString(EVENT_ASSIGNED_USERS);
-                        assignedUsers.add(Controller.getInstance().getUser(assignedUserId));
-                    }
-                    event.setAssignedUsers(assignedUsers);
-                }
-                if (jsonObject.has(PLAYGROUND_NAME)) {
-                    event.setPlayground(PLAYGROUND_NAME);
-                }
-                Controller.getInstance().updatePlaygroundEvent(event);
-                // TODO: remove true and catch exception and set corresponding status code
-
-                if (true) {
-                    ctx.status(200).result("Event is updated");
-                }
-            } else {
-                ctx.status(404).result("Couldn't update event");
+            if (jsonObject.has(EVENT_ID)) {
+                event.setId(jsonObject.getString(EVENT_ID));
             }
+            if (jsonObject.has(EVENT_NAME)) {
+                event.setName(jsonObject.getString(EVENT_NAME));
+            }
+            if (jsonObject.has(EVENT_IMAGEPATH)) {
+                event.setImagepath(jsonObject.getString(EVENT_IMAGEPATH));
+            }
+            if (jsonObject.has(EVENT_PARTICIPANTS)) {
+                event.setParticipants(jsonObject.getInt(EVENT_PARTICIPANTS));
+            }
+            if (jsonObject.has(EVENT_DESCRIPTION)) {
+                event.setDescription(jsonObject.getString(EVENT_DESCRIPTION));
+            }
+            if (jsonObject.has(EVENT_DETAILS)) {
+                //TODO: Change this
+                event.setDetails(null);
+            }
+            if (jsonObject.has(EVENT_ASSIGNED_USERS)) {
+                Set<UserDTO> assignedUsers = new HashSet<>();
+                for (int i = 0; i < jsonObject.getJSONArray(EVENT_ASSIGNED_USERS).length(); i++) {
+                    String assignedUserId = jsonObject.getJSONArray(EVENT_ASSIGNED_USERS).getJSONObject(i).getString(EVENT_ASSIGNED_USERS);
+                    assignedUsers.add(Controller.getInstance().getUser(assignedUserId));
+                }
+                event.setAssignedUsers(assignedUsers);
+            }
+            if (jsonObject.has(PLAYGROUND_NAME)) {
+                event.setPlayground(PLAYGROUND_NAME);
+            }
+
+            try {
+                Controller.getInstance().updatePlaygroundEvent(event);
+                ctx.status(HttpStatus.OK_200);
+                ctx.result("Successful - playground event was updated successfully");
+                ctx.contentType(ContentType.JSON);
+            } catch (NoModificationException e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Internal error - playground event could not be updated");
+                ctx.contentType(ContentType.JSON);
+            }
+
         };
 
     }
@@ -127,14 +131,19 @@ public class Put implements Tag {
                 if (jsonObject.has(PLAYGROUND_ZIPCODE))
                     playground.setZipCode(jsonObject.getInt(PLAYGROUND_ZIPCODE));
 
-                Controller.getInstance().updatePlayground(playground);
                 // TODO: remove true and catch exception and set corresponding status code
 
-                if (true) {
-                    ctx.status(200).result("Playground updated");
-                    //Test
-                    System.out.println("update playground with name " + playground.getName());
+                try {
+                    Controller.getInstance().updatePlayground(playground);
+                    ctx.status(HttpStatus.OK_200);
+                    ctx.result("Successful - playground was updated successfully");
+                    ctx.contentType(ContentType.JSON);
+                } catch (NoModificationException e){
+                    ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                    ctx.result("Internal error - playground could not be updated");
+                    ctx.contentType(ContentType.JSON);
                 }
+
             } else {
                 ctx.status(404).result("Playground didn't update");
             }
