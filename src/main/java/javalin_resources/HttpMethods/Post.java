@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.security.AccessControlContext;
 import java.util.*;
 
 public class Post implements Tag {
@@ -302,7 +303,7 @@ public class Post implements Tag {
             if (root) {
                 user = getRootUser(username);
                 String token = JWTHandler.provider.generateToken(user);
-                ctx.json(new JWTResponse(token));
+                ctx.header("Authorization", new JWTResponse(token).jwt);
                 ctx.status(200);
                 ctx.result("user login with root was successful");
                 ctx.json(user);
@@ -358,10 +359,11 @@ public class Post implements Tag {
             if (BCrypt.checkpw(password, hashed)) {
                 ctx.result("user login was successful");
                 String token = JWTHandler.provider.generateToken(user);
-               String str = new JWTResponse(token).toString();
-                ctx.json(user);
+                ctx.header("Authorization", new JWTResponse(token).jwt);
                 ctx.status(200);
-                ctx.header("jwt", str);
+                // the golden line. All hail this statement
+                ctx.header("Access-Control-Expose-Headers","Authorization");
+                ctx.json(user);
                 ctx.contentType(ContentType.JSON);
             } else {
                 ctx.status(401);

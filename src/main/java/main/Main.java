@@ -2,6 +2,7 @@ package main;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.javalin.Javalin;
+import io.javalin.core.security.AccessManager;
 import io.prometheus.client.exporter.HTTPServer;
 import javalin_resources.HttpMethods.*;
 import javalin_resources.HttpMethods.Delete;
@@ -22,6 +23,7 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.nio.file.Paths;
+import java.security.AccessControlContext;
 import java.util.Optional;
 
 public class Main {
@@ -85,8 +87,6 @@ public class Main {
 
 
 
-
-
         app = Javalin.create(config -> {
             config.enableCorsForAllOrigins()
                     .addSinglePageRoot("", "/webapp/index.html")
@@ -97,9 +97,7 @@ public class Main {
                     });
         }).start(8088);
 
-        app.before(ctx -> {
-            System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());
-        });
+
         app.exception(Exception.class, (e, ctx) -> {
             e.printStackTrace();
         });
@@ -119,11 +117,14 @@ public class Main {
 
                 Optional<DecodedJWT> decodedJWT = JavalinJWT.getTokenFromHeader(ctx).flatMap(JWTHandler.provider::validateToken);
                 System.out.println(source);
+
                 if (!decodedJWT.isPresent()) {
                     System.out.println(source+": No/or altered token");
 
                     //Redirection to a responsemessage, providing with informaion on how to post a login request.
 
+                } else {
+                    System.out.println("Token is present");
                 }
 
             });
