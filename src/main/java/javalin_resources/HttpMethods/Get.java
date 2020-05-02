@@ -5,6 +5,9 @@ import database.dto.MessageDTO;
 import database.dto.UserDTO;
 import database.Controller;
 import io.javalin.http.Handler;
+import io.javalin.plugin.openapi.annotations.*;
+import io.javalin.http.Context;
+import io.javalin.http.NotFoundResponse;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,6 +16,8 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+
+
 
 public class Get implements Tag {
 
@@ -126,6 +131,16 @@ public class Get implements Tag {
             }
         };
 
+        @OpenApi(
+                summary = "Get all users",
+                operationId = "getAllUsers",
+                path = "/rest/employee/all",
+                method = HttpMethod.GET,
+                tags = {"User"},
+                responses = {
+                        @OpenApiResponse(status = "200", content = {@OpenApiContent(from = User[].class)})
+                }
+        )
         public static Handler getAllUsers = ctx -> {
             ctx.json(Controller.getInstance().getUsers()).contentType("json");
         };
