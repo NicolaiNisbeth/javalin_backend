@@ -7,9 +7,7 @@ import database.exceptions.NoModificationException;
 import database.TestDB;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
-import database.dao.*;
 import io.javalin.http.Context;
-import javalin_resources.HttpMethods.Post;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 

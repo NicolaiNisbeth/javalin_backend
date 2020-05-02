@@ -1,4 +1,4 @@
-package javalin_resources.HttpMethods;
+package javalin_resources.collections;
 
 import java.util.Properties;
 import javax.mail.Authenticator;

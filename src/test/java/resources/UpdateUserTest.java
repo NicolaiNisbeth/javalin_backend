@@ -8,7 +8,6 @@ import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.Controller;
 import io.javalin.http.Context;
-import javalin_resources.HttpMethods.Put;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 

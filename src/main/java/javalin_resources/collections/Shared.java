@@ -1,4 +1,4 @@
-package javalin_resources.HttpMethods;
+package javalin_resources.collections;
 
 import database.dto.UserDTO;
 import database.Controller;
