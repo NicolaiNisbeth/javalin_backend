@@ -7,7 +7,6 @@ import database.dto.MessageDTO;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.exceptions.NoModificationException;
-import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

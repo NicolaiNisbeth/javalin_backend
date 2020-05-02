@@ -4,6 +4,7 @@ import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
+import com.squareup.moshi.Json;
 import database.Controller;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
@@ -11,12 +12,10 @@ import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.models.PathItem;
 import org.eclipse.jetty.http.HttpStatus;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONString;
+import org.json.*;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.imageio.ImageIO;
@@ -30,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.Naming;
 import java.util.HashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -42,7 +42,10 @@ public class User implements Tag {
     @OpenApi(
             summary = "Delete one user",
             path = "/rest/employee/delete",
-            tags = {"User"}
+            tags = {"User"},
+            composedRequestBody = @OpenApiComposedRequestBody(required = true,
+                    description = "credentials of the admin and username of the user to be deleted")
+
     )
     public static Handler deleteUser = ctx -> {
         JSONObject jsonObject, deleteUserModel;
@@ -119,6 +122,7 @@ public class User implements Tag {
             path = "/rest/employee/create",
             tags = {"User"},
             formParams = {@OpenApiFormParam(name = "usermodel", type = JSONString.class, required = true)},
+            description = "usermodel containing credentials of the admin and the user the data of the user to be created",
             responses = {
                     @OpenApiResponse(status = "201", content = {@OpenApiContent(from = User.class)})
             }
@@ -225,6 +229,7 @@ public class User implements Tag {
             summary = "User log in",
             path = "/rest/employee/login",
             tags = {"User"},
+            composedRequestBody = @OpenApiComposedRequestBody(required = true, description = "username and password"),
             responses = {
                     @OpenApiResponse(status = "200", content = {@OpenApiContent(from = User.class)})
             }
@@ -360,6 +365,8 @@ public class User implements Tag {
             summary = "Update one user",
             path = "/rest/employee/update",
             tags = {"User"},
+            formParams = {@OpenApiFormParam(name = "usermodel", type = JSONString.class, required = true)},
+            description = "usermodel containing credentials of the admin and the user the be updated with relevant fields",
             responses = {
                     @OpenApiResponse(status = "201", content = {@OpenApiContent(from = User[].class)})
             }
