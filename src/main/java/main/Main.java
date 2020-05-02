@@ -46,9 +46,9 @@ public class Main {
 
         if (app != null) return;
         app = Javalin.create(config -> config.enableCorsForAllOrigins()
+                .registerPlugin(getConfiguredOpenApiPlugin())
                 .addSinglePageRoot("", "/webapp/index.html")
                 .addStaticFiles("webapp")
-                .registerPlugin(getConfiguredOpenApiPlugin())
                 .server(() -> {
                     Server server = new Server(queuedThreadPool);
                     server.setHandler(statisticsHandler);
@@ -151,15 +151,19 @@ public class Main {
     }
 
     private static OpenApiPlugin getConfiguredOpenApiPlugin() {
-        Info info = new Info().version("1.0").title("User API").description("Demo API with 5 operations");
+        Info info = new Info().version("1.0").title("Københavns Legepladser API").description(
+                "The REST API is a student project made to make the public playgrounds of " +
+                        "Copenhagen Municipality more accessible." +
+                        "The API's endpoints is visible in the list below" +
+                        "This documentation is a draft.");
+
         OpenApiOptions options = new OpenApiOptions(info)
                 .activateAnnotationScanningFor("io.javalin.example.java")
                 .path("/swagger-docs") // endpoint for OpenAPI json
                 .swagger(new SwaggerOptions("/swagger-ui")) // endpoint for swagger-ui
                 .reDoc(new ReDocOptions("/redoc")) // endpoint for redoc
                 .defaultDocumentation(doc -> {
-                    doc.json("500", ErrorResponse.class);
-                    doc.json("503", ErrorResponse.class);
+
                 });
         return new OpenApiPlugin(options);
     }
