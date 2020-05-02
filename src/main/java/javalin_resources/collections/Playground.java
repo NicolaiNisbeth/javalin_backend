@@ -23,8 +23,8 @@ public class Playground implements Tag {
 
   @OpenApi(
           summary = "Get one users profile picture",
-          path = "/rest/employee/delete",
-          tags = {"User"}
+          path = "/rest/Skalrettes/delete",
+          tags = {"Playground"}
   )
   public static Handler deletePedagogueFromPlayground = ctx -> {
     String playgroundName = ctx.pathParam(PLAYGROUND_NAME);
@@ -51,8 +51,8 @@ public class Playground implements Tag {
    */
   @OpenApi(
           summary = "Get one users profile picture",
-          path = "/rest/employee/delete",
-          tags = {"User"}
+          path = "/rest/skalrettes/delete",
+          tags = {"Playground"}
   )
   public static Handler updatePedagogueToPlayGround = ctx -> {
     JSONObject jsonObject = new JSONObject(ctx.body());

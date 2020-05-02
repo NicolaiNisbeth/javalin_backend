@@ -55,7 +55,7 @@ public class Main {
                     return server;
                 })).start(port);
 
-        System.out.println("See documentation at");
+        System.out.println("Check out Swagger UI docs at http://localhost:8080/rest");
         app.before(ctx -> System.out.println(
                 String.format("Javalin Server fik %s på %s med query %s og form %s",
                         ctx.method(), ctx.url(), ctx.queryParamMap(), ctx.formParamMap()))
