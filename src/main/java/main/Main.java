@@ -3,9 +3,6 @@ package main;
 import io.javalin.Javalin;
 import io.javalin.plugin.openapi.OpenApiOptions;
 import io.javalin.plugin.openapi.OpenApiPlugin;
-import io.javalin.plugin.openapi.annotations.HttpMethod;
-import io.javalin.plugin.openapi.annotations.OpenApi;
-import io.javalin.plugin.openapi.ui.ReDocOptions;
 import io.javalin.plugin.openapi.ui.SwaggerOptions;
 import io.prometheus.client.exporter.HTTPServer;
 import io.swagger.v3.oas.models.info.Info;
@@ -94,7 +91,7 @@ public class Main {
                 delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.deleteEventFromPlayground);
                 delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Message.deletePlaygroundMessage);
                 delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Playground.deletePedagogueFromPlayground);
-                delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.removeUserFromPlaygroundEvent);
+                delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.deleteUserFromPlaygroundEvent);
 
                 /** USERS **/
                 get(Path.Employee.EMPLOYEE_ALL, User.getAllUsers);
