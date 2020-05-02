@@ -55,6 +55,7 @@ public class Main {
                     return server;
                 })).start(port);
 
+        System.out.println("See documentation at");
         app.before(ctx -> System.out.println(
                 String.format("Javalin Server fik %s på %s med query %s og form %s",
                         ctx.method(), ctx.url(), ctx.queryParamMap(), ctx.formParamMap()))
@@ -65,19 +66,9 @@ public class Main {
 
         // REST endpoints
         app.routes(() -> {
-            /** GET **/
-            get("/rest", ctx -> {
-                InputStream targetStream = Main.class.getResourceAsStream("/docs/swagger.json");
-                ctx.result(targetStream).contentType("json");
-
-            });
-          /*  get(Path.Employee.EMPLOYEE_ALL, User.getAllUsers);
-            get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, User.getUserPicture);
-           */
             // REST endpoints
             app.routes(() -> {
                 /** PLAYGROUNDS **/
-
                 get(Path.Playground.PLAYGROUND_ONE, Playground.readOnePlayground);
                 get(Path.Playground.PLAYGROUND_ALL, Playground.readAllPlaygrounds);
                 get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Playground.readOnePlaygroundOneEmployee);
@@ -92,9 +83,8 @@ public class Main {
                 put(Path.Playground.PLAYGROUND_ONE, Playground.updatePlayground);
                 put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.updateEventToPlayground);
                 put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Message.updatePlaygroundMessage);
-                put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Pedagogue.updatePedagogueToPlayGround);
+                put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Playground.updatePedagogueToPlayGround);
 
-                post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, User.createParticipantsToPlaygroundEvent);
                 post(Path.Playground.PLAYGROUND_ALL, Playground.createPlayground);
                 post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.createPlaygroundEvent);
                 post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.createUserToPlaygroundEvent);
@@ -103,7 +93,7 @@ public class Main {
                 delete(Path.Playground.PLAYGROUND_ONE, Playground.deleteOnePlayground);
                 delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.deleteEventFromPlayground);
                 delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Message.deletePlaygroundMessage);
-                delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Pedagogue.deletePedagogueFromPlayground);
+                delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Playground.deletePedagogueFromPlayground);
                 delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.removeUserFromPlaygroundEvent);
 
                 /** USERS **/
@@ -127,28 +117,18 @@ public class Main {
                 //put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
                 //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
                 //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.User.deleteParticipantFromPlaygroundEvent);
+
+                /** GET **/
+/*            get("/rest", ctx -> {
+                InputStream targetStream = Main.class.getResourceAsStream("/docs/swagger.json");
+                ctx.result(targetStream).contentType("json");
+
+            });*/
+          /*  get(Path.Employee.EMPLOYEE_ALL, User.getAllUsers);
+            get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, User.getUserPicture);
+           */
             });
         });
-    }
-
-    private static void buildDirectories() {
-        System.out.println("Server: Starting directories inquiry");
-        File homeFolder = new File(System.getProperty("user.home"));
-
-        java.nio.file.Path pathProfileImages = Paths.get(homeFolder.toPath().toString() + "/server_resource/profile_images");
-        File serverResProfileImages = new File(pathProfileImages.toString());
-        java.nio.file.Path pathPlaygrounds = Paths.get(homeFolder.toPath().toString() + "/server_resource/playgrounds");
-        File serverResPlaygrounds = new File(pathPlaygrounds.toString());
-
-        if (serverResProfileImages.exists()) {
-            System.out.println("Server: Directories exists from path: " + homeFolder.toString());
-        } else {
-            boolean dirCreated = serverResProfileImages.mkdirs();
-            boolean dir2Created = serverResPlaygrounds.mkdir();
-            if (dirCreated && dir2Created) {
-                System.out.println("Server: Directories is build at path: " + homeFolder.toString());
-            }
-        }
     }
 
     public static void stop() {
@@ -170,14 +150,35 @@ public class Main {
                         "This documentation is a draft.");
 
         OpenApiOptions options = new OpenApiOptions(info)
-                .activateAnnotationScanningFor("io.javalin.example.java")
-                .path("/swagger-docs") // endpoint for OpenAPI json
+                .activateAnnotationScanningFor("kbh-legepladser-api")
+                .path("/rest-docs") // endpoint for OpenAPI json
+                .swagger(new SwaggerOptions("/rest")) // endpoint for swagger-ui
+                /*.path("/swagger-docs") // endpoint for OpenAPI json
                 .swagger(new SwaggerOptions("/swagger-ui")) // endpoint for swagger-ui
-                .reDoc(new ReDocOptions("/redoc")) // endpoint for redoc
+                */
                 .defaultDocumentation(doc -> {
-
                 });
         return new OpenApiPlugin(options);
+    }
+
+    private static void buildDirectories() {
+        System.out.println("Server: Starting directories inquiry");
+        File homeFolder = new File(System.getProperty("user.home"));
+
+        java.nio.file.Path pathProfileImages = Paths.get(homeFolder.toPath().toString() + "/server_resource/profile_images");
+        File serverResProfileImages = new File(pathProfileImages.toString());
+        java.nio.file.Path pathPlaygrounds = Paths.get(homeFolder.toPath().toString() + "/server_resource/playgrounds");
+        File serverResPlaygrounds = new File(pathPlaygrounds.toString());
+
+        if (serverResProfileImages.exists()) {
+            System.out.println("Server: Directories exists from path: " + homeFolder.toString());
+        } else {
+            boolean dirCreated = serverResProfileImages.mkdirs();
+            boolean dir2Created = serverResPlaygrounds.mkdir();
+            if (dirCreated && dir2Created) {
+                System.out.println("Server: Directories is build at path: " + homeFolder.toString());
+            }
+        }
     }
 
     public static String getHostAddress() {
