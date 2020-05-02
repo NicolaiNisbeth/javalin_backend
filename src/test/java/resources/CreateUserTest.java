@@ -8,6 +8,7 @@ import database.TestDB;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import io.javalin.http.Context;
+import javalin_resources.collections.User;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
@@ -99,7 +100,7 @@ class CreateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.User.createUser.handle(ctx);
+        User.createUser.handle(ctx);
         verify(ctx).status(201);
         //verify(ctx).json("Created - User created");
         controller.addPedagogueToPlayground("KålPladsen", "abc");
@@ -121,7 +122,7 @@ class CreateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.User.createUser.handle(ctx);
+        User.createUser.handle(ctx);
         verify(ctx).status(201);
         //verify(ctx).json("Created - User created");
 
@@ -152,7 +153,7 @@ class CreateUserTest {
 
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.User.createUser.handle(ctx);
+        User.createUser.handle(ctx);
         verify(ctx).status(401);
         //verify(ctx).result("Unauthorized - User already exists");
     }
@@ -166,7 +167,7 @@ class CreateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.User.createUser.handle(ctx);
+        User.createUser.handle(ctx);
         verify(ctx).status(400);
         //verify(ctx).result("Bad Request - Error in user data");
     }
@@ -180,7 +181,7 @@ class CreateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.User.createUser.handle(ctx);
+        User.createUser.handle(ctx);
         verify(ctx).status(400);
         //verify(ctx).result("Bad Request - Error in user data");
     }
@@ -205,7 +206,7 @@ class CreateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.User.createUser.handle(ctx);
+        User.createUser.handle(ctx);
         verify(ctx).status(401);
         //verify(ctx).result("Unauthorized - Wrong admin status");
 
@@ -221,7 +222,7 @@ class CreateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.User.createUser.handle(ctx);
+        User.createUser.handle(ctx);
         verify(ctx).status(401);
         //verify(ctx).result("Unauthorized - Wrong admin username");
     }
@@ -235,7 +236,7 @@ class CreateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Post.User.createUser.handle(ctx);
+        User.createUser.handle(ctx);
         verify(ctx).status(401);
         //verify(ctx).result("Unauthorized - Wrong admin setPassword");
     }

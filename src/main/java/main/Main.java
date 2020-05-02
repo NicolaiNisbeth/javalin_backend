@@ -50,16 +50,16 @@ public class Main {
     }
   }
 
-  public static void stop() {
-    app.stop();
-    app = null;
-  }
+    public static void stop() {
+        app.stop();
+        app = null;
+    }
 
-  private static void initializePrometheus(StatisticsHandler statisticsHandler, QueuedThreadPool queuedThreadPool) throws IOException {
-    StatisticsHandlerCollector.initialize(statisticsHandler); // collector is included in source code
-    QueuedThreadPoolCollector.initialize(queuedThreadPool); // collector is included in source code
-    HTTPServer prometheusServer = new HTTPServer(7080);
-  }
+    private static void initializePrometheus(StatisticsHandler statisticsHandler, QueuedThreadPool queuedThreadPool) throws IOException {
+        StatisticsHandlerCollector.initialize(statisticsHandler); // collector is included in source code
+        QueuedThreadPoolCollector.initialize(queuedThreadPool); // collector is included in source code
+        HTTPServer prometheusServer = new HTTPServer(7080);
+    }
 
   public static void start() throws Exception {
 
