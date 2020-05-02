@@ -21,6 +21,7 @@ public class InitTestData {
 
 
     public static void main(String[] args) throws NoModificationException {
+        controller.setDataSource(TestDB.getInstance());
         controller.killAll();
         System.out.println("Collections are deleted");
 

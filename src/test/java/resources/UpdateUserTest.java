@@ -8,7 +8,7 @@ import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.Controller;
 import io.javalin.http.Context;
-import javalin_resources.HttpMethods.Put;
+import javalin_resources.collections.User;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
@@ -104,7 +104,7 @@ class UpdateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Put.User.updateUser.handle(ctx);
+        User.updateUser.handle(ctx);
 
 
         verify(ctx).status(201);
@@ -171,7 +171,7 @@ class UpdateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Put.User.updateUser.handle(ctx);
+        User.updateUser.handle(ctx);
         verify(ctx).status(201);
         verify(ctx).result("User updated");
 
@@ -236,7 +236,7 @@ class UpdateUserTest {
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
-        Put.User.updateUser.handle(ctx);
+        User.updateUser.handle(ctx);
         verify(ctx).status(400);
         verify(ctx).result("Bad Request - Error in user data");
     }

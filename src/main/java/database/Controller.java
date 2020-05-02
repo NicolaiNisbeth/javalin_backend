@@ -111,6 +111,7 @@ public class Controller implements IController {
         if (!events.isEmpty()) {
             for (EventDTO value : events) {
                 EventDTO event = eventDAO.getEvent(value.getId());
+                event.setAssignedUsers(null);
                 updatedEvents.add(event);
             }
         }
@@ -144,7 +145,18 @@ public class Controller implements IController {
 
     @Override
     public List<PlaygroundDTO> getPlaygrounds() throws NoSuchElementException {
-        return playgroundDAO.getPlaygroundList();
+        List<PlaygroundDTO> playgroundDTOS = playgroundDAO.getPlaygroundList();
+        for (PlaygroundDTO playground : playgroundDTOS){
+            for (UserDTO pedagogue : playground.getAssignedPedagogue()){
+                pedagogue.setEvents(null);
+            }
+            for (EventDTO eventDTO : playground.getEvents()){
+                for (UserDTO pedagogue : eventDTO.getAssignedUsers()){
+                    pedagogue.setEvents(null);
+                }
+            }
+        }
+        return playgroundDTOS;
     }
 
     @Override
@@ -320,10 +332,10 @@ public class Controller implements IController {
     public WriteResult addPedagogueToPlayground(String plagroundName, String username)
             throws NoModificationException, NoSuchElementException, MongoException {
 
-        final ClientSession session = datasource.getClient().startSession();
+        //final ClientSession session = datasource.getClient().startSession();
         WriteResult wr;
-        try(session) {
-            session.startTransaction();
+        try {
+            //session.startTransaction();
             UserDTO pedagogue = userDAO.getUser(username);
 
             // insert playground reference in user
@@ -335,7 +347,7 @@ public class Controller implements IController {
             QueryUtils.updateWithPush(playgrounds, "name",
                     plagroundName, "assignedPedagogue", pedagogue);
 
-            session.commitTransaction();
+            //session.commitTransaction();
         } catch (NoSuchElementException e) {
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
@@ -384,23 +396,23 @@ public class Controller implements IController {
     public WriteResult addUserToEvent(String eventID, String username)
             throws NoModificationException, NoSuchElementException, MongoException {
 
-        ClientSession session = datasource.getClient().startSession();
+        //ClientSession session = datasource.getClient().startSession();
         WriteResult wr;
 
-        try(session) {
-            session.startTransaction();
+        try {
+            //session.startTransaction();
             UserDTO user = userDAO.getUser(username);
 
             // update user with event reference
             user.getEvents().add(new EventDTO.Builder().id(new ObjectId(eventID).toString()).build());
-            wr = userDAO.updateUser(user);
+            userDAO.updateUser(user);
 
             // insert user reference in event
             Jongo jongo = new Jongo(datasource.getDatabase());
             MongoCollection events = jongo.getCollection(IEventDAO.COLLECTION);
-            QueryUtils.updateWithPush(events, "_id", new ObjectId(eventID), "assignedUsers", user);
+            wr = QueryUtils.updateWithPush(events, "_id", new ObjectId(eventID), "assignedUsers", user);
 
-            session.commitTransaction();
+            //session.commitTransaction();
         } catch (NoSuchElementException e) {
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
@@ -419,11 +431,11 @@ public class Controller implements IController {
     public WriteResult createPlaygroundEvent(String playgroundName, EventDTO event)
             throws NoModificationException, NoSuchElementException, MongoException {
 
-        ClientSession session = datasource.getClient().startSession();
+        //ClientSession session = datasource.getClient().startSession();
         WriteResult wr;
 
-        try (session) {
-            session.startTransaction();
+        try {
+            //session.startTransaction();
 
             // create event in event collection
             event.setPlayground(playgroundName);
@@ -433,7 +445,7 @@ public class Controller implements IController {
             MongoCollection playgrounds = new Jongo(datasource.getDatabase()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", playgroundName, "events", event);
 
-            session.commitTransaction();
+            //session.commitTransaction();
         } catch (NoSuchElementException e) {
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
@@ -452,11 +464,11 @@ public class Controller implements IController {
     public WriteResult createPlaygroundMessage(String playgroundName, MessageDTO message)
             throws NoModificationException, NoSuchElementException, MongoException {
 
-        ClientSession session = datasource.getClient().startSession();
+        //ClientSession session = datasource.getClient().startSession();
         WriteResult result;
 
-        try (session) {
-            session.startTransaction();
+        try  {
+            //session.startTransaction();
 
             // create message in message collection
             message.setPlaygroundID(playgroundName);
@@ -466,7 +478,7 @@ public class Controller implements IController {
             MongoCollection playgrounds = new Jongo(datasource.getDatabase()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", playgroundName, "messages", message);
 
-            session.commitTransaction();
+            //session.commitTransaction();
         } catch (NoSuchElementException e) {
             e.printStackTrace();
             throw new NoSuchElementException(e.getMessage());
