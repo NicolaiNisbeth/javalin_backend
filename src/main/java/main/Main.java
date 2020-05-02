@@ -3,6 +3,8 @@ package main;
 import io.javalin.Javalin;
 import io.javalin.plugin.openapi.OpenApiOptions;
 import io.javalin.plugin.openapi.OpenApiPlugin;
+import io.javalin.plugin.openapi.annotations.HttpMethod;
+import io.javalin.plugin.openapi.annotations.OpenApi;
 import io.javalin.plugin.openapi.ui.ReDocOptions;
 import io.javalin.plugin.openapi.ui.SwaggerOptions;
 import io.prometheus.client.exporter.HTTPServer;
@@ -44,6 +46,7 @@ public class Main {
 
         if (app != null) return;
         app = Javalin.create(config -> config.enableCorsForAllOrigins()
+                .registerPlugin(getConfiguredOpenApiPlugin())
                 .addSinglePageRoot("", "/webapp/index.html")
                 .addStaticFiles("webapp")
                 .server(() -> {
@@ -153,11 +156,28 @@ public class Main {
         app = null;
     }
 
-    private static void initializePrometheus(StatisticsHandler statisticsHandler, QueuedThreadPool queuedThreadPool) throws
-            IOException {
+    private static void initializePrometheus(StatisticsHandler statisticsHandler, QueuedThreadPool queuedThreadPool) throws IOException {
         StatisticsHandlerCollector.initialize(statisticsHandler); // collector is included in source code
         QueuedThreadPoolCollector.initialize(queuedThreadPool); // collector is included in source code
         HTTPServer prometheusServer = new HTTPServer(7080);
+    }
+
+    private static OpenApiPlugin getConfiguredOpenApiPlugin() {
+        Info info = new Info().version("1.0").title("Københavns Legepladser API").description(
+                "The REST API is a student project made to make the public playgrounds of " +
+                        "Copenhagen Municipality more accessible." +
+                        "The API's endpoints is visible in the list below" +
+                        "This documentation is a draft.");
+
+        OpenApiOptions options = new OpenApiOptions(info)
+                .activateAnnotationScanningFor("io.javalin.example.java")
+                .path("/swagger-docs") // endpoint for OpenAPI json
+                .swagger(new SwaggerOptions("/swagger-ui")) // endpoint for swagger-ui
+                .reDoc(new ReDocOptions("/redoc")) // endpoint for redoc
+                .defaultDocumentation(doc -> {
+
+                });
+        return new OpenApiPlugin(options);
     }
 
     public static String getHostAddress() {
