@@ -46,7 +46,6 @@ public class Main {
         app = Javalin.create(config -> config.enableCorsForAllOrigins()
                 .addSinglePageRoot("", "/webapp/index.html")
                 .addStaticFiles("webapp")
-                .registerPlugin(getConfiguredOpenApiPlugin())
                 .server(() -> {
                     Server server = new Server(queuedThreadPool);
                     server.setHandler(statisticsHandler);
@@ -64,6 +63,11 @@ public class Main {
         // REST endpoints
         app.routes(() -> {
             /** GET **/
+            get("/rest", ctx -> {
+                InputStream targetStream = Get.class.getResourceAsStream("/docs/swagger.json");
+                ctx.result(targetStream).contentType("json");
+
+            });
             get(Path.Employee.EMPLOYEE_ALL, Get.User.getAllUsers);
             get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, Get.User.getUserPicture);
             get(Path.Playground.PLAYGROUND_ONE, Get.Playground.readOnePlayground);
@@ -110,10 +114,6 @@ public class Main {
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.Event.remoteUserFromPlaygroundEvent);
             delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.User.deleteParticipantFromPlaygroundEvent);
         });
-
-        System.out.println("Check out ReDoc docs at http://localhost:8080/redoc");
-        System.out.println("Check out Swagger UI docs at http://localhost:8080/swagger-ui");
-
     }
 
     private static void buildDirectories() {
@@ -145,20 +145,6 @@ public class Main {
         StatisticsHandlerCollector.initialize(statisticsHandler); // collector is included in source code
         QueuedThreadPoolCollector.initialize(queuedThreadPool); // collector is included in source code
         HTTPServer prometheusServer = new HTTPServer(7080);
-    }
-
-    private static OpenApiPlugin getConfiguredOpenApiPlugin() {
-        Info info = new Info().version("1.0").title("User API").description("Demo API with 5 operations");
-        OpenApiOptions options = new OpenApiOptions(info)
-                .activateAnnotationScanningFor("io.javalin.example.java")
-                .path("/swagger-docs") // endpoint for OpenAPI json
-                .swagger(new SwaggerOptions("/swagger-ui")) // endpoint for swagger-ui
-                .reDoc(new ReDocOptions("/redoc")) // endpoint for redoc
-                .defaultDocumentation(doc -> {
-                    doc.json("500", ErrorResponse.class);
-                    doc.json("503", ErrorResponse.class);
-                });
-        return new OpenApiPlugin(options);
     }
 
     public static String getHostAddress() {
