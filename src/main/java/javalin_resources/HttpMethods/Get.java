@@ -131,17 +131,25 @@ public class Get implements Tag {
             }
         };
 
-        @OpenApi(
+
+      /*  @OpenApi(
                 summary = "Get all users",
                 operationId = "getAllUsers",
-                path = "/rest/employee/all",
+                path = "/users",
                 method = HttpMethod.GET,
                 tags = {"User"},
                 responses = {
                         @OpenApiResponse(status = "200", content = {@OpenApiContent(from = User[].class)})
                 }
+        )*/
+
+        @OpenApi(
+                summary = "Get all users",
+                path = "/rest/employee/all",
+                tags = {"User"}
         )
         public static Handler getAllUsers = ctx -> {
+
             ctx.json(Controller.getInstance().getUsers()).contentType("json");
         };
     }
