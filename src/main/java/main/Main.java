@@ -3,6 +3,9 @@ package main;
 import io.javalin.Javalin;
 import io.javalin.plugin.openapi.OpenApiOptions;
 import io.javalin.plugin.openapi.OpenApiPlugin;
+import io.javalin.plugin.openapi.annotations.HttpMethod;
+import io.javalin.plugin.openapi.annotations.OpenApi;
+import io.javalin.plugin.openapi.ui.ReDocOptions;
 import io.javalin.plugin.openapi.ui.SwaggerOptions;
 import io.prometheus.client.exporter.HTTPServer;
 import io.swagger.v3.oas.models.info.Info;
@@ -63,6 +66,20 @@ public class Main {
 
             // REST endpoints
             app.routes(() -> {
+
+                /** USERS **/
+                get(Path.Employee.EMPLOYEE_ALL, User.getAllUsers);
+                get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, User.getUserPicture);
+
+                put(Path.Employee.UPDATE, User.updateUser);
+                put(Path.Employee.RESET_PASSWORD, User.resetPassword);
+
+                post(Path.Employee.LOGIN, User.userLogin);
+                post(Path.Employee.CREATE, User.createUser);
+
+                delete(Path.Employee.DELETE, User.deleteUser);
+
+
                 /** PLAYGROUNDS **/
                 get(Path.Playground.PLAYGROUND_ONE, Playground.readOnePlayground);
                 get(Path.Playground.PLAYGROUND_ALL, Playground.readAllPlaygrounds);
@@ -87,20 +104,8 @@ public class Main {
                 delete(Path.Playground.PLAYGROUND_ONE, Playground.deleteOnePlayground);
                 delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.deleteEventFromPlayground);
                 delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Message.deletePlaygroundMessage);
-                delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.removeUserFromPlaygroundEvent);
+                delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.deleteUserFromPlaygroundEvent);
 
-                /** USERS **/
-                get(Path.Employee.EMPLOYEE_ALL, User.getAllUsers);
-                get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, User.getUserPicture);
-
-                put(Path.Employee.UPDATE, User.updateUser);
-                put(Path.Employee.RESET_PASSWORD, User.resetPassword);
-
-                post(Path.Employee.LOGIN, User.userLogin);
-                post(Path.Employee.CREATE, User.createUser);
-                post("/rest/employee/imagetest", context -> Shared.saveProfilePicture2(context));
-
-                delete(Path.Employee.DELETE, User.deleteUser);
 
                 /** MESSAGES **/
 

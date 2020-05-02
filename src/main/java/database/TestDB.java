@@ -8,6 +8,7 @@ public class TestDB implements IDataSource {
     private static TestDB instance;
     private static DB database;
     private static MongoClient mongoClient;
+    private static final String TEST_DATABASE = "test";
 
     private TestDB(){}
 
@@ -29,7 +30,7 @@ public class TestDB implements IDataSource {
     @Override
     public DB getDatabase() {
         if (database == null)
-            database = getClient().getDB("test");
+            database = getClient().getDB(TEST_DATABASE);
 
         return database;
     }

@@ -16,6 +16,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONString;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.imageio.ImageIO;
@@ -116,7 +117,11 @@ public class User implements Tag {
     @OpenApi(
             summary = "Create user",
             path = "/rest/employee/create",
-            tags = {"User"}
+            tags = {"User"},
+            formParams = {@OpenApiFormParam(name = "usermodel", type = JSONString.class, required = true)},
+            responses = {
+                    @OpenApiResponse(status = "201", content = {@OpenApiContent(from = User.class)})
+            }
     )
     public static Handler createUser = ctx -> {
         BufferedImage bufferedImage;
@@ -219,7 +224,10 @@ public class User implements Tag {
     @OpenApi(
             summary = "User log in",
             path = "/rest/employee/login",
-            tags = {"User"}
+            tags = {"User"},
+            responses = {
+                    @OpenApiResponse(status = "200", content = {@OpenApiContent(from = User.class)})
+            }
     )
     public static Handler userLogin = ctx -> {
         String username, password;
@@ -351,7 +359,10 @@ public class User implements Tag {
     @OpenApi(
             summary = "Update one user",
             path = "/rest/employee/update",
-            tags = {"User"}
+            tags = {"User"},
+            responses = {
+                    @OpenApiResponse(status = "201", content = {@OpenApiContent(from = User[].class)})
+            }
     )
     public static Handler updateUser = ctx -> {
         BufferedImage bufferedImage;

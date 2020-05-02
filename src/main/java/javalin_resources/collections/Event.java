@@ -39,7 +39,7 @@ public class Event implements Tag {
     }
   };
 
-  public static Handler removeUserFromPlaygroundEvent = ctx -> {
+  public static Handler deleteUserFromPlaygroundEvent = ctx -> {
     String id = ctx.pathParam("id");
     String username = ctx.pathParam("username");
     if (id.isEmpty() || username.isEmpty()) {
