@@ -3,6 +3,8 @@ package main;
 import io.javalin.Javalin;
 import io.javalin.plugin.openapi.OpenApiOptions;
 import io.javalin.plugin.openapi.OpenApiPlugin;
+import io.javalin.plugin.openapi.annotations.HttpMethod;
+import io.javalin.plugin.openapi.annotations.OpenApi;
 import io.javalin.plugin.openapi.ui.ReDocOptions;
 import io.javalin.plugin.openapi.ui.SwaggerOptions;
 import io.prometheus.client.exporter.HTTPServer;
@@ -64,6 +66,7 @@ public class Main {
         // REST endpoints
         app.routes(() -> {
             /** GET **/
+
             get(Path.Employee.EMPLOYEE_ALL, Get.User.getAllUsers);
             get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, Get.User.getUserPicture);
             get(Path.Playground.PLAYGROUND_ONE, Get.Playground.readOnePlayground);
