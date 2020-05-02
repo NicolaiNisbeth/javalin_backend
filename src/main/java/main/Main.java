@@ -3,9 +3,6 @@ package main;
 import io.javalin.Javalin;
 import io.javalin.plugin.openapi.OpenApiOptions;
 import io.javalin.plugin.openapi.OpenApiPlugin;
-import io.javalin.plugin.openapi.annotations.HttpMethod;
-import io.javalin.plugin.openapi.annotations.OpenApi;
-import io.javalin.plugin.openapi.ui.ReDocOptions;
 import io.javalin.plugin.openapi.ui.SwaggerOptions;
 import io.prometheus.client.exporter.HTTPServer;
 import io.swagger.v3.oas.models.info.Info;
@@ -56,16 +53,14 @@ public class Main {
                 })).start(port);
 
         System.out.println("Check out Swagger UI docs at http://localhost:8080/rest");
+
         app.before(ctx -> System.out.println(
                 String.format("Javalin Server fik %s på %s med query %s og form %s",
                         ctx.method(), ctx.url(), ctx.queryParamMap(), ctx.formParamMap()))
         );
 
-        app.exception(Exception.class, (e, ctx) -> e.printStackTrace());
-
-
-        // REST endpoints
         app.routes(() -> {
+
             // REST endpoints
             app.routes(() -> {
                 /** PLAYGROUNDS **/
@@ -83,7 +78,6 @@ public class Main {
                 put(Path.Playground.PLAYGROUND_ONE, Playground.updatePlayground);
                 put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.updateEventToPlayground);
                 put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Message.updatePlaygroundMessage);
-                put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Playground.updatePedagogueToPlayGround);
 
                 post(Path.Playground.PLAYGROUND_ALL, Playground.createPlayground);
                 post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.createPlaygroundEvent);
@@ -93,7 +87,6 @@ public class Main {
                 delete(Path.Playground.PLAYGROUND_ONE, Playground.deleteOnePlayground);
                 delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.deleteEventFromPlayground);
                 delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Message.deletePlaygroundMessage);
-                delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Playground.deletePedagogueFromPlayground);
                 delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.removeUserFromPlaygroundEvent);
 
                 /** USERS **/
@@ -117,16 +110,6 @@ public class Main {
                 //put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
                 //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
                 //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.User.deleteParticipantFromPlaygroundEvent);
-
-                /** GET **/
-/*            get("/rest", ctx -> {
-                InputStream targetStream = Main.class.getResourceAsStream("/docs/swagger.json");
-                ctx.result(targetStream).contentType("json");
-
-            });*/
-          /*  get(Path.Employee.EMPLOYEE_ALL, User.getAllUsers);
-            get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, User.getUserPicture);
-           */
             });
         });
     }
@@ -151,11 +134,10 @@ public class Main {
 
         OpenApiOptions options = new OpenApiOptions(info)
                 .activateAnnotationScanningFor("kbh-legepladser-api")
-                .path("/rest-docs") // endpoint for OpenAPI json
-                .swagger(new SwaggerOptions("/rest")) // endpoint for swagger-ui
-                /*.path("/swagger-docs") // endpoint for OpenAPI json
-                .swagger(new SwaggerOptions("/swagger-ui")) // endpoint for swagger-ui
-                */
+                // endpoint for OpenAPI json
+                .path("/rest-docs")
+                // endpoint for swagger-ui
+                .swagger(new SwaggerOptions("/rest"))
                 .defaultDocumentation(doc -> {
                 });
         return new OpenApiPlugin(options);

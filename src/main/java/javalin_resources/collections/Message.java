@@ -17,7 +17,6 @@ import java.util.NoSuchElementException;
 
 public class Message implements Tag {
 
-
   /**
    * DELETE
    */
