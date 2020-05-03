@@ -2,6 +2,8 @@ package javalin_resources.http_methods;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
+import com.google.gson.JsonObject;
+import com.google.gson.internal.$Gson$Preconditions;
 import com.mongodb.WriteResult;
 import database.Controller;
 import database.dto.UserDTO;
@@ -9,6 +11,7 @@ import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
+import io.swagger.v3.core.util.Json;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.*;
 import org.mindrot.jbcrypt.BCrypt;
@@ -93,7 +96,7 @@ public class User implements Tag {
             method = HttpMethod.GET,
             tags = {"User"},
             responses = {
-                    @OpenApiResponse(status = "200", content = {@OpenApiContent(from = User[].class)})
+                    @OpenApiResponse(status = "200", content = {@OpenApiContent(from = UserDTO[].class)})
             }
     )
     public static Handler getAllUsers = ctx -> {
@@ -217,14 +220,22 @@ public class User implements Tag {
             ctx.result("User was not created");
         }
     };
-
     @OpenApi(
-            summary = "User log in",
-            path = "/rest/employee/login",
+            summary = "Logs user into the system",
+            path = javalin_resources.Util.Path.User.USERS_LOGIN,
             tags = {"User"},
-            composedRequestBody = @OpenApiComposedRequestBody(required = true, description = "username and password"),
+            method = HttpMethod.POST,
+            requestBody = @OpenApiRequestBody(
+                    content = @OpenApiContent(from = UserDTO.class, type = ContentType.JSON),
+                    required = true,
+                    description = "Insert your password and username instead of \"string\""
+            ),
             responses = {
-                    @OpenApiResponse(status = "200", content = {@OpenApiContent(from = User.class)})
+                    @OpenApiResponse(status = "200", description = "Successful login returns user object"),
+                    @OpenApiResponse(status = "400", description = "Body has no username or password"),
+                    @OpenApiResponse(status = "401", description = "Invalid username or password supplied"),
+                    @OpenApiResponse(status = "404", description = "User not found"),
+                    @OpenApiResponse(status = "500", description = "Server error")
             }
     )
     public static Handler userLogin = ctx -> {
@@ -323,6 +334,7 @@ public class User implements Tag {
 
         }
     };
+
 
     private static Bruger getUserInBrugerAuthorization(String username, String password) {
         Bruger bruger = null;
