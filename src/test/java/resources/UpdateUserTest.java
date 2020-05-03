@@ -9,6 +9,7 @@ import database.dto.UserDTO;
 import database.Controller;
 import io.javalin.http.Context;
 import javalin_resources.http_methods.User;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
@@ -99,16 +100,14 @@ class UpdateUserTest {
         System.out.println(fromDB.getPlaygroundsIDs());
 
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
-        ctx.result("");
-        ctx.status(0);
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
         User.updateUser.handle(ctx);
 
 
-        verify(ctx).status(201);
-        verify(ctx).result("User updated");
+        verify(ctx).status(200);
+        verify(ctx).result("OK - user was updated successfully");
 
         updateUser = controller.getUser(updateUser.getUsername());
         Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
@@ -162,8 +161,6 @@ class UpdateUserTest {
         Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
 
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
-        ctx.result("");
-        ctx.status(0);
 
         userModel.firstname = "KÅLHOVED";
         userModel.playgroundsIDs = pgIDs;
@@ -172,8 +169,8 @@ class UpdateUserTest {
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
         User.updateUser.handle(ctx);
-        verify(ctx).status(201);
-        verify(ctx).result("User updated");
+        verify(ctx).status(HttpStatus.OK_200);
+        verify(ctx).result("OK - user was updated successfully");
 
         updateUser = controller.getUser(updateUser.getUsername());
         Assertions.assertEquals(2, updateUser.getPlaygroundsIDs().size());
@@ -237,7 +234,7 @@ class UpdateUserTest {
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
         User.updateUser.handle(ctx);
-        verify(ctx).status(400);
-        verify(ctx).result("Bad Request - Error in user data");
+        verify(ctx).status(HttpStatus.NOT_FOUND_404);
+        verify(ctx).result("Not found - user does not exist");
     }
 }

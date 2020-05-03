@@ -420,7 +420,7 @@ public class User implements Tag {
         UserDTO userToUpdate;
         try {
             userToUpdate = Controller.getInstance().getUser(username);
-        } catch (NoSuchElementException e) {
+        } catch (NoSuchElementException | IllegalArgumentException e) {
             ctx.status(HttpStatus.NOT_FOUND_404);
             ctx.result("Not found - user does not exist");
             ctx.contentType(ContentType.JSON);
