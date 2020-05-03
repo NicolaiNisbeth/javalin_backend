@@ -3,14 +3,11 @@ package main;
 import io.javalin.Javalin;
 import io.javalin.plugin.openapi.OpenApiOptions;
 import io.javalin.plugin.openapi.OpenApiPlugin;
-import io.javalin.plugin.openapi.annotations.HttpMethod;
-import io.javalin.plugin.openapi.annotations.OpenApi;
-import io.javalin.plugin.openapi.ui.ReDocOptions;
 import io.javalin.plugin.openapi.ui.SwaggerOptions;
 import io.prometheus.client.exporter.HTTPServer;
 import io.swagger.v3.oas.models.info.Info;
 import javalin_resources.Util.Path;
-import javalin_resources.collections.*;
+import javalin_resources.http_methods.*;
 import monitor.QueuedThreadPoolCollector;
 import monitor.StatisticsHandlerCollector;
 import org.eclipse.jetty.server.Server;
@@ -26,13 +23,11 @@ import java.nio.file.Paths;
 public class Main {
     public static Javalin app;
     private static final int port = 8080;
-    private static String hostAddress;
 
     public static void main(String[] args) throws Exception {
         String hostName = InetAddress.getLocalHost().getHostName();
-        hostAddress = hostName.equals("aws-ec2-javalin-hoster") ? "18.185.121.182" : "localhost";
+        String hostAddress = hostName.equals("aws-ec2-javalin-hoster") ? "18.185.121.182" : "localhost";
         System.out.println("Starting server from " + hostAddress);
-        System.out.println(String.format("Listening on %s:%s", InetAddress.getLocalHost().getHostAddress(), port));
 
         buildDirectories();
         start();
@@ -56,6 +51,7 @@ public class Main {
                 })).start(port);
 
         System.out.println("Check out Swagger UI docs at http://localhost:8080/rest");
+        System.out.println("Check out OpenAPI docs at http://localhost:8080/rest-docs");
 
         app.before(ctx -> System.out.println(
                 String.format("Javalin Server fik %s på %s med query %s og form %s",
@@ -68,44 +64,44 @@ public class Main {
             app.routes(() -> {
 
                 /** USERS **/
-                get(Path.Employee.EMPLOYEE_ALL, User.getAllUsers);
-                get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, User.getUserPicture);
+                get(Path.User.USERS_ALL, User.getAllUsers);
+                get(Path.User.USERS_ALL_EMPLOYEES, User.getAllEmployees);
+                get(Path.User.USERS_ONE_PROFILE_PICTURE, User.getUserPicture);
 
-                put(Path.Employee.UPDATE, User.updateUser);
-                put(Path.Employee.RESET_PASSWORD, User.resetPassword);
+                put(Path.User.USERS_CRUD, User.updateUser);
+                put(Path.User.USERS_RESET_PASSWORD, User.resetPassword);
 
-                post(Path.Employee.LOGIN, User.userLogin);
-                post(Path.Employee.CREATE, User.createUser);
+                post(Path.User.USERS_LOGIN, User.userLogin);
+                post(Path.User.USERS_CRUD, User.createUser);
 
-                delete(Path.Employee.DELETE, User.deleteUser);
+                delete(Path.User.USERS_CRUD, User.deleteUser);
 
 
                 /** PLAYGROUNDS **/
-                get(Path.Playground.PLAYGROUND_ONE, Playground.readOnePlayground);
-                get(Path.Playground.PLAYGROUND_ALL, Playground.readAllPlaygrounds);
-                get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Playground.readOnePlaygroundOneEmployee);
-                get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Playground.readOnePlaygroundAllEmployee);
+                get(Path.Playground.PLAYGROUNDS_ONE, Playground.readOnePlayground);
+                get(Path.Playground.PLAYGROUNDS_ALL, Playground.readAllPlaygrounds);
+                get(Path.Playground.PLAYGROUNDS_ONE_PEDAGOGUE_ONE, Playground.readOnePlaygroundOneEmployee);
+                get(Path.Playground.PLAYGROUNDS_ONE_PEDAGOGUE_ALL, Playground.readOnePlaygroundAllEmployee);
                 get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.readOneEvent);
                 get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.readOneEventOneParticipant);
                 get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Event.readOneEventParticipants);
                 get(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.readOnePlayGroundAllEvents);
-                get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Message.readOneMessage);
-                get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Message.readAllMessages);
+                get(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.readOneMessage);
+                get(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.readAllMessages);
 
-                put(Path.Playground.PLAYGROUND_ONE, Playground.updatePlayground);
+                put(Path.Playground.PLAYGROUNDS_ONE, Playground.updatePlayground);
                 put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.updateEventToPlayground);
-                put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Message.updatePlaygroundMessage);
+                put(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.updatePlaygroundMessage);
 
-                post(Path.Playground.PLAYGROUND_ALL, Playground.createPlayground);
+                post(Path.Playground.PLAYGROUNDS_ALL, Playground.createPlayground);
                 post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.createPlaygroundEvent);
                 post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.createUserToPlaygroundEvent);
-                post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Message.createPlaygroundMessage);
+                post(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.createPlaygroundMessage);
 
-                delete(Path.Playground.PLAYGROUND_ONE, Playground.deleteOnePlayground);
+                delete(Path.Playground.PLAYGROUNDS_ONE, Playground.deleteOnePlayground);
                 delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.deleteEventFromPlayground);
-                delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Message.deletePlaygroundMessage);
+                delete(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.deletePlaygroundMessage);
                 delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.deleteUserFromPlaygroundEvent);
-
 
                 /** MESSAGES **/
 
@@ -149,26 +145,20 @@ public class Main {
     }
 
     private static void buildDirectories() {
-        System.out.println("Server: Starting directories inquiry");
         File homeFolder = new File(System.getProperty("user.home"));
-
         java.nio.file.Path pathProfileImages = Paths.get(homeFolder.toPath().toString() + "/server_resource/profile_images");
         File serverResProfileImages = new File(pathProfileImages.toString());
         java.nio.file.Path pathPlaygrounds = Paths.get(homeFolder.toPath().toString() + "/server_resource/playgrounds");
         File serverResPlaygrounds = new File(pathPlaygrounds.toString());
 
         if (serverResProfileImages.exists()) {
-            System.out.println("Server: Directories exists from path: " + homeFolder.toString());
+            System.out.println(String.format("Server: Using resource directories from path: %s\\server_resource\\", homeFolder.toString()));
         } else {
             boolean dirCreated = serverResProfileImages.mkdirs();
             boolean dir2Created = serverResPlaygrounds.mkdir();
-            if (dirCreated && dir2Created) {
-                System.out.println("Server: Directories is build at path: " + homeFolder.toString());
+            if (dirCreated || dir2Created) {
+                System.out.println(String.format("Server: Resource directories is build at path: %s\\server_resource", homeFolder.toString()));
             }
         }
-    }
-
-    public static String getHostAddress() {
-        return hostAddress;
     }
 }

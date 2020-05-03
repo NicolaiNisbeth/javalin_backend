@@ -1,19 +1,14 @@
-package javalin_resources.collections;
+package javalin_resources.http_methods;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
-import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
-import com.squareup.moshi.Json;
 import database.Controller;
-import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.models.PathItem;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.*;
 import org.mindrot.jbcrypt.BCrypt;
@@ -28,17 +23,12 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.Naming;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
 
 
 public class User implements Tag {
 
-    /**
-     * DELETE
-     */
     @OpenApi(
             summary = "Delete one user",
             path = "/rest/employee/delete",
@@ -66,9 +56,6 @@ public class User implements Tag {
         ctx.contentType("json");
     };
 
-    /**
-     * GET
-     */
     @OpenApi(
             summary = "Get one users profile picture",
             path = "/rest/employee/delete",
@@ -87,13 +74,13 @@ public class User implements Tag {
             UserAdminResource.printImage(in);*/
 
         } catch (IOException e) {
-            System.out.println("Server: User have no profile picture...");
+            //System.out.println("Server: User have no profile picture...");
         }
 
         if (targetStream != null) {
             ctx.result(targetStream).contentType("image/png");
         } else {
-            System.out.println("Server: Returning random user picture...");
+            //System.out.println("Server: Returning random user picture...");
             targetStream = User.class.getResourceAsStream("/images/profile_pictures/random_user.png");
             ctx.result(targetStream).contentType("image/png");
         }
@@ -113,9 +100,16 @@ public class User implements Tag {
         ctx.json(Controller.getInstance().getUsers()).contentType("json");
     };
 
-    /**
-     * POST
-     */
+    public static Handler getAllEmployees = ctx -> {
+        List<UserDTO> users = Controller.getInstance().getUsers();
+        List<UserDTO> returnUsers = new ArrayList<>();
+        for (UserDTO user : users) {
+            if (!user.getStatus().equalsIgnoreCase("client")) {
+                returnUsers.add(user);
+            }
+        }
+        ctx.json(returnUsers).contentType("json");
+    };
 
     @OpenApi(
             summary = "Create user",
@@ -145,7 +139,6 @@ public class User implements Tag {
             email = jsonObject.getString(EMAIL);
             status = jsonObject.getString(STATUS);
             website = jsonObject.getString(WEBSITE);
-            //todo test med angular
             playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
             phoneNumbers = jsonObject.getJSONArray(PHONENUMBERS);
             if (username.length() < 1 || password.length() < 1) {
@@ -358,9 +351,6 @@ public class User implements Tag {
         return root;
     }
 
-    /**
-     * PUT
-     */
     @OpenApi(
             summary = "Update one user",
             path = "/rest/employee/update",

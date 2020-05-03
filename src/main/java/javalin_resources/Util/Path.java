@@ -12,15 +12,13 @@ public class Path {
      */
     public static class Playground {
         // All playgrounds.
-        public static final String PLAYGROUND_ALL = "/rest/playgrounds";
+        public static final String PLAYGROUNDS_ALL = "/rest/playgrounds";
         // A playground with the given name.
-        public static final String PLAYGROUND_ONE = "/rest/playgrounds/:name";
+        public static final String PLAYGROUNDS_ONE = "/rest/playgrounds/:name";
         // All employees on a playground
-        public static final String PLAYGROUND_ONE_PEDAGOGUE_ALL = "/rest/playgrounds/:name/pedagogues";
+        public static final String PLAYGROUNDS_ONE_PEDAGOGUE_ALL = "/rest/playgrounds/:name/pedagogues";
         // One employees on a playground
-        public static final String PLAYGROUND_ONE_PEDAGOGUE_ONE = "/rest/playgrounds/:name/pedagogues/:username";
-        // All events on all playgrounds.
-        public static final String PLAYGROUND_ALL_EVENTS = "/rest/playgrounds/events";
+        public static final String PLAYGROUNDS_ONE_PEDAGOGUE_ONE = "/rest/playgrounds/:name/pedagogues/:username";
         // All events on a playground
         public static final String PLAYGROUNDS_ONE_EVENTS_ALL = "/rest/playgrounds/:name/events";
         // One events on a playground
@@ -30,39 +28,42 @@ public class Path {
         // One event paricipant
         public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE = "/rest/playgrounds/:name/events/:id/participants/:username";
         // All events on a given month on a given playground.
-        public static final String PLAYGROUND_ONE_EVENTS_MONTH = "/rest/playground/:name/events/:month";
+        public static final String PLAYGROUND_ONE_EVENTS_MONTH = "/rest/playgrounds/:name/events/:month";
         // Playground message
-        public static final String PLAYGROUND_ONE_MESSAGE_ONE = "/rest/playgrounds/:name/messages/:id";
+        public static final String PLAYGROUNDS_ONE_MESSAGE_ONE = "/rest/playgrounds/:name/messages/:id";
         // Playground message all
-        public static final String PLAYGROUND_ONE_MESSAGE_ALL = "/rest/playgrounds/:name/messages";
+        public static final String PLAYGROUNDS_ONE_MESSAGE_ALL = "/rest/playgrounds/:name/messages";
+
+       /*
+        todo slet hvis ikke bruges
+        // All events on all playgrounds.
+        public static final String PLAYGROUNDS_ALL_EVENTS = "/rest/playgrounds/events";
         // All playgrounds with a given zipcode.
-        public static final String PLAYGROUNDS_WITHZIPCODE = "/rest/playground/:zipcode";
+        public static final String PLAYGROUNDS_WITHZIPCODE = "/rest/playgrounds/:zipcode";
         // All playgrounds nearby.
-        public static final String PLAYGROUNDS_NEARBY = "/rest/playground/:nearby";
+        public static final String PLAYGROUNDS_NEARBY = "/rest/playgrounds/:nearby";*/
     }
 
-    public static class Employee {
-        // ALl employees
-        public static final String EMPLOYEE_ALL = "/rest/employee/all";
-        // Employee based on ID
-        public static final String EMPLOYEE_ONE = "/rest/employee/:id";
-        // All employees working within a zipcode.
-        public static final String EMPLOYEE_ALL_ZIPCODE = "/rest/employee/:zipcode";
+    public static class User {
+        // ALl users
+        public static final String USERS_ALL = "/rest/users";
+        // All users that are employees - not clients
+        public static final String USERS_ALL_EMPLOYEES = "/rest/users/all-employees";
+        public static final String USERS_CRUD = "rest/users/:username";
+
         // Get employee's profile picture
-        public static final String EMPLOYEE_ONE_PROFILE_PICTURE = "/rest/employee/:username/profile-picture";
+        public static final String USERS_ONE_PROFILE_PICTURE = "/rest/users/:username/profile-picture";
 
-        public static final String LOGIN = "rest/employee/login";
-        public static final String DELETE = "rest/employee/delete";
-        public static final String UPDATE = "rest/employee/update";
-        public static final String CREATE = "rest/employee/create";
-        public static final String RESET_PASSWORD = "rest/employee/reset-setPassword";
+        public static final String USERS_LOGIN = "rest/users/login";
+        public static final String USERS_RESET_PASSWORD = "rest/users/reset-setPassword";
+
+ /*
+
+ todo slet hvis ikke bruges
+        // User based on ID
+        public static final String USERS_ONE = "/rest/users/:id";
+        // All employees working within a zipcode.
+        public static final String USERS_ALL_ZIPCODE = "/rest/users/:zipcode";*/
 
     }
-
-   /* public static class User {
-        public static final String LOGIN = "rest/employee/login";
-        public static final String HOMESCREEN = "/rest/:id";
-        public static final String FAVORITES = "/rest/:id/favorites";
-        public static final String USER_POSTS = "/rest/id/posts";
-    }*/
 }
