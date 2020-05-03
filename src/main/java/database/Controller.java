@@ -17,6 +17,7 @@ import database.dto.MessageDTO;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.utils.QueryUtils;
+import javalin_resources.collections.Shared;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
@@ -550,6 +551,10 @@ public class Controller implements IController {
 
             // delete message
             wr = messageDAO.deleteMessage(messageID);
+
+            //delete message image
+            Shared.deleteMessageImage(messageID);
+
             session.commitTransaction();
         } catch (NoSuchElementException e) {
             e.printStackTrace();

@@ -39,7 +39,7 @@ public interface Tag {
     String PLAYGROUND_TOILET_POSSIBILITIES = "ToiletPossibilities";
     String PLAYGROUND_TOILETS = "toilets";
     String PLAYGROUND_IMAGEPATH = "imagepath";
-    String PLAYGROUND_MESSAGE_ID = "messageid";
+    String PLAYGROUND_MESSAGE_ID = "id";
     String PLAYGROUND_MESSAGES = "messages";
 
     String MESSAGE_ID = "messageID";
