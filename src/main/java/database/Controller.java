@@ -140,6 +140,8 @@ public class Controller implements IController {
 
     @Override
     public List<UserDTO> getUsers() throws NoSuchElementException {
+        return userDAO.getUserList();
+        /*
         List<UserDTO> users = new ArrayList<>();
         for (UserDTO usernameObj : userDAO.getUserList()){
             String username = usernameObj.getUsername();
@@ -147,6 +149,8 @@ public class Controller implements IController {
             users.add(user);
         }
         return users;
+
+         */
     }
 
     @Override
