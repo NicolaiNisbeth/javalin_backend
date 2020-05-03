@@ -1,5 +1,6 @@
 package database.dao;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.WriteResult;
 import database.DALException;
 import database.DataSource;
@@ -244,14 +245,29 @@ public class Controller implements IController {
     }
 
     @Override
-    public boolean updatePlaygroundMessage(Message message) {
-        boolean isUpdated = false;
+    public WriteResult updatePlaygroundMessage(Message message) {
+        //boolean isUpdated = false;
+        WriteResult ws = null;
         try {
-            isUpdated = messageDAO.updateMessage(message);
+            messageDAO.updateMessage(message);
+
+            MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
+            //playgrounds.update(message.getPlaygroundID(), message);
+            /*ws = playgrounds
+                    .update(new ObjectId(message.getPlaygroundID()))
+                    .with("{$set : {# : #}}", message.getId(), message);*/
+
+            /*ws = playgrounds
+                    .update("{#}", message.getPlaygroundName())
+                    .with("{$set : {# : #}}", "messages.$" + message.getId(), message);*/
+
+            ws = playgrounds.update("{# : #, # : #}", "name", message.getPlaygroundName(), "id", message.getId())
+                    .with("{$set : {# : #}}", "messages.$." + message.getId(), message);
+
         } catch (DALException e) {
             e.printStackTrace();
         }
-        return isUpdated;
+        return ws;
     }
 
     @Override
@@ -414,8 +430,6 @@ public class Controller implements IController {
             // update playground array with reference to message
             MongoCollection playgrounds = new Jongo(DataSource.getDB()).getCollection(IPlaygroundDAO.COLLECTION);
             QueryUtils.updateWithPush(playgrounds, "name", message.getPlaygroundName(), "messages", message);
-
-            //Shared.saveMessageImage(message.getId(), bufferedImage);
 
             //   clientSession.commitTransaction();
         } catch (Exception e) {

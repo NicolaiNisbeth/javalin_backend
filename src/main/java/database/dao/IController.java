@@ -40,7 +40,7 @@ public interface IController {
 
     boolean updatePlaygroundEvent(Event event);
 
-    boolean updatePlaygroundMessage(Message message);
+    WriteResult updatePlaygroundMessage(Message message);
 
     // DELETE
     boolean deletePlayground(String playgroundName);

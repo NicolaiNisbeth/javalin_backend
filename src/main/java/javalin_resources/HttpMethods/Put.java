@@ -259,11 +259,13 @@ public class Put implements Tag {
 
         public static Handler updatePlaygroundMessagePut = ctx -> {
 
-            JSONObject jsonObject = new JSONObject(ctx.body());
-            Message message = Controller.getInstance().getMessage(ctx.pathParam("id"));
+            BufferedImage bufferedImage = null;
+            String messageJson = ctx.formParam(("message"));;
+            JSONObject jsonObject = new JSONObject(messageJson);
+            Message message = Controller.getInstance().getMessage(jsonObject.getString("id"));
 
             // TODO Hvordan kommer den detail parameter til at foregå?
-            if (jsonObject.get(HOUR) != null) {
+           /* if (jsonObject.get(HOUR) != null) {
                 Calendar cal = Calendar.getInstance();
 
                 cal.set(Calendar.YEAR, jsonObject.getInt(YEAR));
@@ -274,26 +276,36 @@ public class Put implements Tag {
                 cal.set(Calendar.HOUR, jsonObject.getInt(HOUR));
                 cal.set(Calendar.MINUTE, jsonObject.getInt(MINUTE));
                 message.setDate(cal.getTime());
-            }
+            }*/
             if (jsonObject.get(MESSAGE_CATEGORY) != null)
                 message.setCategory(jsonObject.getString(MESSAGE_CATEGORY));
 
-            if (jsonObject.get(MESSAGE_ICON) != null)
-                message.setIcon(jsonObject.getString(MESSAGE_ICON));
+            /*if (jsonObject.get(MESSAGE_ICON) != null)
+                message.setIcon(jsonObject.getString(MESSAGE_ICON));*/
 
             if (jsonObject.get(MESSAGE_STRING) != null)
                 message.setMessageString(jsonObject.getString(MESSAGE_STRING));
 
             if (jsonObject.get(PLAYGROUND_ID) != null)
-                message.setPlaygroundID(jsonObject.getString(PLAYGROUND_ID));
+                message.setPlaygroundID(jsonObject.getString("playgroundID"));
 
             if (jsonObject.get(MESSAGE_WRITTENBY_ID) != null)
                 message.setWrittenByID(MESSAGE_WRITTENBY_ID);
 
-            if (Controller.getInstance().addPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged())
-                ctx.status(200).result("The message was created for the playground " + jsonObject.getString(PLAYGROUND_ID));
+            try {
+                bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+            } catch (Exception e) {
+                System.out.println("Server: No message image was added...");
+            }
 
-            else {
+
+            if (Controller.getInstance().updatePlaygroundMessage(message).wasAcknowledged()) {
+                ctx.status(200).result("Updated message with ID: " + message.getId());
+                ctx.json(Controller.getInstance().getMessage(message.getId()));
+                if (bufferedImage != null) {
+                    Shared.saveMessageImage(message.getId(), bufferedImage);
+                }
+            } else {
                 ctx.status(404).result("There was an error");
             }
         };
