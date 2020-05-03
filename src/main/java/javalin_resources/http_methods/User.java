@@ -101,14 +101,28 @@ public class User implements Tag {
     };
 
     public static Handler getAllEmployees = ctx -> {
-        List<UserDTO> users = Controller.getInstance().getUsers();
+        List<UserDTO> users;
+        try {
+            users = Controller.getInstance().getUsers();
+        } catch (NoSuchElementException e) {
+            ctx.status(HttpStatus.NOT_FOUND_404);
+            ctx.result("Not found - no users in database");
+            ctx.contentType(ContentType.JSON);
+            return;
+        } catch (Exception e) {
+            ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+            ctx.result("Internal error - failed to fetch users in database");
+            ctx.contentType(ContentType.JSON);
+            return;
+        }
+
         List<UserDTO> returnUsers = new ArrayList<>();
         for (UserDTO user : users) {
             if (!user.getStatus().equalsIgnoreCase("client")) {
                 returnUsers.add(user);
             }
         }
-        ctx.json(returnUsers).contentType("json");
+        ctx.json(returnUsers).contentType("json").status(201);
     };
 
     @OpenApi(
