@@ -547,7 +547,7 @@ public class Controller implements IController {
 
             // delete message reference in playground
             MongoCollection playground = new Jongo(datasource.getDatabase()).getCollection(IPlaygroundDAO.COLLECTION);
-            QueryUtils.updateWithPullObject(playground, "name", message.getPlaygroundName(), "messages", "_id", new ObjectId(messageID));
+            QueryUtils.updateWithPullObject(playground, "name", message.getPlaygroundName(), "messages", "_id", new ObjectId(messageID)); //id
 
             // delete message
             wr = messageDAO.deleteMessage(messageID);
