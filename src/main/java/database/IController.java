@@ -28,6 +28,8 @@ public interface IController {
     List<EventDTO> getEventsInPlayground(String playgroundName);
     List<MessageDTO> getMessagesInPlayground(String playgroundName);
 
+    List<UserDTO> getUsersInPlayground(String playgroundName);
+
     // UPDATE
     WriteResult updatePlayground(PlaygroundDTO playground) throws IllegalArgumentException, NoModificationException ;
     WriteResult updateUser(UserDTO user) throws IllegalArgumentException, NoModificationException ;
