@@ -448,7 +448,7 @@ public class User implements Tag {
             // remove references to old playgrounds
             Set<String> usersOldPGIds = userToUpdate.getPlaygroundsIDs();
             System.out.println("Old pgs " + usersOldPGIds);
-            if (usersOldPGIds != null && usersOldPGIds.size() > 0) {
+            if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
                 for (String oldPlaygroundName : usersOldPGIds) {
                     Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
                 }
@@ -458,6 +458,10 @@ public class User implements Tag {
             for (int i = 0; i < playgroundIDs.length(); i++) {
                 try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
             }
+            for (String playgroundID : usersNewPGIds){
+                Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
+            }
+
             userToUpdate.setPlaygroundsIDs(usersNewPGIds);
             userToUpdate.setStatus(status);
         }
