@@ -1,4 +1,4 @@
-package database.dto;
+package database.collections;
 
 import org.jetbrains.annotations.NotNull;
 import org.jongo.marshall.jackson.oid.MongoId;
@@ -7,7 +7,7 @@ import org.jongo.marshall.jackson.oid.MongoObjectId;
 import java.util.Date;
 import java.util.Objects;
 
-public class MessageDTO implements Comparable<MessageDTO> {
+public class Message implements Comparable<Message> {
 
 
     public static class Builder {
@@ -21,6 +21,7 @@ public class MessageDTO implements Comparable<MessageDTO> {
         private String messageString;
         private String playgroundID;
         private Date date;
+        private boolean hasImage;
 
         public String getMessageString() {
             return messageString;
@@ -111,9 +112,14 @@ public class MessageDTO implements Comparable<MessageDTO> {
 
         }
 
-        public MessageDTO build() {
+        public Builder setHasImage(boolean hasImage) {
+            this.hasImage = hasImage;
+            return this;
+        }
+
+        public Message build() {
             //Here we create the actual playground object, which is always in a fully initialised state when it's returned.
-            MessageDTO message = new MessageDTO();  //Since the builder is in the class, we can invoke its private constructor.
+            Message message = new Message();  //Since the builder is in the class, we can invoke its private constructor.
             message.id = this._id;
             if (this.category == null)
                 message.category = "general";
@@ -124,6 +130,8 @@ public class MessageDTO implements Comparable<MessageDTO> {
             message.writtenByID = this.writtenByID;
             message.messageString = this.messageString;
             message.date = this.date;
+            message.playgroundID = this.playgroundID; //check dette
+            message.hasImage = this.hasImage;
 
             return message;
         }
@@ -139,6 +147,7 @@ public class MessageDTO implements Comparable<MessageDTO> {
     private String messageString;
     private String playgroundID;
     private Date date;
+    private boolean hasImage;
 
     public String getMessageString() {
         return messageString;
@@ -154,6 +163,10 @@ public class MessageDTO implements Comparable<MessageDTO> {
 
     public void setPlaygroundID(String playgroundID) {
         this.playgroundID = playgroundID;
+    }
+
+    public String getPlaygroundID() {
+        return playgroundID;
     }
 
     public String getCategory() {
@@ -200,14 +213,24 @@ public class MessageDTO implements Comparable<MessageDTO> {
         this.date = date;
     }
 
+    public void setHasImage(boolean hasImage) {
+        this.hasImage = hasImage;
+    }
+
+    public boolean getHasImage() {
+        return hasImage;
+    }
+
     @Override
     public String toString() {
         return "Message{" +
-                "id='" + id + '\'' +
+                "id='" + id + '\'' +            //rettet fra "id="
                 ", category='" + category + '\'' +
                 ", messageString='" + messageString + '\'' +
                 ", outDated=" + outDated +
                 ", writtenByID='" + writtenByID + '\'' +
+                ", playgroundID='" + playgroundID + '\'' +
+                ", date=" + date +
                 '}';
     }
 
@@ -216,7 +239,7 @@ public class MessageDTO implements Comparable<MessageDTO> {
     }
 
 
-    private MessageDTO() {
+    private Message() {
     }
 
     @Override
@@ -225,7 +248,7 @@ public class MessageDTO implements Comparable<MessageDTO> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MessageDTO message = (MessageDTO) o;
+        Message message = (Message) o;
 
         if (outDated != message.outDated) return false;
         if (!Objects.equals(id, message.id)) return false;
@@ -240,7 +263,7 @@ public class MessageDTO implements Comparable<MessageDTO> {
     }
 
     @Override
-    public int compareTo(@NotNull MessageDTO o) {
+    public int compareTo(@NotNull Message o) {
         return date.compareTo(o.date);
     }
 }
