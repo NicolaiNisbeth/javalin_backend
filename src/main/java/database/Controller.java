@@ -131,9 +131,7 @@ public class Controller implements IController {
                 pedagogue.setEvents(null);
             }
             for (EventDTO eventDTO : playground.getEvents()){
-                for (UserDTO pedagogue : eventDTO.getAssignedUsers()){
-                    pedagogue.setEvents(null);
-                }
+                eventDTO.setAssignedUsers(null);
             }
         }
         return playgrounds;
