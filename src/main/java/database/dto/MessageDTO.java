@@ -201,7 +201,7 @@ public class MessageDTO implements Comparable<MessageDTO> {
         this.writtenByID = writtenByID;
     }
 
-    public String getId() {
+    public String getID() {
         return id;
     }
 

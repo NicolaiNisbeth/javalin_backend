@@ -97,19 +97,19 @@ public class EventDAO implements IEventDAO {
      */
     @Override
     public WriteResult updateEvent(EventDTO event) throws IllegalArgumentException, NoModificationException {
-        if (event == null || event.getId() == null)
+        if (event == null || event.getID() == null)
             throw new IllegalArgumentException(
                     String.format("Can't update event in %s collection when param is null", COLLECTION));
 
         Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         WriteResult wr = collection
-                .update(new ObjectId(event.getId()))
+                .update(new ObjectId(event.getID()))
                 .with(event);
 
         if (!wr.wasAcknowledged())
             throw new NoModificationException(
-                    String.format("Event in %s collection with id %s was not updated", COLLECTION, event.getId()));
+                    String.format("Event in %s collection with id %s was not updated", COLLECTION, event.getID()));
 
         return wr;
     }

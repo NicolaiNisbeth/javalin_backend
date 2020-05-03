@@ -1,19 +1,17 @@
-package javalin_resources.collections;
+package javalin_resources.http_methods;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
-import com.mongodb.MongoException;
+import com.google.gson.JsonObject;
+import com.google.gson.internal.$Gson$Preconditions;
 import com.mongodb.WriteResult;
-import com.squareup.moshi.Json;
 import database.Controller;
-import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.core.util.Json;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.*;
 import org.mindrot.jbcrypt.BCrypt;
@@ -28,17 +26,12 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.Naming;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
 
 
 public class User implements Tag {
 
-    /**
-     * DELETE
-     */
     @OpenApi(
             summary = "Delete one user",
             path = "/rest/employee/delete",
@@ -66,9 +59,6 @@ public class User implements Tag {
         ctx.contentType("json");
     };
 
-    /**
-     * GET
-     */
     @OpenApi(
             summary = "Get one users profile picture",
             path = "/rest/employee/delete",
@@ -87,13 +77,13 @@ public class User implements Tag {
             UserAdminResource.printImage(in);*/
 
         } catch (IOException e) {
-            System.out.println("Server: User have no profile picture...");
+            //System.out.println("Server: User have no profile picture...");
         }
 
         if (targetStream != null) {
             ctx.result(targetStream).contentType("image/png");
         } else {
-            System.out.println("Server: Returning random user picture...");
+            //System.out.println("Server: Returning random user picture...");
             targetStream = User.class.getResourceAsStream("/images/profile_pictures/random_user.png");
             ctx.result(targetStream).contentType("image/png");
         }
@@ -106,16 +96,23 @@ public class User implements Tag {
             method = HttpMethod.GET,
             tags = {"User"},
             responses = {
-                    @OpenApiResponse(status = "200", content = {@OpenApiContent(from = User[].class)})
+                    @OpenApiResponse(status = "200", content = {@OpenApiContent(from = UserDTO[].class)})
             }
     )
     public static Handler getAllUsers = ctx -> {
         ctx.json(Controller.getInstance().getUsers()).contentType("json");
     };
 
-    /**
-     * POST
-     */
+    public static Handler getAllEmployees = ctx -> {
+        List<UserDTO> users = Controller.getInstance().getUsers();
+        List<UserDTO> returnUsers = new ArrayList<>();
+        for (UserDTO user : users) {
+            if (!user.getStatus().equalsIgnoreCase("client")) {
+                returnUsers.add(user);
+            }
+        }
+        ctx.json(returnUsers).contentType("json");
+    };
 
     @OpenApi(
             summary = "Create user",
@@ -145,7 +142,6 @@ public class User implements Tag {
             email = jsonObject.getString(EMAIL);
             status = jsonObject.getString(STATUS);
             website = jsonObject.getString(WEBSITE);
-            //todo test med angular
             playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
             phoneNumbers = jsonObject.getJSONArray(PHONENUMBERS);
             if (username.length() < 1 || password.length() < 1) {
@@ -224,14 +220,22 @@ public class User implements Tag {
             ctx.result("User was not created");
         }
     };
-
     @OpenApi(
-            summary = "User log in",
-            path = "/rest/employee/login",
+            summary = "Logs user into the system",
+            path = javalin_resources.Util.Path.User.USERS_LOGIN,
             tags = {"User"},
-            composedRequestBody = @OpenApiComposedRequestBody(required = true, description = "username and password"),
+            method = HttpMethod.POST,
+            requestBody = @OpenApiRequestBody(
+                    content = @OpenApiContent(from = UserDTO.class, type = ContentType.JSON),
+                    required = true,
+                    description = "Insert your password and username instead of \"string\""
+            ),
             responses = {
-                    @OpenApiResponse(status = "200", content = {@OpenApiContent(from = User.class)})
+                    @OpenApiResponse(status = "200", description = "Successful login returns user object"),
+                    @OpenApiResponse(status = "400", description = "Body has no username or password"),
+                    @OpenApiResponse(status = "401", description = "Invalid username or password supplied"),
+                    @OpenApiResponse(status = "404", description = "User not found"),
+                    @OpenApiResponse(status = "500", description = "Server error")
             }
     )
     public static Handler userLogin = ctx -> {
@@ -331,6 +335,7 @@ public class User implements Tag {
         }
     };
 
+
     private static Bruger getUserInBrugerAuthorization(String username, String password) {
         Bruger bruger = null;
         try {
@@ -358,9 +363,6 @@ public class User implements Tag {
         return root;
     }
 
-    /**
-     * PUT
-     */
     @OpenApi(
             summary = "Update one user",
             path = "/rest/employee/update",
