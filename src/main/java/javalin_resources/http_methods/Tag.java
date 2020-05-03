@@ -40,12 +40,13 @@ public interface Tag {
     String PLAYGROUND_MESSAGE_ID = "messageid";
     String PLAYGROUND_MESSAGES = "messages";
 
-    String MESSAGE_ID = "id";
+    String MESSAGE_ID = "messageID";
     String MESSAGE_CATEGORY = "category";
     String MESSAGE_ICON = "icon";
     String MESSAGE_STRING = "messageString";
     String MESSAGE_OUTDATED = "outDated";
     String MESSAGE_WRITTENBY_ID = "writtenByID";
+    String MESSAGE_HASIMAGE = "hasImage";
 
     String YEAR = "year";
     String MONTH = "month";

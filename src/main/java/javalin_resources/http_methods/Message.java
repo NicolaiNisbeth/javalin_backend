@@ -2,7 +2,6 @@ package javalin_resources.http_methods;
 
 import com.mongodb.MongoException;
 import database.Controller;
-import database.dto.DetailsDTO;
 import database.dto.MessageDTO;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
@@ -10,6 +9,14 @@ import io.javalin.plugin.openapi.annotations.ContentType;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONObject;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -18,9 +25,10 @@ import java.util.NoSuchElementException;
 public class Message implements Tag {
 
   public static Handler deletePlaygroundMessage = ctx -> {
-    String id = ctx.pathParam(PLAYGROUND_MESSAGE_ID);
+    String id = ctx.pathParam("id"); //PLAYGROUND_MESSAGE_ID
     try {
       Controller.getInstance().deletePlaygroundMessage(id);
+      Shared.deleteMessageImage(id);
       ctx.status(HttpStatus.OK_200);
       ctx.result("Success - playground message was deleted");
       ctx.contentType(ContentType.JSON);
@@ -61,34 +69,42 @@ public class Message implements Tag {
    */
   public static Handler createPlaygroundMessage = ctx -> {
 
-    JSONObject jsonObject = new JSONObject(ctx.body());
+    BufferedImage bufferedImage = null;
+    String messageJson = ctx.formParam(("message"));
+    JSONObject jsonObject = new JSONObject(messageJson);
 
     // TODO: Details
-    DetailsDTO detailsModel = new DetailsDTO();
+    //Details details = new Details();
     Calendar cal = Calendar.getInstance();
+    //cal.set(Calendar.YEAR, jsonObject.getInt(EVENT_YEAR));
+    //cal.set(Calendar.DAY_OF_MONTH, jsonObject.getInt(EVENT_DAY));
+    //cal.set(Calendar.MONTH, jsonObject.getInt(EVENT_MONTH));
 
-    cal.set(Calendar.YEAR, jsonObject.getInt(EVENT_YEAR));
-    cal.set(Calendar.DAY_OF_MONTH, jsonObject.getInt(EVENT_DAY));
-    cal.set(Calendar.MONTH, jsonObject.getInt(EVENT_MONTH));
-
-    cal.set(Calendar.HOUR, jsonObject.getInt(EVENT_HOUR_START));
-    cal.set(Calendar.MINUTE, jsonObject.getInt(EVENT_MINUTE_START));
+    //cal.set(Calendar.HOUR, jsonObject.getInt(EVENT_HOUR_START));
+    //cal.set(Calendar.MINUTE, jsonObject.getInt(EVENT_MINUTE_START));
 
     Date date = cal.getTime();
 
     MessageDTO message = new MessageDTO.Builder()
-      .setMessageString(jsonObject.getString(MESSAGE_STRING))
-      .set_id(jsonObject.getString(MESSAGE_ID))
-      .setIcon(jsonObject.getString(MESSAGE_ICON))
-      .setCategory(jsonObject.getString(MESSAGE_CATEGORY))
-      .setPlaygroundID(jsonObject.getString(PLAYGROUND_ID))
-      .setWrittenByID(jsonObject.getString(MESSAGE_WRITTENBY_ID))
-      .setDate(date)
-      .build();
+            .setMessageString(jsonObject.getString(MESSAGE_STRING))
+            .setCategory(jsonObject.getString(MESSAGE_CATEGORY))
+            .setPlaygroundID(jsonObject.getString("playgroundID"))
+            .setDate(date)
+            .setHasImage(jsonObject.getBoolean(MESSAGE_HASIMAGE))
+            .build();
 
+      try {
+        bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+      } catch (Exception e) {
+        System.out.println("Server: No message image was added...");
+      }
 
-    if (Controller.getInstance().createPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged()) {
+    if (Controller.getInstance().createPlaygroundMessage(jsonObject.getString("playgroundID"), message).wasAcknowledged()) { //PLAYGROUND_ID
       ctx.status(200).result("Message posted");
+      ctx.json(Controller.getInstance().getMessage(message.getID()));
+      if (bufferedImage != null) {
+        Shared.saveMessageImage(message.getID(), bufferedImage);
+      }
     } else {
       ctx.status(404).result("Failed to post message");
     }
@@ -99,10 +115,13 @@ public class Message implements Tag {
    */
   public static Handler updatePlaygroundMessage = ctx -> {
 
-    JSONObject jsonObject = new JSONObject(ctx.body());
-    MessageDTO message = Controller.getInstance().getMessage(ctx.pathParam("id"));
+    BufferedImage bufferedImage = null;
+    String messageJson = ctx.formParam(("message"));;
+    JSONObject jsonObject = new JSONObject(messageJson);
+    MessageDTO message = Controller.getInstance().getMessage(jsonObject.getString("id"));
 
     // TODO Hvordan kommer den detail parameter til at foregå?
+    /*
     if (jsonObject.get(HOUR) != null) {
       Calendar cal = Calendar.getInstance();
 
@@ -114,12 +133,13 @@ public class Message implements Tag {
       cal.set(Calendar.HOUR, jsonObject.getInt(HOUR));
       cal.set(Calendar.MINUTE, jsonObject.getInt(MINUTE));
       message.setDate(cal.getTime());
-    }
+    }*/
+
     if (jsonObject.get(MESSAGE_CATEGORY) != null)
       message.setCategory(jsonObject.getString(MESSAGE_CATEGORY));
 
-    if (jsonObject.get(MESSAGE_ICON) != null)
-      message.setIcon(jsonObject.getString(MESSAGE_ICON));
+    /*if (jsonObject.get(MESSAGE_ICON) != null)
+      message.setIcon(jsonObject.getString(MESSAGE_ICON));*/
 
     if (jsonObject.get(MESSAGE_STRING) != null)
       message.setMessageString(jsonObject.getString(MESSAGE_STRING));
@@ -130,12 +150,38 @@ public class Message implements Tag {
     if (jsonObject.get(MESSAGE_WRITTENBY_ID) != null)
       message.setWrittenByID(MESSAGE_WRITTENBY_ID);
 
-    if (Controller.getInstance().createPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged())
-      ctx.status(200).result("The message was created for the playground " + jsonObject.getString(PLAYGROUND_ID));
+    try {
+      bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+    } catch (Exception e) {
+      System.out.println("Server: No message image was added...");
+    }
 
+    if (Controller.getInstance().updatePlaygroundMessage(message).wasAcknowledged())
+      ctx.status(200).result("Updated message with ID: " + message.getID());
+      ctx.json(Controller.getInstance().getMessage(message.getID()));
+      if (bufferedImage != null) {
+        Shared.saveMessageImage(message.getID(), bufferedImage);
+      }
     else {
       ctx.status(404).result("There was an error");
     }
   };
 
+  public static Handler getMessageImage = ctx -> {
+    File homeFolder = new File(System.getProperty("user.home"));
+    Path path = Paths.get(String.format(homeFolder.toPath() +
+            "/server_resource/message_images/%s.png", ctx.pathParam("id")));
+
+    File initialFile = new File(path.toString());
+    InputStream targetStream = null;
+    try {
+      targetStream = new FileInputStream(initialFile);
+    } catch (IOException e) {
+      System.out.println("Server: The message have no image...");
+    }
+
+    if (targetStream != null) {
+      ctx.result(targetStream).contentType("image/png");
+    }
+  };
 }

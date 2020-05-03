@@ -2,6 +2,8 @@ package javalin_resources.http_methods;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
+import com.google.gson.JsonObject;
+import com.google.gson.internal.$Gson$Preconditions;
 import com.mongodb.WriteResult;
 import database.Controller;
 import database.dto.UserDTO;
@@ -9,6 +11,7 @@ import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
+import io.swagger.v3.core.util.Json;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.*;
 import org.mindrot.jbcrypt.BCrypt;
@@ -93,7 +96,7 @@ public class User implements Tag {
             method = HttpMethod.GET,
             tags = {"User"},
             responses = {
-                    @OpenApiResponse(status = "200", content = {@OpenApiContent(from = User[].class)})
+                    @OpenApiResponse(status = "200", content = {@OpenApiContent(from = UserDTO[].class)})
             }
     )
     public static Handler getAllUsers = ctx -> {
@@ -231,14 +234,22 @@ public class User implements Tag {
             ctx.result("User was not created");
         }
     };
-
     @OpenApi(
-            summary = "User log in",
-            path = "/rest/employee/login",
+            summary = "Logs user into the system",
+            path = javalin_resources.Util.Path.User.USERS_LOGIN,
             tags = {"User"},
-            composedRequestBody = @OpenApiComposedRequestBody(required = true, description = "username and password"),
+            method = HttpMethod.POST,
+            requestBody = @OpenApiRequestBody(
+                    content = @OpenApiContent(from = UserDTO.class, type = ContentType.JSON),
+                    required = true,
+                    description = "Insert your password and username instead of \"string\""
+            ),
             responses = {
-                    @OpenApiResponse(status = "200", content = {@OpenApiContent(from = User.class)})
+                    @OpenApiResponse(status = "200", description = "Successful login returns user object"),
+                    @OpenApiResponse(status = "400", description = "Body has no username or password"),
+                    @OpenApiResponse(status = "401", description = "Invalid username or password supplied"),
+                    @OpenApiResponse(status = "404", description = "User not found"),
+                    @OpenApiResponse(status = "500", description = "Server error")
             }
     )
     public static Handler userLogin = ctx -> {
@@ -338,6 +349,7 @@ public class User implements Tag {
         }
     };
 
+
     private static Bruger getUserInBrugerAuthorization(String username, String password) {
         Bruger bruger = null;
         try {
@@ -376,109 +388,109 @@ public class User implements Tag {
             }
     )
     public static Handler updateUser = ctx -> {
-        BufferedImage bufferedImage;
-        String usernameAdmin, passwordAdmin, username, password,
-                firstName, lastName, email, status, website;
-        JSONArray phoneNumbers, playgroundIDs;
+        String username, password, firstName, lastName, email, website;
+        String usernameAdmin, passwordAdmin, status = null;
+        JSONArray phoneNumbers, playgroundIDs = null;
+        JSONObject jsonObject;
 
+        // check if possible to update client
         try {
             String usermodel = ctx.formParam(("usermodel"));
-            JSONObject jsonObject = new JSONObject(usermodel);
-            usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
-            passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
+            jsonObject = new JSONObject(usermodel);
             username = jsonObject.getString(USERNAME);
             password = jsonObject.getString(PASSWORD);
             firstName = jsonObject.getString(FIRSTNAME);
             lastName = jsonObject.getString(LASTNAME);
             email = jsonObject.getString(EMAIL);
-            status = jsonObject.getString(STATUS);
             website = jsonObject.getString(WEBSITE);
-            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
             phoneNumbers = jsonObject.getJSONArray(PHONENUMBERS);
-
-            if (username.length() < 1 || password.length() < 1)
-                throw new DALException("Missing username or setPassword");
-        } catch (Exception e) {
-            e.printStackTrace();
-            ctx.status(400);
-            ctx.result("Bad Request - Error in user data");
+        } catch (JSONException | NullPointerException e){
+            ctx.status(HttpStatus.BAD_REQUEST_400);
+            ctx.result("Bad request - error in user data");
+            ctx.contentType(ContentType.JSON);
             return;
         }
 
-        UserDTO userToUpdate = null;
-
-        //Hvis user ikke opdaterer sig selv, er det en admin der opdaterer
-        if (!username.equalsIgnoreCase(usernameAdmin)) {
-            boolean adminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
-            if (!adminAuthorized) {
+        // check if admin user can update another user
+        boolean privileges = true;
+        try {
+            usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
+            passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
+            status = jsonObject.getString(STATUS);
+            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+            boolean isAdminUpdatingUser = !username.equalsIgnoreCase(usernameAdmin);
+            boolean isAdminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
+            if (isAdminUpdatingUser && !isAdminAuthorized) {
+                ctx.status(HttpStatus.UNAUTHORIZED_401);
+                ctx.json(String.format("Unauthorized - User %s has no privileges to update user %s", usernameAdmin, username));
+                ctx.contentType(ContentType.JSON);
                 return;
             }
+        } catch (JSONException e){
+            privileges = false;
         }
 
+        // find user in db
+        UserDTO userToUpdate;
         try {
             userToUpdate = Controller.getInstance().getUser(username);
-        } catch (NoSuchElementException e) {
-            ctx.status(401);
-            ctx.result("Unauthorized - Username doesn't exist");
+        } catch (NoSuchElementException | IllegalArgumentException e) {
+            ctx.status(HttpStatus.NOT_FOUND_404);
+            ctx.result("Not found - user does not exist");
+            ctx.contentType(ContentType.JSON);
+            return;
         }
+
+        // update user fields
         userToUpdate.setFirstname(firstName);
         userToUpdate.setLastname(lastName);
-        userToUpdate.setStatus(status);
         userToUpdate.setEmail(email);
         userToUpdate.setWebsite(website);
         userToUpdate.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username));
-
         String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
         for (int i = 0; i < phoneNumbers.length(); i++) {
-            try {
-                usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i);
-            } catch (ClassCastException e) {
-            }
+            try { usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i); } catch (ClassCastException e) {}
         }
         userToUpdate.setPhoneNumbers(usersNewPhoneNumbers);
+        try {
+            BufferedImage bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+            Shared.saveProfilePicture(username, bufferedImage);
+        } catch (Exception e) { System.out.println("Server: No image in upload"); }
 
-        Set<String> usersOldPGIds = userToUpdate.getPlaygroundsIDs();
-        System.out.println("Old pgs " + usersOldPGIds);
-
-        Set<String> usersNewPGIds = new HashSet<>();
-        for (int i = 0; i < playgroundIDs.length(); i++) {
-            try {
-                usersNewPGIds.add((String) playgroundIDs.get(i));
-            } catch (ClassCastException e) {
-            }
-        }
-        userToUpdate.setPlaygroundsIDs(usersNewPGIds);
-
-        if (usersOldPGIds != null || usersOldPGIds.size() > 0) {
-            for (String oldPlaygroundName : usersOldPGIds) {
-                if (!usersNewPGIds.contains(oldPlaygroundName)) {
+        // check if non-trivial data can be updated
+        if (privileges){
+            // remove references to old playgrounds
+            Set<String> usersOldPGIds = userToUpdate.getPlaygroundsIDs();
+            System.out.println("Old pgs " + usersOldPGIds);
+            if (usersOldPGIds != null && usersOldPGIds.size() > 0) {
+                for (String oldPlaygroundName : usersOldPGIds) {
                     Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
                 }
             }
+            // add references to new playgrounds
+            Set<String> usersNewPGIds = new HashSet<>();
+            for (int i = 0; i < playgroundIDs.length(); i++) {
+                try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
+            }
+            userToUpdate.setPlaygroundsIDs(usersNewPGIds);
+            userToUpdate.setStatus(status);
         }
 
         try {
-            bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
-            Shared.saveProfilePicture(username, bufferedImage);
-        } catch (
-                Exception e) {
-            System.out.println("Server: No image in upload");
-        }
-        if (Controller.getInstance().updateUser(userToUpdate).wasAcknowledged()) {
-            ctx.status(201);
-            ctx.result("User updated");
+            Controller.getInstance().updateUser(userToUpdate);
+            ctx.status(HttpStatus.OK_200);
+            ctx.result("OK - user was updated successfully");
             ctx.json(userToUpdate);
-
-            //Tilføj brugeren til de playgrounds han er tilknyttet
-            //Controller.getInstance().addPedagogueToPlayground(userToUpdate);
-
-        } else {
-            ctx.status(500);
-            ctx.result("User not updated");
+            ctx.contentType(ContentType.JSON);
+        } catch (NoModificationException e){
+            ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+            ctx.result("Server error - Update user failed");
+            ctx.contentType(ContentType.JSON);
         }
     };
 
-    //Not implemented
+
+    // TODO: NOT IMPLEMENTED
     public static Handler resetPassword = ctx -> {
         JSONObject jsonObject = new JSONObject(ctx.body());
         String username = jsonObject.getString(USERNAME);

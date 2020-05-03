@@ -115,7 +115,7 @@ class EventDAOTest {
         Assertions.assertNotNull(eventDAO.getEvent(ws2.getUpsertedId().toString()));
 
         for (EventDTO i: eventDAO.getEventList()) {
-            eventDAO.deleteEvent(i.getId());
+            eventDAO.deleteEvent(i.getID());
         }
 
         Assertions.assertThrows(NoSuchElementException.class, () -> eventDAO.getEventList());

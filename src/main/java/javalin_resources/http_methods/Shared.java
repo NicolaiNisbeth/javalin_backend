@@ -71,6 +71,32 @@ public class Shared {
         }
     }
 
+    public static void saveMessageImage(String messageID, BufferedImage bufferedImage) {
+        File homeFolder = new File(System.getProperty("user.home"));
+        Path path = Paths.get(String.format(homeFolder.toPath() +
+                "/server_resource/message_images/%s.png", messageID));
+
+        File imageFile = new File(path.toString());
+        try {
+            ImageIO.write(bufferedImage, "png", imageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteMessageImage(String messageID) {
+        File homeFolder = new File(System.getProperty("user.home"));
+        Path path = Paths.get(String.format(homeFolder.toPath() +
+                "/server_resource/message_images/%s.png", messageID));
+
+        File imageFile = new File(path.toString());
+        if (imageFile.delete()) {
+            System.out.println("Image delete for message with ID: " + messageID);
+        } else {
+            System.out.println("No image found for the deleted message.");
+        }
+    }
+
     public static void saveProfilePicture2(Context ctx) {
         BufferedImage bufferedImage = null;
         String username = ctx.formParam("username");
