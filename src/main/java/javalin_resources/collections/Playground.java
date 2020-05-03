@@ -20,7 +20,7 @@ import java.util.Set;
 public class Playground implements Tag {
 
   /**
-   * DELETE
+   * USERS_DELETE
    */
   public static Handler deleteOnePlayground = ctx -> {
     String playgroundname = "";

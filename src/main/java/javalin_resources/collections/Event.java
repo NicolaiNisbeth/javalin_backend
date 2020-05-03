@@ -18,7 +18,7 @@ import java.util.*;
 public class Event implements Tag {
 
   /**
-   * DELETE
+   * USERS_DELETE
    */
   public static Handler deleteEventFromPlayground = ctx -> {
     String id = ctx.pathParam(EVENT_ID);

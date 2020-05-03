@@ -1,7 +1,5 @@
 package javalin_resources.collections;
 
-import main.Main;
-
 public interface Tag {
 
     String EVENT_ID = "id";
@@ -68,10 +66,7 @@ public interface Tag {
     String PLAYGROUNDSIDS = "playgroundsIDs";
     String WEBSITE = "website";
     String PHONENUMBERS = "phoneNumbers";
-    String IMAGEPATH = String.format("http://%s:8080/rest/employee", Main.getHostAddress());
+    String IMAGEPATH = String.format("http://18.185.121.182:8080/rest/users");
 
-
-    //todo slet - vigtigt - ret addressen inden deployment
-    //String IMAGEPATH = "http://localhost:8080/rest/employee";
-    //String IMAGEPATH = "http://18.185.121.182:8080/rest/employee";
+    //String IMAGEPATH = String.format("http://%s:8080/rest/users", Main.getHostAddress());
 }

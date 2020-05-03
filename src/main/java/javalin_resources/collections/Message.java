@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
 public class Message implements Tag {
 
   /**
-   * DELETE
+   * USERS_DELETE
    */
   public static Handler deletePlaygroundMessage = ctx -> {
     String id = ctx.pathParam(PLAYGROUND_MESSAGE_ID);

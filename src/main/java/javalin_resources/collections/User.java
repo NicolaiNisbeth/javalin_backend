@@ -20,6 +20,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import javax.imageio.ImageIO;
 import javax.mail.MessagingException;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,16 +29,14 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.Naming;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
 
 
 public class User implements Tag {
 
     /**
-     * DELETE
+     * USERS_DELETE
      */
     @OpenApi(
             summary = "Delete one user",
@@ -87,13 +86,13 @@ public class User implements Tag {
             UserAdminResource.printImage(in);*/
 
         } catch (IOException e) {
-            System.out.println("Server: User have no profile picture...");
+            //System.out.println("Server: User have no profile picture...");
         }
 
         if (targetStream != null) {
             ctx.result(targetStream).contentType("image/png");
         } else {
-            System.out.println("Server: Returning random user picture...");
+            //System.out.println("Server: Returning random user picture...");
             targetStream = User.class.getResourceAsStream("/images/profile_pictures/random_user.png");
             ctx.result(targetStream).contentType("image/png");
         }
@@ -111,6 +110,17 @@ public class User implements Tag {
     )
     public static Handler getAllUsers = ctx -> {
         ctx.json(Controller.getInstance().getUsers()).contentType("json");
+    };
+
+    public static Handler getAllEmployees = ctx -> {
+        List<UserDTO> users = Controller.getInstance().getUsers();
+        List<UserDTO> returnUsers = new ArrayList<>();
+        for (UserDTO user : users) {
+            if (!user.getStatus().equalsIgnoreCase("client")) {
+                returnUsers.add(user);
+            }
+        }
+        ctx.json(returnUsers).contentType("json");
     };
 
     /**
@@ -145,7 +155,6 @@ public class User implements Tag {
             email = jsonObject.getString(EMAIL);
             status = jsonObject.getString(STATUS);
             website = jsonObject.getString(WEBSITE);
-            //todo test med angular
             playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
             phoneNumbers = jsonObject.getJSONArray(PHONENUMBERS);
             if (username.length() < 1 || password.length() < 1) {

@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 
 public interface IController {
 
-    // CREATE
+    // USERS_CREATE
     WriteResult createPlayground(PlaygroundDTO playground) throws IllegalArgumentException, NoModificationException;
     WriteResult createUser(UserDTO user) throws IllegalArgumentException, NoModificationException;
 
@@ -28,13 +28,13 @@ public interface IController {
     List<EventDTO> getEventsInPlayground(String playgroundName);
     List<MessageDTO> getMessagesInPlayground(String playgroundName);
 
-    // UPDATE
+    // USERS_UPDATE
     WriteResult updatePlayground(PlaygroundDTO playground) throws IllegalArgumentException, NoModificationException ;
     WriteResult updateUser(UserDTO user) throws IllegalArgumentException, NoModificationException ;
     WriteResult updatePlaygroundEvent(EventDTO event) throws IllegalArgumentException, NoModificationException ;
     WriteResult updatePlaygroundMessage(MessageDTO message) throws IllegalArgumentException, NoModificationException ;
 
-    // DELETE
+    // USERS_DELETE
     WriteResult deletePlayground(String playgroundName) throws NoSuchElementException, NoModificationException, MongoException;
     WriteResult deleteUser(String username) throws NoSuchElementException, NoModificationException, MongoException;
 
