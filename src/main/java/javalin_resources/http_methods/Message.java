@@ -101,9 +101,9 @@ public class Message implements Tag {
 
     if (Controller.getInstance().createPlaygroundMessage(jsonObject.getString("playgroundID"), message).wasAcknowledged()) { //PLAYGROUND_ID
       ctx.status(200).result("Message posted");
-      ctx.json(Controller.getInstance().getMessage(message.getId()));
+      ctx.json(Controller.getInstance().getMessage(message.getID()));
       if (bufferedImage != null) {
-        Shared.saveMessageImage(message.getId(), bufferedImage);
+        Shared.saveMessageImage(message.getID(), bufferedImage);
       }
     } else {
       ctx.status(404).result("Failed to post message");
@@ -156,11 +156,11 @@ public class Message implements Tag {
       System.out.println("Server: No message image was added...");
     }
 
-    if (Controller.getInstance().createPlaygroundMessage(jsonObject.getString(PLAYGROUND_ID), message).wasAcknowledged())
-      ctx.status(200).result("Updated message with ID: " + message.getId());
-      ctx.json(Controller.getInstance().getMessage(message.getId()));
+    if (Controller.getInstance().updatePlaygroundMessage(message).wasAcknowledged())
+      ctx.status(200).result("Updated message with ID: " + message.getID());
+      ctx.json(Controller.getInstance().getMessage(message.getID()));
       if (bufferedImage != null) {
-        Shared.saveMessageImage(message.getId(), bufferedImage);
+        Shared.saveMessageImage(message.getID(), bufferedImage);
       }
     else {
       ctx.status(404).result("There was an error");
