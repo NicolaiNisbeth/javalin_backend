@@ -34,7 +34,7 @@ public class User implements Tag {
 
     @OpenApi(
             summary = "Delete one user",
-            path = "/rest/employee/delete",
+            path = "/rest/users",
             tags = {"User"},
             composedRequestBody = @OpenApiComposedRequestBody(required = true,
                     description = "credentials of the admin and username of the user to be deleted")
@@ -61,7 +61,7 @@ public class User implements Tag {
 
     @OpenApi(
             summary = "Get one users profile picture",
-            path = "/rest/employee/delete",
+            path = "/rest/users",
             tags = {"User"}
     )
     public static Handler getUserPicture = ctx -> {
@@ -92,7 +92,7 @@ public class User implements Tag {
     @OpenApi(
             summary = "Get all users",
             operationId = "getAllUsers",
-            path = "/rest/employee/all",
+            path = "/rest/users",
             method = HttpMethod.GET,
             tags = {"User"},
             responses = {
@@ -103,7 +103,18 @@ public class User implements Tag {
         ctx.json(Controller.getInstance().getUsers()).contentType("json");
     };
 
+    @OpenApi(
+            summary = "Get all users",
+            operationId = "getAllUsers",
+            path = "/rest/users/all-employees",
+            method = HttpMethod.GET,
+            tags = {"User"},
+            responses = {
+                    @OpenApiResponse(status = "200", content = {@OpenApiContent(from = UserDTO[].class)})
+            }
+    )
     public static Handler getAllEmployees = ctx -> {
+        System.out.println("er inde");
         List<UserDTO> users;
         try {
             users = Controller.getInstance().getUsers();
@@ -379,7 +390,7 @@ public class User implements Tag {
 
     @OpenApi(
             summary = "Update one user",
-            path = "/rest/employee/update",
+            path = "/rest/users",
             tags = {"User"},
             formParams = {@OpenApiFormParam(name = "usermodel", type = JSONString.class, required = true)},
             description = "usermodel containing credentials of the admin and the user the be updated with relevant fields",
