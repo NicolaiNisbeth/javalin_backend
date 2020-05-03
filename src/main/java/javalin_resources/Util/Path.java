@@ -66,4 +66,15 @@ public class Path {
         public static final String USERS_ALL_ZIPCODE = "/rest/users/:zipcode";*/
 
     }
+
+    public static class Message {
+        public static final String MESSAGE_IMAGE_ONE = "/rest/messages/:id/image";
+    }
+
+   /* public static class User {
+        public static final String LOGIN = "rest/employee/login";
+        public static final String HOMESCREEN = "/rest/:id";
+        public static final String FAVORITES = "/rest/:id/favorites";
+        public static final String USER_POSTS = "/rest/id/posts";
+    }*/
 }
