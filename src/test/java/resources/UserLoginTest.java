@@ -6,7 +6,7 @@ import database.TestDB;
 import database.dto.UserDTO;
 import io.javalin.http.Context;
 import io.javalin.plugin.openapi.annotations.ContentType;
-import javalin_resources.collections.User;
+import javalin_resources.http_methods.User;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;

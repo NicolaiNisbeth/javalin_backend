@@ -1,4 +1,4 @@
-package javalin_resources.collections;
+package javalin_resources.http_methods;
 
 import com.mongodb.MongoException;
 import database.Controller;
@@ -17,9 +17,6 @@ import java.util.NoSuchElementException;
 
 public class Message implements Tag {
 
-  /**
-   * USERS_DELETE
-   */
   public static Handler deletePlaygroundMessage = ctx -> {
     String id = ctx.pathParam(PLAYGROUND_MESSAGE_ID);
     try {

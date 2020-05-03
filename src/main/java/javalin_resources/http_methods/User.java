@@ -1,26 +1,20 @@
-package javalin_resources.collections;
+package javalin_resources.http_methods;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
-import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
-import com.squareup.moshi.Json;
 import database.Controller;
-import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.models.PathItem;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.*;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.imageio.ImageIO;
 import javax.mail.MessagingException;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,9 +29,6 @@ import java.util.List;
 
 public class User implements Tag {
 
-    /**
-     * USERS_DELETE
-     */
     @OpenApi(
             summary = "Delete one user",
             path = "/rest/employee/delete",
@@ -65,9 +56,6 @@ public class User implements Tag {
         ctx.contentType("json");
     };
 
-    /**
-     * GET
-     */
     @OpenApi(
             summary = "Get one users profile picture",
             path = "/rest/employee/delete",
@@ -122,10 +110,6 @@ public class User implements Tag {
         }
         ctx.json(returnUsers).contentType("json");
     };
-
-    /**
-     * POST
-     */
 
     @OpenApi(
             summary = "Create user",
@@ -367,9 +351,6 @@ public class User implements Tag {
         return root;
     }
 
-    /**
-     * PUT
-     */
     @OpenApi(
             summary = "Update one user",
             path = "/rest/employee/update",

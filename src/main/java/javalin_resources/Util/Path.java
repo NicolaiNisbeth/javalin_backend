@@ -19,8 +19,6 @@ public class Path {
         public static final String PLAYGROUNDS_ONE_PEDAGOGUE_ALL = "/rest/playgrounds/:name/pedagogues";
         // One employees on a playground
         public static final String PLAYGROUNDS_ONE_PEDAGOGUE_ONE = "/rest/playgrounds/:name/pedagogues/:username";
-        // All events on all playgrounds.
-        public static final String PLAYGROUNDS_ALL_EVENTS = "/rest/playgrounds/events";
         // All events on a playground
         public static final String PLAYGROUNDS_ONE_EVENTS_ALL = "/rest/playgrounds/:name/events";
         // One events on a playground
@@ -35,28 +33,37 @@ public class Path {
         public static final String PLAYGROUNDS_ONE_MESSAGE_ONE = "/rest/playgrounds/:name/messages/:id";
         // Playground message all
         public static final String PLAYGROUNDS_ONE_MESSAGE_ALL = "/rest/playgrounds/:name/messages";
+
+       /*
+        todo slet hvis ikke bruges
+        // All events on all playgrounds.
+        public static final String PLAYGROUNDS_ALL_EVENTS = "/rest/playgrounds/events";
         // All playgrounds with a given zipcode.
         public static final String PLAYGROUNDS_WITHZIPCODE = "/rest/playgrounds/:zipcode";
         // All playgrounds nearby.
-        public static final String PLAYGROUNDS_NEARBY = "/rest/playgrounds/:nearby";
+        public static final String PLAYGROUNDS_NEARBY = "/rest/playgrounds/:nearby";*/
     }
 
     public static class User {
         // ALl users
         public static final String USERS_ALL = "/rest/users";
+        // All users that are employees - not clients
         public static final String USERS_ALL_EMPLOYEES = "/rest/users/all-employees";
-        // User based on ID
-        public static final String USERS_ONE = "/rest/users/:id";
-        // All employees working within a zipcode.
-        public static final String USERS_ALL_ZIPCODE = "/rest/users/:zipcode";
+        public static final String USERS_CRUD = "rest/users/:username";
+
         // Get employee's profile picture
         public static final String USERS_ONE_PROFILE_PICTURE = "/rest/users/:username/profile-picture";
 
         public static final String USERS_LOGIN = "rest/users/login";
-        public static final String USERS_DELETE = "rest/users/delete";
-        public static final String USERS_UPDATE = "rest/users/update";
-        public static final String USERS_CREATE = "rest/users/create";
         public static final String USERS_RESET_PASSWORD = "rest/users/reset-setPassword";
+
+ /*
+
+ todo slet hvis ikke bruges
+        // User based on ID
+        public static final String USERS_ONE = "/rest/users/:id";
+        // All employees working within a zipcode.
+        public static final String USERS_ALL_ZIPCODE = "/rest/users/:zipcode";*/
 
     }
 }

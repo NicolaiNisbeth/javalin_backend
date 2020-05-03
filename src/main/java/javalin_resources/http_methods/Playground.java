@@ -1,4 +1,4 @@
-package javalin_resources.collections;
+package javalin_resources.http_methods;
 
 import com.mongodb.WriteResult;
 import database.Controller;
@@ -20,7 +20,7 @@ import java.util.Set;
 public class Playground implements Tag {
 
   /**
-   * USERS_DELETE
+   * USERS_CRUD
    */
   public static Handler deleteOnePlayground = ctx -> {
     String playgroundname = "";

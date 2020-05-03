@@ -34,7 +34,7 @@ public interface IController {
     WriteResult updatePlaygroundEvent(EventDTO event) throws IllegalArgumentException, NoModificationException ;
     WriteResult updatePlaygroundMessage(MessageDTO message) throws IllegalArgumentException, NoModificationException ;
 
-    // USERS_DELETE
+    // USERS_CRUD
     WriteResult deletePlayground(String playgroundName) throws NoSuchElementException, NoModificationException, MongoException;
     WriteResult deleteUser(String username) throws NoSuchElementException, NoModificationException, MongoException;
 

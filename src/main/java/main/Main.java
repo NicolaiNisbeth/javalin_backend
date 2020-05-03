@@ -7,7 +7,7 @@ import io.javalin.plugin.openapi.ui.SwaggerOptions;
 import io.prometheus.client.exporter.HTTPServer;
 import io.swagger.v3.oas.models.info.Info;
 import javalin_resources.Util.Path;
-import javalin_resources.collections.*;
+import javalin_resources.http_methods.*;
 import monitor.QueuedThreadPoolCollector;
 import monitor.StatisticsHandlerCollector;
 import org.eclipse.jetty.server.Server;
@@ -68,13 +68,13 @@ public class Main {
                 get(Path.User.USERS_ALL_EMPLOYEES, User.getAllEmployees);
                 get(Path.User.USERS_ONE_PROFILE_PICTURE, User.getUserPicture);
 
-                put(Path.User.USERS_UPDATE, User.updateUser);
+                put(Path.User.USERS_CRUD, User.updateUser);
                 put(Path.User.USERS_RESET_PASSWORD, User.resetPassword);
 
                 post(Path.User.USERS_LOGIN, User.userLogin);
-                post(Path.User.USERS_CREATE, User.createUser);
+                post(Path.User.USERS_CRUD, User.createUser);
 
-                delete(Path.User.USERS_DELETE, User.deleteUser);
+                delete(Path.User.USERS_CRUD, User.deleteUser);
 
 
                 /** PLAYGROUNDS **/

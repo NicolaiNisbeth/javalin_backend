@@ -1,4 +1,4 @@
-package javalin_resources.collections;
+package javalin_resources.http_methods;
 
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
@@ -18,7 +18,7 @@ import java.util.*;
 public class Event implements Tag {
 
   /**
-   * USERS_DELETE
+   * USERS_CRUD
    */
   public static Handler deleteEventFromPlayground = ctx -> {
     String id = ctx.pathParam(EVENT_ID);

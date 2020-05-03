@@ -1,4 +1,4 @@
-package javalin_resources.collections;
+package javalin_resources.http_methods;
 
 public interface Tag {
 
