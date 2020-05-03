@@ -88,7 +88,6 @@ public class Controller implements IController {
         Set<EventDTO> events = user.getEvents();
         for (EventDTO value : events) {
             EventDTO event = eventDAO.getEvent(value.getID());
-            event.setAssignedUsers(null); // to avoid deep nesting
             updatedEvents.add(event);
         }
         user.setEvents(updatedEvents);
@@ -105,6 +104,7 @@ public class Controller implements IController {
         if (!users.isEmpty()) {
             for (UserDTO user : users) {
                 UserDTO u = userDAO.getUser(user.getUsername());
+                u.setEvents(null); //TODO: njl does angular depend on this information
                 updatedUser.add(u);
             }
         }
@@ -129,10 +129,10 @@ public class Controller implements IController {
         // to avoid unnecessary deep nesting
         for (PlaygroundDTO playground : playgrounds){
             for (UserDTO pedagogue : playground.getAssignedPedagogue()){
-                pedagogue.setEvents(null);
+                pedagogue.setEvents(null); //TODO: njl does angular depend on this information
             }
             for (EventDTO eventDTO : playground.getEvents()){
-                eventDTO.setAssignedUsers(null);
+                eventDTO.setAssignedUsers(null); //TODO: njl does angular depend on this information
             }
         }
         return playgrounds;
