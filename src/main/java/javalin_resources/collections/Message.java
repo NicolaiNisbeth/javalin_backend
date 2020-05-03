@@ -28,7 +28,7 @@ public class Message implements Tag {
    * DELETE
    */
   public static Handler deletePlaygroundMessage = ctx -> {
-    String id = ctx.pathParam(PLAYGROUND_MESSAGE_ID);
+    String id = ctx.pathParam("id"); //PLAYGROUND_MESSAGE_ID
     try {
       Controller.getInstance().deletePlaygroundMessage(id);
       Shared.deleteMessageImage(id);
