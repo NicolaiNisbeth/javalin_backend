@@ -109,6 +109,8 @@ public class Main {
 
                 /** MESSAGES **/
 
+                get(Path.Message.MESSAGE_IMAGE_ONE, Message.getMessageImage);
+
                 /** EVENTS **/
 
                 //TODO: Tag stilling til disse
