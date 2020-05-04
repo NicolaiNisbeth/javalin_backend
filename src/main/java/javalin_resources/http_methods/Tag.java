@@ -1,6 +1,4 @@
-package javalin_resources.HttpMethods;
-
-import main.Main;
+package javalin_resources.http_methods;
 
 public interface Tag {
 
@@ -42,12 +40,13 @@ public interface Tag {
     String PLAYGROUND_MESSAGE_ID = "messageid";
     String PLAYGROUND_MESSAGES = "messages";
 
-    String MESSAGE_ID = "id";
+    String MESSAGE_ID = "messageID";
     String MESSAGE_CATEGORY = "category";
     String MESSAGE_ICON = "icon";
     String MESSAGE_STRING = "messageString";
     String MESSAGE_OUTDATED = "outDated";
     String MESSAGE_WRITTENBY_ID = "writtenByID";
+    String MESSAGE_HASIMAGE = "hasImage";
 
     String YEAR = "year";
     String MONTH = "month";
@@ -68,10 +67,7 @@ public interface Tag {
     String PLAYGROUNDSIDS = "playgroundsIDs";
     String WEBSITE = "website";
     String PHONENUMBERS = "phoneNumbers";
-    String IMAGEPATH = String.format("http://%s:8080/rest/employee", Main.getHostAddress());
+    String IMAGEPATH = String.format("http://18.185.121.182:8080/rest/users");
 
-
-    //todo slet - vigtigt - ret addressen inden deployment
-    //String IMAGEPATH = "http://localhost:8080/rest/employee";
-    //String IMAGEPATH = "http://18.185.121.182:8080/rest/employee";
+    //String IMAGEPATH = String.format("http://%s:8080/rest/users", Main.getHostAddress());
 }

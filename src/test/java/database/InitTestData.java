@@ -7,7 +7,6 @@ import database.dto.MessageDTO;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.exceptions.NoModificationException;
-import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -21,7 +20,7 @@ public class InitTestData {
 
 
     public static void main(String[] args) throws NoModificationException {
-        controller.setDataSource(TestDB.getInstance());
+        //controller.setDataSource(TestDB.getInstance());
         controller.killAll();
         System.out.println("Collections are deleted");
 
@@ -29,7 +28,7 @@ public class InitTestData {
         List<String> playgroundNames = initPlaygrounds();
         List<String> eventIDs = addEventsToPlaygrounds(playgroundNames);
 
-        addParticipantsToEvent(usernames, eventIDs);
+        addUsersToEvent(usernames, eventIDs);
         addPedagoguesToPlaygrounds(usernames, playgroundNames);
         addMessagesToPlaygrounds(playgroundNames);
         System.out.println("Database is ready with test data!");
@@ -85,9 +84,10 @@ public class InitTestData {
                         .setLastname(data[3])
                         .setEmail(data[4])
                         .phoneNumbers(data[5].split(" "))
-                        .imagePath(data[6])
+                        .setImagePath(String.format("http://18.185.121.182:8080/rest/users/%s/profile-picture",data[0] ))
                         .status(data[7])
                         .build();
+
 
                 controller.createUser(user);
                 line = br.readLine();
@@ -181,13 +181,13 @@ public class InitTestData {
         System.out.println("Pedagogues are added to playgrounds");
     }
 
-    private static void addParticipantsToEvent(List<String> usernames, List<String> eventID) throws NoModificationException {
+    private static void addUsersToEvent(List<String> usernames, List<String> eventID) throws NoModificationException {
         for (String id : eventID){
             int i = (int) (Math.random() * usernames.size() + 1) ;
             for (int j = 0; j < i; j++) {
                 controller.addUserToEvent(id, usernames.get(j));
             }
         }
-        System.out.println("Participants are added to events");
+        System.out.println("Users are added to events");
     }
 }

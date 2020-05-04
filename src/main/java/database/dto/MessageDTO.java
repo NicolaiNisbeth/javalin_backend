@@ -21,6 +21,7 @@ public class MessageDTO implements Comparable<MessageDTO> {
         private String messageString;
         private String playgroundID;
         private Date date;
+        private boolean hasImage;
 
         public String getMessageString() {
             return messageString;
@@ -111,6 +112,11 @@ public class MessageDTO implements Comparable<MessageDTO> {
 
         }
 
+        public Builder setHasImage(boolean hasImage) {
+            this.hasImage = hasImage;
+            return this;
+        }
+
         public MessageDTO build() {
             //Here we create the actual playground object, which is always in a fully initialised state when it's returned.
             MessageDTO message = new MessageDTO();  //Since the builder is in the class, we can invoke its private constructor.
@@ -124,6 +130,8 @@ public class MessageDTO implements Comparable<MessageDTO> {
             message.writtenByID = this.writtenByID;
             message.messageString = this.messageString;
             message.date = this.date;
+            message.playgroundID = this.playgroundID; //check dette
+            message.hasImage = this.hasImage;
 
             return message;
         }
@@ -139,6 +147,7 @@ public class MessageDTO implements Comparable<MessageDTO> {
     private String messageString;
     private String playgroundID;
     private Date date;
+    private boolean hasImage;
 
     public String getMessageString() {
         return messageString;
@@ -154,6 +163,10 @@ public class MessageDTO implements Comparable<MessageDTO> {
 
     public void setPlaygroundID(String playgroundID) {
         this.playgroundID = playgroundID;
+    }
+
+    public String getPlaygroundID() {
+        return playgroundID;
     }
 
     public String getCategory() {
@@ -188,7 +201,7 @@ public class MessageDTO implements Comparable<MessageDTO> {
         this.writtenByID = writtenByID;
     }
 
-    public String getId() {
+    public String getID() {
         return id;
     }
 
@@ -200,14 +213,24 @@ public class MessageDTO implements Comparable<MessageDTO> {
         this.date = date;
     }
 
+    public void setHasImage(boolean hasImage) {
+        this.hasImage = hasImage;
+    }
+
+    public boolean getHasImage() {
+        return hasImage;
+    }
+
     @Override
     public String toString() {
         return "Message{" +
-                "id='" + id + '\'' +
+                "id='" + id + '\'' +            //rettet fra "id="
                 ", category='" + category + '\'' +
                 ", messageString='" + messageString + '\'' +
                 ", outDated=" + outDated +
                 ", writtenByID='" + writtenByID + '\'' +
+                ", playgroundID='" + playgroundID + '\'' +
+                ", date=" + date +
                 '}';
     }
 

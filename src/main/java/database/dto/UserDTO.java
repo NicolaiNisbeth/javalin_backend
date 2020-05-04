@@ -25,7 +25,7 @@ public class UserDTO implements Serializable {
     private String username;
     private String website;
     private boolean loggedIn;
-    private String[] phonenumbers;
+    private String[] phoneNumbers;
     private Set<EventDTO> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
     private Set<String> playgroundsIDs = new HashSet<>();
 
@@ -85,7 +85,7 @@ public class UserDTO implements Serializable {
         this.imagePath = builder.imagePath;
         this.email = builder.email;
         this.password = builder.password;
-        this.phonenumbers = builder.phonenumbers;
+        this.phoneNumbers = builder.phoneNumbers;
         this.events = builder.events;
         this.playgroundsIDs = builder.playgroundsIDs;
         this.website = builder.website;
@@ -140,12 +140,12 @@ public class UserDTO implements Serializable {
         this.password = password;
     }
 
-    public String[] getPhonenumbers() {
-        return phonenumbers;
+    public String[] getPhoneNumbers() {
+        return phoneNumbers;
     }
 
     public void setPhoneNumbers(String[] phonenumbers) {
-        this.phonenumbers = phonenumbers;
+        this.phoneNumbers = phonenumbers;
     }
 
     public Set<EventDTO> getEvents() {
@@ -166,7 +166,7 @@ public class UserDTO implements Serializable {
                 Objects.equals(imagePath, user.imagePath) &&
                 Objects.equals(email, user.email) &&
                 Objects.equals(password, user.password) &&
-                Arrays.equals(phonenumbers, user.phonenumbers);
+                Arrays.equals(phoneNumbers, user.phoneNumbers);
     }
 
 
@@ -180,7 +180,7 @@ public class UserDTO implements Serializable {
                 ", imagePath='" + imagePath + '\'' +
                 ", setEmail='" + email + '\'' +
                 ", setPassword='" + password + '\'' +
-                ", phoneNumbers=" + Arrays.toString(phonenumbers) +
+                ", phoneNumbers=" + Arrays.toString(phoneNumbers) +
                 ", events=" + events +
                 '}';
     }
@@ -192,7 +192,7 @@ public class UserDTO implements Serializable {
         private String imagePath;
         private String email;
         private String password;
-        private String[] phonenumbers;
+        private String[] phoneNumbers;
         private Set<EventDTO> events = new HashSet<>();
         private Set<String> playgroundsIDs = new HashSet<>();
         private String firstname;
@@ -259,12 +259,12 @@ public class UserDTO implements Serializable {
             return password;
         }
 
-        public String[] getPhonenumbers() {
-            return phonenumbers;
+        public String[] getPhoneNumbers() {
+            return phoneNumbers;
         }
 
-        public Builder setPhonenumbers(String[] phonenumbers) {
-            this.phonenumbers = phonenumbers;
+        public Builder setPhoneNumbers(String[] phoneNumbers) {
+            this.phoneNumbers = phoneNumbers;
             return this;
 
         }
@@ -304,7 +304,7 @@ public class UserDTO implements Serializable {
         }
 
         public Builder phoneNumbers(String... phoneNumbers) {
-            this.phonenumbers = phoneNumbers;
+            this.phoneNumbers = phoneNumbers;
             return this;
         }
 

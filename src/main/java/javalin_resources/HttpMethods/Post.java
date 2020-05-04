@@ -1,4 +1,8 @@
 package javalin_resources.HttpMethods;
+/**
+ *
+
+
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
@@ -181,7 +185,7 @@ public class Post implements Tag {
 
 
         };
-    }*/
+    }
 
     public static class User {
         public static Handler createParticipantsToPlaygroundEvent = ctx -> {
@@ -375,13 +379,9 @@ public class Post implements Tag {
                 ctx.status(HttpStatus.OK_200);
                 ctx.result("Success - User login was successful");
                 ctx.json(fetchedUser);
-                ctx.result("user login was successful");
+                ctx.contentType(ContentType.JSON);
                 String token = JWTHandler.provider.generateToken(fetchedUser);
                 ctx.header("Authorization", new JWTResponse(token).jwt);
-                ctx.status(200);
-                // the golden line. All hail this statement
-                ctx.header("Access-Control-Expose-Headers","Authorization");
-                ctx.json(fetchedUser);
                 ctx.contentType(ContentType.JSON);
             } else {
                 ctx.status(HttpStatus.UNAUTHORIZED_401);
@@ -420,4 +420,5 @@ public class Post implements Tag {
 
     }
 
-}
+**/
+

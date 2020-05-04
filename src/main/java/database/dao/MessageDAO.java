@@ -100,19 +100,19 @@ public class MessageDAO implements IMessageDAO {
      */
     @Override
     public WriteResult updateMessage(MessageDTO message) throws IllegalArgumentException, NoModificationException {
-        if (message == null || message.getId() == null)
+        if (message == null || message.getID() == null)
             throw new IllegalArgumentException(
                     String.format("Can't update message in %s collection when param is null", COLLECTION));
 
         Jongo jongo = new Jongo(datasource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
         WriteResult wr = collection
-                .update(new ObjectId(message.getId()))
+                .update(new ObjectId(message.getID()))
                 .with(message);
 
         if (!wr.wasAcknowledged())
             throw new NoModificationException(
-                    String.format("Event in %s collection with id %s was not updated", COLLECTION, message.getId()));
+                    String.format("Event in %s collection with id %s was not updated", COLLECTION, message.getID()));
 
         return wr;
     }

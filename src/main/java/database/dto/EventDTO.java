@@ -36,7 +36,7 @@ public class EventDTO implements Comparable<EventDTO> {
         this.playground = builder.playground;
     }
 
-    public String getId() {
+    public String getID() {
         return id;
     }
 

@@ -387,7 +387,6 @@ class ControllerTest {
         EventDTO playgroundEvent = new EventDTO.Builder()
                 .name("Fodbold og snobrød")
                 .description("Fodbold i lystrup park")
-                .participants(30)
                 .imagePath("asd98asd89asd.jpg")
                 .details(new DetailsDTO(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis())))
                 .build();
@@ -405,12 +404,11 @@ class ControllerTest {
 
         // update values
         fetchedEvent.setDescription("Fodbold og snobrød i Søndermarken");
-        fetchedEvent.setParticipants(40);
         fetchedEvent.setImagepath("as9d89a8sd98sa98dsa.jpg");
         controller.updatePlaygroundEvent(fetchedEvent);
 
         // check that event has updated values
-        EventDTO updatedEvent = controller.getEvent(fetchedEvent.getId());
+        EventDTO updatedEvent = controller.getEvent(fetchedEvent.getID());
         Assertions.assertAll(
                 () -> assertEquals(fetchedEvent.getDescription(), updatedEvent.getDescription()),
                 () -> assertEquals(fetchedEvent.getParticipants(), updatedEvent.getParticipants()),
@@ -458,7 +456,7 @@ class ControllerTest {
         controller.updatePlaygroundMessage(fetchedMessage);
 
         // check that event has updated values
-        MessageDTO updatedMessage = controller.getMessage(fetchedMessage.getId());
+        MessageDTO updatedMessage = controller.getMessage(fetchedMessage.getID());
         Assertions.assertAll(
                 () -> assertEquals(fetchedMessage.getCategory(), updatedMessage.getCategory()),
                 () -> assertEquals(fetchedMessage.getIcon(), updatedMessage.getIcon()),
@@ -520,13 +518,13 @@ class ControllerTest {
         MessageDTO playPovMessage = fetchedPlayground.getMessages().iterator().next();
 
         UserDTO fetchedPedagogue = controller.getUser(playPovPedagogue.getUsername());
-        EventDTO fetchedEvent = controller.getEvent(playPovEvent.getId());
-        MessageDTO fetchedMessage = controller.getMessage(playPovMessage.getId());
+        EventDTO fetchedEvent = controller.getEvent(playPovEvent.getID());
+        MessageDTO fetchedMessage = controller.getMessage(playPovMessage.getID());
 
         Assertions.assertAll(
                 () -> assertEquals(playPovPedagogue.getUsername(), fetchedPedagogue.getUsername()),
-                () -> assertEquals(playPovEvent.getId(), fetchedEvent.getId()),
-                () -> assertEquals(playPovMessage.getId(), fetchedMessage.getId())
+                () -> assertEquals(playPovEvent.getID(), fetchedEvent.getID()),
+                () -> assertEquals(playPovMessage.getID(), fetchedMessage.getID())
         );
 
         // delete playground
@@ -586,7 +584,7 @@ class ControllerTest {
         EventDTO fetchedEvent = controller.getEvent(eventID);
 
         Assertions.assertAll(
-                () -> assertEquals(eventID, fetchedUser.getEvents().iterator().next().getId()),
+                () -> assertEquals(eventID, fetchedUser.getEvents().iterator().next().getID()),
                 () -> assertEquals(playground.getName(), fetchedUser.getPlaygroundsIDs().iterator().next()),
                 () -> assertEquals(fetchedPlayground.getAssignedPedagogue().iterator().next().getUsername(), user.getUsername()),
                 () -> assertEquals(fetchedEvent.getAssignedUsers().iterator().next().getUsername(), user.getUsername())
@@ -906,7 +904,7 @@ class ControllerTest {
         );
 
         // remove event from playground
-        controller.deletePlaygroundEvent(fetchedEvent.getId());
+        controller.deletePlaygroundEvent(fetchedEvent.getID());
 
         // check that all event references are removed
         PlaygroundDTO updatedPlayground = controller.getPlayground(playground.getName());
@@ -949,7 +947,7 @@ class ControllerTest {
         );
 
         // remove playground message
-        controller.deletePlaygroundMessage(fetchedMessage.getId());
+        controller.deletePlaygroundMessage(fetchedMessage.getID());
 
         // check message references are removed
         PlaygroundDTO updatedPlayground = controller.getPlayground(playground.getName());
@@ -957,4 +955,5 @@ class ControllerTest {
 
         controller.deletePlayground(playground.getName());
     }
+
 }

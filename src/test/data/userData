@@ -1,4 +1,11 @@
 username,password,firstname,lastname,email,phonenumbers,imagepath,status
+root,root,Københavns,Kommune,kk@kk.dk,+4523123467,2kj32k3jk2.jpg,admin
+s175565,kodeNWHN,Nicolai,Nisbeth,s175565.nisbeth@gmail.com,+4523123467 +4523456789,2kj32k3jk2.jpg,pædagog
+s185040,s185040,Sercan,Bicen,s185040.blah@gmail.com,+4523115672,2kj32k3jk2.jpg,pædagog
+s185020,njl_nykode,Nicolai,Larsen,s185020.blah@gmail.com,+4523112372,2kj32k3jk2.jpg,pædagog
+s185031,s185031,Gustav,Norbert,s185031.blah@gmail.com,+4523112342,2kj32k3jk2.jpg,pædagog
+s185021,s185021,Sersan,Aslan,s185021.blah@gmail.com,+4523112342,2kj32k3jk2.jpg,pædagog
+s185036,s185036,Nicolai,Wulff,s185036.blah@gmail.com,+4523112342,2kj32k3jk2.jpg,pædagog
 s123456,kodes123456,Bente,Miller,s123456.benta@gmail.com,+4523452121,22323jh2hj3.jpg,pædagog
 s978523,kodes978523,Patrick,Jensen,s978523.jensen@gmail.com,+4512345678,8l7k8l78kl.jpg,pædagog
 s844574,kodes844574,Mette,Abildgaard,s844574.abildgaard@gmail.com,+4523123412 +4521343234,a8d6as9d8.jpg,admin
@@ -17,4 +24,3 @@ s943245,kodes943245,Eva,Flyvhold,s943245.flyvhold@yahoo.com,+4523847512,dfga89sd
 s954321,kodes954321,Mette,Frederiksen,s954321.frederiksen@yahoo.com,+4512322132,8gds9f89ass8ds9d8.jpg,client
 s913432,kodes913432,Mads,Fuglede,s913432.fuglede@yahoo.com,+4573821932,fg87h90ds.jpg,client
 s923243,kodes923243,Torsten,Gejl,s923243.gejl@student.dtu.dk,+4573829132,fdg78asdad.jpg,client
-s175565,kodeNWHN,Nicolai,Nisbeth,s175565.nisbeth@gmail.com,+4523123467 +4523456789,2kj32k3jk2.jpg,admin
