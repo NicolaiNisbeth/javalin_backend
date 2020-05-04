@@ -35,8 +35,7 @@ public class Controller implements IController {
     private IEventDAO eventDAO;
 
     private Controller() {
-        //this.datasource = ProductionDB.getInstance(); // production database by default
-        this.datasource = ProductionDBnjl.getInstance(); // production database by default
+        /*this.datasource = ProductionDB.getInstance(); // production database by default*/this.datasource = ProductionDBnjl.getInstance(); // production database by default
         this.playgroundDAO = new PlaygroundDAO(datasource);
         this.userDAO = new UserDAO(datasource);
         this.messageDAO = new MessageDAO(datasource);
