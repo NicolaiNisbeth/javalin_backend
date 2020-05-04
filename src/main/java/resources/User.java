@@ -1,16 +1,17 @@
-package resources;
+package javalin_resources.http_methods;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.$Gson$Preconditions;
-import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 import database.Controller;
 import database.dto.UserDTO;
+import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
+import io.swagger.v3.core.util.Json;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.*;
 import org.mindrot.jbcrypt.BCrypt;
@@ -177,12 +178,12 @@ public class User implements Tag {
         try {
             usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
             passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
-            playgroundIDs = jsonObject.getJSONArray(PLAYGROUND_NAME);
+            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
             boolean isAdminUpdatingUser = !username.equalsIgnoreCase(usernameAdmin);
             boolean isAdminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
             if (isAdminUpdatingUser && !isAdminAuthorized) {
-                //ctx.status(HttpStatus.UNAUTHORIZED_401);
-                //ctx.json(String.format("Unauthorized - User %s has no privileges to create user %s", usernameAdmin, username));
+                ctx.status(HttpStatus.UNAUTHORIZED_401);
+                ctx.json(String.format("Unauthorized - User %s has no privileges to create user %s", usernameAdmin, username));
                 ctx.contentType(ContentType.JSON);
                 return;
             }
@@ -230,24 +231,15 @@ public class User implements Tag {
 
         // add references to playgrounds
         if (privileges){
-            try {
-                Set<String> usersNewPGIds = new HashSet<>();
-                for (int i = 0; i < playgroundIDs.length(); i++) {
-                    try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
-                }
-                for (String playgroundID : usersNewPGIds){
-                    Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
-                }
-                newUser.setPlaygroundsNames(usersNewPGIds);
-
-            } catch (NoSuchElementException | NoModificationException | MongoException e){}
-        }
-
-        /*  if (playgroundIDs != null) {
-            for (Object id : playgroundIDs) {
-                newUser.getPlaygroundsNames().add(id.toString());
+            Set<String> usersNewPGIds = new HashSet<>();
+            for (int i = 0; i < playgroundIDs.length(); i++) {
+                try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
             }
-        }*/
+            for (String playgroundID : usersNewPGIds){
+                Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
+            }
+            newUser.setPlaygroundsIDs(usersNewPGIds);
+        }
 
         try {
             Controller.getInstance().createUser(newUser);
@@ -263,7 +255,7 @@ public class User implements Tag {
     };
     @OpenApi(
             summary = "Logs user into the system",
-            path = resources.Path.User.USERS_LOGIN,
+            path = javalin_resources.Util.Path.User.USERS_LOGIN,
             tags = {"User"},
             method = HttpMethod.POST,
             requestBody = @OpenApiRequestBody(
@@ -444,7 +436,7 @@ public class User implements Tag {
             usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
             passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
             status = jsonObject.getString(STATUS);
-            playgroundIDs = jsonObject.getJSONArray(PLAYGROUND_NAME);
+            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
             boolean isAdminUpdatingUser = !username.equalsIgnoreCase(usernameAdmin);
             boolean isAdminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
             if (isAdminUpdatingUser && !isAdminAuthorized) {
@@ -486,27 +478,24 @@ public class User implements Tag {
 
         // check if non-trivial data can be updated
         if (privileges){
-            try {
-                // remove references to old playgrounds
-                Set<String> usersOldPGIds = userToUpdate.getPlaygroundsNames();
-                System.out.println("Old pgs " + usersOldPGIds);
-                if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
-                    for (String oldPlaygroundName : usersOldPGIds) {
-                        Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
-                    }
+            // remove references to old playgrounds
+            Set<String> usersOldPGIds = userToUpdate.getPlaygroundsIDs();
+            System.out.println("Old pgs " + usersOldPGIds);
+            if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
+                for (String oldPlaygroundName : usersOldPGIds) {
+                    Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
                 }
-                // add references to new playgrounds
-                Set<String> usersNewPGIds = new HashSet<>();
-                for (int i = 0; i < playgroundIDs.length(); i++) {
-                    try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
-                }
-                for (String playgroundID : usersNewPGIds){
-                    Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
-                }
+            }
+            // add references to new playgrounds
+            Set<String> usersNewPGIds = new HashSet<>();
+            for (int i = 0; i < playgroundIDs.length(); i++) {
+                try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
+            }
+            for (String playgroundID : usersNewPGIds){
+                Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
+            }
 
-                userToUpdate.setPlaygroundsNames(usersNewPGIds);
-            }catch (NoSuchElementException | NoModificationException | MongoException e){}
-            //userToUpdate.setPlaygroundsNames(usersNewPGIds);
+            userToUpdate.setPlaygroundsIDs(usersNewPGIds);
             userToUpdate.setStatus(status);
         }
 
