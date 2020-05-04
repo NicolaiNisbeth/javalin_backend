@@ -1,15 +1,19 @@
 package main;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.reprezen.kaizen.oasparser.model3.Info;
 import io.javalin.Javalin;
+import io.javalin.core.security.Role;
+import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.OpenApiOptions;
 import io.javalin.plugin.openapi.OpenApiPlugin;
 import io.javalin.plugin.openapi.ui.SwaggerOptions;
 import io.prometheus.client.exporter.HTTPServer;
-import javalin_resources.HttpMethods.JWTHandler;
+import io.swagger.v3.oas.models.info.Info;
+import javalin_resources.Util.JWTHandler;
 import javalin_resources.Util.Path;
 import javalin_resources.http_methods.*;
+
+import javalinjwt.JWTAccessManager;
 import javalinjwt.JavalinJWT;
 import monitor.QueuedThreadPoolCollector;
 import monitor.StatisticsHandlerCollector;
@@ -22,12 +26,18 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.nio.file.Paths;
-import java.util.Optional;
+import java.util.*;
 
 public class Main {
     public static Javalin app;
     private static final int port = 8080;
 
+    // This enum get's used by the acces manager in the start method
+    enum Roles implements Role {
+        ANYONE,
+        PEDAGOGUE,
+        ADMIN
+    }
 
 
     public static void main(String[] args) throws Exception {
@@ -46,12 +56,29 @@ public class Main {
         StatisticsHandler statisticsHandler = new StatisticsHandler();
         QueuedThreadPool queuedThreadPool = new QueuedThreadPool(200, 8, 60_000);
         initializePrometheus(statisticsHandler, queuedThreadPool);
+        // Den her enkrypterer vores webtokens.
+        JWTHandler.provider = JWTHandler.createHMAC512();
+
+        // Acces manager
+
+        Map<String, Role> rolesMapping = new HashMap<String, Role>() {{
+            put("pædagog", Roles.PEDAGOGUE);
+            put("admin", Roles.ADMIN);
+        }};
+
+        // Acces manageren tager imod 1. hvilken attribut hos bruger objektet bestemmer hans "status" (pædagog, admin, lig)
+        // Andet argument er hvad for nogle roller bruger vi?
+        // Det tredje er hvad er "default rollen". Altså i tilfældet af at vores bruger ikke er logget ind.
+        JWTAccessManager accessManager = new JWTAccessManager("status", rolesMapping, Roles.ANYONE);
+
+
 
         if (app != null) return;
         app = Javalin.create(config -> config.enableCorsForAllOrigins()
                 .registerPlugin(getConfiguredOpenApiPlugin())
                 .addSinglePageRoot("", "/webapp/index.html")
                 .addStaticFiles("webapp")
+                .accessManager(accessManager)
                 .server(() -> {
                     Server server = new Server(queuedThreadPool);
                     server.setHandler(statisticsHandler);
@@ -61,76 +88,71 @@ public class Main {
         System.out.println("Check out Swagger UI docs at http://localhost:8080/rest");
         System.out.println("Check out OpenAPI docs at http://localhost:8080/rest-docs");
 
-        app.before(ctx -> System.out.println(
-                String.format("Javalin Server fik %s på %s med query %s og form %s",
-                        ctx.method(), ctx.url(), ctx.queryParamMap(), ctx.formParamMap()))
-        );
 
-        app.routes(() -> {
+
+
 
             // REST endpoints
             app.routes(() -> {
 
-                app.before("/*", ctx -> {
-                    String source = "Authfilter";
+                before(ctx -> System.out.println(
+                        String.format("Javalin Server fik %s på %s med query %s og form %s",
+                                ctx.method(), ctx.url(), ctx.queryParamMap(), ctx.formParamMap()))
+                );
 
-                    Optional<DecodedJWT> decodedJWT = JavalinJWT.getTokenFromHeader(ctx).flatMap(JWTHandler.provider::validateToken);
-                    System.out.println(source);
+                before(JavalinJWT.createHeaderDecodeHandler(JWTHandler.provider));
 
-                    if (!decodedJWT.isPresent()) {
-                        System.out.println(source+": No/or altered token");
+                get("/admin", ctx -> {
+                    ctx.result("hej admin");
+                }, new HashSet<>(Arrays.asList(Roles.ADMIN)));
 
-                        //Redirection to a responsemessage, providing with informaion on how to post a login request.
-
-                    } else {
-                        System.out.println("Token is present");
-                    }
-
-                });
+                get("/pedagogue", ctx -> {
+                    ctx.result("hej pedagogue");
+                }, new HashSet<>(Arrays.asList(Roles.PEDAGOGUE, Roles.ADMIN)));
 
 /** USERS **/
-                get(Path.User.USERS_ALL, User.getAllUsers);
-                get(Path.User.USERS_ALL_EMPLOYEES, User.getAllEmployees);
-                get(Path.User.USERS_ONE_PROFILE_PICTURE, User.getUserPicture);
+                get(Path.User.USERS_ALL, User.getAllUsers, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                get(Path.User.USERS_ALL_EMPLOYEES, User.getAllEmployees, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                get(Path.User.USERS_ONE_PROFILE_PICTURE, User.getUserPicture, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
-                put(Path.User.USERS_CRUD, User.updateUser);
-                put(Path.User.USERS_RESET_PASSWORD, User.resetPassword);
+                put(Path.User.USERS_CRUD, User.updateUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                put(Path.User.USERS_RESET_PASSWORD, User.resetPassword, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
-                post(Path.User.USERS_LOGIN, User.userLogin);
-                post(Path.User.USERS_CRUD, User.createUser);
+                post(Path.User.USERS_LOGIN, User.userLogin, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                post(Path.User.USERS_CRUD, User.createUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
-                delete(Path.User.USERS_CRUD, User.deleteUser);
+                delete(Path.User.USERS_CRUD, User.deleteUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
 
                 /** PLAYGROUNDS **/
-                get(Path.Playground.PLAYGROUNDS_ONE, Playground.readOnePlayground);
-                get(Path.Playground.PLAYGROUNDS_ALL, Playground.readAllPlaygrounds);
-                get(Path.Playground.PLAYGROUNDS_ONE_PEDAGOGUE_ONE, Playground.readOnePlaygroundOneEmployee);
-                get(Path.Playground.PLAYGROUNDS_ONE_PEDAGOGUE_ALL, Playground.readOnePlaygroundAllEmployee);
-                get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.readOneEvent);
-                get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.readOneEventOneParticipant);
-                get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Event.readOneEventParticipants);
-                get(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.readOnePlayGroundAllEvents);
-                get(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.readOneMessage);
-                get(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.readAllMessages);
+                get(Path.Playground.PLAYGROUNDS_ONE, Playground.readOnePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                get(Path.Playground.PLAYGROUNDS_ALL, Playground.readAllPlaygrounds, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                get(Path.Playground.PLAYGROUNDS_ONE_PEDAGOGUE_ONE, Playground.readOnePlaygroundOneEmployee, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                get(Path.Playground.PLAYGROUNDS_ONE_PEDAGOGUE_ALL, Playground.readOnePlaygroundAllEmployee, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.readOneEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.readOneEventOneParticipant, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Event.readOneEventParticipants, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                get(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.readOnePlayGroundAllEvents, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                get(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.readOneMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                get(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.readAllMessages, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
-                put(Path.Playground.PLAYGROUNDS_ONE, Playground.updatePlayground);
-                put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.updateEventToPlayground);
-                put(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.updatePlaygroundMessage);
+                put(Path.Playground.PLAYGROUNDS_ONE, Playground.updatePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.updateEventToPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                put(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.updatePlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
-                post(Path.Playground.PLAYGROUNDS_ALL, Playground.createPlayground);
-                post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.createPlaygroundEvent);
-                post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.createUserToPlaygroundEvent);
-                post(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.createPlaygroundMessage);
+                post(Path.Playground.PLAYGROUNDS_ALL, Playground.createPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.createPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.createUserToPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                post(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.createPlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
-                delete(Path.Playground.PLAYGROUNDS_ONE, Playground.deleteOnePlayground);
-                delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.deleteEventFromPlayground);
-                delete(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.deletePlaygroundMessage);
-                delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.deleteUserFromPlaygroundEvent);
+                delete(Path.Playground.PLAYGROUNDS_ONE, Playground.deleteOnePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.deleteEventFromPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                delete(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.deletePlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+                delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.deleteUserFromPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
                 /** MESSAGES **/
 
-                get(Path.Message.MESSAGE_IMAGE_ONE, Message.getMessageImage);
+                get(Path.Message.MESSAGE_IMAGE_ONE, Message.getMessageImage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
                 /** EVENTS **/
 
@@ -139,8 +161,7 @@ public class Main {
                 //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
                 //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.User.deleteParticipantFromPlaygroundE
             });
-        });
-    }
+        }
 
     public static void stop() {
         app.stop();
@@ -191,13 +212,5 @@ public class Main {
                 System.out.println(String.format("Server: Resource directories is build at path: %s\\server_resource", homeFolder.toString()));
             }
         }
-    }
-
-    private static String unpackToken(io.javalin.http.Context ctx, String infoToRetrive){
-        Optional<DecodedJWT> decodedJWT = JavalinJWT.getTokenFromHeader(ctx)
-                .flatMap(JWTHandler.provider::validateToken);
-
-        return decodedJWT.get().getClaim(infoToRetrive).asString();
-
     }
 }

@@ -2,8 +2,6 @@ package javalin_resources.http_methods;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
-import com.google.gson.JsonObject;
-import com.google.gson.internal.$Gson$Preconditions;
 import com.mongodb.WriteResult;
 import database.Controller;
 import database.dto.UserDTO;
@@ -11,8 +9,7 @@ import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
-import io.swagger.v3.core.util.Json;
-import javalin_resources.HttpMethods.JWTHandler;
+import javalin_resources.Util.JWTHandler;
 import javalinjwt.examples.JWTResponse;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.*;
@@ -43,19 +40,21 @@ public class User implements Tag {
 
     )
     public static Handler deleteUser = ctx -> {
+       /*
         JSONObject jsonObject, deleteUserModel;
+
         jsonObject = new JSONObject(ctx.body());
         deleteUserModel = jsonObject.getJSONObject("deleteUserModel");
         String usernameAdmin = deleteUserModel.getString(USERNAME_ADMIN);
         String passwordAdmin = deleteUserModel.getString(PASSWORD_ADMIN);
         String username = deleteUserModel.getString(USERNAME);
 
-        boolean adminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
+        boolean adminAuthorized = true;
         if (!adminAuthorized) {
             return;
         }
-
-        Controller.getInstance().deleteUser(username);
+*/
+        Controller.getInstance().deleteUser(ctx.pathParam("username"));
         ctx.status(200);
         ctx.json("OK - User deleted");
         ctx.contentType("json");
@@ -285,6 +284,11 @@ public class User implements Tag {
                 ctx.status(HttpStatus.OK_200);
                 ctx.result("Success - User login with root was successful");
                 ctx.json(fetchedUser);
+                String token = JWTHandler.provider.generateToken(fetchedUser);
+                ctx.header("Authorization", new JWTResponse(token).jwt);
+                // the golden line. All hail this statement
+                ctx.header("Access-Control-Expose-Headers","Authorization");
+                ctx.status(HttpStatus.OK_200);
                 ctx.contentType(ContentType.JSON);
                 return;
             } catch (Exception e) {
@@ -349,12 +353,14 @@ public class User implements Tag {
         // validate credentials
         String hashed = fetchedUser.getPassword();
         if (BCrypt.checkpw(password, hashed)) {
+            String token = JWTHandler.provider.generateToken(fetchedUser);
+            ctx.header("Authorization", new JWTResponse(token).jwt);
+            // the golden line. All hail this statement
+            ctx.header("Access-Control-Expose-Headers","Authorization");
             ctx.status(HttpStatus.OK_200);
             ctx.result("Success - User login was successful");
             ctx.json(fetchedUser);
-            String token = JWTHandler.provider.generateToken(fetchedUser);
-            ctx.header("Authorization", new JWTResponse(token).jwt);
-            ctx.header("Access-Control-Expose-Headers: Authorization");
+
             ctx.contentType(ContentType.JSON);
         } else {
             ctx.status(HttpStatus.UNAUTHORIZED_401);

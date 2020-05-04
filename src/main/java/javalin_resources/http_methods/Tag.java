@@ -62,7 +62,7 @@ public interface Tag {
     String LASTNAME = "lastname";
     String EMAIL = "email";
     String STATUS = "status";
-    String STATUS_PEDAGOG = "pedagog";
+    String STATUS_PEDAGOG = "pædagog";
     String STATUS_ADMIN = "admin";
     String PLAYGROUNDSIDS = "playgroundsIDs";
     String WEBSITE = "website";

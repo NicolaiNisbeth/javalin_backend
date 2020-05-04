@@ -7,11 +7,15 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import database.dao.UserDAO;
+import database.dto.UserDTO;
 import javalinjwt.JWTGenerator;
 import javalinjwt.JWTProvider;
 
 public class JWTHandler {
 
+    // Den her er static så den kan bruges i flere klasser.
+    public static JWTProvider provider;
     /*
     In order to use any functionality available here, you need first to create a JWT provider (for lack of a better word).
     A provider is a somewhat convient way of working with JWT which wraps a generator and a verifier.
@@ -19,46 +23,17 @@ public class JWTHandler {
     Additionally, both of them require an Auth0 Algorithm to work on. For the sake of example, we are going to use HMAC256.
      */
 
-    //1.
-    static Algorithm algorithm = Algorithm.HMAC256("very_secret");
-
-    //2.
-    /*
-    For generating token
-     */
-    static JWTGenerator<Bruger> generator = (user, alg) -> {
-
-        //Remove password from userobject
-        user.adgangskode="";
-
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            String jsonUser = mapper.writeValueAsString(user);
-
+    public static JWTProvider createHMAC512() {
+        JWTGenerator<UserDTO> generator = (user, alg) -> {
             JWTCreator.Builder token = JWT.create()
-                    .withClaim("user", jsonUser);
+                    .withClaim("name", user.getUsername())
+                    .withClaim("status", user.getStatus());
             return token.sign(alg);
+        };
 
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return null;
-    };
+        Algorithm algorithm = Algorithm.HMAC512("very_secret");
+        JWTVerifier verifier = JWT.require(algorithm).build();
 
-    //3.
-    /*
-    For verifeing JWT
-     */
-    public static JWTVerifier verifier = JWT.require(algorithm).build();
-
-    //4.
-    /*
-    The wrapper object is created
-     */
-    public static JWTProvider provider = new JWTProvider(algorithm, generator, verifier);
-
-
-
-
-
+        return new JWTProvider(algorithm, generator, verifier);
+    }
 }
