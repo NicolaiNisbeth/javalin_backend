@@ -17,6 +17,7 @@ import database.dto.MessageDTO;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.utils.QueryUtils;
+import resources.Event;
 import resources.Shared;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
@@ -573,6 +574,26 @@ public class Controller implements IController {
     }
 
     @Override
+    public List<EventDTO> getEvents() {
+        try {
+            return eventDAO.getEventList();
+        } catch (NoSuchElementException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<MessageDTO> getmessages() {
+        try {
+            return messageDAO.getMessageList();
+        } catch (NoSuchElementException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
     public void killAll(){
         playgroundDAO.deleteAllPlaygrounds();
         userDAO.deleteAllUsers();
@@ -636,4 +657,6 @@ public class Controller implements IController {
         QueryUtils.updateWithPullObject(collection, "name", playgroundName,
                 "messages", "_id", new ObjectId(messageID));
     }
+
+
 }
