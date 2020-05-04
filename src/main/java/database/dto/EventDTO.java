@@ -23,8 +23,7 @@ public class EventDTO implements Comparable<EventDTO> {
     private String playground;                      // 1-to-many
 
     //This constructor is used for MongoDB mapping
-    public EventDTO() {
-    }
+    public EventDTO() { }
 
     private EventDTO(Builder builder) {
         this.id = builder.id;
