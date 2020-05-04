@@ -532,7 +532,7 @@ class ControllerTest {
 
         // check that the references are gone
         UserDTO updatedUser = controller.getUser(playPovPedagogue.getUsername());
-        Assertions.assertAll(() -> assertFalse(updatedUser.getPlaygroundsIDs().iterator().hasNext()));
+        Assertions.assertAll(() -> assertFalse(updatedUser.getPlaygroundsNames().iterator().hasNext()));
 
         controller.deleteUser(updatedUser.getUsername());
     }
@@ -585,7 +585,7 @@ class ControllerTest {
 
         Assertions.assertAll(
                 () -> assertEquals(eventID, fetchedUser.getEvents().iterator().next().getID()),
-                () -> assertEquals(playground.getName(), fetchedUser.getPlaygroundsIDs().iterator().next()),
+                () -> assertEquals(playground.getName(), fetchedUser.getPlaygroundsNames().iterator().next()),
                 () -> assertEquals(fetchedPlayground.getAssignedPedagogue().iterator().next().getUsername(), user.getUsername()),
                 () -> assertEquals(fetchedEvent.getAssignedUsers().iterator().next().getUsername(), user.getUsername())
         );
