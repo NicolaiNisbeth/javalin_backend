@@ -1,13 +1,8 @@
 package brugerautorisation.data;
 
 
-import server.rmi.IGalgelegRMI;
 
 import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.util.HashMap;
 
 public class Bruger implements Serializable {
@@ -27,9 +22,4 @@ public class Bruger implements Serializable {
         return brugernavn + "/" + adgangskode;
     }
 
-    public static void main(String[] args) throws RemoteException, NotBoundException, MalformedURLException {
-        System.out.println("Forbinder til " + IGalgelegRMI.URL);
-        IGalgelegRMI galgen = (IGalgelegRMI) Naming.lookup(IGalgelegRMI.URL);
-        System.out.println("Forbundet til serveren");
-    }
 }

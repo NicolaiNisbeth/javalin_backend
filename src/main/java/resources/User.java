@@ -1,4 +1,4 @@
-package javalin_resources.http_methods;
+package resources;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
@@ -12,7 +12,6 @@ import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
-import io.swagger.v3.core.util.Json;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.*;
 import org.mindrot.jbcrypt.BCrypt;
@@ -243,6 +242,10 @@ public class User implements Tag {
                 newUser.setPlaygroundsIDs(usersNewPGIds);
 
             } catch (NoSuchElementException | NoModificationException | MongoException e){}
+        if (playgroundIDs != null) {
+            for (Object id : playgroundIDs) {
+                newUser.getPlaygroundsNames().add(id.toString());
+            }
         }
 
         try {
@@ -259,7 +262,7 @@ public class User implements Tag {
     };
     @OpenApi(
             summary = "Logs user into the system",
-            path = javalin_resources.Util.Path.User.USERS_LOGIN,
+            path = resources.Path.User.USERS_LOGIN,
             tags = {"User"},
             method = HttpMethod.POST,
             requestBody = @OpenApiRequestBody(
@@ -482,6 +485,22 @@ public class User implements Tag {
 
         // check if non-trivial data can be updated
         if (privileges){
+            // remove references to old playgrounds
+            Set<String> usersOldPGIds = userToUpdate.getPlaygroundsNames();
+            System.out.println("Old pgs " + usersOldPGIds);
+            if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
+                for (String oldPlaygroundName : usersOldPGIds) {
+                    Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
+                }
+            }
+            // add references to new playgrounds
+            Set<String> usersNewPGIds = new HashSet<>();
+            for (int i = 0; i < playgroundIDs.length(); i++) {
+                try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
+            }
+            for (String playgroundID : usersNewPGIds){
+                Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
+            }
             try {
                 // remove references to old playgrounds
                 Set<String> usersOldPGIds = userToUpdate.getPlaygroundsIDs();
@@ -500,6 +519,7 @@ public class User implements Tag {
                     Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
                 }
 
+            userToUpdate.setPlaygroundsNames(usersNewPGIds);
                 userToUpdate.setPlaygroundsIDs(usersNewPGIds);
             }catch (NoSuchElementException | NoModificationException | MongoException e){}
             userToUpdate.setStatus(status);

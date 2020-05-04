@@ -8,7 +8,6 @@ import database.TestDB;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import io.javalin.http.Context;
-import javalin_resources.http_methods.User;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
@@ -106,8 +105,8 @@ class CreateUserTest {
         controller.addPedagogueToPlayground("KålPladsen", "abc");
 
         UserDTO user = controller.getUser("abc");
-        Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
-        System.out.println("ids " + user.getPlaygroundsIDs());
+        Assertions.assertEquals(1, user.getPlaygroundsNames().size());
+        System.out.println("ids " + user.getPlaygroundsNames());
         PlaygroundDTO playground1 = controller.getPlayground("KålPladsen");
         Assertions.assertEquals(1, playground1.getAssignedPedagogue().size());
     }
@@ -128,7 +127,7 @@ class CreateUserTest {
 
         controller.addPedagogueToPlayground("KålPladsen", "abc");
         UserDTO user = controller.getUser("abc");
-        Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
+        Assertions.assertEquals(1, user.getPlaygroundsNames().size());
 
 
         playground = controller.getPlayground("KålPladsen");
@@ -154,8 +153,8 @@ class CreateUserTest {
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
         User.createUser.handle(ctx);
-        verify(ctx).status(409);
-        //verify(ctx).result("Conflict - Username is already in use");
+        verify(ctx).status(401);
+        //verify(ctx).result("Unauthorized - User already exists");
     }
 
     @Test

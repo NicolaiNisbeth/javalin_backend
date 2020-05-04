@@ -1,4 +1,4 @@
-package javalin_resources.Util;
+package resources;
 
 public class Path {
     /**
@@ -27,21 +27,11 @@ public class Path {
         public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL = "/rest/playgrounds/:name/events/:id/participants";
         // One event paricipant
         public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE = "/rest/playgrounds/:name/events/:id/participants/:username";
-        // All events on a given month on a given playground.
-        public static final String PLAYGROUND_ONE_EVENTS_MONTH = "/rest/playgrounds/:name/events/:month";
         // Playground message
         public static final String PLAYGROUNDS_ONE_MESSAGE_ONE = "/rest/playgrounds/:name/messages/:id";
         // Playground message all
         public static final String PLAYGROUNDS_ONE_MESSAGE_ALL = "/rest/playgrounds/:name/messages";
 
-       /*
-        todo slet hvis ikke bruges
-        // All events on all playgrounds.
-        public static final String PLAYGROUNDS_ALL_EVENTS = "/rest/playgrounds/events";
-        // All playgrounds with a given zipcode.
-        public static final String PLAYGROUNDS_WITHZIPCODE = "/rest/playgrounds/:zipcode";
-        // All playgrounds nearby.
-        public static final String PLAYGROUNDS_NEARBY = "/rest/playgrounds/:nearby";*/
     }
 
     public static class User {
@@ -57,24 +47,10 @@ public class Path {
         public static final String USERS_LOGIN = "rest/users/login";
         public static final String USERS_RESET_PASSWORD = "rest/users/reset-setPassword";
 
- /*
-
- todo slet hvis ikke bruges
-        // User based on ID
-        public static final String USERS_ONE = "/rest/users/:id";
-        // All employees working within a zipcode.
-        public static final String USERS_ALL_ZIPCODE = "/rest/users/:zipcode";*/
-
     }
 
     public static class Message {
         public static final String MESSAGE_IMAGE_ONE = "/rest/messages/:id/image";
     }
 
-   /* public static class User {
-        public static final String LOGIN = "rest/employee/login";
-        public static final String HOMESCREEN = "/rest/:id";
-        public static final String FAVORITES = "/rest/:id/favorites";
-        public static final String USER_POSTS = "/rest/id/posts";
-    }*/
 }
