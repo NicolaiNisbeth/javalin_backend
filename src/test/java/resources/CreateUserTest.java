@@ -126,9 +126,9 @@ class CreateUserTest {
         verify(ctx).status(201);
         //verify(ctx).json("Created - User created");
 
+        controller.addPedagogueToPlayground("KålPladsen", "abc");
         UserDTO user = controller.getUser("abc");
         Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
-        controller.addPedagogueToPlayground("KålPladsen", "abc");
 
 
         playground = controller.getPlayground("KålPladsen");
@@ -154,8 +154,8 @@ class CreateUserTest {
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
         User.createUser.handle(ctx);
-        verify(ctx).status(401);
-        //verify(ctx).result("Unauthorized - User already exists");
+        verify(ctx).status(409);
+        //verify(ctx).result("Conflict - Username is already in use");
     }
 
     @Test

@@ -4,6 +4,7 @@ import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.$Gson$Preconditions;
+import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 import database.Controller;
 import database.dto.UserDTO;
@@ -182,8 +183,8 @@ public class User implements Tag {
             boolean isAdminUpdatingUser = !username.equalsIgnoreCase(usernameAdmin);
             boolean isAdminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
             if (isAdminUpdatingUser && !isAdminAuthorized) {
-                ctx.status(HttpStatus.UNAUTHORIZED_401);
-                ctx.json(String.format("Unauthorized - User %s has no privileges to create user %s", usernameAdmin, username));
+                //ctx.status(HttpStatus.UNAUTHORIZED_401);
+                //ctx.json(String.format("Unauthorized - User %s has no privileges to create user %s", usernameAdmin, username));
                 ctx.contentType(ContentType.JSON);
                 return;
             }
@@ -231,14 +232,17 @@ public class User implements Tag {
 
         // add references to playgrounds
         if (privileges){
-            Set<String> usersNewPGIds = new HashSet<>();
-            for (int i = 0; i < playgroundIDs.length(); i++) {
-                try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
-            }
-            for (String playgroundID : usersNewPGIds){
-                Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
-            }
-            newUser.setPlaygroundsIDs(usersNewPGIds);
+            try {
+                Set<String> usersNewPGIds = new HashSet<>();
+                for (int i = 0; i < playgroundIDs.length(); i++) {
+                    try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
+                }
+                for (String playgroundID : usersNewPGIds){
+                    Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
+                }
+                newUser.setPlaygroundsIDs(usersNewPGIds);
+
+            } catch (NoSuchElementException | NoModificationException | MongoException e){}
         }
 
         try {
@@ -478,24 +482,26 @@ public class User implements Tag {
 
         // check if non-trivial data can be updated
         if (privileges){
-            // remove references to old playgrounds
-            Set<String> usersOldPGIds = userToUpdate.getPlaygroundsIDs();
-            System.out.println("Old pgs " + usersOldPGIds);
-            if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
-                for (String oldPlaygroundName : usersOldPGIds) {
-                    Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
+            try {
+                // remove references to old playgrounds
+                Set<String> usersOldPGIds = userToUpdate.getPlaygroundsIDs();
+                System.out.println("Old pgs " + usersOldPGIds);
+                if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
+                    for (String oldPlaygroundName : usersOldPGIds) {
+                        Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
+                    }
                 }
-            }
-            // add references to new playgrounds
-            Set<String> usersNewPGIds = new HashSet<>();
-            for (int i = 0; i < playgroundIDs.length(); i++) {
-                try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
-            }
-            for (String playgroundID : usersNewPGIds){
-                Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
-            }
+                // add references to new playgrounds
+                Set<String> usersNewPGIds = new HashSet<>();
+                for (int i = 0; i < playgroundIDs.length(); i++) {
+                    try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
+                }
+                for (String playgroundID : usersNewPGIds){
+                    Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
+                }
 
-            userToUpdate.setPlaygroundsIDs(usersNewPGIds);
+                userToUpdate.setPlaygroundsIDs(usersNewPGIds);
+            }catch (NoSuchElementException | NoModificationException | MongoException e){}
             userToUpdate.setStatus(status);
         }
 
