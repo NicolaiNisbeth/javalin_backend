@@ -28,7 +28,7 @@ public class UserDTO implements Serializable {
     private boolean loggedIn;
     private String[] phoneNumbers;
     private Set<EventDTO> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
-    private Set<String> playgroundsIDs = new HashSet<>();
+    private Set<String> playgroundsNames = new HashSet<>();
 
 
     public boolean isLoggedIn() {
@@ -48,12 +48,12 @@ public class UserDTO implements Serializable {
     }
 
 
-    public Set<String> getPlaygroundsIDs() {
-        return playgroundsIDs;
+    public Set<String> getPlaygroundsNames() {
+        return playgroundsNames;
     }
 
-    public void setPlaygroundsIDs(Set<String> playgroundsIDs) {
-        this.playgroundsIDs = playgroundsIDs;
+    public void setPlaygroundsNames(Set<String> playgroundsNames) {
+        this.playgroundsNames = playgroundsNames;
     }
 
 
@@ -88,7 +88,7 @@ public class UserDTO implements Serializable {
         this.password = builder.password;
         this.phoneNumbers = builder.phoneNumbers;
         this.events = builder.events;
-        this.playgroundsIDs = builder.playgroundsIDs;
+        this.playgroundsNames = builder.playgroundsNames;
         this.website = builder.website;
         this.loggedIn = builder.loggedIn;
     }
@@ -195,7 +195,7 @@ public class UserDTO implements Serializable {
         private String password;
         private String[] phoneNumbers;
         private Set<EventDTO> events = new HashSet<>();
-        private Set<String> playgroundsIDs = new HashSet<>();
+        private Set<String> playgroundsNames = new HashSet<>();
         private String firstname;
         private String lastname;
         private String id;
@@ -219,12 +219,12 @@ public class UserDTO implements Serializable {
             return this;
         }
 
-        public Set<String> getPlaygroundsIDs() {
-            return playgroundsIDs;
+        public Set<String> getPlaygroundsNames() {
+            return playgroundsNames;
         }
 
-        public void setPlaygroundsIDs(Set<String> playgroundsIDs) {
-            this.playgroundsIDs = playgroundsIDs;
+        public void setPlaygroundsNames(Set<String> playgroundsNames) {
+            this.playgroundsNames = playgroundsNames;
         }
 
         public Builder imagePath(String imagePath) {
@@ -281,7 +281,7 @@ public class UserDTO implements Serializable {
         }
 
         public Set<String> getPlaygroundID2() {
-            return playgroundsIDs;
+            return playgroundsNames;
         }
 
         public String getId() {

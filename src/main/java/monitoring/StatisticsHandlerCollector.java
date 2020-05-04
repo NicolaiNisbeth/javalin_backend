@@ -1,4 +1,4 @@
-package monitor;
+package monitoring;
 
 import io.prometheus.client.Collector;
 import org.eclipse.jetty.server.handler.StatisticsHandler;

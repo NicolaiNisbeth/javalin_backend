@@ -12,11 +12,13 @@ import io.swagger.v3.oas.models.info.Info;
 import javalin_resources.Util.JWTHandler;
 import javalin_resources.Util.Path;
 import javalin_resources.http_methods.*;
-
 import javalinjwt.JWTAccessManager;
 import javalinjwt.JavalinJWT;
 import monitor.QueuedThreadPoolCollector;
 import monitor.StatisticsHandlerCollector;
+import resources.*;
+import monitoring.QueuedThreadPoolCollector;
+import monitoring.StatisticsHandlerCollector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -102,13 +104,6 @@ public class Main {
 
                 before(JavalinJWT.createHeaderDecodeHandler(JWTHandler.provider));
 
-                get("/admin", ctx -> {
-                    ctx.result("hej admin");
-                }, new HashSet<>(Arrays.asList(Roles.ADMIN)));
-
-                get("/pedagogue", ctx -> {
-                    ctx.result("hej pedagogue");
-                }, new HashSet<>(Arrays.asList(Roles.PEDAGOGUE, Roles.ADMIN)));
 
 /** USERS **/
                 get(Path.User.USERS_ALL, User.getAllUsers, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
@@ -183,10 +178,8 @@ public class Main {
 
         OpenApiOptions options = new OpenApiOptions(info)
                 .activateAnnotationScanningFor("kbh-legepladser-api")
-                // endpoint for OpenAPI json
-                .path("/rest-docs")
-                // endpoint for swagger-ui
-                .swagger(new SwaggerOptions("/rest"))
+                .path("/rest-docs") // endpoint for OpenAPI json
+                .swagger(new SwaggerOptions("/rest")) // endpoint for swagger-ui
                 .defaultDocumentation(doc -> {
                 });
         return new OpenApiPlugin(options);

@@ -17,7 +17,7 @@ import database.dto.MessageDTO;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.utils.QueryUtils;
-import javalin_resources.http_methods.Shared;
+import resources.Shared;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
@@ -35,7 +35,8 @@ public class Controller implements IController {
     private IEventDAO eventDAO;
 
     private Controller() {
-        /*this.datasource = ProductionDB.getInstance(); // production database by default*/this.datasource = ProductionDBnjl.getInstance(); // production database by default
+        /*this.datasource = ProductionDB.getInstance(); // production database by default*/
+        this.datasource = ProductionDBnjl.getInstance(); // production database by default
         this.playgroundDAO = new PlaygroundDAO(datasource);
         this.userDAO = new UserDAO(datasource);
         this.messageDAO = new MessageDAO(datasource);
@@ -87,8 +88,10 @@ public class Controller implements IController {
         Set<EventDTO> updatedEvents = new HashSet<>();
         Set<EventDTO> events = user.getEvents();
         for (EventDTO value : events) {
-            EventDTO event = eventDAO.getEvent(value.getID());
-            updatedEvents.add(event);
+            try {
+                EventDTO event = eventDAO.getEvent(value.getID());
+                updatedEvents.add(event);
+            } catch (NoSuchElementException | IllegalArgumentException e){ }
         }
         user.setEvents(updatedEvents);
         return user;
@@ -103,9 +106,11 @@ public class Controller implements IController {
         Set<UserDTO> users = event.getAssignedUsers();
         if (!users.isEmpty()) {
             for (UserDTO user : users) {
-                UserDTO u = userDAO.getUser(user.getUsername());
-                u.setEvents(null); //TODO: njl does angular depend on this information
-                updatedUser.add(u);
+                try {
+                    UserDTO u = userDAO.getUser(user.getUsername());
+                    u.setEvents(null); //TODO: njl does angular depend on this information
+                    updatedUser.add(u);
+                } catch (NoSuchElementException | IllegalArgumentException e){ }
             }
         }
         event.setAssignedUsers(updatedUser);
@@ -272,7 +277,7 @@ public class Controller implements IController {
             session.startTransaction();
 
             UserDTO user = userDAO.getUser(username);
-            for (String playgroundName : user.getPlaygroundsIDs()){
+            for (String playgroundName : user.getPlaygroundsNames()){
                 removeUserRefInPlayground(username, playgroundName);
             }
 
@@ -311,7 +316,7 @@ public class Controller implements IController {
             UserDTO pedagogue = userDAO.getUser(username);
 
             // insert playground reference in user
-            pedagogue.getPlaygroundsIDs().add(plagroundName);
+            pedagogue.getPlaygroundsNames().add(plagroundName);
             wr = userDAO.updateUser(pedagogue);
 
             // insert user reference in playground
@@ -345,6 +350,7 @@ public class Controller implements IController {
         try {
             session.startTransaction();
             UserDTO user = userDAO.getUser(username);
+            System.out.println("asd " + user);
 
             // update user with event reference
             user.getEvents().add(new EventDTO.Builder().id(new ObjectId(eventID).toString()).build());

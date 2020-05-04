@@ -1,11 +1,13 @@
-package javalin_resources.http_methods;
+package resources;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
+import com.google.gson.JsonObject;
+import com.google.gson.internal.$Gson$Preconditions;
+import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 import database.Controller;
 import database.dto.UserDTO;
-import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
@@ -37,24 +39,21 @@ public class User implements Tag {
             tags = {"User"},
             composedRequestBody = @OpenApiComposedRequestBody(required = true,
                     description = "credentials of the admin and username of the user to be deleted")
-
     )
     public static Handler deleteUser = ctx -> {
-       /*
         JSONObject jsonObject, deleteUserModel;
-
         jsonObject = new JSONObject(ctx.body());
         deleteUserModel = jsonObject.getJSONObject("deleteUserModel");
         String usernameAdmin = deleteUserModel.getString(USERNAME_ADMIN);
         String passwordAdmin = deleteUserModel.getString(PASSWORD_ADMIN);
         String username = deleteUserModel.getString(USERNAME);
 
-        boolean adminAuthorized = true;
+        boolean adminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
         if (!adminAuthorized) {
             return;
         }
-*/
-        Controller.getInstance().deleteUser(ctx.pathParam("username"));
+
+        Controller.getInstance().deleteUser(username);
         ctx.status(200);
         ctx.json("OK - User deleted");
         ctx.contentType("json");
@@ -150,55 +149,65 @@ public class User implements Tag {
             }
     )
     public static Handler createUser = ctx -> {
-        BufferedImage bufferedImage;
         String usernameAdmin, passwordAdmin, username, password,
                 firstName, lastName, email, status, website;
-        JSONArray phoneNumbers, playgroundIDs;
+        JSONArray phoneNumbers, playgroundIDs = null;
+        JSONObject jsonObject;
 
         try {
             String usermodel = ctx.formParam(("usermodel"));
-            JSONObject jsonObject = new JSONObject(usermodel);
-            usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
-            passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
+            jsonObject = new JSONObject(usermodel);
             username = jsonObject.getString(USERNAME);
             password = jsonObject.getString(PASSWORD);
             firstName = jsonObject.getString(FIRSTNAME);
             lastName = jsonObject.getString(LASTNAME);
             email = jsonObject.getString(EMAIL);
-            status = jsonObject.getString(STATUS);
             website = jsonObject.getString(WEBSITE);
-            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
             phoneNumbers = jsonObject.getJSONArray(PHONENUMBERS);
-            if (username.length() < 1 || password.length() < 1) {
-                throw new DALException("Missing username or setPassword");
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            ctx.status(400);
-            ctx.result("Bad Request - Error in user data");
+            status = jsonObject.getString(STATUS);
+            if (status.isEmpty()) status = "client"; //TODO: create an enum
+            if (username.isEmpty() || password.isEmpty() || firstName.isEmpty()) throw new NullPointerException();
+        } catch (JSONException | NullPointerException e){
+            ctx.status(HttpStatus.BAD_REQUEST_400);
+            ctx.result("Bad request - error in user data");
+            ctx.contentType(ContentType.JSON);
             return;
         }
 
-        UserDTO newUser = null;
-        boolean adminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
-        if (!adminAuthorized) {
-            return;
-        }
-
-        //Se om brugeren allerede er oprettet
+        // check if admin user can create another user
+        boolean privileges = true;
         try {
-            newUser = Controller.getInstance().getUser(username);
-        } catch (NoSuchElementException e) {
-            //Brugeren er ikke i databasen og kan derfor oprettes
+            usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
+            passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
+            playgroundIDs = jsonObject.getJSONArray(PLAYGROUND_NAME);
+            boolean isAdminUpdatingUser = !username.equalsIgnoreCase(usernameAdmin);
+            boolean isAdminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
+            if (isAdminUpdatingUser && !isAdminAuthorized) {
+                //ctx.status(HttpStatus.UNAUTHORIZED_401);
+                //ctx.json(String.format("Unauthorized - User %s has no privileges to create user %s", usernameAdmin, username));
+                ctx.contentType(ContentType.JSON);
+                return;
+            }
+        } catch (JSONException e){
+            privileges = false;
         }
-        if (newUser != null) {
-            ctx.status(401);
-            ctx.result("Unauthorized - User already exists");
+
+        boolean isUsernameAvailable = false;
+        try {
+            Controller.getInstance().getUser(username);
+        } catch (NoSuchElementException e){
+            isUsernameAvailable = true;
+        }
+
+        if (!isUsernameAvailable){
+            ctx.status(HttpStatus.CONFLICT_409);
+            ctx.result("Conflict - Username is already in use");
+            ctx.contentType(ContentType.JSON);
             return;
         }
 
-        newUser = new UserDTO.Builder(username)
+        // setup user fields
+        UserDTO newUser = new UserDTO.Builder(username)
                 .setPassword(password)
                 .setFirstname(firstName)
                 .setLastname(lastName)
@@ -208,46 +217,55 @@ public class User implements Tag {
                 .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username))
                 .build();
 
-        if (phoneNumbers.length() > 0) {
-            String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
-            if (phoneNumbers.get(0) != null) {
-                usersNewPhoneNumbers[0] = (String) phoneNumbers.get(0);
-            }
-            if (phoneNumbers.get(1) != null) {
-                usersNewPhoneNumbers[1] = (String) phoneNumbers.get(1);
-            }
-            newUser.setPhoneNumbers(usersNewPhoneNumbers);
+        // add phone numbers
+        String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
+        for (int i = 0; i < phoneNumbers.length(); i++) {
+            try { usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i); } catch (ClassCastException e) {}
         }
+        newUser.setPhoneNumbers(usersNewPhoneNumbers);
+
+        // add image
+        try {
+            BufferedImage bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+            Shared.saveProfilePicture(username, bufferedImage);
+        } catch (Exception e) { System.out.println("Server: No image in upload"); }
+
+        // add references to playgrounds
+        if (privileges){
+            try {
+                Set<String> usersNewPGIds = new HashSet<>();
+                for (int i = 0; i < playgroundIDs.length(); i++) {
+                    try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
+                }
+                for (String playgroundID : usersNewPGIds){
+                    Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
+                }
+                newUser.setPlaygroundsNames(usersNewPGIds);
+
+            } catch (NoSuchElementException | NoModificationException | MongoException e){}
+        }
+
+        /*  if (playgroundIDs != null) {
+            for (Object id : playgroundIDs) {
+                newUser.getPlaygroundsNames().add(id.toString());
+            }
+        }*/
 
         try {
-            bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
-            Shared.saveProfilePicture(username, bufferedImage);
-        } catch (Exception e) {
-            System.out.println("Server: No profile picture was chosen...");
-        }
-
-        if (playgroundIDs != null) {
-            for (Object id : playgroundIDs) {
-                newUser.getPlaygroundsIDs().add(id.toString());
-            }
-        }
-
-        WriteResult ws = Controller.getInstance().createUser(newUser);
-        if (ws.wasAcknowledged()) {
-            ctx.status(201);
-            ctx.json("Created - User created");
+            Controller.getInstance().createUser(newUser);
+            ctx.status(HttpStatus.CREATED_201);
+            ctx.result("Created - User was signed up successfully");
             ctx.json(newUser);
-
-            //Controller.getInstance().addPedagogueToPlayground(newUser);
-
-        } else {
-            ctx.status(401);
-            ctx.result("User was not created");
+            ctx.contentType(ContentType.JSON);
+        } catch (NoModificationException e){
+            ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+            ctx.result("Server error - creating user failed");
+            ctx.contentType(ContentType.JSON);
         }
     };
     @OpenApi(
             summary = "Logs user into the system",
-            path = javalin_resources.Util.Path.User.USERS_LOGIN,
+            path = resources.Path.User.USERS_LOGIN,
             tags = {"User"},
             method = HttpMethod.POST,
             requestBody = @OpenApiRequestBody(
@@ -438,7 +456,7 @@ public class User implements Tag {
             usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
             passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
             status = jsonObject.getString(STATUS);
-            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+            playgroundIDs = jsonObject.getJSONArray(PLAYGROUND_NAME);
             boolean isAdminUpdatingUser = !username.equalsIgnoreCase(usernameAdmin);
             boolean isAdminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
             if (isAdminUpdatingUser && !isAdminAuthorized) {
@@ -480,24 +498,27 @@ public class User implements Tag {
 
         // check if non-trivial data can be updated
         if (privileges){
-            // remove references to old playgrounds
-            Set<String> usersOldPGIds = userToUpdate.getPlaygroundsIDs();
-            System.out.println("Old pgs " + usersOldPGIds);
-            if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
-                for (String oldPlaygroundName : usersOldPGIds) {
-                    Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
+            try {
+                // remove references to old playgrounds
+                Set<String> usersOldPGIds = userToUpdate.getPlaygroundsNames();
+                System.out.println("Old pgs " + usersOldPGIds);
+                if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
+                    for (String oldPlaygroundName : usersOldPGIds) {
+                        Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
+                    }
                 }
-            }
-            // add references to new playgrounds
-            Set<String> usersNewPGIds = new HashSet<>();
-            for (int i = 0; i < playgroundIDs.length(); i++) {
-                try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
-            }
-            for (String playgroundID : usersNewPGIds){
-                Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
-            }
+                // add references to new playgrounds
+                Set<String> usersNewPGIds = new HashSet<>();
+                for (int i = 0; i < playgroundIDs.length(); i++) {
+                    try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
+                }
+                for (String playgroundID : usersNewPGIds){
+                    Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
+                }
 
-            userToUpdate.setPlaygroundsIDs(usersNewPGIds);
+                userToUpdate.setPlaygroundsNames(usersNewPGIds);
+            }catch (NoSuchElementException | NoModificationException | MongoException e){}
+            //userToUpdate.setPlaygroundsNames(usersNewPGIds);
             userToUpdate.setStatus(status);
         }
 
