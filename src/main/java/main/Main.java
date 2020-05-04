@@ -1,9 +1,7 @@
 package main;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import io.javalin.Javalin;
 import io.javalin.core.security.Role;
-import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.OpenApiOptions;
 import io.javalin.plugin.openapi.OpenApiPlugin;
 import io.javalin.plugin.openapi.ui.SwaggerOptions;
@@ -69,7 +67,6 @@ public class Main {
         JWTAccessManager accessManager = new JWTAccessManager("status", rolesMapping, Roles.ANYONE);
 
 
-
         if (app != null) return;
         app = Javalin.create(config -> config.enableCorsForAllOrigins()
                 .registerPlugin(getConfiguredOpenApiPlugin())
@@ -85,73 +82,68 @@ public class Main {
         System.out.println("Check out Swagger UI docs at http://localhost:8080/rest");
         System.out.println("Check out OpenAPI docs at http://localhost:8080/rest-docs");
 
+        // REST endpoints
+        app.routes(() -> {
+
+            before(ctx -> System.out.println(
+                    String.format("Javalin Server fik %s på %s med query %s og form %s",
+                            ctx.method(), ctx.url(), ctx.queryParamMap(), ctx.formParamMap()))
+            );
+
+            before(JavalinJWT.createHeaderDecodeHandler(JWTHandler.provider));
+
+            /** USERS **/
+            get(Path.User.USERS_ALL, User.getAllUsers, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.User.USERS_ALL_EMPLOYEES, User.getAllEmployees, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.User.USERS_ONE_PROFILE_PICTURE, User.getUserPicture, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+
+            put(Path.User.USERS_CRUD, User.updateUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            put(Path.User.USERS_RESET_PASSWORD, User.resetPassword, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+
+            post(Path.User.USERS_LOGIN, User.userLogin, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            post(Path.User.USERS_CRUD, User.createUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+
+            delete(Path.User.USERS_CRUD, User.deleteUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
 
+            /** PLAYGROUNDS **/
+            get(Path.Playground.PLAYGROUNDS_ONE, Playground.readOnePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ALL, Playground.readAllPlaygrounds, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_PEDAGOGUE_ONE, Playground.readOnePlaygroundOneEmployee, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_PEDAGOGUE_ALL, Playground.readOnePlaygroundAllEmployee, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.readOneEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.readOneEventOneParticipant, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Event.readOneEventParticipants, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.readOnePlayGroundAllEvents, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.readOneMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.readAllMessages, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
+            put(Path.Playground.PLAYGROUNDS_ONE, Playground.updatePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.updateEventToPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            put(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.updatePlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
-            // REST endpoints
-            app.routes(() -> {
+            post(Path.Playground.PLAYGROUNDS_ALL, Playground.createPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.createPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.createUserToPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            post(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.createPlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
-                before(ctx -> System.out.println(
-                        String.format("Javalin Server fik %s på %s med query %s og form %s",
-                                ctx.method(), ctx.url(), ctx.queryParamMap(), ctx.formParamMap()))
-                );
+            delete(Path.Playground.PLAYGROUNDS_ONE, Playground.deleteOnePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.deleteEventFromPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            delete(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.deletePlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.deleteUserFromPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
-                before(JavalinJWT.createHeaderDecodeHandler(JWTHandler.provider));
+            /** MESSAGES **/
 
+            get(Path.Message.MESSAGE_IMAGE_ONE, Message.getMessageImage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
-/** USERS **/
-                get(Path.User.USERS_ALL, User.getAllUsers, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                get(Path.User.USERS_ALL_EMPLOYEES, User.getAllEmployees, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                get(Path.User.USERS_ONE_PROFILE_PICTURE, User.getUserPicture, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            /** EVENTS **/
 
-                put(Path.User.USERS_CRUD, User.updateUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                put(Path.User.USERS_RESET_PASSWORD, User.resetPassword, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-
-                post(Path.User.USERS_LOGIN, User.userLogin, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                post(Path.User.USERS_CRUD, User.createUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-
-                delete(Path.User.USERS_CRUD, User.deleteUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-
-
-                /** PLAYGROUNDS **/
-                get(Path.Playground.PLAYGROUNDS_ONE, Playground.readOnePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                get(Path.Playground.PLAYGROUNDS_ALL, Playground.readAllPlaygrounds, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                get(Path.Playground.PLAYGROUNDS_ONE_PEDAGOGUE_ONE, Playground.readOnePlaygroundOneEmployee, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                get(Path.Playground.PLAYGROUNDS_ONE_PEDAGOGUE_ALL, Playground.readOnePlaygroundAllEmployee, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.readOneEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.readOneEventOneParticipant, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Event.readOneEventParticipants, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                get(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.readOnePlayGroundAllEvents, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                get(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.readOneMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                get(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.readAllMessages, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-
-                put(Path.Playground.PLAYGROUNDS_ONE, Playground.updatePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.updateEventToPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                put(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.updatePlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-
-                post(Path.Playground.PLAYGROUNDS_ALL, Playground.createPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.createPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.createUserToPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                post(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.createPlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-
-                delete(Path.Playground.PLAYGROUNDS_ONE, Playground.deleteOnePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.deleteEventFromPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                delete(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.deletePlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-                delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.deleteUserFromPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-
-                /** MESSAGES **/
-
-                get(Path.Message.MESSAGE_IMAGE_ONE, Message.getMessageImage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-
-                /** EVENTS **/
-
-                //TODO: Tag stilling til disse
-                //put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
-                //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
-                //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.User.deleteParticipantFromPlaygroundE
-            });
-        }
+            //TODO: Tag stilling til disse
+            //put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
+            //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
+            //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.User.deleteParticipantFromPlaygroundE
+        });
+    }
 
     public static void stop() {
         app.stop();

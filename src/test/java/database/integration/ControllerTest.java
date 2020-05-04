@@ -3,6 +3,7 @@ package database.integration;
 import com.mongodb.WriteResult;
 import database.Controller;
 import database.IController;
+import database.ProductionDBnjl;
 import database.exceptions.NoModificationException;
 import database.TestDB;
 import database.dto.*;
@@ -805,11 +806,11 @@ class ControllerTest {
         );
 
         // delete pedagogue from playground
-        controller.removePedagogueFromPlayground(playground.getName(), user.getUsername());
+       /* controller.removePedagogueFromPlayground(playground.getName(), user.getUsername());
 
         // check references are removed
         PlaygroundDTO updatedPlayground = controller.getPlayground(playground.getName());
-        assertFalse(updatedPlayground.getAssignedPedagogue().iterator().hasNext());
+        assertFalse(updatedPlayground.getAssignedPedagogue().iterator().hasNext());*/
 
         controller.deleteUser(user.getUsername());
         controller.deletePlayground(playground.getName());

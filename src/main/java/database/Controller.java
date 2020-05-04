@@ -186,7 +186,7 @@ public class Controller implements IController {
     public List<UserDTO> getUsersInPlayground(String playgroundName){
         Jongo jongo = new Jongo(datasource.getDatabase());
         MongoCollection collection = jongo.getCollection(IUserDAO.COLLECTION);
-        MongoCursor<UserDTO> cursor = collection.find("{playgroundsIDs : #}",playgroundName).as(UserDTO.class);
+        MongoCursor<UserDTO> cursor = collection.find("{playgroundsNames : #}",playgroundName).as(UserDTO.class);
         List<UserDTO> users = new ArrayList<>();
         for (UserDTO user : cursor){
             users.add(user);
@@ -606,7 +606,7 @@ public class Controller implements IController {
         // remove playground reference in user
         MongoCollection collection = new Jongo(datasource.getDatabase()).getCollection(IUserDAO.COLLECTION);
         QueryUtils.updateWithPullSimple(collection, "username", username,
-                "playgroundsIDs", playgroundName);
+                "playgroundsNames", playgroundName);
     }
 
     private void removeEventRefInUser(String eventID, String username)

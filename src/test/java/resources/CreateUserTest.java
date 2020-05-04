@@ -3,6 +3,7 @@ package resources;
 import com.google.gson.Gson;
 import database.Controller;
 import database.IController;
+import database.ProductionDBnjl;
 import database.exceptions.NoModificationException;
 import database.TestDB;
 import database.dto.PlaygroundDTO;
@@ -95,6 +96,8 @@ class CreateUserTest {
     void createUser() throws Exception {
         // Normal oprettelse af bruger
         userModel.playgroundsNames[0] = playground.getName();
+
+        System.out.println(playground.getName());
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
 
         json = gson.toJson(userModel);
@@ -103,10 +106,11 @@ class CreateUserTest {
         User.createUser.handle(ctx);
         verify(ctx).status(201);
         //verify(ctx).json("Created - User created");
+        verify(ctx).json(Controller.getInstance().getUser("abc"));
 
         UserDTO user = controller.getUser("abc");
         Assertions.assertEquals(1, user.getPlaygroundsNames().size());
-        System.out.println("ids " + user.getPlaygroundsNames());
+
         PlaygroundDTO playground1 = controller.getPlayground("KålPladsen");
         Assertions.assertEquals(1, playground1.getAssignedPedagogue().size());
     }
@@ -124,6 +128,7 @@ class CreateUserTest {
         User.createUser.handle(ctx);
         verify(ctx).status(201);
         //verify(ctx).json("Created - User created");
+        verify(ctx).json(Controller.getInstance().getUser("abc"));
 
         UserDTO user = controller.getUser("abc");
         Assertions.assertEquals(1, user.getPlaygroundsNames().size());
@@ -154,7 +159,7 @@ class CreateUserTest {
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
         User.createUser.handle(ctx);
         verify(ctx).status(HttpStatus.CONFLICT_409);
-        //verify(ctx).result("Unauthorized - User already exists");
+        verify(ctx).result("Conflict - Username is already in use");
     }
 
     @Test
@@ -168,7 +173,7 @@ class CreateUserTest {
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
         User.createUser.handle(ctx);
         verify(ctx).status(400);
-        //verify(ctx).result("Bad Request - Error in user data");
+        verify(ctx).result("Bad request - error in user data");
     }
 
     @Test

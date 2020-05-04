@@ -28,14 +28,12 @@ public class Shared {
             admin = Controller.getInstance().getUser(username);
         } catch (NoSuchElementException e) {
             e.printStackTrace();
-            ctx.status(401);
             ctx.json("Unauthorized - Wrong admin username");
             ctx.contentType("json");
             return false;
         }
 
         if (!admin.getStatus().equalsIgnoreCase("admin")) {
-            ctx.status(401);
             ctx.json("Unauthorized - Wrong admin status");
             ctx.contentType("json");
             return false;
@@ -48,7 +46,6 @@ public class Shared {
         if (BCrypt.checkpw(password, admin.getPassword())) {
             return true;
         } else {
-            ctx.status(401);
             ctx.json("Unauthorized - Wrong admin password");
             ctx.contentType("json");
             return false;

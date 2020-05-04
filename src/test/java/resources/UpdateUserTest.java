@@ -44,11 +44,6 @@ class UpdateUserTest {
 
     @BeforeEach
     void setUpUser() {
-            /* try {
-            Controller.getInstance().deleteUser(userModel.username);
-        } catch (Exception e) {
-
-        }*/
     }
 
     @Test
