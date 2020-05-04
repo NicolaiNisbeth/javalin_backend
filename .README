@@ -1,0 +1,10 @@
+Javalin
+
+Når i skal lave en request:
+
+1. Find stien i Path klassen (hvis den ikke findes, gå til step 2)
+2. Opret stien og husk at putte / i starten af dit statement!. Hvis i skal bruge en path param put:
+3. Nu har i lavet jeres sti og skal skrive jeres metode.
+4. I get request laves et json object hvor context body bruges. Herefter kan i få værdierne med jsonObject.get<datatype>("key"). Og den her keys værdi kan i finde ved at kigge i klassen oppe i collections. (de har det samme navn som attributten)
+5. I put requests er det det samme. I tjekker om den værdi der puttes ind findes ved at bruge jsonobject.has("key").
+6. I delete requests tager i typisk fra stien ved at bruge ctx.pathparam("key"). De her keys er dem som har : foran sig. For at finde ud af hvad der skal stå i nøglen kigger i i path klasse

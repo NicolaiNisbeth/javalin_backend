@@ -21,7 +21,7 @@ public interface Tag {
     String USER_NAME = "username";
 
     String PLAYGROUND_ID = "id";
-    String PLAYGROUND_NAME = "name";
+    String PLAYGROUND_NAMES = "playgroundNames";
     String PLAYGROUND_STREET_NAME = "streetname";
     String PLAYGROUND_STREET_NUMBER = "streetnumber";
     String PLAYGROUND_ZIPCODE = "zipcode";
@@ -49,7 +49,7 @@ public interface Tag {
     String LASTNAME = "lastname";
     String EMAIL = "email";
     String STATUS = "status";
-    String STATUS_PEDAGOG = "pedagog";
+    String STATUS_PEDAGOG = "pædagog";
     String PLAYGROUNDSNAMES = "playgroundsNames";
     String WEBSITE = "website";
     String PHONENUMBERS = "phoneNumbers";

@@ -8,6 +8,7 @@ import database.TestDB;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import io.javalin.http.Context;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
@@ -102,7 +103,6 @@ class CreateUserTest {
         User.createUser.handle(ctx);
         verify(ctx).status(201);
         //verify(ctx).json("Created - User created");
-        controller.addPedagogueToPlayground("KålPladsen", "abc");
 
         UserDTO user = controller.getUser("abc");
         Assertions.assertEquals(1, user.getPlaygroundsNames().size());
@@ -127,7 +127,7 @@ class CreateUserTest {
 
         UserDTO user = controller.getUser("abc");
         Assertions.assertEquals(1, user.getPlaygroundsNames().size());
-        controller.addPedagogueToPlayground("KålPladsen", "abc");
+       // ? controller.addPedagogueToPlayground("KålPladsen", "abc");
 
 
         playground = controller.getPlayground("KålPladsen");
@@ -153,7 +153,7 @@ class CreateUserTest {
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
         User.createUser.handle(ctx);
-        verify(ctx).status(401);
+        verify(ctx).status(HttpStatus.CONFLICT_409);
         //verify(ctx).result("Unauthorized - User already exists");
     }
 

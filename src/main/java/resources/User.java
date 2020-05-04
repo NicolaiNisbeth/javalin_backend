@@ -1,6 +1,7 @@
 package resources;
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
+import com.mongodb.MongoException;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.$Gson$Preconditions;
 import com.mongodb.WriteResult;
@@ -10,6 +11,7 @@ import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
+import javalinjwt.examples.JWTResponse;
 import io.swagger.v3.core.util.Json;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.*;
@@ -27,8 +29,6 @@ import java.nio.file.Paths;
 import java.rmi.Naming;
 import java.util.*;
 import java.util.List;
-
-import static resources.Tag.USERNAME_ADMIN;
 
 
 public class User implements Tag {
@@ -232,18 +232,27 @@ public class User implements Tag {
 
         // add references to playgrounds
         if (privileges){
-            Set<String> usersNewPGIds = new HashSet<>();
-            for (int i = 0; i < playgroundIDs.length(); i++) {
-                try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
+            try {
+                Set<String> usersNewPGIds = new HashSet<>();
+                for (int i = 0; i < playgroundIDs.length(); i++) {
+                    try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
+                }
+                newUser.setPlaygroundsNames(usersNewPGIds);
+                Controller.getInstance().createUser(newUser);
+                for (String playgroundID : usersNewPGIds){
+                    Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
+                }
+
+            } catch (NoSuchElementException | NoModificationException | MongoException e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Server error - creating user failed");
+                ctx.contentType(ContentType.JSON);
+                return;
             }
-            for (String playgroundID : usersNewPGIds){
-                Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
-            }
-            newUser.setPlaygroundsNames(usersNewPGIds);
         }
 
         try {
-            Controller.getInstance().createUser(newUser);
+            if (!privileges) Controller.getInstance().createUser(newUser);
             ctx.status(HttpStatus.CREATED_201);
             ctx.result("Created - User was signed up successfully");
             ctx.json(newUser);
@@ -290,6 +299,9 @@ public class User implements Tag {
         if (root) {
             try {
                 fetchedUser = getOrCreateRootUser(username);
+                String token = JWTHandler.provider.generateToken(fetchedUser);
+                ctx.header("Authorization", new JWTResponse(token).jwt);
+                ctx.header("Access-Control-Expose-Headers","Authorization");
                 ctx.status(HttpStatus.OK_200);
                 ctx.result("Success - User login with root was successful");
                 ctx.json(fetchedUser);
@@ -357,9 +369,14 @@ public class User implements Tag {
         // validate credentials
         String hashed = fetchedUser.getPassword();
         if (BCrypt.checkpw(password, hashed)) {
+            String token = JWTHandler.provider.generateToken(fetchedUser);
+            ctx.header("Authorization", new JWTResponse(token).jwt);
+            // the golden line. All hail this statement
+            ctx.header("Access-Control-Expose-Headers","Authorization");
             ctx.status(HttpStatus.OK_200);
             ctx.result("Success - User login was successful");
             ctx.json(fetchedUser);
+
             ctx.contentType(ContentType.JSON);
         } else {
             ctx.status(HttpStatus.UNAUTHORIZED_401);
@@ -479,24 +496,26 @@ public class User implements Tag {
 
         // check if non-trivial data can be updated
         if (privileges){
-            // remove references to old playgrounds
-            Set<String> usersOldPGIds = userToUpdate.getPlaygroundsNames();
-            System.out.println("Old pgs " + usersOldPGIds);
-            if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
-                for (String oldPlaygroundName : usersOldPGIds) {
-                    Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
+            try {
+                // remove references to old playgrounds
+                Set<String> usersOldPGIds = userToUpdate.getPlaygroundsNames();
+                System.out.println("Old pgs " + usersOldPGIds);
+                if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
+                    for (String oldPlaygroundName : usersOldPGIds) {
+                        Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
+                    }
                 }
-            }
-            // add references to new playgrounds
-            Set<String> usersNewPGIds = new HashSet<>();
-            for (int i = 0; i < playgroundIDs.length(); i++) {
-                try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
-            }
-            for (String playgroundID : usersNewPGIds){
-                Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
-            }
+                // add references to new playgrounds
+                Set<String> usersNewPGIds = new HashSet<>();
+                for (int i = 0; i < playgroundIDs.length(); i++) {
+                    try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
+                }
+                for (String playgroundID : usersNewPGIds){
+                    Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
+                }
 
-            userToUpdate.setPlaygroundsNames(usersNewPGIds);
+                userToUpdate.setPlaygroundsNames(usersNewPGIds);
+            }catch (NoSuchElementException | NoModificationException | MongoException e){}
             userToUpdate.setStatus(status);
         }
 

@@ -6,6 +6,7 @@ import database.TestDB;
 import database.dto.UserDTO;
 import io.javalin.http.Context;
 import io.javalin.plugin.openapi.annotations.ContentType;
+import javalinjwt.JWTProvider;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,6 +34,7 @@ public class UserLoginTest {
         ctx = mock(Context.class);
         model = new JsonModels.LoginModel();
         gson = new Gson();
+        JWTHandler.provider = JWTHandler.createHMAC512();
     }
 
     @AfterEach
