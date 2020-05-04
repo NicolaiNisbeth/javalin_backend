@@ -15,3 +15,8 @@ step 1 hans jwt i en before handler, og passerer hans status videre til vores ac
 eller sender en status code tilbage (Unauthorized).
 
 Rollerne bag på vores endpoints er de roller der må tilgå en ressource.
+
+
+
+Hvis i gerne vil teste i postman skal i lave en log in request og kig på headeren der kommer tilbage i browseren.
+Den skal i så attache som header i jeres request sammen med Bearer (indsæt token her)

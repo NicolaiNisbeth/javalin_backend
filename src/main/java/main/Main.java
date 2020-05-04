@@ -167,6 +167,7 @@ public class Main {
                 .activateAnnotationScanningFor("kbh-legepladser-api")
                 .path("/rest-docs") // endpoint for OpenAPI json
                 .swagger(new SwaggerOptions("/rest")) // endpoint for swagger-ui
+                .roles(new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)))
                 .defaultDocumentation(doc -> {
                 });
         return new OpenApiPlugin(options);
