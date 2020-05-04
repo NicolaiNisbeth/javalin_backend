@@ -1,11 +1,12 @@
 package soap;
 
-import database.collections.Event;
-import database.collections.Message;
-import database.collections.Playground;
-import database.collections.User;
-import database.dao.Controller;
-import database.dao.IController;
+
+import database.Controller;
+import database.IController;
+import database.dto.EventDTO;
+import database.dto.MessageDTO;
+import database.dto.PlaygroundDTO;
+import database.dto.UserDTO;
 
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
@@ -26,13 +27,13 @@ public class Soap implements ISoap {
 
     @Override
     public String displayUserStatistics() {
-        List<User> users = controller.getUsers();
+        List<UserDTO> users = controller.getUsers();
         int n = users.size();
         int numClients = 0;
         int numPedagogue = 0;
         int numAdmin = 0;
 
-        for (User user : users){
+        for (UserDTO user : users){
             if (user.getStatus() == null) continue;
             switch (user.getStatus()) {
                 case "client": numClients++; break;
@@ -54,19 +55,19 @@ public class Soap implements ISoap {
 
     @Override
     public String displayEventStatistics() {
-        List<Event> events = controller.getEvents();
+        List<EventDTO> events = controller.getEvents();
         int n = events.size();
         int numParticipants = 0;
         double avgParticipants;
         int maxParticipants = Integer.MIN_VALUE;
         String maxParticipantsID = "-1";
 
-        for (Event event : events){
+        for (EventDTO event : events){
             int participants = event.getAssignedUsers().size();
             numParticipants += participants;
             if (participants > maxParticipants){
                 maxParticipants = participants;
-                maxParticipantsID = event.getId();
+                maxParticipantsID = event.getID();
             }
         }
 
@@ -83,7 +84,7 @@ public class Soap implements ISoap {
 
     @Override
     public String displayPlaygroundStatistics() {
-        List<Playground> playgrounds = controller.getPlaygrounds();
+        List<PlaygroundDTO> playgrounds = controller.getPlaygrounds();
         int n = playgrounds.size();
         int numPedagogues = 0;
         double avgPedagogues;
@@ -102,7 +103,7 @@ public class Soap implements ISoap {
         int minMessages = Integer.MAX_VALUE;
         String minMessagesID = "-1";
 
-        for (Playground playground : playgrounds){
+        for (PlaygroundDTO playground : playgrounds){
             numPedagogues += playground.getAssignedPedagogue().size();
             numEvents += playground.getEvents().size();
             numMessages += playground.getMessages().size();
@@ -149,7 +150,7 @@ public class Soap implements ISoap {
 
     @Override
     public String displayMessageStatistics() {
-        List<Message> messages = controller.getmessages();
+        List<MessageDTO> messages = controller.getmessages();
         int n = messages.size();
         int numInteraction = NOT_IMPLEMENTED_INT;
         double avgInteraction = NOT_IMPLEMENTED_INT;

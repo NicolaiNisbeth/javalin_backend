@@ -51,5 +51,10 @@ public interface IController {
     WriteResult deletePlaygroundMessage(String messageID) throws NoModificationException, NoSuchElementException, MongoException;
 
     void setDataSource(IDataSource dataSource);
+
+    List<EventDTO> getEvents();
+
+    List<MessageDTO> getmessages();
+
     void killAll();
 }
