@@ -114,7 +114,6 @@ public class User implements Tag {
             }
     )
     public static Handler getAllEmployees = ctx -> {
-        System.out.println("er inde");
         List<UserDTO> users;
         try {
             users = Controller.getInstance().getUsers();
