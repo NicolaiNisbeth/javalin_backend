@@ -1,5 +1,4 @@
-package javalin_resources.http_methods;
-
+package resources;
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import com.google.gson.JsonObject;
@@ -28,6 +27,8 @@ import java.nio.file.Paths;
 import java.rmi.Naming;
 import java.util.*;
 import java.util.List;
+
+import static resources.Tag.USERNAME_ADMIN;
 
 
 public class User implements Tag {
@@ -178,7 +179,7 @@ public class User implements Tag {
         try {
             usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
             passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
-            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSNAMES);
             boolean isAdminUpdatingUser = !username.equalsIgnoreCase(usernameAdmin);
             boolean isAdminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
             if (isAdminUpdatingUser && !isAdminAuthorized) {
@@ -238,7 +239,7 @@ public class User implements Tag {
             for (String playgroundID : usersNewPGIds){
                 Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
             }
-            newUser.setPlaygroundsIDs(usersNewPGIds);
+            newUser.setPlaygroundsNames(usersNewPGIds);
         }
 
         try {
@@ -255,7 +256,7 @@ public class User implements Tag {
     };
     @OpenApi(
             summary = "Logs user into the system",
-            path = javalin_resources.Util.Path.User.USERS_LOGIN,
+            path = resources.Path.User.USERS_LOGIN,
             tags = {"User"},
             method = HttpMethod.POST,
             requestBody = @OpenApiRequestBody(
@@ -436,7 +437,7 @@ public class User implements Tag {
             usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
             passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
             status = jsonObject.getString(STATUS);
-            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSNAMES);
             boolean isAdminUpdatingUser = !username.equalsIgnoreCase(usernameAdmin);
             boolean isAdminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
             if (isAdminUpdatingUser && !isAdminAuthorized) {
@@ -479,7 +480,7 @@ public class User implements Tag {
         // check if non-trivial data can be updated
         if (privileges){
             // remove references to old playgrounds
-            Set<String> usersOldPGIds = userToUpdate.getPlaygroundsIDs();
+            Set<String> usersOldPGIds = userToUpdate.getPlaygroundsNames();
             System.out.println("Old pgs " + usersOldPGIds);
             if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
                 for (String oldPlaygroundName : usersOldPGIds) {
@@ -495,7 +496,7 @@ public class User implements Tag {
                 Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
             }
 
-            userToUpdate.setPlaygroundsIDs(usersNewPGIds);
+            userToUpdate.setPlaygroundsNames(usersNewPGIds);
             userToUpdate.setStatus(status);
         }
 

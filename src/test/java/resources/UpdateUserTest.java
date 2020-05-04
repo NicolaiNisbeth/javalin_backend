@@ -18,7 +18,6 @@ import java.util.NoSuchElementException;
 import static org.mockito.Mockito.*;
 
 class UpdateUserTest {
-    private static Context ctx;
     private JsonModels.UserModel userModel = new JsonModels.UserModel();
     private static Gson gson;
     private static String json;
@@ -27,7 +26,6 @@ class UpdateUserTest {
     @BeforeAll
     static void setUp() throws NoModificationException {
         //"mock-maker-inline" must be enabled
-        ctx = mock(Context.class);
         controller.setDataSource(TestDB.getInstance());
         controller.killAll();
 
@@ -53,19 +51,6 @@ class UpdateUserTest {
         }*/
     }
 
-   /* @AfterAll
-    static void printAll() throws DALException {
-        UserDAO userDAO = new UserDAO();
-        System.out.println("Test-userlist after test: ");
-        for (User user : userDAO.getUserList()) {
-            if (user.getUsername().length() < 1 || user.getUsername().substring(0, 3).equalsIgnoreCase("abc")) {
-                System.out.println(user);
-                System.out.println("Deleting test user: " + user.getUsername());
-                //userDAO.deleteUser(user.getUsername());
-            }
-        }
-    }*/
-
     @Test
     void updateUserWithoutPlaygroundIDs() throws Exception {
         // Normal update af bruger
@@ -82,7 +67,7 @@ class UpdateUserTest {
         userModel.imagePath = "";
         userModel.phoneNumbers = new String[2];
         userModel.website = "";
-        userModel.playgroundsIDs = new String[0];
+        userModel.playgroundsNames = new String[0];
         gson = new Gson();
         json = gson.toJson(userModel);
 
@@ -129,7 +114,7 @@ class UpdateUserTest {
         userModel.imagePath = "";
         userModel.phoneNumbers = new String[2];
         userModel.website = "";
-        userModel.playgroundsIDs = new String[0];
+        userModel.playgroundsNames = new String[0];
         gson = new Gson();
         json = gson.toJson(userModel);
 
@@ -162,7 +147,7 @@ class UpdateUserTest {
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
 
         userModel.firstname = "KÅLHOVED";
-        userModel.playgroundsIDs = pgIDs;
+        userModel.playgroundsNames = pgIDs;
 
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
@@ -204,7 +189,7 @@ class UpdateUserTest {
         userModel.imagePath = "";
         userModel.phoneNumbers = new String[2];
         userModel.website = "";
-        userModel.playgroundsIDs = new String[0];
+        userModel.playgroundsNames = new String[0];
         gson = new Gson();
         json = gson.toJson(userModel);
 
@@ -224,10 +209,10 @@ class UpdateUserTest {
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
 
         userModel.username = "";
-        userModel.playgroundsIDs = new String[2];
+        userModel.playgroundsNames = new String[2];
         List<PlaygroundDTO> playgrounds = controller.getPlaygrounds();
-        userModel.playgroundsIDs[0] = playgrounds.get(0).getId();
-        userModel.playgroundsIDs[1] = playgrounds.get(1).getId();
+        userModel.playgroundsNames[0] = playgrounds.get(0).getId();
+        userModel.playgroundsNames[1] = playgrounds.get(1).getId();
 
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);

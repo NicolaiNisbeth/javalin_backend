@@ -8,7 +8,6 @@ import database.TestDB;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import io.javalin.http.Context;
-import javalin_resources.http_methods.User;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
@@ -50,7 +49,7 @@ class CreateUserTest {
         userModel.phoneNumbers[0] = "12345678";
         userModel.phoneNumbers[1] = "887654321";
         userModel.website = "";
-        userModel.playgroundsIDs = new String[1];
+        userModel.playgroundsNames = new String[1];
         gson = new Gson();
         json = gson.toJson(userModel);
 
@@ -94,7 +93,7 @@ class CreateUserTest {
     @Test
     void createUser() throws Exception {
         // Normal oprettelse af bruger
-        userModel.playgroundsIDs[0] = playground.getName();
+        userModel.playgroundsNames[0] = playground.getName();
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
 
         json = gson.toJson(userModel);
@@ -106,8 +105,8 @@ class CreateUserTest {
         controller.addPedagogueToPlayground("KålPladsen", "abc");
 
         UserDTO user = controller.getUser("abc");
-        Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
-        System.out.println("ids " + user.getPlaygroundsIDs());
+        Assertions.assertEquals(1, user.getPlaygroundsNames().size());
+        System.out.println("ids " + user.getPlaygroundsNames());
         PlaygroundDTO playground1 = controller.getPlayground("KålPladsen");
         Assertions.assertEquals(1, playground1.getAssignedPedagogue().size());
     }
@@ -115,7 +114,7 @@ class CreateUserTest {
     @Test
     void deleteUser() throws Exception {
         controller.createPlayground(playground);
-        userModel.playgroundsIDs[0] = playground.getName();
+        userModel.playgroundsNames[0] = playground.getName();
 
         Context ctx = mock(Context.class);
 
@@ -127,7 +126,7 @@ class CreateUserTest {
         //verify(ctx).json("Created - User created");
 
         UserDTO user = controller.getUser("abc");
-        Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
+        Assertions.assertEquals(1, user.getPlaygroundsNames().size());
         controller.addPedagogueToPlayground("KålPladsen", "abc");
 
 
