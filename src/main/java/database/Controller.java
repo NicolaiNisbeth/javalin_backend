@@ -105,9 +105,11 @@ public class Controller implements IController {
         Set<UserDTO> users = event.getAssignedUsers();
         if (!users.isEmpty()) {
             for (UserDTO user : users) {
-                UserDTO u = userDAO.getUser(user.getUsername());
-                u.setEvents(null); //TODO: njl does angular depend on this information
-                updatedUser.add(u);
+                try {
+                    UserDTO u = userDAO.getUser(user.getUsername());
+                    u.setEvents(null); //TODO: njl does angular depend on this information
+                    updatedUser.add(u);
+                } catch (NoSuchElementException | IllegalArgumentException e){ }
             }
         }
         event.setAssignedUsers(updatedUser);
