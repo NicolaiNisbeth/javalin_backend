@@ -6,10 +6,9 @@ import io.javalin.plugin.openapi.OpenApiPlugin;
 import io.javalin.plugin.openapi.ui.SwaggerOptions;
 import io.prometheus.client.exporter.HTTPServer;
 import io.swagger.v3.oas.models.info.Info;
-import javalin_resources.Util.Path;
-import javalin_resources.http_methods.*;
-import monitor.QueuedThreadPoolCollector;
-import monitor.StatisticsHandlerCollector;
+import resources.*;
+import monitoring.QueuedThreadPoolCollector;
+import monitoring.StatisticsHandlerCollector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -137,10 +136,8 @@ public class Main {
 
         OpenApiOptions options = new OpenApiOptions(info)
                 .activateAnnotationScanningFor("kbh-legepladser-api")
-                // endpoint for OpenAPI json
-                .path("/rest-docs")
-                // endpoint for swagger-ui
-                .swagger(new SwaggerOptions("/rest"))
+                .path("/rest-docs") // endpoint for OpenAPI json
+                .swagger(new SwaggerOptions("/rest")) // endpoint for swagger-ui
                 .defaultDocumentation(doc -> {
                 });
         return new OpenApiPlugin(options);

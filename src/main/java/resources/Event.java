@@ -1,4 +1,4 @@
-package javalin_resources.http_methods;
+package resources;
 
 import com.mongodb.MongoException;
 import com.mongodb.WriteResult;

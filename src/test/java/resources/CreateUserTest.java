@@ -8,7 +8,6 @@ import database.TestDB;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import io.javalin.http.Context;
-import javalin_resources.http_methods.User;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
@@ -106,8 +105,8 @@ class CreateUserTest {
         controller.addPedagogueToPlayground("KålPladsen", "abc");
 
         UserDTO user = controller.getUser("abc");
-        Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
-        System.out.println("ids " + user.getPlaygroundsIDs());
+        Assertions.assertEquals(1, user.getPlaygroundsNames().size());
+        System.out.println("ids " + user.getPlaygroundsNames());
         PlaygroundDTO playground1 = controller.getPlayground("KålPladsen");
         Assertions.assertEquals(1, playground1.getAssignedPedagogue().size());
     }
@@ -127,7 +126,7 @@ class CreateUserTest {
         //verify(ctx).json("Created - User created");
 
         UserDTO user = controller.getUser("abc");
-        Assertions.assertEquals(1, user.getPlaygroundsIDs().size());
+        Assertions.assertEquals(1, user.getPlaygroundsNames().size());
         controller.addPedagogueToPlayground("KålPladsen", "abc");
 
 

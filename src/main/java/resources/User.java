@@ -1,9 +1,7 @@
-package javalin_resources.http_methods;
+package resources;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
-import com.google.gson.JsonObject;
-import com.google.gson.internal.$Gson$Preconditions;
 import com.mongodb.WriteResult;
 import database.Controller;
 import database.dto.UserDTO;
@@ -11,7 +9,6 @@ import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
-import io.swagger.v3.core.util.Json;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.*;
 import org.mindrot.jbcrypt.BCrypt;
@@ -227,7 +224,7 @@ public class User implements Tag {
 
         if (playgroundIDs != null) {
             for (Object id : playgroundIDs) {
-                newUser.getPlaygroundsIDs().add(id.toString());
+                newUser.getPlaygroundsNames().add(id.toString());
             }
         }
 
@@ -246,7 +243,7 @@ public class User implements Tag {
     };
     @OpenApi(
             summary = "Logs user into the system",
-            path = javalin_resources.Util.Path.User.USERS_LOGIN,
+            path = resources.Path.User.USERS_LOGIN,
             tags = {"User"},
             method = HttpMethod.POST,
             requestBody = @OpenApiRequestBody(
@@ -470,7 +467,7 @@ public class User implements Tag {
         // check if non-trivial data can be updated
         if (privileges){
             // remove references to old playgrounds
-            Set<String> usersOldPGIds = userToUpdate.getPlaygroundsIDs();
+            Set<String> usersOldPGIds = userToUpdate.getPlaygroundsNames();
             System.out.println("Old pgs " + usersOldPGIds);
             if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
                 for (String oldPlaygroundName : usersOldPGIds) {
@@ -486,7 +483,7 @@ public class User implements Tag {
                 Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
             }
 
-            userToUpdate.setPlaygroundsIDs(usersNewPGIds);
+            userToUpdate.setPlaygroundsNames(usersNewPGIds);
             userToUpdate.setStatus(status);
         }
 

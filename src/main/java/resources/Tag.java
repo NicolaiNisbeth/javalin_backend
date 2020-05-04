@@ -1,4 +1,4 @@
-package javalin_resources.http_methods;
+package resources;
 
 public interface Tag {
 
@@ -8,7 +8,6 @@ public interface Tag {
     String EVENT_YEAR = "year";
     String EVENT_MONTH = "month";
     String EVENT_DAY = "day";
-    String EVENT_HOUR = "hour";
     String EVENT_HOUR_START = "hourstart";
     String EVENT_HOUR_END = "hourend";
     String EVENT_MINUTE_START = "minutestart";
@@ -18,11 +17,7 @@ public interface Tag {
     String EVENT_PARTICIPANTS = "participants";
     String EVENT_DETAILS = "details";
 
-    String PEDAGOGUE = "pedagogue";
-
     String USERS = "users";
-    String USER = "user";
-    String USER_ID = "id";
     String USER_NAME = "username";
 
     String PLAYGROUND_ID = "id";
@@ -42,17 +37,9 @@ public interface Tag {
 
     String MESSAGE_ID = "messageID";
     String MESSAGE_CATEGORY = "category";
-    String MESSAGE_ICON = "icon";
     String MESSAGE_STRING = "messageString";
-    String MESSAGE_OUTDATED = "outDated";
     String MESSAGE_WRITTENBY_ID = "writtenByID";
     String MESSAGE_HASIMAGE = "hasImage";
-
-    String YEAR = "year";
-    String MONTH = "month";
-    String DAY = "day";
-    String HOUR = "hour";
-    String MINUTE = "minute";
 
     String USERNAME_ADMIN = "usernameAdmin";
     String PASSWORD_ADMIN = "passwordAdmin";
@@ -63,11 +50,8 @@ public interface Tag {
     String EMAIL = "email";
     String STATUS = "status";
     String STATUS_PEDAGOG = "pedagog";
-    String STATUS_ADMIN = "admin";
     String PLAYGROUNDSIDS = "playgroundsIDs";
     String WEBSITE = "website";
     String PHONENUMBERS = "phoneNumbers";
     String IMAGEPATH = String.format("http://18.185.121.182:8080/rest/users");
-
-    //String IMAGEPATH = String.format("http://%s:8080/rest/users", Main.getHostAddress());
 }

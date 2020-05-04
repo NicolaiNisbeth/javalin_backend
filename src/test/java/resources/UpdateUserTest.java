@@ -8,7 +8,6 @@ import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.Controller;
 import io.javalin.http.Context;
-import javalin_resources.http_methods.User;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
@@ -95,9 +94,9 @@ class UpdateUserTest {
                 .build();
         controller.createUser(updateUser);
 
-        Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
+        Assertions.assertTrue(updateUser.getPlaygroundsNames().isEmpty());
         UserDTO fromDB = controller.getUser(updateUser.getUsername());
-        System.out.println(fromDB.getPlaygroundsIDs());
+        System.out.println(fromDB.getPlaygroundsNames());
 
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
         json = gson.toJson(userModel);
@@ -110,7 +109,7 @@ class UpdateUserTest {
         verify(ctx).result("OK - user was updated successfully");
 
         updateUser = controller.getUser(updateUser.getUsername());
-        Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
+        Assertions.assertTrue(updateUser.getPlaygroundsNames().isEmpty());
 
         controller.deleteUser(userModel.username);
     }
@@ -158,7 +157,7 @@ class UpdateUserTest {
                 .build();
 
         controller.createUser(updateUser);
-        Assertions.assertTrue(updateUser.getPlaygroundsIDs().isEmpty());
+        Assertions.assertTrue(updateUser.getPlaygroundsNames().isEmpty());
 
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
 
@@ -173,7 +172,7 @@ class UpdateUserTest {
         verify(ctx).result("OK - user was updated successfully");
 
         updateUser = controller.getUser(updateUser.getUsername());
-        Assertions.assertEquals(2, updateUser.getPlaygroundsIDs().size());
+        Assertions.assertEquals(2, updateUser.getPlaygroundsNames().size());
 
       /*  playground = controller.getPlayground(playground.getName());
         Assertions.assertEquals(1, playground.getAssignedPedagogue().size());

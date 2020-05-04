@@ -1,4 +1,4 @@
-package javalin_resources.http_methods;
+package resources;
 
 import com.mongodb.MongoException;
 import database.Controller;
@@ -116,8 +116,8 @@ public class Message implements Tag {
   public static Handler updatePlaygroundMessage = ctx -> {
 
     BufferedImage bufferedImage = null;
-    String messageJson = ctx.formParam(("message"));;
-    JSONObject jsonObject = new JSONObject(messageJson);
+    String messageJson = ctx.formParam(("message"));
+      JSONObject jsonObject = new JSONObject(messageJson);
     MessageDTO message = Controller.getInstance().getMessage(jsonObject.getString("id"));
 
     // TODO Hvordan kommer den detail parameter til at foregå?

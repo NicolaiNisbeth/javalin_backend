@@ -17,7 +17,7 @@ import database.dto.MessageDTO;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.utils.QueryUtils;
-import javalin_resources.http_methods.Shared;
+import resources.Shared;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
@@ -35,7 +35,8 @@ public class Controller implements IController {
     private IEventDAO eventDAO;
 
     private Controller() {
-        /*this.datasource = ProductionDB.getInstance(); // production database by default*/this.datasource = ProductionDBnjl.getInstance(); // production database by default
+        /*this.datasource = ProductionDB.getInstance(); // production database by default*/
+        this.datasource = ProductionDBnjl.getInstance(); // production database by default
         this.playgroundDAO = new PlaygroundDAO(datasource);
         this.userDAO = new UserDAO(datasource);
         this.messageDAO = new MessageDAO(datasource);
@@ -272,7 +273,7 @@ public class Controller implements IController {
             session.startTransaction();
 
             UserDTO user = userDAO.getUser(username);
-            for (String playgroundName : user.getPlaygroundsIDs()){
+            for (String playgroundName : user.getPlaygroundsNames()){
                 removeUserRefInPlayground(username, playgroundName);
             }
 
@@ -311,7 +312,7 @@ public class Controller implements IController {
             UserDTO pedagogue = userDAO.getUser(username);
 
             // insert playground reference in user
-            pedagogue.getPlaygroundsIDs().add(plagroundName);
+            pedagogue.getPlaygroundsNames().add(plagroundName);
             wr = userDAO.updateUser(pedagogue);
 
             // insert user reference in playground
