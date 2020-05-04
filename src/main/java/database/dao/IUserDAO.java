@@ -1,23 +1,27 @@
 package database.dao;
 
 import com.mongodb.WriteResult;
-import database.DALException;
-import database.collections.User;
+import database.IDataSource;
+import database.exceptions.NoModificationException;
+import database.dto.UserDTO;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public interface IUserDAO {
     String COLLECTION = "users";
 
-    WriteResult createUser(User user) throws DALException;
+    void setDataSource(IDataSource dataSource);
 
-    User getUser(String username) throws DALException;
+    WriteResult createUser(UserDTO user) throws IllegalArgumentException, NoModificationException;
 
-    List<User> getUserList() throws DALException;
+    UserDTO getUser(String username) throws NoSuchElementException, IllegalArgumentException;
 
-    WriteResult updateUser(User user) throws DALException;
+    List<UserDTO> getUserList() throws NoSuchElementException;
 
-    WriteResult deleteUser(String username) throws DALException;
+    WriteResult updateUser(UserDTO user) throws IllegalArgumentException, NoModificationException;
 
-    WriteResult deleteAllUsers() throws DALException;
+    WriteResult deleteUser(String username) throws NoModificationException;
+
+    WriteResult deleteAllUsers();
 }

@@ -1,11 +1,17 @@
 package main;
 
 import io.javalin.Javalin;
+import io.javalin.core.security.Role;
+import io.javalin.plugin.openapi.OpenApiOptions;
+import io.javalin.plugin.openapi.OpenApiPlugin;
+import io.javalin.plugin.openapi.ui.SwaggerOptions;
 import io.prometheus.client.exporter.HTTPServer;
-import javalin_resources.HttpMethods.*;
-import javalin_resources.Util.Path;
-import monitor.QueuedThreadPoolCollector;
-import monitor.StatisticsHandlerCollector;
+import io.swagger.v3.oas.models.info.Info;
+import javalinjwt.JWTAccessManager;
+import javalinjwt.JavalinJWT;
+import resources.*;
+import monitoring.QueuedThreadPoolCollector;
+import monitoring.StatisticsHandlerCollector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -14,47 +20,129 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.file.Paths;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class Main {
     public static Javalin app;
-    private static String hostAddress;
+    private static final int port = 8080;
+
+    // This enum get's used by the acces manager in the start method
+    enum Roles implements Role {
+        ANYONE,
+        PEDAGOGUE,
+        ADMIN
+    }
+
 
     public static void main(String[] args) throws Exception {
-        if (InetAddress.getLocalHost().getHostName().
-                equals("aws-ec2-javalin-hoster")) {
-            hostAddress = "18.185.121.182";
-        } else {
-            hostAddress = "localhost";
-        }
+        String hostName = InetAddress.getLocalHost().getHostName();
+        String hostAddress = hostName.equals("aws-ec2-javalin-hoster") ? "18.185.121.182" : "localhost";
         System.out.println("Starting server from " + hostAddress);
+        System.out.println(String.format("Listening on %s", InetAddress.getLocalHost().getHostAddress()));
 
         buildDirectories();
         start();
     }
 
-    private static void buildDirectories() {
-        System.out.println("Server: Starting directories inquiry");
-        File homeFolder = new File(System.getProperty("user.home"));
 
-        java.nio.file.Path pathProfileImages = Paths.get(homeFolder.toPath().toString() + "/server_resource/profile_images");
-        File serverResProfileImages = new File(pathProfileImages.toString());
-        java.nio.file.Path pathPlaygrounds = Paths.get(homeFolder.toPath().toString() + "/server_resource/playgrounds");
-        File serverResPlaygrounds = new File(pathPlaygrounds.toString());
+    public static void start() throws Exception {
 
-        if (serverResProfileImages.exists()) {
-            System.out.println("Server: Directories exists from path: " + homeFolder.toString());
-        } else {
-            boolean dirCreated = serverResProfileImages.mkdirs();
-            boolean dir2Created = serverResPlaygrounds.mkdir();
-            if (dirCreated && dir2Created) {
-                System.out.println("Server: Directories is build at path: " + homeFolder.toString());
-            }
-        }
+        StatisticsHandler statisticsHandler = new StatisticsHandler();
+        QueuedThreadPool queuedThreadPool = new QueuedThreadPool(200, 8, 60_000);
+        initializePrometheus(statisticsHandler, queuedThreadPool);
+        // Den her enkrypterer vores webtokens.
+        JWTHandler.provider = JWTHandler.createHMAC512();
+
+        // Acces manager
+
+        Map<String, Role> rolesMapping = new HashMap<String, Role>() {{
+            put("pædagog", Roles.PEDAGOGUE);
+            put("admin", Roles.ADMIN);
+        }};
+
+        // Acces manageren tager imod 1. hvilken attribut hos bruger objektet bestemmer hans "status" (pædagog, admin, lig)
+        // Andet argument er hvad for nogle roller bruger vi?
+        // Det tredje er hvad er "default rollen". Altså i tilfældet af at vores bruger ikke er logget ind.
+        JWTAccessManager accessManager = new JWTAccessManager("status", rolesMapping, Roles.ANYONE);
+
+
+        if (app != null) return;
+        app = Javalin.create(config -> config.enableCorsForAllOrigins()
+                .registerPlugin(getConfiguredOpenApiPlugin())
+                .addSinglePageRoot("", "/webapp/index.html")
+                .addStaticFiles("webapp")
+                .accessManager(accessManager)
+                .server(() -> {
+                    Server server = new Server(queuedThreadPool);
+                    server.setHandler(statisticsHandler);
+                    return server;
+                })).start(port);
+
+        System.out.println("Check out Swagger UI docs at http://localhost:8080/rest");
+        System.out.println("Check out OpenAPI docs at http://localhost:8080/rest-docs");
+
+        // REST endpoints
+        app.routes(() -> {
+
+            before(ctx -> System.out.println(
+                    String.format("Javalin Server fik %s på %s med query %s og form %s",
+                            ctx.method(), ctx.url(), ctx.queryParamMap(), ctx.formParamMap()))
+            );
+
+            before(JavalinJWT.createHeaderDecodeHandler(JWTHandler.provider));
+
+            /** USERS **/
+            get(Path.User.USERS_ALL, User.getAllUsers, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.User.USERS_ALL_EMPLOYEES, User.getAllEmployees, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.User.USERS_ONE_PROFILE_PICTURE, User.getUserPicture, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+
+            put(Path.User.USERS_CRUD, User.updateUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            put(Path.User.USERS_RESET_PASSWORD, User.resetPassword, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+
+            post(Path.User.USERS_LOGIN, User.userLogin, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            post(Path.User.USERS_CRUD, User.createUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+
+            delete(Path.User.USERS_CRUD, User.deleteUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+
+
+            /** PLAYGROUNDS **/
+            get(Path.Playground.PLAYGROUNDS_ONE, Playground.readOnePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ALL, Playground.readAllPlaygrounds, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_PEDAGOGUE_ONE, Playground.readOnePlaygroundOneEmployee, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_PEDAGOGUE_ALL, Playground.readOnePlaygroundAllEmployee, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.readOneEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.readOneEventOneParticipant, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Event.readOneEventParticipants, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.readOnePlayGroundAllEvents, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.readOneMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            get(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.readAllMessages, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+
+            put(Path.Playground.PLAYGROUNDS_ONE, Playground.updatePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.updateEventToPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            put(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.updatePlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+
+            post(Path.Playground.PLAYGROUNDS_ALL, Playground.createPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.createPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.createUserToPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            post(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.createPlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+
+            delete(Path.Playground.PLAYGROUNDS_ONE, Playground.deleteOnePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.deleteEventFromPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            delete(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.deletePlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.deleteUserFromPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+
+            /** MESSAGES **/
+
+            get(Path.Message.MESSAGE_IMAGE_ONE, Message.getMessageImage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+
+            /** EVENTS **/
+
+            //TODO: Tag stilling til disse
+            //put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
+            //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
+            //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.User.deleteParticipantFromPlaygroundE
+        });
     }
 
     public static void stop() {
@@ -68,111 +156,41 @@ public class Main {
         HTTPServer prometheusServer = new HTTPServer(7080);
     }
 
-    public static void start() throws Exception {
+    private static OpenApiPlugin getConfiguredOpenApiPlugin() {
+        Info info = new Info().version("1.0").title("Københavns Legepladser API").description(
+                "The REST API is a student project made to make the public playgrounds of " +
+                        "Copenhagen Municipality more accessible." +
+                        "The API's endpoints is visible in the list below" +
+                        "This documentation is a draft.");
 
-        StatisticsHandler statisticsHandler = new StatisticsHandler();
-        QueuedThreadPool queuedThreadPool = new QueuedThreadPool(200, 8, 60_000);
-        initializePrometheus(statisticsHandler, queuedThreadPool);
-
-        if (app != null) return;
-        app = Javalin.create(config -> {
-            config.enableCorsForAllOrigins()
-                    .addSinglePageRoot("", "/webapp/index.html")
-                    .server(() -> {
-                        Server server = new Server(queuedThreadPool);
-                        server.setHandler(statisticsHandler);
-                        return server;
-                    });
-        }).start(8080);
-
-        app.before(ctx -> {
-            System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());
-        });
-        app.exception(Exception.class, (e, ctx) -> {
-            e.printStackTrace();
-        });
-        app.config.addStaticFiles("webapp");
-
-        // REST endpoints
-        app.routes(() -> {
-
-            /**
-             * GET
-             **/
-
-            //GET PLAYGROUNDS
-            get(Path.Playground.PLAYGROUND_ALL, Get.GetPlayground.readAllPlaygroundsGet);
-            get(Path.Playground.PLAYGROUND_ONE, Get.GetPlayground.readOnePlaygroundGet);
-            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Get.GetPlayground.readOnePlaygroundOneEmployeeGet);
-            get(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Get.GetPlayground.readOnePlaygroundAllEmployeeGet);
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Get.GetEvent.readOneEventParticipantsGet);
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Get.GetEvent.readOneEventOneParticipantGet);
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Get.GetEvent.readOnePlayGroundAllEventsGet);
-            get(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Get.GetEvent.readOneEventGet);
-            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Get.GetMessage.readAllMessagesGet);
-            get(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Get.GetMessage.readOneMessageGet);
-
-            //GET EMPLOYEES
-            get(Path.Employee.EMPLOYEE_ALL, Get.GetUser.getAllUsers);
-            get(Path.Employee.EMPLOYEE_ONE_PROFILE_PICTURE, Get.GetUser.getUserPicture);
-
-            /**
-             * POST
-             **/
-
-            //POST PLAYGROUNDS
-            //WORKS
-            post(Path.Playground.PLAYGROUND_ALL, Post.PostPlayground.createPlaygroundPost);
-            post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Post.PostEvent.createPlaygroundEventPost);
-            post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL, Post.PostMessage.createPlaygroundMessagePost);
-
-            //TODO: Implement this
-            post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostUser.createUserToPlaygroundPost);
-            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Post.PostUser.createParticipantsToPlaygroundEventPost);
-
-
-            //POST EMPLOYEES
-            post(Path.Employee.LOGIN, Post.PostUser.userLogin);
-            post(Path.Employee.CREATE, Post.PostUser.createUser);
-            post("/rest/employee/imagetest", context -> {
-                Shared.saveProfilePicture2(context);
-            });
-
-
-            /**
-             * PUT
-             **/
-            //PUT PLAYGROUNDS
-            put(Path.Playground.PLAYGROUND_ONE, Put.PutPlayground.updatePlaygroundPut);
-            put(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Put.PutMessage.updatePlaygroundMessagePut);
-            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Put.PutEvent.updateEventToPlaygroundPut);
-
-            //TODO: Test this
-            put(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Put.PutPedagogue.updatePedagogueToPlayGroundPut);
-            // put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
-
-            //PUT EMLOYEES
-            put(Path.Employee.UPDATE, Put.PutUser.updateUser);
-            put(Path.Employee.RESET_PASSWORD, Put.PutUser.resetPassword);
-
-            /**
-             * DELETE
-             **/
-            //DELETE PLAYGROUNDS
-            delete(Path.Playground.PLAYGROUND_ONE, Delete.DeletePlayground.deleteOnePlaygroundDelete);
-            delete(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ONE, Delete.DeletePedagogue.deletePedagogueFromPlaygroundDelete);
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Delete.DeleteEvent.deleteEventFromPlaygroundDelete);
-            delete(Path.Playground.PLAYGROUND_ONE_MESSAGE_ONE, Delete.DeleteMessage.deletePlaygroundMessageDelete);
-
-            //TODO: Test this
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
-
-            //DELETE EMPLOYEES
-            delete(Path.Employee.DELETE, Delete.DeleteUser.deleteUser);
-        });
+        OpenApiOptions options = new OpenApiOptions(info)
+                .activateAnnotationScanningFor("kbh-legepladser-api")
+                .path("/rest-docs") // endpoint for OpenAPI json
+                .swagger(new SwaggerOptions("/rest")) // endpoint for swagger-ui
+                .defaultDocumentation(doc -> {
+                });
+        return new OpenApiPlugin(options);
     }
 
-    public static String getHostAddress() {
-        return hostAddress;
+    private static void buildDirectories() {
+        File homeFolder = new File(System.getProperty("user.home"));
+        java.nio.file.Path pathProfileImages = Paths.get(homeFolder.toPath().toString() + "/server_resource/profile_images");
+        File serverResProfileImages = new File(pathProfileImages.toString());
+        java.nio.file.Path pathMessageImages = Paths.get(homeFolder.toPath().toString() + "/server_resource/message_images");
+        File serverResMessageImages = new File(pathMessageImages.toString());
+        java.nio.file.Path pathPlaygrounds = Paths.get(homeFolder.toPath().toString() + "/server_resource/playgrounds");
+        File serverResPlaygrounds = new File(pathPlaygrounds.toString());
+
+        if (serverResProfileImages.exists() && serverResMessageImages.exists() && serverResPlaygrounds.exists()) {
+            System.out.println(String.format("Server: Using resource directories from path: %s\\server_resource\\", homeFolder.toString()));
+        } else {
+            boolean userDirCreated = serverResProfileImages.mkdirs();
+            boolean playgroundDirCreated = serverResPlaygrounds.mkdir();
+            boolean messageDirCreated = serverResMessageImages.mkdirs();
+
+            if (userDirCreated || messageDirCreated || playgroundDirCreated) {
+                System.out.println(String.format("Server: Resource directories is build at path: %s\\server_resource", homeFolder.toString()));
+            }
+        }
     }
 }

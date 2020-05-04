@@ -1,23 +1,27 @@
 package database.dao;
 
 import com.mongodb.WriteResult;
-import database.DALException;
-import database.collections.Event;
+import database.IDataSource;
+import database.exceptions.NoModificationException;
+import database.dto.EventDTO;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public interface IEventDAO {
     String COLLECTION = "events";
 
-    WriteResult createEvent(Event event) throws DALException;
+    void setDataSource(IDataSource dataSource);
 
-    Event getEvent(String id) throws DALException;
+    WriteResult createEvent(EventDTO event) throws IllegalArgumentException, NoModificationException;
 
-    List<Event> getEventList() throws DALException;
+    EventDTO getEvent(String id) throws IllegalArgumentException, NoSuchElementException;
 
-    boolean updateEvent(Event event) throws DALException;
+    List<EventDTO> getEventList() throws NoSuchElementException;
 
-    boolean deleteEvent(String id) throws DALException;
+    WriteResult updateEvent(EventDTO event) throws IllegalArgumentException, NoModificationException;
 
-    boolean deleteAllEvents() throws DALException;
+    WriteResult deleteEvent(String id) throws IllegalArgumentException, NoModificationException;
+
+    WriteResult deleteAllEvents();
 }

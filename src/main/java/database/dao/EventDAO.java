@@ -1,147 +1,156 @@
 package database.dao;
 
 import com.mongodb.WriteResult;
-import database.DALException;
-import database.DataSource;
-import database.collections.Event;
+import database.IDataSource;
+import database.exceptions.NoModificationException;
+import database.dto.EventDTO;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class EventDAO implements IEventDAO {
+    private IDataSource dataSource;
 
-    /**
-     * Create event in events collection
-     *
-     * @param event
-     * @return true if created else false
-     * @throws DALException
-     */
-    @Override
-    public WriteResult createEvent(Event event) throws DALException {
-        if (event == null)
-            throw new DALException(String.format("Can't create event in %s collection when event is null", COLLECTION));
-
-        Jongo jongo = new Jongo(DataSource.getDB());
-        MongoCollection collection = jongo.getCollection(COLLECTION);
-
-        WriteResult ws = collection.save(event);
-
-        if (ws.getN() == 0)
-            throw new DALException(String.format("Event can't be created in %s collection", COLLECTION));
-
-        return ws;
+    public EventDAO(IDataSource dataSource){
+        this.dataSource = dataSource;
     }
 
     /**
-     * Get event with given id
-     *
-     * @param id
-     * @return event
-     * @throws DALException
+     * Create event in db
+     * @param event to be created
+     * @return writeResult where upsertedId can be derived
+     * @throws IllegalArgumentException when event is null
+     * @throws NoModificationException when event is not created
      */
     @Override
-    public Event getEvent(String id) throws DALException {
-        if (id == null || id.isEmpty())
-            throw new DALException(String.format("%s as ID is not valid in identifying an event", id));
+    public WriteResult createEvent(EventDTO event) throws IllegalArgumentException, NoModificationException {
+        if (event == null)
+            throw new IllegalArgumentException(
+                    String.format("Can't create event in %s collection when event is null", COLLECTION));
 
-        Jongo jongo = new Jongo(DataSource.getDB());
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
+        WriteResult wr = collection.save(event);
 
-        Event event = collection.findOne(new ObjectId(id)).as(Event.class);
+        if (wr.getN() == 0)
+            throw new NoModificationException(
+                    String.format("Playground can't be created in %s collection", COLLECTION));
+
+        return wr;
+    }
+
+    /**
+     * Get event in db
+     * @param id uniquely identifies a user in db
+     * @return event with given id
+     * @throws IllegalArgumentException when id is invalid
+     * @throws NoSuchElementException when event is not found in db
+     */
+    @Override
+    public EventDTO getEvent(String id) throws IllegalArgumentException, NoSuchElementException {
+        if (id == null || id.isEmpty())
+            throw new IllegalArgumentException(
+                    String.format("%s as ID is not valid in identifying an event", id));
+
+        Jongo jongo = new Jongo(dataSource.getDatabase());
+        MongoCollection collection = jongo.getCollection(COLLECTION);
+        EventDTO event = collection.findOne(new ObjectId(id)).as(EventDTO.class);
 
         if (event == null)
-            throw new DALException(String.format("No event in %s collection with id %s", COLLECTION, id));
+            throw new NoSuchElementException(
+                    String.format("No event in %s collection with id %s", COLLECTION, id));
 
         return event;
     }
 
     /**
-     * Get all events in collection
-     *
+     * Get list of all events in db
      * @return list of events
-     * @throws DALException
+     * @throws NoSuchElementException when no events are found in db
      */
     @Override
-    public List<Event> getEventList() throws DALException {
-        Jongo jongo = new Jongo(DataSource.getDB());
+    public List<EventDTO> getEventList() throws NoSuchElementException {
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
-
-        List<Event> eventList = new ArrayList<>();
-        for (Event event : collection.find().as(Event.class)) {
+        List<EventDTO> eventList = new ArrayList<>();
+        for (EventDTO event : collection.find().as(EventDTO.class)) {
             eventList.add(event);
         }
 
         if (eventList.isEmpty())
-            throw new DALException(String.format("No events in %s collection", COLLECTION));
+            throw new NoSuchElementException(
+                    String.format("No events in %s collection", COLLECTION));
 
         return eventList;
     }
 
     /**
-     * Replace event with same id
-     *
-     * @param event
-     * @return true if updated else false
-     * @throws DALException
+     * Update event in db
+     * @param event with updated values
+     * @return writeResult where id of updated event can be derived
+     * @throws IllegalArgumentException when event is null
+     * @throws NoModificationException when no event is updated
      */
     @Override
-    public boolean updateEvent(Event event) throws DALException {
-        if (event == null)
-            throw new DALException(String.format("Can't update event in %s collection when input event is null", COLLECTION));
+    public WriteResult updateEvent(EventDTO event) throws IllegalArgumentException, NoModificationException {
+        if (event == null || event.getID() == null)
+            throw new IllegalArgumentException(
+                    String.format("Can't update event in %s collection when param is null", COLLECTION));
 
-        if (event.getId() == null)
-            throw new DALException(String.format("Can't find event to be updated in %s collection when id is null", COLLECTION));
-
-        Jongo jongo = new Jongo(DataSource.getDB());
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
+        WriteResult wr = collection
+                .update(new ObjectId(event.getID()))
+                .with(event);
 
-        boolean isEventUpdated = collection
-                .update(new ObjectId(event.getId()))
-                .with(event)
-                .wasAcknowledged();
+        if (!wr.wasAcknowledged())
+            throw new NoModificationException(
+                    String.format("Event in %s collection with id %s was not updated", COLLECTION, event.getID()));
 
-        if (!isEventUpdated)
-            throw new DALException(String.format("No event in %s collection with id %s", COLLECTION, event.getId()));
-
-        return true;
+        return wr;
     }
 
     /**
-     * Delete event with given id
-     *
-     * @param id
-     * @return true if deleted else false
-     * @throws DALException
+     * Delete event in db
+     * @param id uniquely identifies an event in db
+     * @return writeResult where id of deleted user can be derived
+     * @throws NoModificationException when no event is deleted
+     * @throws IllegalArgumentException when id is invalid
      */
     @Override
-    public boolean deleteEvent(String id) throws DALException {
-        Jongo jongo = new Jongo(DataSource.getDB());
+    public WriteResult deleteEvent(String id) throws IllegalArgumentException, NoModificationException {
+        if (id == null || id.isEmpty())
+            throw new IllegalArgumentException(
+                    String.format("%s as ID is not valid in identifying an event", id));
+
+        Jongo jongo = new Jongo(dataSource.getDatabase());
         MongoCollection collection = jongo.getCollection(COLLECTION);
+        WriteResult wr = collection.remove(new ObjectId(id));
 
-        boolean isEventDeleted = collection
-                .remove(new ObjectId(id))
-                .wasAcknowledged();
+        if (!wr.wasAcknowledged())
+            throw new NoModificationException(
+                    String.format("No event in %s collection with id %s was deleted", COLLECTION, id));
 
-        if (!isEventDeleted)
-            throw new DALException(String.format("No event in %s collection with id %s", COLLECTION, id));
+        return wr;
+    }
 
-        return true;
+    /**
+     * Delete all events in db
+     * @return writeResult where ids of deleted events can be derived
+     */
+    @Override
+    public WriteResult deleteAllEvents(){
+        Jongo jongo = new Jongo(dataSource.getDatabase());
+        MongoCollection collection = jongo.getCollection(COLLECTION);
+        return collection.remove("{}");
     }
 
     @Override
-    public boolean deleteAllEvents() throws DALException {
-        Jongo jongo = new Jongo(DataSource.getDB());
-        try {
-            System.out.println(jongo.getCollection(COLLECTION)
-                    .remove("{}"));
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+    public void setDataSource(IDataSource dataSource) {
+        this.dataSource = dataSource;
     }
 }

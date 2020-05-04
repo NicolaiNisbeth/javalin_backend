@@ -1,16 +1,12 @@
 package database;
 
 import com.mongodb.WriteResult;
-import database.collections.Details;
-import database.collections.Event;
-import database.collections.Message;
-import database.collections.Playground;
-import database.collections.User;
-import database.dao.*;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.mindrot.jbcrypt.BCrypt;
+import database.dto.DetailsDTO;
+import database.dto.EventDTO;
+import database.dto.MessageDTO;
+import database.dto.PlaygroundDTO;
+import database.dto.UserDTO;
+import database.exceptions.NoModificationException;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -20,75 +16,37 @@ import java.util.Date;
 import java.util.List;
 
 public class InitTestData {
-    static IController controller;
-    static IEventDAO eventDAO;
-    static IMessageDAO messageDAO;
-    static IPlaygroundDAO playgroundDAO;
-    static IUserDAO userDAO;
-
-    @BeforeAll
-    static void setup(){
-        controller = Controller.getInstance();
-        eventDAO = new EventDAO();
-        messageDAO = new MessageDAO();
-        playgroundDAO = new PlaygroundDAO();
-        userDAO = new UserDAO();
-    }
-
-    @AfterAll
-    static void tearDown(){
-        controller = null;
-        eventDAO = null;
-        messageDAO = null;
-        playgroundDAO = null;
-        userDAO = null;
-    }
+    static IController controller = Controller.getInstance(); // production database by default
 
 
-    @Test
-    void initFreshData() throws DALException {
-        killAll();
+    public static void main(String[] args) throws NoModificationException {
+        //controller.setDataSource(TestDB.getInstance());
+        controller.killAll();
+        System.out.println("Collections are deleted");
 
         List<String> usernames = initUsers();
         List<String> playgroundNames = initPlaygrounds();
-
-        addPedagoguesToPlaygrounds(usernames, playgroundNames);
         List<String> eventIDs = addEventsToPlaygrounds(playgroundNames);
+
+        addUsersToEvent(usernames, eventIDs);
+        addPedagoguesToPlaygrounds(usernames, playgroundNames);
         addMessagesToPlaygrounds(playgroundNames);
-        addParticipantsToEvent(usernames, eventIDs);
         System.out.println("Database is ready with test data!");
     }
 
-    private static void killAll() {
-        try {
-            userDAO.deleteAllUsers();
-        } catch (DALException e){}
-        try {
-            eventDAO.deleteAllEvents();
-        } catch (DALException e){}
-
-        try {
-            messageDAO.deleteAllMessages();
-        } catch (DALException e){}
-        try {
-            playgroundDAO.deleteAllPlaygrounds();
-        } catch (DALException e){}
-        System.out.println("Collections are deleted");
-    }
-
-    private List<String> initPlaygrounds() {
+    private static List<String> initPlaygrounds() {
         List<String> playgroundNames = null;
         try(BufferedReader br = new BufferedReader(new FileReader("src/test/data/playgroundData"))) {
             playgroundNames = new ArrayList<>();
             String line = br.readLine(); // skip first line
             line = br.readLine();
 
-            Playground playground;
+            PlaygroundDTO playground;
             while (line != null) {
                 String[] data = line.split(",");
 
                 playgroundNames.add(data[0]);
-                playground = new Playground.Builder(data[0])
+                playground = new PlaygroundDTO.Builder(data[0])
                         .setStreetName(data[1])
                         .setStreetNumber(Integer.parseInt(data[2]))
                         .setCommune(data[3])
@@ -101,39 +59,40 @@ public class InitTestData {
                 controller.createPlayground(playground);
                 line = br.readLine();
             }
-        } catch (IOException e) {
+        } catch (IOException | NoModificationException e) {
             e.printStackTrace();
         }
         System.out.println("playgrounds are created");
         return playgroundNames;
     }
 
-    private List<String> initUsers() {
+    private static List<String> initUsers() {
         List<String> usernames = null;
         try(BufferedReader br = new BufferedReader(new FileReader("src/test/data/userData"))) {
             usernames = new ArrayList<>();
             String line = br.readLine(); // skip first line
             line = br.readLine();
 
-            User user;
+            UserDTO user;
             while (line != null) {
                 String[] data = line.split(",");
 
                 usernames.add(data[0]);
-                user = new User.Builder(data[0])
-                        .password(data[1])
+                user = new UserDTO.Builder(data[0])
+                        .setPassword(data[1])
                         .setFirstname(data[2])
                         .setLastname(data[3])
-                        .email(data[4])
+                        .setEmail(data[4])
                         .phoneNumbers(data[5].split(" "))
-                        .imagePath(data[6])
+                        .setImagePath(String.format("http://18.185.121.182:8080/rest/users/%s/profile-picture",data[0] ))
                         .status(data[7])
                         .build();
+
 
                 controller.createUser(user);
                 line = br.readLine();
             }
-        } catch (IOException e) {
+        } catch (IOException | NoModificationException e) {
             e.printStackTrace();
         }
 
@@ -141,64 +100,64 @@ public class InitTestData {
         return usernames;
     }
 
-    private void addMessagesToPlaygrounds(List<String> playgroundNames) {
+    private static void addMessagesToPlaygrounds(List<String> playgroundNames) {
         try(BufferedReader br = new BufferedReader(new FileReader("src/test/data/messageData"))) {
             String line = br.readLine(); // skip first line
             line = br.readLine();
 
-            Message message;
+            MessageDTO message;
             int i = 0;
             while (line != null) {
                 String[] data = line.split(",");
 
-                message = new Message.Builder()
+                message = new MessageDTO.Builder()
                         .setCategory(data[0])
                         .setIcon(data[1])
                         .setMessageString(data[2])
                         .build();
 
-                controller.addPlaygroundMessage(playgroundNames.get(i), message);
+                controller.createPlaygroundMessage(playgroundNames.get(i), message);
                 i = (i + 1) % playgroundNames.size();
                 line = br.readLine();
             }
-        } catch (IOException e) {
+        } catch (IOException | NoModificationException e) {
             e.printStackTrace();
         }
         System.out.println("Messages are added to playgrounds");
     }
 
-    private List<String> addEventsToPlaygrounds(List<String> playgroundNames) {
+    private static List<String> addEventsToPlaygrounds(List<String> playgroundNames) {
         List<String> eventID = null;
         try(BufferedReader br = new BufferedReader(new FileReader("src/test/data/eventData"))) {
             eventID = new ArrayList<>();
             String line = br.readLine(); // skip first line
             line = br.readLine();
 
-            Event event;
+            EventDTO event;
             int i = 0;
             while (line != null) {
                 String[] data = line.split(",");
 
-                event = new Event.Builder()
+                event = new EventDTO.Builder()
                         .name(data[0])
                         .description(data[1])
                         .imagePath(data[2])
-                        .details(new Details(new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis())))
+                        .details(new DetailsDTO(new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis())))
                         .build();
 
-                WriteResult wr = controller.addPlaygroundEvent(playgroundNames.get(i), event);
+                WriteResult wr = controller.createPlaygroundEvent(playgroundNames.get(i), event);
                 eventID.add(wr.getUpsertedId().toString());
                 i = (i + 1) % playgroundNames.size();
                 line = br.readLine();
             }
-        } catch (IOException e) {
+        } catch (IOException | NoModificationException e) {
             e.printStackTrace();
         }
         System.out.println("Events are added to playgrounds");
         return eventID;
     }
 
-    private void addPedagoguesToPlaygrounds(List<String> usernames, List<String> playgroundNames) {
+    private static void addPedagoguesToPlaygrounds(List<String> usernames, List<String> playgroundNames) throws NoModificationException {
         controller.addPedagogueToPlayground(playgroundNames.get(0), usernames.get(1));
         controller.addPedagogueToPlayground(playgroundNames.get(0), usernames.get(2));
 
@@ -222,13 +181,13 @@ public class InitTestData {
         System.out.println("Pedagogues are added to playgrounds");
     }
 
-    private void addParticipantsToEvent(List<String> usernames, List<String> eventID) {
+    private static void addUsersToEvent(List<String> usernames, List<String> eventID) throws NoModificationException {
         for (String id : eventID){
             int i = (int) (Math.random() * usernames.size() + 1) ;
             for (int j = 0; j < i; j++) {
-                controller.addUserToPlaygroundEvent(id, usernames.get(j));
+                controller.addUserToEvent(id, usernames.get(j));
             }
         }
-        System.out.println("Participants are added to events");
+        System.out.println("Users are added to events");
     }
 }
