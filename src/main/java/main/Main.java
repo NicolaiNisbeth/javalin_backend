@@ -180,22 +180,15 @@ public class Main {
         java.nio.file.Path pathPlaygrounds = Paths.get(homeFolder.toPath().toString() + "/server_resource/playgrounds");
         File serverResPlaygrounds = new File(pathPlaygrounds.toString());
 
-        if (serverResProfileImages.exists()) {
+        if (serverResProfileImages.exists() && serverResMessageImages.exists() && serverResPlaygrounds.exists()) {
             System.out.println(String.format("Server: Using resource directories from path: %s\\server_resource\\", homeFolder.toString()));
         } else {
-            boolean dirCreated = serverResProfileImages.mkdirs();
-            boolean dir2Created = serverResPlaygrounds.mkdir();
-            if (dirCreated || dir2Created) {
-                System.out.println(String.format("Server: Resource directories is build at path: %s\\server_resource", homeFolder.toString()));
-            }
-        }
+            boolean userDirCreated = serverResProfileImages.mkdirs();
+            boolean playgroundDirCreated = serverResPlaygrounds.mkdir();
+            boolean messageDirCreated = serverResMessageImages.mkdirs();
 
-        if (serverResMessageImages.exists()) {
-            System.out.println("Server: Directories exists from path: " + homeFolder.toString());
-        } else {
-            boolean dirCreated = serverResMessageImages.mkdirs();
-            if (dirCreated) {
-                System.out.println("Server: Directories is build at path: " + homeFolder.toString());
+            if (userDirCreated || messageDirCreated || playgroundDirCreated) {
+                System.out.println(String.format("Server: Resource directories is build at path: %s\\server_resource", homeFolder.toString()));
             }
         }
     }
