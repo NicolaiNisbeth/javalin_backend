@@ -8,7 +8,6 @@ import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
 import database.Controller;
 import database.dto.UserDTO;
-import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
