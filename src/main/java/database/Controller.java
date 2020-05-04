@@ -88,8 +88,10 @@ public class Controller implements IController {
         Set<EventDTO> updatedEvents = new HashSet<>();
         Set<EventDTO> events = user.getEvents();
         for (EventDTO value : events) {
-            EventDTO event = eventDAO.getEvent(value.getID());
-            updatedEvents.add(event);
+            try {
+                EventDTO event = eventDAO.getEvent(value.getID());
+                updatedEvents.add(event);
+            } catch (NoSuchElementException | IllegalArgumentException e){ }
         }
         user.setEvents(updatedEvents);
         return user;
@@ -346,6 +348,7 @@ public class Controller implements IController {
         try {
             session.startTransaction();
             UserDTO user = userDAO.getUser(username);
+            System.out.println("asd " + user);
 
             // update user with event reference
             user.getEvents().add(new EventDTO.Builder().id(new ObjectId(eventID).toString()).build());
