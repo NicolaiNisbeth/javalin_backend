@@ -177,7 +177,7 @@ public class User implements Tag {
         try {
             usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
             passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
-            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+            playgroundIDs = jsonObject.getJSONArray(PLAYGROUND_NAME);
             boolean isAdminUpdatingUser = !username.equalsIgnoreCase(usernameAdmin);
             boolean isAdminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
             if (isAdminUpdatingUser && !isAdminAuthorized) {
@@ -444,7 +444,7 @@ public class User implements Tag {
             usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
             passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
             status = jsonObject.getString(STATUS);
-            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSIDS);
+            playgroundIDs = jsonObject.getJSONArray(PLAYGROUND_NAME);
             boolean isAdminUpdatingUser = !username.equalsIgnoreCase(usernameAdmin);
             boolean isAdminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
             if (isAdminUpdatingUser && !isAdminAuthorized) {
