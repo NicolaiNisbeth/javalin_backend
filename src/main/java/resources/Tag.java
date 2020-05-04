@@ -50,7 +50,7 @@ public interface Tag {
     String EMAIL = "email";
     String STATUS = "status";
     String STATUS_PEDAGOG = "pedagog";
-    String PLAYGROUNDSIDS = "playgroundsIDs";
+    String PLAYGROUNDSIDS = "playgroundsNames";
     String WEBSITE = "website";
     String PHONENUMBERS = "phoneNumbers";
     String IMAGEPATH = String.format("http://18.185.121.182:8080/rest/users");
