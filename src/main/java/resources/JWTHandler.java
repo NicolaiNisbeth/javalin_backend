@@ -1,4 +1,4 @@
-package javalin_resources.Util;
+package resources;
 
 import brugerautorisation.data.Bruger;
 import com.auth0.jwt.JWT;

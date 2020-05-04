@@ -82,7 +82,7 @@ class UpdateUserTest {
         userModel.imagePath = "";
         userModel.phoneNumbers = new String[2];
         userModel.website = "";
-        userModel.playgroundsIDs = new String[0];
+        userModel.playgroundNames = new String[0];
         gson = new Gson();
         json = gson.toJson(userModel);
 
@@ -129,7 +129,7 @@ class UpdateUserTest {
         userModel.imagePath = "";
         userModel.phoneNumbers = new String[2];
         userModel.website = "";
-        userModel.playgroundsIDs = new String[0];
+        userModel.playgroundNames = new String[0];
         gson = new Gson();
         json = gson.toJson(userModel);
 
@@ -162,7 +162,7 @@ class UpdateUserTest {
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
 
         userModel.firstname = "KÅLHOVED";
-        userModel.playgroundsIDs = pgIDs;
+        userModel.playgroundNames = pgIDs;
 
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);
@@ -204,7 +204,7 @@ class UpdateUserTest {
         userModel.imagePath = "";
         userModel.phoneNumbers = new String[2];
         userModel.website = "";
-        userModel.playgroundsIDs = new String[0];
+        userModel.playgroundNames = new String[0];
         gson = new Gson();
         json = gson.toJson(userModel);
 
@@ -224,10 +224,10 @@ class UpdateUserTest {
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
 
         userModel.username = "";
-        userModel.playgroundsIDs = new String[2];
+        userModel.playgroundNames = new String[2];
         List<PlaygroundDTO> playgrounds = controller.getPlaygrounds();
-        userModel.playgroundsIDs[0] = playgrounds.get(0).getId();
-        userModel.playgroundsIDs[1] = playgrounds.get(1).getId();
+        userModel.playgroundNames[0] = playgrounds.get(0).getId();
+        userModel.playgroundNames[1] = playgrounds.get(1).getId();
 
         json = gson.toJson(userModel);
         when(ctx.formParam("usermodel")).thenReturn(json);

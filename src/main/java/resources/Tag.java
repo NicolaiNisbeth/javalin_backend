@@ -21,7 +21,7 @@ public interface Tag {
     String USER_NAME = "username";
 
     String PLAYGROUND_ID = "id";
-    String PLAYGROUND_NAME = "name";
+    String PLAYGROUND_NAMES = "playgroundNames";
     String PLAYGROUND_STREET_NAME = "streetname";
     String PLAYGROUND_STREET_NUMBER = "streetnumber";
     String PLAYGROUND_ZIPCODE = "zipcode";

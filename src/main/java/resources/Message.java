@@ -56,7 +56,7 @@ public class Message implements Tag {
   };
 
   public static Handler readAllMessages = ctx -> {
-    List<MessageDTO> messages = Controller.getInstance().getMessagesInPlayground(ctx.pathParam(PLAYGROUND_NAME));
+    List<MessageDTO> messages = Controller.getInstance().getMessagesInPlayground(ctx.pathParam(PLAYGROUND_NAMES));
     if (messages != null) {
       ctx.json(messages).contentType("json");
       ctx.status(200);

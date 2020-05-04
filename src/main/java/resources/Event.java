@@ -99,7 +99,7 @@ public class Event implements Tag {
   };
 
   public static Handler readOnePlayGroundAllEvents = ctx -> {
-    List<EventDTO> events = Controller.getInstance().getEventsInPlayground(ctx.pathParam(PLAYGROUND_NAME));
+    List<EventDTO> events = Controller.getInstance().getEventsInPlayground(ctx.pathParam(PLAYGROUND_NAMES));
     if (events != null) {
       ctx.json(events).contentType("json");
       ctx.status(200);
@@ -140,7 +140,7 @@ public class Event implements Tag {
 
     detailsModel.setStartTime(cal.getTime());
 
-    event.setPlayground(jsonObject.getString(PLAYGROUND_NAME));
+    event.setPlayground(jsonObject.getString(PLAYGROUND_NAMES));
     event.setName(jsonObject.getString(EVENT_NAME));
     event.setParticipants(jsonObject.getInt(EVENT_PARTICIPANTS));
     event.setImagepath(jsonObject.getString(EVENT_IMAGEPATH));
@@ -148,7 +148,7 @@ public class Event implements Tag {
     event.setDetails(detailsModel);
     event.setDescription(jsonObject.getString(EVENT_DESCRIPTION));
 
-    if (Controller.getInstance().createPlaygroundEvent(jsonObject.getString(PLAYGROUND_NAME), event).wasAcknowledged()) {
+    if (Controller.getInstance().createPlaygroundEvent(jsonObject.getString(PLAYGROUND_NAMES), event).wasAcknowledged()) {
       ctx.status(200).result("Event Created");
       System.out.println("inserted event");
     } else {
@@ -190,7 +190,7 @@ public class Event implements Tag {
   public static Handler updateEventToPlayground = ctx -> {
     JSONObject jsonObject = new JSONObject(ctx.body());
     EventDTO event = Controller.getInstance().getEvent(ctx.pathParam(EVENT_ID));
-    PlaygroundDTO playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
+    PlaygroundDTO playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAMES));
 
     if (jsonObject.has(EVENT_ID)) {
       event.setId(jsonObject.getString(EVENT_ID));
@@ -219,8 +219,8 @@ public class Event implements Tag {
       }
       event.setAssignedUsers(assignedUsers);
     }
-    if (jsonObject.has(PLAYGROUND_NAME)) {
-      event.setPlayground(PLAYGROUND_NAME);
+    if (jsonObject.has(PLAYGROUND_NAMES)) {
+      event.setPlayground(PLAYGROUND_NAMES);
     }
 
     try {

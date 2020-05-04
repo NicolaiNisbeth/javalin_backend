@@ -2,16 +2,12 @@ package resources;
 
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
-import com.google.gson.JsonObject;
-import com.google.gson.internal.$Gson$Preconditions;
 import com.mongodb.MongoException;
-import com.mongodb.WriteResult;
 import database.Controller;
 import database.dto.UserDTO;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
-import javalin_resources.Util.JWTHandler;
 import javalinjwt.examples.JWTResponse;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.*;
@@ -179,7 +175,7 @@ public class User implements Tag {
         try {
             usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
             passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
-            playgroundIDs = jsonObject.getJSONArray(PLAYGROUND_NAME);
+            playgroundIDs = jsonObject.getJSONArray(PLAYGROUND_NAMES);
             boolean isAdminUpdatingUser = !username.equalsIgnoreCase(usernameAdmin);
             boolean isAdminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
             if (isAdminUpdatingUser && !isAdminAuthorized) {
@@ -237,22 +233,22 @@ public class User implements Tag {
                 for (int i = 0; i < playgroundIDs.length(); i++) {
                     try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
                 }
+                newUser.setPlaygroundsNames(usersNewPGIds);
+                Controller.getInstance().createUser(newUser);
                 for (String playgroundID : usersNewPGIds){
                     Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
                 }
-                newUser.setPlaygroundsNames(usersNewPGIds);
 
-            } catch (NoSuchElementException | NoModificationException | MongoException e){}
+            } catch (NoSuchElementException | NoModificationException | MongoException e){
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+                ctx.result("Server error - creating user failed");
+                ctx.contentType(ContentType.JSON);
+                return;
+            }
         }
 
-        /*  if (playgroundIDs != null) {
-            for (Object id : playgroundIDs) {
-                newUser.getPlaygroundsNames().add(id.toString());
-            }
-        }*/
-
         try {
-            Controller.getInstance().createUser(newUser);
+            if (!privileges) Controller.getInstance().createUser(newUser);
             ctx.status(HttpStatus.CREATED_201);
             ctx.result("Created - User was signed up successfully");
             ctx.json(newUser);
@@ -299,14 +295,12 @@ public class User implements Tag {
         if (root) {
             try {
                 fetchedUser = getOrCreateRootUser(username);
+                String token = JWTHandler.provider.generateToken(fetchedUser);
+                ctx.header("Authorization", new JWTResponse(token).jwt);
+                ctx.header("Access-Control-Expose-Headers","Authorization");
                 ctx.status(HttpStatus.OK_200);
                 ctx.result("Success - User login with root was successful");
                 ctx.json(fetchedUser);
-                String token = JWTHandler.provider.generateToken(fetchedUser);
-                ctx.header("Authorization", new JWTResponse(token).jwt);
-                // the golden line. All hail this statement
-                ctx.header("Access-Control-Expose-Headers","Authorization");
-                ctx.status(HttpStatus.OK_200);
                 ctx.contentType(ContentType.JSON);
                 return;
             } catch (Exception e) {
@@ -456,7 +450,7 @@ public class User implements Tag {
             usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
             passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
             status = jsonObject.getString(STATUS);
-            playgroundIDs = jsonObject.getJSONArray(PLAYGROUND_NAME);
+            playgroundIDs = jsonObject.getJSONArray(PLAYGROUND_NAMES);
             boolean isAdminUpdatingUser = !username.equalsIgnoreCase(usernameAdmin);
             boolean isAdminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
             if (isAdminUpdatingUser && !isAdminAuthorized) {
@@ -518,7 +512,6 @@ public class User implements Tag {
 
                 userToUpdate.setPlaygroundsNames(usersNewPGIds);
             }catch (NoSuchElementException | NoModificationException | MongoException e){}
-            //userToUpdate.setPlaygroundsNames(usersNewPGIds);
             userToUpdate.setStatus(status);
         }
 

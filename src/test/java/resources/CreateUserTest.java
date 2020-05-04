@@ -8,6 +8,7 @@ import database.TestDB;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import io.javalin.http.Context;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
@@ -49,7 +50,7 @@ class CreateUserTest {
         userModel.phoneNumbers[0] = "12345678";
         userModel.phoneNumbers[1] = "887654321";
         userModel.website = "";
-        userModel.playgroundsIDs = new String[1];
+        userModel.playgroundNames = new String[1];
         gson = new Gson();
         json = gson.toJson(userModel);
 
@@ -93,7 +94,7 @@ class CreateUserTest {
     @Test
     void createUser() throws Exception {
         // Normal oprettelse af bruger
-        userModel.playgroundsIDs[0] = playground.getName();
+        userModel.playgroundNames[0] = playground.getName();
         Context ctx = mock(Context.class); // "mock-maker-inline" must be enabled
 
         json = gson.toJson(userModel);
@@ -102,7 +103,6 @@ class CreateUserTest {
         User.createUser.handle(ctx);
         verify(ctx).status(201);
         //verify(ctx).json("Created - User created");
-        controller.addPedagogueToPlayground("KålPladsen", "abc");
 
         UserDTO user = controller.getUser("abc");
         Assertions.assertEquals(1, user.getPlaygroundsNames().size());
@@ -114,7 +114,7 @@ class CreateUserTest {
     @Test
     void deleteUser() throws Exception {
         controller.createPlayground(playground);
-        userModel.playgroundsIDs[0] = playground.getName();
+        userModel.playgroundNames[0] = playground.getName();
 
         Context ctx = mock(Context.class);
 
@@ -153,7 +153,7 @@ class CreateUserTest {
         when(ctx.formParam("usermodel")).thenReturn(json);
         when(ctx.uploadedFile(Mockito.any())).thenCallRealMethod();
         User.createUser.handle(ctx);
-        verify(ctx).status(401);
+        verify(ctx).status(HttpStatus.CONFLICT_409);
         //verify(ctx).result("Unauthorized - User already exists");
     }
 

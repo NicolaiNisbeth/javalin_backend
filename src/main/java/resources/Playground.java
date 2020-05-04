@@ -24,7 +24,7 @@ public class Playground implements Tag {
    */
   public static Handler deleteOnePlayground = ctx -> {
     String playgroundname = "";
-    playgroundname = ctx.pathParam(PLAYGROUND_NAME);
+    playgroundname = ctx.pathParam(PLAYGROUND_NAMES);
 
     if (playgroundname != "") {
       Controller.getInstance().deletePlayground(playgroundname);
@@ -58,12 +58,12 @@ public class Playground implements Tag {
   };
 
   public static Handler readOnePlayground = ctx -> {
-    ctx.json(Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME))).contentType("json");
+    ctx.json(Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAMES))).contentType("json");
 
   };
 
   public static Handler readOnePlaygroundAllEmployee = ctx -> {
-    ctx.json(Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME)).getAssignedPedagogue()).contentType("json");
+    ctx.json(Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAMES)).getAssignedPedagogue()).contentType("json");
   };
 
   public static Handler readOnePlaygroundOneEmployee = ctx -> {
@@ -85,7 +85,7 @@ public class Playground implements Tag {
       }
     }
 
-    PlaygroundDTO playground = new PlaygroundDTO.Builder(jsonObject.getString(PLAYGROUND_NAME))
+    PlaygroundDTO playground = new PlaygroundDTO.Builder(jsonObject.getString(PLAYGROUND_NAMES))
       .setStreetName(jsonObject.getString(PLAYGROUND_STREET_NAME))
       .setStreetNumber(jsonObject.getInt(PLAYGROUND_STREET_NUMBER))
       .setZipCode(jsonObject.getInt(PLAYGROUND_ZIPCODE))
@@ -107,7 +107,7 @@ public class Playground implements Tag {
    * PUT
    */
   public static Handler updatePlayground = ctx -> {
-    PlaygroundDTO playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAME));
+    PlaygroundDTO playground = Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAMES));
     JSONObject jsonObject = new JSONObject(ctx.body());
     if (playground != null) {
       if (jsonObject.has(PLAYGROUND_STREET_NAME))

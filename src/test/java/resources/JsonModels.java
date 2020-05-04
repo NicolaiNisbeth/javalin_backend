@@ -19,6 +19,6 @@ public class JsonModels {
         String[] phoneNumbers;
         String website;
         String imagePath;
-        String[] playgroundsIDs;
+        String[] playgroundNames;
     }
 }
