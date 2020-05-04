@@ -47,7 +47,7 @@ public class Message implements Tag {
    * GET
    */
   public static Handler readOneMessage = ctx -> {
-    MessageDTO message = Controller.getInstance().getMessage(ctx.pathParam((MESSAGE_ID)));
+    MessageDTO message = Controller.getInstance().getMessage(ctx.pathParam(("id"))); //MESSAGE_ID
     if (message != null) {
       ctx.json(message).contentType("json");
       ctx.status(200);
@@ -144,11 +144,13 @@ public class Message implements Tag {
     if (jsonObject.get(MESSAGE_STRING) != null)
       message.setMessageString(jsonObject.getString(MESSAGE_STRING));
 
-    if (jsonObject.get(PLAYGROUND_ID) != null)
-      message.setPlaygroundID(jsonObject.getString(PLAYGROUND_ID));
+    if (jsonObject.get("playgroundID") != null) //PLAYGROUND_ID
+      message.setPlaygroundID(jsonObject.getString("playgroundID"));
 
     if (jsonObject.get(MESSAGE_WRITTENBY_ID) != null)
       message.setWrittenByID(MESSAGE_WRITTENBY_ID);
+
+    message.setHasImage(jsonObject.getBoolean("hasImage"));
 
     try {
       bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
@@ -156,12 +158,13 @@ public class Message implements Tag {
       System.out.println("Server: No message image was added...");
     }
 
-    if (Controller.getInstance().updatePlaygroundMessage(message).wasAcknowledged())
+    if (Controller.getInstance().updatePlaygroundMessage(message).wasAcknowledged()) {
       ctx.status(200).result("Updated message with ID: " + message.getID());
       ctx.json(Controller.getInstance().getMessage(message.getID()));
       if (bufferedImage != null) {
         Shared.saveMessageImage(message.getID(), bufferedImage);
       }
+    }
     else {
       ctx.status(404).result("There was an error");
     }
