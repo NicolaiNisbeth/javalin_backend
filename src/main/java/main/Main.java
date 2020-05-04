@@ -71,7 +71,24 @@ public class Main {
             // REST endpoints
             app.routes(() -> {
 
-                /** USERS **/
+                app.before("/*", ctx -> {
+                    String source = "Authfilter";
+
+                    Optional<DecodedJWT> decodedJWT = JavalinJWT.getTokenFromHeader(ctx).flatMap(JWTHandler.provider::validateToken);
+                    System.out.println(source);
+
+                    if (!decodedJWT.isPresent()) {
+                        System.out.println(source+": No/or altered token");
+
+                        //Redirection to a responsemessage, providing with informaion on how to post a login request.
+
+                    } else {
+                        System.out.println("Token is present");
+                    }
+
+                });
+
+/** USERS **/
                 get(Path.User.USERS_ALL, User.getAllUsers);
                 get(Path.User.USERS_ALL_EMPLOYEES, User.getAllEmployees);
                 get(Path.User.USERS_ONE_PROFILE_PICTURE, User.getUserPicture);
@@ -84,41 +101,6 @@ public class Main {
 
                 delete(Path.User.USERS_CRUD, User.deleteUser);
 
-            /**
-             * BEFORE
-             */
-
-
-            app.before("/*", ctx -> {
-                String source = "Authfilter";
-
-                Optional<DecodedJWT> decodedJWT = JavalinJWT.getTokenFromHeader(ctx).flatMap(JWTHandler.provider::validateToken);
-                System.out.println(source);
-
-                if (!decodedJWT.isPresent()) {
-                    System.out.println(source+": No/or altered token");
-
-                    //Redirection to a responsemessage, providing with informaion on how to post a login request.
-
-                } else {
-                    System.out.println("Token is present");
-                }
-
-            });
-            /**
-             * GET
-             **/
-
-            /** POST **/
-            post(Path.Employee.LOGIN,                                       Post.User.userLogin);
-            post(Path.Employee.CREATE,                                      Post.User.createUser);
-            post(Path.Playground.PLAYGROUND_ALL,                            Post.Playground.createPlayground);
-            post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL,                Post.Event.createPlaygroundEvent);
-            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Post.Event.createUserToPlaygroundEvent);
-            post(Path.Playground.PLAYGROUND_ONE_MESSAGE_ALL,                Post.Message.createPlaygroundMessage);
-            //TODO: Implement this
-            //skal foregå under create/update user post(Path.Playground.PLAYGROUND_ONE_PEDAGOGUE_ALL, Post.PostUser.createUserToPlaygroundPost);
-            post("/rest/employee/imagetest", context -> Shared.saveProfilePicture2(context));
 
                 /** PLAYGROUNDS **/
                 get(Path.Playground.PLAYGROUNDS_ONE, Playground.readOnePlayground);
@@ -155,7 +137,7 @@ public class Main {
                 //TODO: Tag stilling til disse
                 //put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Put.PutUser.updateUserToPlaygroundEventPut);
                 //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Delete.DeleteUser.deleteParticipantFromPlaygroundEventDelete);
-                //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.User.deleteParticipantFromPlaygroundEvent);
+                //delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL, Delete.User.deleteParticipantFromPlaygroundE
             });
         });
     }

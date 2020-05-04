@@ -352,10 +352,8 @@ public class User implements Tag {
             ctx.status(HttpStatus.OK_200);
             ctx.result("Success - User login was successful");
             ctx.json(fetchedUser);
-            ctx.contentType(ContentType.JSON);
             String token = JWTHandler.provider.generateToken(fetchedUser);
             ctx.header("Authorization", new JWTResponse(token).jwt);
-            ctx.contentType(ContentType.JSON);
             ctx.header("Access-Control-Expose-Headers: Authorization");
             ctx.contentType(ContentType.JSON);
         } else {

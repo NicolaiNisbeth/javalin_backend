@@ -1,6 +1,7 @@
 package database.dto;
 
 
+import io.javalin.core.security.Role;
 import org.jongo.marshall.jackson.oid.MongoId;
 import org.jongo.marshall.jackson.oid.MongoObjectId;
 
