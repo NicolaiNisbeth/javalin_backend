@@ -118,6 +118,9 @@ public class Main {
             get(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.readOneMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
             get(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.readAllMessages, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
+            get(Path.Playground.PLAYGROUNDS_ONE_PROFILE_PICTURE, Playground.getPicture, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+
+
             put(Path.Playground.PLAYGROUNDS_ONE, Playground.updatePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
             put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.updateEventToPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
             put(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.updatePlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));

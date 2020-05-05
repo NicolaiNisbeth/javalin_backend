@@ -2,17 +2,12 @@ package resources;
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import com.mongodb.MongoException;
-import com.google.gson.JsonObject;
-import com.google.gson.internal.$Gson$Preconditions;
-import com.mongodb.WriteResult;
 import database.Controller;
 import database.dto.UserDTO;
-import database.exceptions.DALException;
 import database.exceptions.NoModificationException;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.annotations.*;
 import javalinjwt.examples.JWTResponse;
-import io.swagger.v3.core.util.Json;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.*;
 import org.mindrot.jbcrypt.BCrypt;
@@ -67,7 +62,7 @@ public class User implements Tag {
     public static Handler getUserPicture = ctx -> {
         File homeFolder = new File(System.getProperty("user.home"));
         Path path = Paths.get(String.format(homeFolder.toPath() +
-                "/server_resource/profile_images/%s.png", ctx.pathParam("username")));
+                "/server_resource/users/%s.png", ctx.pathParam("username")));
 
         File initialFile = new File(path.toString());
         InputStream targetStream = null;
@@ -84,7 +79,7 @@ public class User implements Tag {
             ctx.result(targetStream).contentType("image/png");
         } else {
             //System.out.println("Server: Returning random user picture...");
-            targetStream = User.class.getResourceAsStream("/images/profile_pictures/random_user.png");
+            targetStream = User.class.getResourceAsStream("/images/users/random_user.png");
             ctx.result(targetStream).contentType("image/png");
         }
     };
@@ -214,7 +209,7 @@ public class User implements Tag {
                 .setStatus(status)
                 .setEmail(email)
                 .setWebsite(website)
-                .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username))
+                .setImagePath(String.format(IMAGEPATH + "/users/%s/profile-picture", username))
                 .build();
 
         // add phone numbers
@@ -348,7 +343,7 @@ public class User implements Tag {
                     .status(STATUS_PEDAGOG)
                     .setWebsite(bruger.ekstraFelter.get("webside").toString())
                     .setLoggedIn(true)
-                    .setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn))
+                    .setImagePath(String.format(IMAGEPATH + "/users/%s/profile-picture", bruger.brugernavn))
                     .build();
             Controller.getInstance().createUser(fetchedUser);
         }
@@ -362,7 +357,7 @@ public class User implements Tag {
             //user.setPassword(user.getPassword());
             fetchedUser.setWebsite(bruger.ekstraFelter.get("webside").toString());
             fetchedUser.setLoggedIn(true);
-            fetchedUser.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", bruger.brugernavn));
+            fetchedUser.setImagePath(String.format(IMAGEPATH + "/users/%s/profile-picture", bruger.brugernavn));
             Controller.getInstance().updateUser(fetchedUser);
         }
 
@@ -483,7 +478,7 @@ public class User implements Tag {
         userToUpdate.setLastname(lastName);
         userToUpdate.setEmail(email);
         userToUpdate.setWebsite(website);
-        userToUpdate.setImagePath(String.format(IMAGEPATH + "/%s/profile-picture", username));
+        userToUpdate.setImagePath(String.format(IMAGEPATH + "/users/%s/profile-picture", username));
         String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
         for (int i = 0; i < phoneNumbers.length(); i++) {
             try { usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i); } catch (ClassCastException e) {}
@@ -499,7 +494,6 @@ public class User implements Tag {
             try {
                 // remove references to old playgrounds
                 Set<String> usersOldPGIds = userToUpdate.getPlaygroundsNames();
-                System.out.println("Old pgs " + usersOldPGIds);
                 if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
                     for (String oldPlaygroundName : usersOldPGIds) {
                         Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
