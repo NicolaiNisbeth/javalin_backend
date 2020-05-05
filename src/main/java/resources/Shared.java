@@ -52,61 +52,6 @@ public class Shared {
         }
     }
 
-    public static void saveProfilePicture(String username, BufferedImage bufferedImage) {
-        //String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
-
-        File homeFolder = new File(System.getProperty("user.home"));
-        Path path = Paths.get(String.format(homeFolder.toPath() +
-                "/server_resource/profile_images/%s.png", username));
-
-        //String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
-        File imageFile = new File(path.toString());
-        try {
-            ImageIO.write(bufferedImage, "png", imageFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void saveMessageImage(String messageID, BufferedImage bufferedImage) {
-        File homeFolder = new File(System.getProperty("user.home"));
-        Path path = Paths.get(String.format(homeFolder.toPath() +
-                "/server_resource/message_images/%s.png", messageID));
-
-        File imageFile = new File(path.toString());
-        try {
-            ImageIO.write(bufferedImage, "png", imageFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void deleteMessageImage(String messageID) {
-        File homeFolder = new File(System.getProperty("user.home"));
-        Path path = Paths.get(String.format(homeFolder.toPath() +
-                "/server_resource/message_images/%s.png", messageID));
-
-        File imageFile = new File(path.toString());
-        if (imageFile.delete()) {
-            System.out.println("Image delete for message with ID: " + messageID);
-        } else {
-            System.out.println("No image found for the deleted message.");
-        }
-    }
-
-    public static void saveProfilePicture2(Context ctx) {
-        BufferedImage bufferedImage = null;
-        String username = ctx.formParam("username");
-
-        try {
-            bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Shared.saveProfilePicture(username, bufferedImage);
-    }
-
     public static void printImage(BufferedImage bufferedImage) {
         JFrame frame = new JFrame();
         frame.setBounds(10, 10, 900, 600);

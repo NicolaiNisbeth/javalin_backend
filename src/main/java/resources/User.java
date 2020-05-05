@@ -222,7 +222,7 @@ public class User implements Tag {
         // add image
         try {
             BufferedImage bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
-            Shared.saveProfilePicture(username, bufferedImage);
+            saveUserPicture(username, bufferedImage);
         } catch (Exception e) { System.out.println("Server: No image in upload"); }
 
         // add references to playgrounds
@@ -486,7 +486,7 @@ public class User implements Tag {
         userToUpdate.setPhoneNumbers(usersNewPhoneNumbers);
         try {
             BufferedImage bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
-            Shared.saveProfilePicture(username, bufferedImage);
+            saveUserPicture(username, bufferedImage);
         } catch (Exception e) { System.out.println("Server: No image in upload"); }
 
         // check if non-trivial data can be updated
@@ -555,4 +555,18 @@ public class User implements Tag {
 
         ctx.status(401).result("Unauthorized - Wrong setPassword");
     };
+
+    public static void saveUserPicture(String username, BufferedImage bufferedImage) {
+        File homeFolder = new File(System.getProperty("user.home"));
+        Path path = Paths.get(String.format(homeFolder.toPath() +
+                "/server_resource/users/%s.png", username));
+
+        //String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
+        File imageFile = new File(path.toString());
+        try {
+            ImageIO.write(bufferedImage, "png", imageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

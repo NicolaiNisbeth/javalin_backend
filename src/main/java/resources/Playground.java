@@ -12,6 +12,8 @@ import io.javalin.plugin.openapi.annotations.ContentType;
 import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONObject;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -69,6 +71,19 @@ public class Playground implements Tag {
         }
     };
 
+    public static void savePlaygroundPicture(String imagePath, BufferedImage bufferedImage) {
+        File homeFolder = new File(System.getProperty("user.home"));
+        Path path = Paths.get(String.format(homeFolder.toPath() +
+                "/server_resource/playgrounds/%s.png", imagePath));
+
+        //String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
+        File imageFile = new File(path.toString());
+        try {
+            ImageIO.write(bufferedImage, "png", imageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * GET
