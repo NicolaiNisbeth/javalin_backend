@@ -20,7 +20,7 @@ public class Path {
         // One employees on a playground
         public static final String PLAYGROUNDS_ONE_PEDAGOGUE_ONE = "/rest/playgrounds/:name/pedagogues/:username";
         // All events on a playground
-        public static final String PLAYGROUNDS_ONE_EVENTS_ALL = "/rest/playgrounds/:name/events";
+        public static final String PLAYGROUNDS_ONE_EVENTS_ALL = "/rest/playgrounds/:playgroundNames/events";
         // One events on a playground
         public static final String PLAYGROUNDS_ONE_EVENT_ONE = "/rest/playgrounds/:name/events/:id";
         // One event paricipant

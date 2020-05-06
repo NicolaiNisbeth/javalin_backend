@@ -35,18 +35,23 @@ public class User implements Tag {
             composedRequestBody = @OpenApiComposedRequestBody(required = true,
                     description = "credentials of the admin and username of the user to be deleted")
     )
+    /**
+     * Der er ikke længere brug for authentication herinde, da access manager gør det for os
+     * - Gustav
+     */
     public static Handler deleteUser = ctx -> {
         JSONObject jsonObject, deleteUserModel;
         jsonObject = new JSONObject(ctx.body());
         deleteUserModel = jsonObject.getJSONObject("deleteUserModel");
-        String usernameAdmin = deleteUserModel.getString(USERNAME_ADMIN);
-        String passwordAdmin = deleteUserModel.getString(PASSWORD_ADMIN);
+
+    //    String usernameAdmin = deleteUserModel.getString(USERNAME_ADMIN);
+    //    String passwordAdmin = deleteUserModel.getString(PASSWORD_ADMIN);
         String username = deleteUserModel.getString(USERNAME);
 
-        boolean adminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
-        if (!adminAuthorized) {
-            return;
-        }
+    //    boolean adminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
+    //    if (!adminAuthorized) {
+    //        return;
+    //    }
 
         Controller.getInstance().deleteUser(username);
         ctx.status(200);
@@ -444,7 +449,9 @@ public class User implements Tag {
         }
 
         // check if admin user can update another user
+      /*
         boolean privileges = true;
+
         try {
             usernameAdmin = jsonObject.getString(USERNAME_ADMIN);
             passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
@@ -460,7 +467,7 @@ public class User implements Tag {
             }
         } catch (JSONException e){
             privileges = false;
-        }
+        } */
 
         // find user in db
         UserDTO userToUpdate;
@@ -490,7 +497,7 @@ public class User implements Tag {
         } catch (Exception e) { System.out.println("Server: No image in upload"); }
 
         // check if non-trivial data can be updated
-        if (privileges){
+    //    if (privileges){
             try {
                 // remove references to old playgrounds
                 Set<String> usersOldPGIds = userToUpdate.getPlaygroundsNames();
@@ -511,7 +518,7 @@ public class User implements Tag {
                 userToUpdate.setPlaygroundsNames(usersNewPGIds);
             }catch (NoSuchElementException | NoModificationException | MongoException e){}
             userToUpdate.setStatus(status);
-        }
+     //   }
 
         try {
             Controller.getInstance().updateUser(userToUpdate);
