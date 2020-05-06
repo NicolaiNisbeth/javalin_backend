@@ -29,7 +29,7 @@ public class ProductionDBnjl implements IDataSource {
     public MongoClient getClient() {
         if (mongoClient == null) {
             MongoCredential credential = MongoCredential.createCredential(user, adminDatabase, password);
-            mongoClient = new MongoClient(new ServerAddress(HOST, PORT), Collections.singletonList(credential), MongoClientOptions.builder().build());
+            mongoClient = new MongoClient(new ServerAddress(HOST, PORT), credential, MongoClientOptions.builder().build());
         }
         return mongoClient;
     }
