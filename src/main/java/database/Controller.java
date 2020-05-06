@@ -17,8 +17,7 @@ import database.dto.MessageDTO;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.utils.QueryUtils;
-import resources.Event;
-import resources.Shared;
+import resources.Message;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
@@ -488,7 +487,7 @@ public class Controller implements IController {
             wr = messageDAO.deleteMessage(messageID);
 
             //delete message image
-            Shared.deleteMessageImage(messageID);
+            Message.deleteMessageImage(messageID);
 
 
             session.commitTransaction();
