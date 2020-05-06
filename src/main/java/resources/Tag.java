@@ -1,6 +1,6 @@
 package resources;
 
-public interface Tag {
+public interface         Tag {
 
     String EVENT_ID = "id";
     String EVENT_NAME = "name";
@@ -53,5 +53,6 @@ public interface Tag {
     String PLAYGROUNDSNAMES = "playgroundsNames";
     String WEBSITE = "website";
     String PHONENUMBERS = "phoneNumbers";
-    String IMAGEPATH = String.format("http://18.185.121.182:8080/rest/users");
+
+    String IMAGEPATH = String.format("http://18.185.121.182:8080/rest");
 }

@@ -32,6 +32,7 @@ public class Path {
         // Playground message all
         public static final String PLAYGROUNDS_ONE_MESSAGE_ALL = "/rest/playgrounds/:name/messages";
 
+        public static final String PLAYGROUNDS_ONE_PROFILE_PICTURE = "/rest/playgrounds/:name/picture";
     }
 
     public static class User {

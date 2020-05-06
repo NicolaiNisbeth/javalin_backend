@@ -28,7 +28,7 @@ public class Message implements Tag {
     String id = ctx.pathParam("id"); //PLAYGROUND_MESSAGE_ID
     try {
       Controller.getInstance().deletePlaygroundMessage(id);
-      Shared.deleteMessageImage(id);
+      deleteMessageImage(id);
       ctx.status(HttpStatus.OK_200);
       ctx.result("Success - playground message was deleted");
       ctx.contentType(ContentType.JSON);
@@ -103,7 +103,7 @@ public class Message implements Tag {
       ctx.status(200).result("Message posted");
       ctx.json(Controller.getInstance().getMessage(message.getID()));
       if (bufferedImage != null) {
-        Shared.saveMessageImage(message.getID(), bufferedImage);
+        saveMessageImage(message.getID(), bufferedImage);
       }
     } else {
       ctx.status(404).result("Failed to post message");
@@ -162,7 +162,7 @@ public class Message implements Tag {
       ctx.status(200).result("Updated message with ID: " + message.getID());
       ctx.json(Controller.getInstance().getMessage(message.getID()));
       if (bufferedImage != null) {
-        Shared.saveMessageImage(message.getID(), bufferedImage);
+        saveMessageImage(message.getID(), bufferedImage);
       }
     }
     else {
@@ -173,7 +173,7 @@ public class Message implements Tag {
   public static Handler getMessageImage = ctx -> {
     File homeFolder = new File(System.getProperty("user.home"));
     Path path = Paths.get(String.format(homeFolder.toPath() +
-            "/server_resource/message_images/%s.png", ctx.pathParam("id")));
+            "/server_resource/messages/%s.png", ctx.pathParam("id")));
 
     File initialFile = new File(path.toString());
     InputStream targetStream = null;
@@ -187,4 +187,32 @@ public class Message implements Tag {
       ctx.result(targetStream).contentType("image/png");
     }
   };
+
+
+  public static void saveMessageImage(String messageID, BufferedImage bufferedImage) {
+    File homeFolder = new File(System.getProperty("user.home"));
+    Path path = Paths.get(String.format(homeFolder.toPath() +
+            "/server_resource/messages/%s.png", messageID));
+
+    File imageFile = new File(path.toString());
+    try {
+      ImageIO.write(bufferedImage, "png", imageFile);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void deleteMessageImage(String messageID) {
+    File homeFolder = new File(System.getProperty("user.home"));
+    Path path = Paths.get(String.format(homeFolder.toPath() +
+            "/server_resource/message_images/%s.png", messageID));
+
+    File imageFile = new File(path.toString());
+    if (imageFile.delete()) {
+      System.out.println("Image delete for message with ID: " + messageID);
+    } else {
+      System.out.println("No image found for the deleted message.");
+    }
+  }
+
 }
