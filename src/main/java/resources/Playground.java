@@ -123,7 +123,7 @@ public class Playground implements Tag {
      * POST
      */
     public static Handler createPlayground = ctx -> {
-        String id, name = "", imagepath,
+        String name = "", id, imagepath,
                 toiletPosibilities, streetName = "",
                 streetNumber, commune = "", messages = "";
         int zipCode = 0;
