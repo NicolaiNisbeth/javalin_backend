@@ -457,12 +457,7 @@ public class User implements Tag {
             return;
         }
 
-        if (jsonObject.getJSONArray(PLAYGROUNDSNAMES) != null) {
-            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSNAMES);
-        }
-
         // check if admin user can update another user
-      /*
         boolean privileges = true;
 
         try {
@@ -478,9 +473,9 @@ public class User implements Tag {
                 ctx.contentType(ContentType.JSON);
                 return;
             }
-        } catch (JSONException e){
+        } catch (JSONException e) {
             privileges = false;
-        } */
+        }
 
         // find user in db
         UserDTO userToUpdate;
@@ -516,32 +511,32 @@ public class User implements Tag {
         }
 
         // check if non-trivial data can be updated
-        //    if (privileges){
-        try {
-            // remove references to old playgrounds
-            Set<String> usersOldPGIds = userToUpdate.getPlaygroundsNames();
-            if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
-                for (String oldPlaygroundName : usersOldPGIds) {
-                    Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
+        if (privileges) {
+            try {
+                // remove references to old playgrounds
+                Set<String> usersOldPGIds = userToUpdate.getPlaygroundsNames();
+                if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
+                    for (String oldPlaygroundName : usersOldPGIds) {
+                        Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
+                    }
                 }
-            }
-            // add references to new playgrounds
-            Set<String> usersNewPGIds = new HashSet<>();
-            for (int i = 0; i < playgroundIDs.length(); i++) {
-                try {
-                    usersNewPGIds.add((String) playgroundIDs.get(i));
-                } catch (ClassCastException e) {
+                // add references to new playgrounds
+                Set<String> usersNewPGIds = new HashSet<>();
+                for (int i = 0; i < playgroundIDs.length(); i++) {
+                    try {
+                        usersNewPGIds.add((String) playgroundIDs.get(i));
+                    } catch (ClassCastException e) {
+                    }
                 }
-            }
-            for (String playgroundID : usersNewPGIds) {
-                Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
-            }
+                for (String playgroundID : usersNewPGIds) {
+                    Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
+                }
 
-            userToUpdate.setPlaygroundsNames(usersNewPGIds);
-        } catch (NoSuchElementException | NoModificationException | MongoException e) {
+                userToUpdate.setPlaygroundsNames(usersNewPGIds);
+            } catch (NoSuchElementException | NoModificationException | MongoException e) {
+            }
+            userToUpdate.setStatus(status);
         }
-        userToUpdate.setStatus(status);
-        //   }
 
         try {
             Controller.getInstance().updateUser(userToUpdate);

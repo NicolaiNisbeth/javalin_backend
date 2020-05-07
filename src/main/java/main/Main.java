@@ -97,7 +97,7 @@ public class Main {
             get(Path.User.USERS_ALL_EMPLOYEES, User.getAllEmployees, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
             get(Path.User.USERS_ONE_PROFILE_PICTURE, User.getUserPicture, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
-            put(Path.User.USERS_CRUD, User.updateUser, new HashSet<>(Arrays.asList(Roles.ADMIN)));
+            put(Path.User.USERS_CRUD, User.updateUser, new HashSet<>(Arrays.asList(Roles.ADMIN,  Roles.PEDAGOGUE)));
             put(Path.User.USERS_RESET_PASSWORD, User.resetPassword, new HashSet<>(Arrays.asList(Roles.ADMIN)));
 
             post(Path.User.USERS_LOGIN, User.userLogin, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
