@@ -2,11 +2,9 @@ package database;
 
 import com.mongodb.*;
 
-import java.util.Collections;
+public class ProductionDB_AWS_EC2 implements IDataSource {
 
-public class ProductionDBnjl implements IDataSource {
-
-    private static ProductionDBnjl instance;
+    private static ProductionDB_AWS_EC2 instance;
     private static DB database;
     private static MongoClient mongoClient;
     private static final String HOST = "18.185.121.182";
@@ -16,11 +14,11 @@ public class ProductionDBnjl implements IDataSource {
     private static final String adminDatabase = "admin"; // the name of the database in which the user is defined
     private static final char[] password = ("njl_nykode").toCharArray(); // the setPassword as a character array
 
-    private ProductionDBnjl(){}
+    private ProductionDB_AWS_EC2(){}
 
-    public static ProductionDBnjl getInstance(){
+    public static ProductionDB_AWS_EC2 getInstance(){
         if (instance == null)
-            instance = new ProductionDBnjl();
+            instance = new ProductionDB_AWS_EC2();
 
         return instance;
     }

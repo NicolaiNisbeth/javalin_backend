@@ -17,7 +17,6 @@ import database.dto.MessageDTO;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.utils.QueryUtils;
-import resources.Message;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
@@ -36,7 +35,7 @@ public class Controller implements IController {
 
     private Controller() {
         /*this.datasource = ProductionDB.getInstance(); // production database by default*/
-        this.datasource = ProductionDBnjl.getInstance(); // production database by default
+        this.datasource = ProductionDB_AWS_EC2.getInstance(); // production database by default
         this.playgroundDAO = new PlaygroundDAO(datasource);
         this.userDAO = new UserDAO(datasource);
         this.messageDAO = new MessageDAO(datasource);
