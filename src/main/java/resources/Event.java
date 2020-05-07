@@ -228,14 +228,13 @@ public class Event implements Tag {
       ctx.status(HttpStatus.OK_200);
       ctx.result("Successful - playground event was updated successfully");
       ctx.contentType(ContentType.JSON);
-    } catch (NoModificationException e){
+    } catch (NoModificationException e) {
       ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
       ctx.result("Internal error - playground event could not be updated");
       ctx.contentType(ContentType.JSON);
     }
 
   };
-
 
 
 }

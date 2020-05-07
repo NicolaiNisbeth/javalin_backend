@@ -86,18 +86,18 @@ public class Message implements Tag {
     Date date = cal.getTime();
 
     MessageDTO message = new MessageDTO.Builder()
-            .setMessageString(jsonObject.getString(MESSAGE_STRING))
-            .setCategory(jsonObject.getString(MESSAGE_CATEGORY))
-            .setPlaygroundID(jsonObject.getString("playgroundID"))
-            .setDate(date)
-            .setHasImage(jsonObject.getBoolean(MESSAGE_HASIMAGE))
-            .build();
+      .setMessageString(jsonObject.getString(MESSAGE_STRING))
+      .setCategory(jsonObject.getString(MESSAGE_CATEGORY))
+      .setPlaygroundID(jsonObject.getString("playgroundID"))
+      .setDate(date)
+      .setHasImage(jsonObject.getBoolean(MESSAGE_HASIMAGE))
+      .build();
 
-      try {
-        bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
-      } catch (Exception e) {
-        System.out.println("Server: No message image was added...");
-      }
+    try {
+      bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
+    } catch (Exception e) {
+      System.out.println("Server: No message image was added...");
+    }
 
     if (Controller.getInstance().createPlaygroundMessage(jsonObject.getString("playgroundID"), message).wasAcknowledged()) { //PLAYGROUND_ID
       ctx.status(200).result("Message posted");
@@ -117,7 +117,7 @@ public class Message implements Tag {
 
     BufferedImage bufferedImage = null;
     String messageJson = ctx.formParam(("message"));
-      JSONObject jsonObject = new JSONObject(messageJson);
+    JSONObject jsonObject = new JSONObject(messageJson);
     MessageDTO message = Controller.getInstance().getMessage(jsonObject.getString("id"));
 
     // TODO Hvordan kommer den detail parameter til at foregå?
@@ -164,8 +164,7 @@ public class Message implements Tag {
       if (bufferedImage != null) {
         saveMessageImage(message.getID(), bufferedImage);
       }
-    }
-    else {
+    } else {
       ctx.status(404).result("There was an error");
     }
   };
@@ -173,7 +172,7 @@ public class Message implements Tag {
   public static Handler getMessageImage = ctx -> {
     File homeFolder = new File(System.getProperty("user.home"));
     Path path = Paths.get(String.format(homeFolder.toPath() +
-            "/server_resource/messages/%s.png", ctx.pathParam("id")));
+      "/server_resource/messages/%s.png", ctx.pathParam("id")));
 
     File initialFile = new File(path.toString());
     InputStream targetStream = null;
@@ -192,7 +191,7 @@ public class Message implements Tag {
   public static void saveMessageImage(String messageID, BufferedImage bufferedImage) {
     File homeFolder = new File(System.getProperty("user.home"));
     Path path = Paths.get(String.format(homeFolder.toPath() +
-            "/server_resource/messages/%s.png", messageID));
+      "/server_resource/messages/%s.png", messageID));
 
     File imageFile = new File(path.toString());
     try {
@@ -205,7 +204,7 @@ public class Message implements Tag {
   public static void deleteMessageImage(String messageID) {
     File homeFolder = new File(System.getProperty("user.home"));
     Path path = Paths.get(String.format(homeFolder.toPath() +
-            "/server_resource/message_images/%s.png", messageID));
+      "/server_resource/message_images/%s.png", messageID));
 
     File imageFile = new File(path.toString());
     if (imageFile.delete()) {
