@@ -1,4 +1,5 @@
 package resources;
+
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import com.mongodb.MongoException;
@@ -44,14 +45,14 @@ public class User implements Tag {
         jsonObject = new JSONObject(ctx.body());
         deleteUserModel = jsonObject.getJSONObject("deleteUserModel");
 
-    //    String usernameAdmin = deleteUserModel.getString(USERNAME_ADMIN);
-    //    String passwordAdmin = deleteUserModel.getString(PASSWORD_ADMIN);
+        //    String usernameAdmin = deleteUserModel.getString(USERNAME_ADMIN);
+        //    String passwordAdmin = deleteUserModel.getString(PASSWORD_ADMIN);
         String username = deleteUserModel.getString(USERNAME);
 
-    //    boolean adminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
-    //    if (!adminAuthorized) {
-    //        return;
-    //    }
+        //    boolean adminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
+        //    if (!adminAuthorized) {
+        //        return;
+        //    }
 
         Controller.getInstance().deleteUser(username);
         ctx.status(200);
@@ -167,7 +168,7 @@ public class User implements Tag {
             status = jsonObject.getString(STATUS);
             if (status.isEmpty()) status = "client"; //TODO: create an enum
             if (username.isEmpty() || password.isEmpty() || firstName.isEmpty()) throw new NullPointerException();
-        } catch (JSONException | NullPointerException e){
+        } catch (JSONException | NullPointerException e) {
             ctx.status(HttpStatus.BAD_REQUEST_400);
             ctx.result("Bad request - error in user data");
             ctx.contentType(ContentType.JSON);
@@ -188,18 +189,18 @@ public class User implements Tag {
                 ctx.contentType(ContentType.JSON);
                 return;
             }
-        } catch (JSONException e){
+        } catch (JSONException e) {
             privileges = false;
         }
 
         boolean isUsernameAvailable = false;
         try {
             Controller.getInstance().getUser(username);
-        } catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             isUsernameAvailable = true;
         }
 
-        if (!isUsernameAvailable){
+        if (!isUsernameAvailable) {
             ctx.status(HttpStatus.CONFLICT_409);
             ctx.result("Conflict - Username is already in use");
             ctx.contentType(ContentType.JSON);
@@ -220,7 +221,10 @@ public class User implements Tag {
         // add phone numbers
         String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
         for (int i = 0; i < phoneNumbers.length(); i++) {
-            try { usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i); } catch (ClassCastException e) {}
+            try {
+                usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i);
+            } catch (ClassCastException e) {
+            }
         }
         newUser.setPhoneNumbers(usersNewPhoneNumbers);
 
@@ -228,22 +232,27 @@ public class User implements Tag {
         try {
             BufferedImage bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
             saveUserPicture(username, bufferedImage);
-        } catch (Exception e) { System.out.println("Server: No image in upload"); }
+        } catch (Exception e) {
+            System.out.println("Server: No image in upload");
+        }
 
         // add references to playgrounds
-        if (privileges){
+        if (privileges) {
             try {
                 Set<String> usersNewPGIds = new HashSet<>();
                 for (int i = 0; i < playgroundIDs.length(); i++) {
-                    try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
+                    try {
+                        usersNewPGIds.add((String) playgroundIDs.get(i));
+                    } catch (ClassCastException e) {
+                    }
                 }
                 newUser.setPlaygroundsNames(usersNewPGIds);
                 Controller.getInstance().createUser(newUser);
-                for (String playgroundID : usersNewPGIds){
+                for (String playgroundID : usersNewPGIds) {
                     Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
                 }
 
-            } catch (NoSuchElementException | NoModificationException | MongoException e){
+            } catch (NoSuchElementException | NoModificationException | MongoException e) {
                 ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
                 ctx.result("Server error - creating user failed");
                 ctx.contentType(ContentType.JSON);
@@ -257,7 +266,7 @@ public class User implements Tag {
             ctx.result("Created - User was signed up successfully");
             ctx.json(newUser);
             ctx.contentType(ContentType.JSON);
-        } catch (NoModificationException e){
+        } catch (NoModificationException e) {
             ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
             ctx.result("Server error - creating user failed");
             ctx.contentType(ContentType.JSON);
@@ -301,7 +310,7 @@ public class User implements Tag {
                 fetchedUser = getOrCreateRootUser(username);
                 String token = JWTHandler.provider.generateToken(fetchedUser);
                 ctx.header("Authorization", new JWTResponse(token).jwt);
-                ctx.header("Access-Control-Expose-Headers","Authorization");
+                ctx.header("Access-Control-Expose-Headers", "Authorization");
                 ctx.status(HttpStatus.OK_200);
                 ctx.result("Success - User login with root was successful");
                 ctx.json(fetchedUser);
@@ -372,7 +381,7 @@ public class User implements Tag {
             String token = JWTHandler.provider.generateToken(fetchedUser);
             ctx.header("Authorization", new JWTResponse(token).jwt);
             // the golden line. All hail this statement
-            ctx.header("Access-Control-Expose-Headers","Authorization");
+            ctx.header("Access-Control-Expose-Headers", "Authorization");
             ctx.status(HttpStatus.OK_200);
             ctx.result("Success - User login was successful");
             ctx.json(fetchedUser);
@@ -441,11 +450,15 @@ public class User implements Tag {
             email = jsonObject.getString(EMAIL);
             website = jsonObject.getString(WEBSITE);
             phoneNumbers = jsonObject.getJSONArray(PHONENUMBERS);
-        } catch (JSONException | NullPointerException e){
+        } catch (JSONException | NullPointerException e) {
             ctx.status(HttpStatus.BAD_REQUEST_400);
             ctx.result("Bad request - error in user data");
             ctx.contentType(ContentType.JSON);
             return;
+        }
+
+        if (jsonObject.getJSONArray(PLAYGROUNDSNAMES) != null) {
+            playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSNAMES);
         }
 
         // check if admin user can update another user
@@ -487,38 +500,48 @@ public class User implements Tag {
         userToUpdate.setWebsite(website);
         userToUpdate.setImagePath(String.format(IMAGEPATH + "/users/%s/profile-picture", username));
         String[] usersNewPhoneNumbers = new String[phoneNumbers.length()];
+
         for (int i = 0; i < phoneNumbers.length(); i++) {
-            try { usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i); } catch (ClassCastException e) {}
+            try {
+                usersNewPhoneNumbers[i] = (String) phoneNumbers.get(i);
+            } catch (ClassCastException e) {
+            }
         }
         userToUpdate.setPhoneNumbers(usersNewPhoneNumbers);
         try {
             BufferedImage bufferedImage = ImageIO.read(ctx.uploadedFile("image").getContent());
             saveUserPicture(username, bufferedImage);
-        } catch (Exception e) { System.out.println("Server: No image in upload"); }
+        } catch (Exception e) {
+            System.out.println("Server: No image in upload");
+        }
 
         // check if non-trivial data can be updated
-    //    if (privileges){
-            try {
-                // remove references to old playgrounds
-                Set<String> usersOldPGIds = userToUpdate.getPlaygroundsNames();
-                if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
-                    for (String oldPlaygroundName : usersOldPGIds) {
-                        Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
-                    }
+        //    if (privileges){
+        try {
+            // remove references to old playgrounds
+            Set<String> usersOldPGIds = userToUpdate.getPlaygroundsNames();
+            if (usersOldPGIds != null && !usersOldPGIds.isEmpty()) {
+                for (String oldPlaygroundName : usersOldPGIds) {
+                    Controller.getInstance().removePedagogueFromPlayground(oldPlaygroundName, userToUpdate.getUsername());
                 }
-                // add references to new playgrounds
-                Set<String> usersNewPGIds = new HashSet<>();
-                for (int i = 0; i < playgroundIDs.length(); i++) {
-                    try { usersNewPGIds.add((String) playgroundIDs.get(i)); } catch (ClassCastException e) {}
+            }
+            // add references to new playgrounds
+            Set<String> usersNewPGIds = new HashSet<>();
+            for (int i = 0; i < playgroundIDs.length(); i++) {
+                try {
+                    usersNewPGIds.add((String) playgroundIDs.get(i));
+                } catch (ClassCastException e) {
                 }
-                for (String playgroundID : usersNewPGIds){
-                    Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
-                }
+            }
+            for (String playgroundID : usersNewPGIds) {
+                Controller.getInstance().addPedagogueToPlayground(playgroundID, username);
+            }
 
-                userToUpdate.setPlaygroundsNames(usersNewPGIds);
-            }catch (NoSuchElementException | NoModificationException | MongoException e){}
-            userToUpdate.setStatus(status);
-     //   }
+            userToUpdate.setPlaygroundsNames(usersNewPGIds);
+        } catch (NoSuchElementException | NoModificationException | MongoException e) {
+        }
+        userToUpdate.setStatus(status);
+        //   }
 
         try {
             Controller.getInstance().updateUser(userToUpdate);
@@ -526,7 +549,7 @@ public class User implements Tag {
             ctx.result("OK - user was updated successfully");
             ctx.json(userToUpdate);
             ctx.contentType(ContentType.JSON);
-        } catch (NoModificationException e){
+        } catch (NoModificationException e) {
             ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
             ctx.result("Server error - Update user failed");
             ctx.contentType(ContentType.JSON);

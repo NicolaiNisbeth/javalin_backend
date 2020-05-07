@@ -3,6 +3,7 @@ package monitoring;
 import io.prometheus.client.Collector;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,9 +46,11 @@ public class StatisticsHandlerCollector extends Collector {
                 buildCounter("jetty_expires_total", "Number of async requests requests that have expired", statisticsHandler.getExpires()),
                 buildStatusCounter(),
                 buildGauge("jetty_stats_seconds", "Time in seconds stats have been collected for", statisticsHandler.getStatsOnMs() / 1000.0),
-                buildCounter("jetty_responses_bytes_total", "Total number of bytes across all responses", statisticsHandler.getResponsesBytesTotal())
+                buildCounter("jetty_responses_bytes_total", "Total number of bytes across all responses", statisticsHandler.getResponsesBytesTotal()),
+                buildCounter("jvm_uptime", "Total uptime in seconds", ManagementFactory.getRuntimeMXBean().getUptime())
         );
     }
+
     private static MetricFamilySamples buildGauge(String name, String help, double value) {
         return new MetricFamilySamples(
                 name,
