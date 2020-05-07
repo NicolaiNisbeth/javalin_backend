@@ -97,13 +97,13 @@ public class Main {
             get(Path.User.USERS_ALL_EMPLOYEES, User.getAllEmployees, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
             get(Path.User.USERS_ONE_PROFILE_PICTURE, User.getUserPicture, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
-            put(Path.User.USERS_CRUD, User.updateUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-            put(Path.User.USERS_RESET_PASSWORD, User.resetPassword, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            put(Path.User.USERS_CRUD, User.updateUser, new HashSet<>(Arrays.asList(Roles.ADMIN)));
+            put(Path.User.USERS_RESET_PASSWORD, User.resetPassword, new HashSet<>(Arrays.asList(Roles.ADMIN)));
 
             post(Path.User.USERS_LOGIN, User.userLogin, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-            post(Path.User.USERS_CRUD, User.createUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            post(Path.User.USERS_CRUD, User.createUser, new HashSet<>(Arrays.asList(Roles.ADMIN)));
 
-            delete(Path.User.USERS_CRUD, User.deleteUser, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            delete(Path.User.USERS_CRUD, User.deleteUser, new HashSet<>(Arrays.asList(Roles.ADMIN)));
 
 
             /** PLAYGROUNDS **/
@@ -121,19 +121,19 @@ public class Main {
             get(Path.Playground.PLAYGROUNDS_ONE_PROFILE_PICTURE, Playground.getPicture, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
 
 
-            put(Path.Playground.PLAYGROUNDS_ONE, Playground.updatePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.updateEventToPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-            put(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.updatePlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            put(Path.Playground.PLAYGROUNDS_ONE, Playground.updatePlayground, new HashSet<>(Arrays.asList(Roles.PEDAGOGUE, Roles.ADMIN)));
+            put(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.updateEventToPlayground, new HashSet<>(Arrays.asList(Roles.PEDAGOGUE, Roles.ADMIN)));
+            put(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.updatePlaygroundMessage, new HashSet<>(Arrays.asList(Roles.PEDAGOGUE, Roles.ADMIN)));
 
-            post(Path.Playground.PLAYGROUNDS_ALL, Playground.createPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-            post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.createPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.createUserToPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-            post(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.createPlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            post(Path.Playground.PLAYGROUNDS_ALL, Playground.createPlayground, new HashSet<>(Arrays.asList(Roles.ADMIN)));
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENTS_ALL, Event.createPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.PEDAGOGUE, Roles.ADMIN)));
+            post(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.createUserToPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.PEDAGOGUE, Roles.ADMIN)));
+            post(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ALL, Message.createPlaygroundMessage, new HashSet<>(Arrays.asList(Roles.PEDAGOGUE, Roles.ADMIN)));
 
             delete(Path.Playground.PLAYGROUNDS_ONE, Playground.deleteOnePlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.deleteEventFromPlayground, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-            delete(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.deletePlaygroundMessage, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
-            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.deleteUserFromPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.ANYONE, Roles.PEDAGOGUE, Roles.ADMIN)));
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE, Event.deleteEventFromPlayground, new HashSet<>(Arrays.asList(Roles.PEDAGOGUE, Roles.ADMIN)));
+            delete(Path.Playground.PLAYGROUNDS_ONE_MESSAGE_ONE, Message.deletePlaygroundMessage, new HashSet<>(Arrays.asList(Roles.PEDAGOGUE, Roles.ADMIN)));
+            delete(Path.Playground.PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE, Event.deleteUserFromPlaygroundEvent, new HashSet<>(Arrays.asList(Roles.PEDAGOGUE, Roles.ADMIN)));
 
             /** MESSAGES **/
 
@@ -154,8 +154,8 @@ public class Main {
     }
 
     private static void initializePrometheus(StatisticsHandler statisticsHandler, QueuedThreadPool queuedThreadPool) throws IOException {
-        StatisticsHandlerCollector.initialize(statisticsHandler); // collector is included in source code
-        QueuedThreadPoolCollector.initialize(queuedThreadPool); // collector is included in source code
+        StatisticsHandlerCollector.initialize(statisticsHandler);
+        QueuedThreadPoolCollector.initialize(queuedThreadPool);
         HTTPServer prometheusServer = new HTTPServer(7080);
     }
 

@@ -123,25 +123,28 @@ public class Playground implements Tag {
      * POST
      */
     public static Handler createPlayground = ctx -> {
-        JSONObject jsonObject = new JSONObject(ctx.body());
-        Set<UserDTO> users = new HashSet<>();
-        for (int i = 0; i < jsonObject.getJSONArray(USERS).length(); i++) {
-            String userId = (String) jsonObject.getJSONArray(USERS).get(i);
-            try {
-                users.add(Controller.getInstance().getUser(userId));
-            } catch (NoSuchElementException e) {
-                e.printStackTrace();
-            }
+        String name = "", id, imagepath,
+                toiletPosibilities, streetName = "",
+                streetNumber, commune = "", messages = "";
+        int zipCode = 0;
+        String playgroundmodel = ctx.formParam(("usermodel"));
+        JSONObject jsonObject = new JSONObject(playgroundmodel);
+
+        try {
+            name = jsonObject.getString("name");
+            streetName = jsonObject.getString("streetName");
+            commune = jsonObject.getString("commune");
+            zipCode = jsonObject.getInt("zipCode");
+
+            //System.out.println(name + " " + streetName + " " + commune + " " + zipCode);
+        } catch (NoSuchElementException e) {
+            e.printStackTrace();
         }
 
-        PlaygroundDTO playground = new PlaygroundDTO.Builder(jsonObject.getString(PLAYGROUND_NAMES))
-                .setStreetName(jsonObject.getString(PLAYGROUND_STREET_NAME))
-                .setStreetNumber(jsonObject.getInt(PLAYGROUND_STREET_NUMBER))
-                .setZipCode(jsonObject.getInt(PLAYGROUND_ZIPCODE))
-                .setCommune(jsonObject.getString(PLAYGROUND_COMMUNE))
-                .setToiletPossibilities(jsonObject.getBoolean(PLAYGROUND_TOILET_POSSIBILITIES))
-                .setHasSoccerField(jsonObject.getBoolean(PLAYGROUND_HASSOCCERFIELD))
-                .setAssignedPedagogue(users)
+        PlaygroundDTO playground = new PlaygroundDTO.Builder(name)
+                .setStreetName(streetName)
+                .setZipCode(zipCode)
+                .setCommune(commune)
                 .build();
 
         WriteResult ws = Controller.getInstance().createPlayground(playground);
@@ -227,6 +230,8 @@ public class Playground implements Tag {
             ctx.status(404).result("Playground didn't update");
         }
     };
+
+
 
 
 }

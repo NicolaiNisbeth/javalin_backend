@@ -23,7 +23,7 @@ class UserDAOTest {
     }
 
     @Test
-    void createdUserShouldBeFetchedUser() throws NoModificationException {
+    void created_user_should_be_fetched_user() throws NoModificationException {
         UserDTO user = new UserDTO.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
@@ -39,7 +39,7 @@ class UserDAOTest {
     }
 
     @Test
-    void createTwoUsersShouldFetchListSizeTwo() throws NoModificationException {
+    void create_two_users_should_fetch_list_size_two() throws NoModificationException {
         UserDTO user1 = new UserDTO.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
@@ -71,7 +71,7 @@ class UserDAOTest {
     }
 
     @Test
-    void updateUserShouldFetchUpdatedUser() throws NoModificationException {
+    void update_user_should_fetch_updated_user() throws NoModificationException {
         UserDTO user = new UserDTO.Builder("s175565")
                 .setFirstname("Nicolai")
                 .setLastname("Nisbeth")
@@ -103,7 +103,7 @@ class UserDAOTest {
     }
 
     @Test
-    void deleteAllUsersInCollection() throws NoModificationException {
+    void delete_all_users_in_collection() throws NoModificationException {
         UserDTO user1 = new UserDTO.Builder("Nicolai")
                 .status("Admin")
                 .imagePath("asd97a9sd.jpg")
@@ -133,36 +133,37 @@ class UserDAOTest {
     }
 
     @Test
-    void nullInCreateShouldThrowIllegalArgument(){
+    void null_in_create_should_throw_illegalArgument(){
         Assertions.assertThrows(IllegalArgumentException.class, () -> userDAO.createUser(null));
     }
 
     @Test
-    void nullInGetShouldThrowIlleArgument(){
+    void null_in_get_user_should_throw_illegalArgument(){
         Assertions.assertThrows(IllegalArgumentException.class, () -> userDAO.getUser(null));
     }
+
     @Test
-    void emptyIdInGetShouldThrowIlleArgument(){
+    void empty_input_in_get_should_throw_illegalArgument(){
         Assertions.assertThrows(IllegalArgumentException.class, () -> userDAO.getUser(""));
     }
 
     @Test
-    void noEventsInGetEventsShouldThrowNoSuchElements(){
+    void no_events_in_get_users_should_throw_noSuchElements(){
         Assertions.assertThrows(NoSuchElementException.class, () -> userDAO.getUserList());
     }
 
     @Test
-    void nullInUpdateShouldThrowIlleArgument(){
+    void null_in_update_should_throw_illegalArgument(){
         Assertions.assertThrows(IllegalArgumentException.class, () -> userDAO.updateUser(null));
     }
 
     @Test
-    void nullInDeleteShouldThrowIlleArgument(){
+    void null_in_delete_should_throw_illegalArgument(){
         Assertions.assertThrows(IllegalArgumentException.class, () -> userDAO.deleteUser(null));
     }
 
     @Test
-    void emptyIdInDeleteShouldThrowIlleArgument(){
+    void empty_id_in_delete_should_throw_illegalArgument(){
         Assertions.assertThrows(IllegalArgumentException.class, () -> userDAO.deleteUser(""));
     }
 }

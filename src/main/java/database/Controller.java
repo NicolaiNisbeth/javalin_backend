@@ -146,16 +146,6 @@ public class Controller implements IController {
     @Override
     public List<UserDTO> getUsers() throws NoSuchElementException {
         return userDAO.getUserList();
-        /*
-        List<UserDTO> users = new ArrayList<>();
-        for (UserDTO usernameObj : userDAO.getUserList()){
-            String username = usernameObj.getUsername();
-            UserDTO user = getUser(username);
-            users.add(user);
-        }
-        return users;
-
-         */
     }
 
     @Override
@@ -487,7 +477,7 @@ public class Controller implements IController {
             wr = messageDAO.deleteMessage(messageID);
 
             //delete message image
-            Message.deleteMessageImage(messageID);
+      //      Message.deleteMessageImage(messageID);
 
 
             session.commitTransaction();
