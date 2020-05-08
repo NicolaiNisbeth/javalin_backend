@@ -334,7 +334,6 @@ public class Controller implements IController {
     try {
       session.startTransaction();
       UserDTO user = userDAO.getUser(username);
-      System.out.println("asd " + user);
 
       // update user with event reference
       user.getEvents().add(new EventDTO.Builder().id(new ObjectId(eventID).toString()).build());
