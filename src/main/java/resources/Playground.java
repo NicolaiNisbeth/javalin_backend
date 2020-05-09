@@ -27,21 +27,29 @@ import java.util.Set;
 
 public class Playground implements Tag {
 
-    /**
-     * USERS_CRUD
-     */
     public static Handler deleteOnePlayground = ctx -> {
-        String playgroundname = "";
-        playgroundname = ctx.pathParam(PLAYGROUND_NAMES);
+        JSONObject jsonObject, deletePlaygroundModel;
+        jsonObject = new JSONObject(ctx.body());
+        String playgroundName;
+        try {
+            deletePlaygroundModel = jsonObject.getJSONObject("playground");
+            playgroundName = deletePlaygroundModel.getString("name");
 
-        if (playgroundname != "") {
-            Controller.getInstance().deletePlayground(playgroundname);
+        } catch (Exception e) {
+            ctx.status(400).result("Bad request - Playground doesn't exist");
+            System.out.println("Found no playground");
+            return;
+        }
+        try {
+            Controller.getInstance().deletePlayground(playgroundName);
             ctx.status(200);
-            System.out.println("Deleted playground with name " + playgroundname);
-        } else {
+            System.out.println("Deleted playground with name " + playgroundName);
+            return;
+        } catch (Exception e) {
             ctx.status(404).result("Couldn't delete playground or it doesn't exist");
             System.out.println("Found no playground");
         }
+
     };
 
     public static Handler getPicture = ctx -> {
@@ -107,8 +115,8 @@ public class Playground implements Tag {
 
         String name, streetName, streetNumber, commune, imageText, descriptionText;
         int zipCode;
-        String playgroundmodel = ctx.formParam(("usermodel"));
-        JSONObject jsonObject = new JSONObject(playgroundmodel);
+        String playgroundModel = ctx.formParam(("playgroundModel"));
+        JSONObject jsonObject = new JSONObject(playgroundModel);
 
         try {
             name = jsonObject.getString("name");
