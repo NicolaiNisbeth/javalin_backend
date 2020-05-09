@@ -1,4 +1,4 @@
-package main;
+package rest;
 
 import io.javalin.Javalin;
 import io.javalin.core.security.Role;

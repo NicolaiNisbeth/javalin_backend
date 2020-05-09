@@ -584,7 +584,7 @@ public class User implements Tag {
     Path path = Paths.get(String.format(homeFolder.toPath() +
       "/server_resource/users/%s.png", username));
 
-    //String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
+    //String path = String.format("src/rest/resources/images/profile_pictures/%s.png", username);
     File imageFile = new File(path.toString());
     try {
       ImageIO.write(bufferedImage, "png", imageFile);

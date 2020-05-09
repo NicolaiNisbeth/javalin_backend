@@ -1,10 +1,10 @@
 Hej venner, Gustav her.
 
-JWT i det her projekt er ikke voldsomt. Der er nogle linjer i main og en JWT handler klasse, samt en header der bliver
+JWT i det her projekt er ikke voldsomt. Der er nogle linjer i rest og en JWT handler klasse, samt en header der bliver
 lavet i log in metoden.
 Men flowet for et JWT er cirka sådan her:
 
-1. Når programmet bliver startet bliver provideren produceret i main. Den her provider er statisk så den også kan bruges
+1. Når programmet bliver startet bliver provideren produceret i rest. Den her provider er statisk så den også kan bruges
 i log in metoden.
 2. Når en bruger logger ind tager programmet de claims (JWThandler - linje 29) som er defineret i vores provider,
 (claims er attributter så som status, navn, password etc.) Vores provider hasher dem og laver dem om til et JWT

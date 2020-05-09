@@ -9,7 +9,9 @@ public interface ISoap {
 
   int PORT = 8084;
   String PATH = "";
-  String DOMAIN = "127.0.0.1";
+  //String DOMAIN = "127.0.0.1";
+  //String DOMAIN = "18.185.121.182  ";
+  String DOMAIN = "172.31.41.170";
   String URL = String.format("http://%s:%d/%s", DOMAIN, PORT, PATH);
 
   @WebMethod
