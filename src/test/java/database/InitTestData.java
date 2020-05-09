@@ -18,7 +18,7 @@ public class InitTestData {
 
 
   public static void main(String[] args) throws NoModificationException {
-    controller.setDataSource(TestDB.getInstance());
+    controller.setDataSource(ProductionDB_AWS_EC2.getInstance());
     controller.killAll();
     System.out.println("Collections are deleted");
 
@@ -52,8 +52,9 @@ public class InitTestData {
           .setImagePath(String.format(IMAGEPATH + "/playgrounds/%s/picture", idString))
           .setToiletPossibilities(data[6].equals("true"))
           .setHasSoccerField(data[7].equals("true"))
+          .setImageText(data[8])
+          .setDescriptionText(data[9])
           .build();
-
         controller.createPlayground(playground);
         line = br.readLine();
       }

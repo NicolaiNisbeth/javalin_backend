@@ -1,9 +1,9 @@
-name,streetname,streetnumber,commune,zipcode,imagepath,toiletpossiblities,hassoccerfield
-Ørstedsparken,Nørre Farimagsgade,2,København K,1364,asd87asd78.jpg,true,false
-Elefantens Bastion,Christianshavns Voldgade,46,København K,1424,as89das8d78.jpg,false,false
-Tårnlegepladsen,Fælledparken,1,København Ø,2100,asd78asd89as.jpg,true,false
-Legepladsen på Hulgårds Plads,Hulgårds plads,6,København NV,2400,asd97asd7asd.jpg,true,false
-ByOasen i De Gamles By,Møllegade,25,København N,2200,asd7asd.jpg,false,true
-Bondegården i Remiseparken,Peder Lykkes vej,73,København S,2300,asdasd78ads78asd.jpg,true,false
-Skydebanehaven,Absalonsgade,12,København V,1658,asdasd78sda.jpg,false,true
-Naturlegepladsen i Valbyparken,Hammelstrupvej,41,København SV,2450,asdasdasdd7sd.jpg,true,false
+name,streetname,streetnumber,commune,zipcode,imagepath,toiletpossiblities,hassoccerfield,imageText,descriptionText
+Ørstedsparken,Nørre Farimagsgade,2,København K,1364,asd87asd78.jpg,true,false, Den første beskrivelse, Her er en spændende beskrivelse af legepladsen
+Elefantens Bastion,Christianshavns Voldgade,46,København K,1424,as89das8d78.jpg,false,false, Den første beskrivelse, Her er en spændende beskrivelse af legepladsen
+Tårnlegepladsen,Fælledparken,1,København Ø,2100,asd78asd89as.jpg,true,false, Den første beskrivelse, Her er en spændende beskrivelse af legepladsen
+Legepladsen på Hulgårds Plads,Hulgårds plads,6,København NV,2400,asd97asd7asd.jpg,true,false, Den første beskrivelse, Her er en spændende beskrivelse af legepladsen
+ByOasen i De Gamles By,Møllegade,25,København N,2200,asd7asd.jpg,false,true, Den første beskrivelse, Her er en spændende beskrivelse af legepladsen
+Bondegården i Remiseparken,Peder Lykkes vej,73,København S,2300,asdasd78ads78asd.jpg,true,false, Den første beskrivelse, Her er en spændende beskrivelse af legepladsen
+Skydebanehaven,Absalonsgade,12,København V,1658,asdasd78sda.jpg,false,true, Den første beskrivelse, Her er en spændende beskrivelse af legepladsen
+Naturlegepladsen i Valbyparken,Hammelstrupvej,41,København SV,2450,asdasdasdd7sd.jpg,true,false, Den første beskrivelse, Her er en spændende beskrivelse af legepladsen

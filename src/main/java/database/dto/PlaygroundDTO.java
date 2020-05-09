@@ -24,6 +24,16 @@ public class PlaygroundDTO {
   }
 
   private String imageText;
+
+  public String getDescriptionText() {
+    return descriptionText;
+  }
+
+  public void setDescriptionText(String descriptionText) {
+    this.descriptionText = descriptionText;
+  }
+
+  private String descriptionText;
   private boolean toiletPossibilities;
   private boolean hasSoccerField;
   private String streetName;
@@ -192,6 +202,17 @@ public class PlaygroundDTO {
     }
 
     private String imageText;
+
+    public String getDescriptionText() {
+      return descriptionText;
+    }
+
+    public Builder setDescriptionText(String descriptionText) {
+      this.descriptionText = descriptionText;
+      return this;
+    }
+
+    private String descriptionText;
     private String streetName;
     private int streetNumber;
     private String commune;
@@ -327,6 +348,7 @@ public class PlaygroundDTO {
       playground.assignedPedagogue = this.assignedPedagogue;
       playground.events = this.events;
       playground.imageText = this.imageText;
+      playground.descriptionText = this.descriptionText;
       return playground;
     }
   }

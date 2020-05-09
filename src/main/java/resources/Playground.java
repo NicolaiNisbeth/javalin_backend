@@ -116,6 +116,7 @@ public class Playground implements Tag {
             commune = jsonObject.getString("commune");
             zipCode = jsonObject.getInt("zipCode");
             imageText = jsonObject.getString("imageText");
+            descriptionText = jsonObject.getString("descriptionText");
         } catch (NoSuchElementException e) {
             e.printStackTrace();
             return;
@@ -127,6 +128,7 @@ public class Playground implements Tag {
                 .setCommune(commune)
                 .setToiletPossibilities(true)
                 .setImageText(imageText)
+                .setDescriptionText(descriptionText)
                 .build();
 
         WriteResult ws = Controller.getInstance().createPlayground(playground);
