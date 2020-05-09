@@ -1,4 +1,4 @@
-package rest;
+package main;
 
 import io.javalin.Javalin;
 import io.javalin.core.security.Role;
@@ -74,8 +74,8 @@ public class Main {
         return server;
       })).start(port);
 
-    System.out.println("Check out Swagger UI docs at http://localhost:8080/rest");
-    System.out.println("Check out OpenAPI docs at http://localhost:8080/rest-docs");
+    System.out.println("Check out Swagger UI docs at http://localhost:8080/main");
+    System.out.println("Check out OpenAPI docs at http://localhost:8080/main-docs");
 
     // REST endpoints
     app.routes(() -> {

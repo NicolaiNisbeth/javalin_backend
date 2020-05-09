@@ -33,7 +33,7 @@ public class User implements Tag {
 
   @OpenApi(
     summary = "Delete one user",
-    path = "/rest/users",
+    path = "/main/users",
     tags = {"User"},
     composedRequestBody = @OpenApiComposedRequestBody(required = true,
       description = "credentials of the admin and username of the user to be deleted")
@@ -64,7 +64,7 @@ public class User implements Tag {
 
   @OpenApi(
     summary = "Get one users profile picture",
-    path = "/rest/users",
+    path = "/main/users",
     tags = {"User"}
   )
   public static Handler getUserPicture = ctx -> {
@@ -95,7 +95,7 @@ public class User implements Tag {
   @OpenApi(
     summary = "Get all users",
     operationId = "getAllUsers",
-    path = "/rest/users",
+    path = "/main/users",
     method = HttpMethod.GET,
     tags = {"User"},
     responses = {
@@ -109,7 +109,7 @@ public class User implements Tag {
   @OpenApi(
     summary = "Get all users",
     operationId = "getAllUsers",
-    path = "/rest/users/all-employees",
+    path = "/main/users/all-employees",
     method = HttpMethod.GET,
     tags = {"User"},
     responses = {
@@ -143,7 +143,7 @@ public class User implements Tag {
 
   @OpenApi(
     summary = "Create user",
-    path = "/rest/employee/create",
+    path = "/main/employee/create",
     tags = {"User"},
     formParams = {@OpenApiFormParam(name = "usermodel", type = JSONString.class, required = true)},
     description = "usermodel containing credentials of the admin and the user the data of the user to be created",
@@ -398,7 +398,7 @@ public class User implements Tag {
   };
   @OpenApi(
     summary = "Update one user",
-    path = "/rest/users",
+    path = "/main/users",
     tags = {"User"},
     formParams = {@OpenApiFormParam(name = "usermodel", type = JSONString.class, required = true)},
     description = "usermodel containing credentials of the admin and the user the be updated with relevant fields",
@@ -584,7 +584,7 @@ public class User implements Tag {
     Path path = Paths.get(String.format(homeFolder.toPath() +
       "/server_resource/users/%s.png", username));
 
-    //String path = String.format("src/rest/resources/images/profile_pictures/%s.png", username);
+    //String path = String.format("src/main/resources/images/profile_pictures/%s.png", username);
     File imageFile = new File(path.toString());
     try {
       ImageIO.write(bufferedImage, "png", imageFile);

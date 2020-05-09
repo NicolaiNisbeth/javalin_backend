@@ -54,5 +54,5 @@ public interface Tag {
   String WEBSITE = "website";
   String PHONENUMBERS = "phoneNumbers";
 
-  String IMAGEPATH = String.format("http://18.185.121.182:8080/rest");
+  String IMAGEPATH = String.format("http://18.185.121.182:8080/main");
 }

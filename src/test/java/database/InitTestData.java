@@ -83,7 +83,7 @@ public class InitTestData {
           .setLastname(data[3])
           .setEmail(data[4])
           .phoneNumbers(data[5].split(" "))
-          .setImagePath(String.format("http://18.185.121.182:8080/rest/users/%s/profile-picture", data[0]))
+          .setImagePath(String.format("http://18.185.121.182:8080/main/users/%s/profile-picture", data[0]))
           .status(data[7])
           .build();
 
