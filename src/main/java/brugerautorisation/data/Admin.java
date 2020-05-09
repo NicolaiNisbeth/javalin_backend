@@ -8,6 +8,7 @@ import java.util.Set;
 
 public class Admin extends Bruger implements Serializable {
   private static final long serialVersionUID = 12233;
+  private final Set<EventDTO> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
   Set<String> connectedPlaygroundIDs;
   private String id;
   private String firstname;
@@ -18,7 +19,6 @@ public class Admin extends Bruger implements Serializable {
   private String password;
   private String userName;
   private String[] phonenumbers;
-  private final Set<EventDTO> events = new HashSet<>();    // many-to-many, One-Way-Embedding (an event has few Users, but User has many events)
   private String playgroundID;
 
 

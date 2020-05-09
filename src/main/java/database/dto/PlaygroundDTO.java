@@ -33,6 +33,7 @@ public class PlaygroundDTO {
   private Set<UserDTO> assignedPedagogue = new HashSet<>();
   private Set<EventDTO> events = new HashSet<>();
   private Set<MessageDTO> messages = new HashSet<>();
+
   private PlaygroundDTO() {
   }
 
