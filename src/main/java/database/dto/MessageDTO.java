@@ -21,6 +21,7 @@ public class MessageDTO implements Comparable<MessageDTO> {
   private String playgroundID;
   private Date date;
   private boolean hasImage;
+
   private MessageDTO() {
   }
 

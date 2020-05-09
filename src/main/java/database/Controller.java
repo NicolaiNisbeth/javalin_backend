@@ -20,11 +20,11 @@ import java.util.*;
 
 public class Controller implements IController {
   private static IController controller;
-  private IDataSource datasource;
   private final IPlaygroundDAO playgroundDAO;
   private final IUserDAO userDAO;
   private final IMessageDAO messageDAO;
   private final IEventDAO eventDAO;
+  private IDataSource datasource;
 
   private Controller() {
     /*this.datasource = ProductionDB.getInstance(); // production database by default*/
