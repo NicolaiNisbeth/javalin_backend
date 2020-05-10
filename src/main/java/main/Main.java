@@ -50,7 +50,6 @@ public class Main {
     JWTHandler.provider = JWTHandler.createHMAC512();
 
     // Acces manager
-
     Map<String, Role> rolesMapping = new HashMap<String, Role>() {{
       put("pædagog", Roles.PEDAGOGUE);
       put("admin", Roles.ADMIN);
@@ -74,8 +73,8 @@ public class Main {
         return server;
       })).start(port);
 
-    System.out.println("Check out Swagger UI docs at http://localhost:8080/main");
-    System.out.println("Check out OpenAPI docs at http://localhost:8080/main-docs");
+    System.out.println("Check out Swagger UI docs at http://localhost:8080/rest");
+    System.out.println("Check out OpenAPI docs at http://localhost:8080/rest-docs");
 
     // REST endpoints
     app.routes(() -> {

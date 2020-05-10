@@ -12,46 +12,46 @@ public class Path {
    */
   public static class Playground {
     // All playgrounds.
-    public static final String PLAYGROUNDS_ALL = "/main/playgrounds";
+    public static final String PLAYGROUNDS_ALL = "/rest/playgrounds";
     // A playground with the given name.
-    public static final String PLAYGROUNDS_ONE = "/main/playgrounds/:name";
+    public static final String PLAYGROUNDS_ONE = "/rest/playgrounds/:name";
     // All employees on a playground
-    public static final String PLAYGROUNDS_ONE_PEDAGOGUE_ALL = "/main/playgrounds/:name/pedagogues";
+    public static final String PLAYGROUNDS_ONE_PEDAGOGUE_ALL = "/rest/playgrounds/:name/pedagogues";
     // One employees on a playground
-    public static final String PLAYGROUNDS_ONE_PEDAGOGUE_ONE = "/main/playgrounds/:name/pedagogues/:username";
+    public static final String PLAYGROUNDS_ONE_PEDAGOGUE_ONE = "/rest/playgrounds/:name/pedagogues/:username";
     // All events on a playground
-    public static final String PLAYGROUNDS_ONE_EVENTS_ALL = "/main/playgrounds/:playgroundNames/events";
+    public static final String PLAYGROUNDS_ONE_EVENTS_ALL = "/rest/playgrounds/:playgroundNames/events";
     // One events on a playground
-    public static final String PLAYGROUNDS_ONE_EVENT_ONE = "/main/playgrounds/:name/events/:id";
+    public static final String PLAYGROUNDS_ONE_EVENT_ONE = "/rest/playgrounds/:name/events/:id";
     // One event paricipant
-    public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL = "/main/playgrounds/:name/events/:id/participants";
+    public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANTS_ALL = "/rest/playgrounds/:name/events/:id/participants";
     // One event paricipant
-    public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE = "/main/playgrounds/:name/events/:id/participants/:username";
+    public static final String PLAYGROUNDS_ONE_EVENT_ONE_PARTICIPANT_ONE = "/rest/playgrounds/:name/events/:id/participants/:username";
     // Playground message
-    public static final String PLAYGROUNDS_ONE_MESSAGE_ONE = "/main/playgrounds/:name/messages/:id";
+    public static final String PLAYGROUNDS_ONE_MESSAGE_ONE = "/rest/playgrounds/:name/messages/:id";
     // Playground message all
-    public static final String PLAYGROUNDS_ONE_MESSAGE_ALL = "/main/playgrounds/:name/messages";
+    public static final String PLAYGROUNDS_ONE_MESSAGE_ALL = "/rest/playgrounds/:name/messages";
 
-    public static final String PLAYGROUNDS_ONE_PROFILE_PICTURE = "/main/playgrounds/:name/picture";
+    public static final String PLAYGROUNDS_ONE_PROFILE_PICTURE = "/rest/playgrounds/:name/picture";
   }
 
   public static class User {
     // ALl users
-    public static final String USERS_ALL = "/main/users";
+    public static final String USERS_ALL = "/rest/users";
     // All users that are employees - not clients
-    public static final String USERS_ALL_EMPLOYEES = "/main/users/all-employees";
-    public static final String USERS_CRUD = "main/users/:username";
+    public static final String USERS_ALL_EMPLOYEES = "/rest/users/all-employees";
+    public static final String USERS_CRUD = "/rest/users/:username";
 
     // Get employee's profile picture
-    public static final String USERS_ONE_PROFILE_PICTURE = "/main/users/:username/profile-picture";
+    public static final String USERS_ONE_PROFILE_PICTURE = "/rest/users/:username/profile-picture";
 
-    public static final String USERS_LOGIN = "main/users/login";
-    public static final String USERS_RESET_PASSWORD = "main/users/reset-setPassword";
+    public static final String USERS_LOGIN = "/rest/users/login";
+    public static final String USERS_RESET_PASSWORD = "/rest/users/reset-setPassword";
 
   }
 
   public static class Message {
-    public static final String MESSAGE_IMAGE_ONE = "/main/messages/:id/image";
+    public static final String MESSAGE_IMAGE_ONE = "/rest/messages/:id/image";
   }
 
 }
