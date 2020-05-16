@@ -27,17 +27,19 @@ public class Message implements Tag {
   public static Handler deletePlaygroundMessage = ctx -> {
     String id = ctx.pathParam("id"); //PLAYGROUND_MESSAGE_ID
     try {
+      MessageDTO message = Controller.getInstance().getMessage(id);
       Controller.getInstance().deletePlaygroundMessage(id);
       deleteMessageImage(id);
-      ctx.status(HttpStatus.OK_200);
-      ctx.result("Success - playground message was deleted");
-      ctx.contentType(ContentType.JSON);
+      ctx.status(200).result("Success - playground message was deleted");    //HttpStatus.OK_200
+      ctx.json(message);
+      //ctx.result("Success - playground message was deleted");
+      //ctx.contentType(ContentType.JSON);
     } catch (NoSuchElementException e) {
-      ctx.status(HttpStatus.NOT_FOUND_404);
+      ctx.status(404); //HttpStatus.NOT_FOUND_404
       ctx.result(String.format("Not found - No playground message with ID=%s", id));
       ctx.contentType(ContentType.JSON);
     } catch (MongoException | NoModificationException e) {
-      ctx.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+      ctx.status(500); //HttpStatus.INTERNAL_SERVER_ERROR_500
       ctx.result("Server error - playground message could not be deleted");
       ctx.contentType(ContentType.JSON);
     }
