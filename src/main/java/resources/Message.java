@@ -174,7 +174,7 @@ public class Message implements Tag {
   public static Handler getMessageImage = ctx -> {
     File homeFolder = new File(System.getProperty("user.home"));
     Path path = Paths.get(String.format(homeFolder.toPath() +
-      "/server_resource/messages/%s.png", ctx.pathParam("id")));
+      "/server_resource/message_images/%s.png", ctx.pathParam("id")));
 
     File initialFile = new File(path.toString());
     InputStream targetStream = null;
@@ -193,7 +193,7 @@ public class Message implements Tag {
   public static void saveMessageImage(String messageID, BufferedImage bufferedImage) {
     File homeFolder = new File(System.getProperty("user.home"));
     Path path = Paths.get(String.format(homeFolder.toPath() +
-      "/server_resource/messages/%s.png", messageID));
+      "/server_resource/message_images/%s.png", messageID));
 
     File imageFile = new File(path.toString());
     try {
