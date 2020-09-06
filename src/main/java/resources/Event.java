@@ -121,8 +121,6 @@ public class Event implements Tag {
         ctx.status(404).result("Couldn't find the participant for this event");
   };
 
-
-
   public static Handler registerUser = ctx -> {
     String id = ctx.pathParam("id");
     String username = ctx.pathParam("username");
@@ -134,7 +132,7 @@ public class Event implements Tag {
     }
 
     try {
-      WriteResult writeResult = Controller.getInstance().addUserToEvent(id, username);
+      Controller.getInstance().addUserToEvent(id, username);
       ctx.status(HttpStatus.OK_200);
       ctx.result("OK - user joined event successfully");
       ctx.json(new UserDTO.Builder(username));

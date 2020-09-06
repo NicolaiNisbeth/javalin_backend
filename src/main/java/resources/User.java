@@ -1,6 +1,5 @@
 package resources;
 
-import JWT.JWTHandler;
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import com.mongodb.MongoException;
@@ -14,11 +13,9 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONString;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.imageio.ImageIO;
-import javax.mail.MessagingException;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -235,9 +232,6 @@ public class User implements Tag {
     if (root) {
       try {
         fetchedUser = getOrCreateRootUser(username);
-        String token = JWTHandler.provider.generateToken(fetchedUser);
-        ctx.header("Authorization", new JWTResponse(token).jwt);
-        ctx.header("Access-Control-Expose-Headers", "Authorization");
         ctx.status(HttpStatus.OK_200);
         ctx.result("Success - User login with root was successful");
         ctx.json(fetchedUser);
@@ -289,25 +283,9 @@ public class User implements Tag {
       Controller.getInstance().createUser(fetchedUser);
     }
 
-    boolean userIsCreatedByAdmin = !fetchedUser.isLoggedIn() && bruger != null;
-    if (userIsCreatedByAdmin) {
-      fetchedUser.setFirstname(bruger.fornavn);
-      fetchedUser.setLastname(bruger.efternavn);
-      fetchedUser.setEmail(bruger.email);
-      fetchedUser.setStatus(fetchedUser.getStatus());
-      fetchedUser.setWebsite(bruger.ekstraFelter.get("webside").toString());
-      fetchedUser.setLoggedIn(true);
-      fetchedUser.setImagePath(String.format(IMAGEPATH + "/users/%s/profile-picture", bruger.brugernavn));
-      Controller.getInstance().updateUser(fetchedUser);
-    }
-
     // validate credentials
     String hashed = fetchedUser.getPassword();
     if (BCrypt.checkpw(password, hashed)) {
-      String token = JWTHandler.provider.generateToken(fetchedUser);
-      ctx.header("Authorization", new JWTResponse(token).jwt);
-      // the golden line. All hail this statement
-      ctx.header("Access-Control-Expose-Headers", "Authorization");
       ctx.status(HttpStatus.OK_200);
       ctx.result("Success - User login was successful");
       ctx.json(fetchedUser);

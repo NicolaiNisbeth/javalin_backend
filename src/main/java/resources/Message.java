@@ -108,7 +108,4 @@ public class Message implements Tag {
       ctx.status(404).result("There was an error");
     }
   };
-
-
-
 }
