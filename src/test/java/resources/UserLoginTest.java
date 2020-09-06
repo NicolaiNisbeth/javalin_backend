@@ -1,6 +1,5 @@
 package resources;
 
-import JWT.JWTHandler;
 import com.google.gson.Gson;
 import database.Controller;
 import database.IController;
@@ -35,7 +34,6 @@ public class UserLoginTest {
     ctx = mock(Context.class);
     model = new JsonModels.LoginModel();
     gson = new Gson();
-    JWTHandler.provider = JWTHandler.createHMAC512();
   }
 
   @AfterEach

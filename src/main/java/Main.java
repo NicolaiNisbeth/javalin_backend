@@ -41,15 +41,16 @@ public class Main {
         return server;
       })).start(port);
 
-    before(ctx -> System.out.printf("Javalin Server fik %s på %s med query %s og form %s%n",
-            ctx.method(),
-            ctx.url(),
-            ctx.queryParamMap(),
-            ctx.formParamMap())
-    );
 
     // endpoints
     app.routes(() -> {
+
+      before(ctx -> System.out.printf("Javalin Server fik %s på %s med query %s og form %s%n",
+              ctx.method(),
+              ctx.url(),
+              ctx.queryParamMap(),
+              ctx.formParamMap())
+      );
 
       // users
       path("/rest/users", () -> {
