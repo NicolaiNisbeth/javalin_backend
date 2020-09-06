@@ -285,7 +285,7 @@
           <archive>
             <manifest>
               <mainClass>
-                main.Main
+                  Main
               </mainClass>
             </manifest>
           </archive>

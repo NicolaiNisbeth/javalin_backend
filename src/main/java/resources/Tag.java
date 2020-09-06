@@ -12,10 +12,8 @@ public interface Tag {
   String EVENT_HOUR_END = "hourend";
   String EVENT_MINUTE_START = "minutestart";
   String EVENT_MINUTE_END = "minuteend";
-  String EVENT_ASSIGNED_USERS = "assignedusers";
   String EVENT_IMAGEPATH = "imagepath";
   String EVENT_PARTICIPANTS = "participants";
-  String EVENT_DETAILS = "details";
 
   String USERS = "users";
   String USER_NAME = "username";
@@ -35,7 +33,6 @@ public interface Tag {
   String PLAYGROUND_MESSAGE_ID = "messageid";
   String PLAYGROUND_MESSAGES = "messages";
 
-  String MESSAGE_ID = "messageID";
   String MESSAGE_CATEGORY = "category";
   String MESSAGE_STRING = "messageString";
   String MESSAGE_WRITTENBY_ID = "writtenByID";

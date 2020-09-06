@@ -1,5 +1,6 @@
 package resources;
 
+import JWT.JWTHandler;
 import com.google.gson.Gson;
 import database.Controller;
 import database.IController;
@@ -51,7 +52,7 @@ public class UserLoginTest {
     String inputBody = gson.toJson(model);
 
     when(ctx.body()).thenReturn(inputBody);
-    User.userLogin.handle(ctx);
+    User.login.handle(ctx);
 
     verify(ctx).status(HttpStatus.OK_200);
     verify(ctx).json(Controller.getInstance().getUser("root"));
@@ -65,7 +66,7 @@ public class UserLoginTest {
     String inputBody = gson.toJson(model);
 
     when(ctx.body()).thenReturn(inputBody);
-    User.userLogin.handle(ctx);
+    User.login.handle(ctx);
 
     verify(ctx).status(HttpStatus.NOT_FOUND_404);
     verify(ctx).contentType(ContentType.JSON);
@@ -78,7 +79,7 @@ public class UserLoginTest {
     String inputBody = gson.toJson(model);
 
     when(ctx.body()).thenReturn(inputBody);
-    User.userLogin.handle(ctx);
+    User.login.handle(ctx);
 
     verify(ctx).status(HttpStatus.BAD_REQUEST_400);
     verify(ctx).contentType(ContentType.JSON);
@@ -86,7 +87,7 @@ public class UserLoginTest {
 
   @Test
   void noBodyShouldReturn400() throws Exception {
-    User.userLogin.handle(ctx);
+    User.login.handle(ctx);
 
     verify(ctx).status(HttpStatus.BAD_REQUEST_400);
     verify(ctx).contentType(ContentType.JSON);
@@ -99,7 +100,7 @@ public class UserLoginTest {
     String inputBody = gson.toJson(model);
 
     when(ctx.body()).thenReturn(inputBody);
-    User.userLogin.handle(ctx);
+    User.login.handle(ctx);
 
     verify(ctx).status(HttpStatus.OK_200);
     verify(ctx).json(Controller.getInstance().getUser("s175565"));
@@ -115,7 +116,7 @@ public class UserLoginTest {
 
     controller.createUser(new UserDTO.Builder(model.username).build());
     when(ctx.body()).thenReturn(inputBody);
-    User.userLogin.handle(ctx);
+    User.login.handle(ctx);
 
     verify(ctx).status(HttpStatus.UNAUTHORIZED_401);
     verify(ctx).contentType(ContentType.JSON);

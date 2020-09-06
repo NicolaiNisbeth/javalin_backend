@@ -27,7 +27,7 @@ import java.util.Set;
 
 public class Playground implements Tag {
 
-    public static Handler deleteOnePlayground = ctx -> {
+    public static Handler deletePlayground = ctx -> {
         JSONObject jsonObject, deletePlaygroundModel;
         jsonObject = new JSONObject(ctx.body());
         String playgroundName;
@@ -44,44 +44,33 @@ public class Playground implements Tag {
             Controller.getInstance().deletePlayground(playgroundName);
             ctx.status(200);
             System.out.println("Deleted playground with name " + playgroundName);
-            return;
         } catch (Exception e) {
             ctx.status(404).result("Couldn't delete playground or it doesn't exist");
             System.out.println("Found no playground");
         }
-
     };
+
 
     public static Handler getPicture = ctx -> {
         File homeFolder = new File(System.getProperty("user.home"));
         Path path = Paths.get(String.format(homeFolder.toPath() +
                 "/server_resource/playgrounds/%s.png", ctx.pathParam("name")));
 
-        //System.out.println("her er den" + path.toString());
-
         File initialFile = new File(path.toString());
         InputStream targetStream = null;
         try {
             targetStream = new FileInputStream(initialFile);
-         /*   BufferedImage in = ImageIO.read(initialFile);
-            UserAdminResource.printImage(in);*/
-
-        } catch (IOException e) {
-            //System.out.println("Server: User have no profile picture...");
+        } catch (IOException ignored) {
         }
 
-        if (targetStream != null) {
-            ctx.result(targetStream).contentType("image/png");
-        } else {
+        if (targetStream == null) {
             //System.out.println("Server: Returning random user picture...");
             targetStream = User.class.getResourceAsStream("/images/playgrounds/random_playground.png");
-            ctx.result(targetStream).contentType("image/png");
         }
+        ctx.result(targetStream).contentType("image/png");
     };
-    /**
-     * GET
-     */
-    public static Handler readAllPlaygrounds = ctx -> {
+
+    public static Handler getPlaygrounds = ctx -> {
         try {
             List<PlaygroundDTO> playgrounds = Controller.getInstance().getPlaygrounds();
             ctx.status(HttpStatus.OK_200);
@@ -98,14 +87,14 @@ public class Playground implements Tag {
             ctx.contentType(ContentType.JSON);
         }
     };
-    public static Handler readOnePlayground = ctx -> {
+    public static Handler getPlayground = ctx -> {
         ctx.json(Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAMES))).contentType("json");
 
     };
-    public static Handler readOnePlaygroundAllEmployee = ctx -> {
+    public static Handler getPedagogues = ctx -> {
         ctx.json(Controller.getInstance().getPlayground(ctx.pathParam(PLAYGROUND_NAMES)).getAssignedPedagogue()).contentType("json");
     };
-    public static Handler readOnePlaygroundOneEmployee = ctx -> {
+    public static Handler getPedagogue = ctx -> {
         ctx.json(Controller.getInstance().getUser(ctx.pathParam(USER_NAME))).contentType("json");
     };
     /**

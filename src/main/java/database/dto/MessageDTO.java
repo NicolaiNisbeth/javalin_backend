@@ -22,7 +22,16 @@ public class MessageDTO implements Comparable<MessageDTO> {
   private Date date;
   private boolean hasImage;
 
-  private MessageDTO() {
+  private MessageDTO(Builder builder) {
+    this.id = builder._id;
+    this.category = builder.category;
+    this.icon = builder.icon;
+    this.outDated = builder.outDated;
+    this.writtenByID = builder.writtenByID;
+    this.messageString = builder.messageString;
+    this.playgroundID = builder.playgroundID;
+    this.date = builder.date;
+    this.hasImage = builder.hasImage;
   }
 
   public String getMessageString() {
@@ -100,7 +109,7 @@ public class MessageDTO implements Comparable<MessageDTO> {
   @Override
   public String toString() {
     return "Message{" +
-      "id='" + id + '\'' +            //rettet fra "id="
+      "id='" + id + '\'' +
       ", category='" + category + '\'' +
       ", messageString='" + messageString + '\'' +
       ", outDated=" + outDated +
@@ -247,21 +256,7 @@ public class MessageDTO implements Comparable<MessageDTO> {
 
     public MessageDTO build() {
       //Here we create the actual playground object, which is always in a fully initialised state when it's returned.
-      MessageDTO message = new MessageDTO();  //Since the builder is in the class, we can invoke its private constructor.
-      message.id = this._id;
-      if (this.category == null)
-        message.category = "general";
-      else
-        message.category = this.category;
-      message.icon = this.icon;
-      message.outDated = this.outDated;
-      message.writtenByID = this.writtenByID;
-      message.messageString = this.messageString;
-      message.date = this.date;
-      message.playgroundID = this.playgroundID; //check dette
-      message.hasImage = this.hasImage;
-
-      return message;
+      return new MessageDTO(this);
     }
   }
 }

@@ -1,5 +1,6 @@
 package resources;
 
+import JWT.JWTHandler;
 import brugerautorisation.data.Bruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import com.mongodb.MongoException;
@@ -31,92 +32,43 @@ import java.util.*;
 
 public class User implements Tag {
 
-  @OpenApi(
-    summary = "Delete one user",
-    path = "/main/users",
-    tags = {"User"},
-    composedRequestBody = @OpenApiComposedRequestBody(required = true,
-      description = "credentials of the admin and username of the user to be deleted")
-  )
-  /**
-   * Der er ikke længere brug for authentication herinde, da access manager gør det for os
-   * - Gustav
-   */
+  public static Handler getUserPicture = ctx -> {
+    File homeFolder = new File(System.getProperty("user.home"));
+    Path path = Paths.get(String.format(homeFolder.toPath() +
+            "/server_resource/users/%s.png", ctx.pathParam("username")));
+
+    File initialFile = new File(path.toString());
+    InputStream targetStream = null;
+    try {
+      targetStream = new FileInputStream(initialFile);
+
+    } catch (IOException e) {
+      System.out.println("Server: User have no profile picture...");
+    }
+
+    if (targetStream == null) {
+      targetStream = User.class.getResourceAsStream("/images/users/random_user.png");
+    }
+    ctx.result(targetStream).contentType("image/png");
+  };
+
   public static Handler deleteUser = ctx -> {
     JSONObject jsonObject, deleteUserModel;
     jsonObject = new JSONObject(ctx.body());
     deleteUserModel = jsonObject.getJSONObject("deleteUserModel");
 
-    //    String usernameAdmin = deleteUserModel.getString(USERNAME_ADMIN);
-    //    String passwordAdmin = deleteUserModel.getString(PASSWORD_ADMIN);
     String username = deleteUserModel.getString(USERNAME);
-
-    //    boolean adminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
-    //    if (!adminAuthorized) {
-    //        return;
-    //    }
-
     Controller.getInstance().deleteUser(username);
     ctx.status(200);
     ctx.json("OK - User deleted");
     ctx.contentType("json");
   };
 
-  @OpenApi(
-    summary = "Get one users profile picture",
-    path = "/main/users",
-    tags = {"User"}
-  )
-  public static Handler getUserPicture = ctx -> {
-    File homeFolder = new File(System.getProperty("user.home"));
-    Path path = Paths.get(String.format(homeFolder.toPath() +
-      "/server_resource/users/%s.png", ctx.pathParam("username")));
-
-    File initialFile = new File(path.toString());
-    InputStream targetStream = null;
-    try {
-      targetStream = new FileInputStream(initialFile);
-         /*   BufferedImage in = ImageIO.read(initialFile);
-            UserAdminResource.printImage(in);*/
-
-    } catch (IOException e) {
-      //System.out.println("Server: User have no profile picture...");
-    }
-
-    if (targetStream != null) {
-      ctx.result(targetStream).contentType("image/png");
-    } else {
-      //System.out.println("Server: Returning random user picture...");
-      targetStream = User.class.getResourceAsStream("/images/users/random_user.png");
-      ctx.result(targetStream).contentType("image/png");
-    }
-  };
-
-  @OpenApi(
-    summary = "Get all users",
-    operationId = "getAllUsers",
-    path = "/main/users",
-    method = HttpMethod.GET,
-    tags = {"User"},
-    responses = {
-      @OpenApiResponse(status = "200", content = {@OpenApiContent(from = UserDTO[].class)})
-    }
-  )
-  public static Handler getAllUsers = ctx -> {
+  public static Handler getUsers = ctx -> {
     ctx.json(Controller.getInstance().getUsers()).contentType("json");
   };
 
-  @OpenApi(
-    summary = "Get all users",
-    operationId = "getAllUsers",
-    path = "/main/users/all-employees",
-    method = HttpMethod.GET,
-    tags = {"User"},
-    responses = {
-      @OpenApiResponse(status = "200", content = {@OpenApiContent(from = UserDTO[].class)})
-    }
-  )
-  public static Handler getAllEmployees = ctx -> {
+  public static Handler getEmployees = ctx -> {
     List<UserDTO> users;
     try {
       users = Controller.getInstance().getUsers();
@@ -141,16 +93,6 @@ public class User implements Tag {
     ctx.json(returnUsers).contentType("json").status(201);
   };
 
-  @OpenApi(
-    summary = "Create user",
-    path = "/main/employee/create",
-    tags = {"User"},
-    formParams = {@OpenApiFormParam(name = "usermodel", type = JSONString.class, required = true)},
-    description = "usermodel containing credentials of the admin and the user the data of the user to be created",
-    responses = {
-      @OpenApiResponse(status = "201", content = {@OpenApiContent(from = User.class)})
-    }
-  )
   public static Handler createUser = ctx -> {
     String usernameAdmin, passwordAdmin, username, password,
       firstName, lastName, email, status, website;
@@ -184,7 +126,7 @@ public class User implements Tag {
       passwordAdmin = jsonObject.getString(PASSWORD_ADMIN);
       playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSNAMES);
       boolean isAdminUpdatingUser = !username.equalsIgnoreCase(usernameAdmin);
-      boolean isAdminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
+      boolean isAdminAuthorized = Shared.verifyAdminCredentials(usernameAdmin, passwordAdmin, ctx);
       if (isAdminUpdatingUser && !isAdminAuthorized) {
         ctx.status(HttpStatus.UNAUTHORIZED_401);
         ctx.json(String.format("Unauthorized - User %s has no privileges to create user %s", usernameAdmin, username));
@@ -274,25 +216,8 @@ public class User implements Tag {
       ctx.contentType(ContentType.JSON);
     }
   };
-  @OpenApi(
-    summary = "Logs user into the system",
-    path = resources.Path.User.USERS_LOGIN,
-    tags = {"User"},
-    method = HttpMethod.POST,
-    requestBody = @OpenApiRequestBody(
-      content = @OpenApiContent(from = UserDTO.class, type = ContentType.JSON),
-      required = true,
-      description = "Insert your password and username instead of \"string\""
-    ),
-    responses = {
-      @OpenApiResponse(status = "200", description = "Successful login returns user object"),
-      @OpenApiResponse(status = "400", description = "Body has no username or password"),
-      @OpenApiResponse(status = "401", description = "Invalid username or password supplied"),
-      @OpenApiResponse(status = "404", description = "User not found"),
-      @OpenApiResponse(status = "500", description = "Server error")
-    }
-  )
-  public static Handler userLogin = ctx -> {
+
+  public static Handler login = ctx -> {
     String username, password;
     try {
       JSONObject jsonObject = new JSONObject(ctx.body());
@@ -370,7 +295,6 @@ public class User implements Tag {
       fetchedUser.setLastname(bruger.efternavn);
       fetchedUser.setEmail(bruger.email);
       fetchedUser.setStatus(fetchedUser.getStatus());
-      //user.setPassword(user.getPassword());
       fetchedUser.setWebsite(bruger.ekstraFelter.get("webside").toString());
       fetchedUser.setLoggedIn(true);
       fetchedUser.setImagePath(String.format(IMAGEPATH + "/users/%s/profile-picture", bruger.brugernavn));
@@ -396,16 +320,7 @@ public class User implements Tag {
 
     }
   };
-  @OpenApi(
-    summary = "Update one user",
-    path = "/main/users",
-    tags = {"User"},
-    formParams = {@OpenApiFormParam(name = "usermodel", type = JSONString.class, required = true)},
-    description = "usermodel containing credentials of the admin and the user the be updated with relevant fields",
-    responses = {
-      @OpenApiResponse(status = "201", content = {@OpenApiContent(from = User[].class)})
-    }
-  )
+
   public static Handler updateUser = ctx -> {
     String username, password, firstName, lastName, email, website;
     String usernameAdmin, passwordAdmin, status = null;
@@ -439,7 +354,7 @@ public class User implements Tag {
       status = jsonObject.getString(STATUS);
       playgroundIDs = jsonObject.getJSONArray(PLAYGROUNDSNAMES);
       boolean isAdminUpdatingUser = !username.equalsIgnoreCase(usernameAdmin);
-      boolean isAdminAuthorized = Shared.checkAdminCredentials(usernameAdmin, passwordAdmin, ctx);
+      boolean isAdminAuthorized = Shared.verifyAdminCredentials(usernameAdmin, passwordAdmin, ctx);
       if (isAdminUpdatingUser && !isAdminAuthorized) {
         ctx.status(HttpStatus.UNAUTHORIZED_401);
         ctx.json(String.format("Unauthorized - User %s has no privileges to update user %s", usernameAdmin, username));
@@ -522,34 +437,6 @@ public class User implements Tag {
       ctx.result("Server error - Update user failed");
       ctx.contentType(ContentType.JSON);
     }
-  };
-  // TODO: NOT IMPLEMENTED
-  public static Handler resetPassword = ctx -> {
-    JSONObject jsonObject = new JSONObject(ctx.body());
-    String username = jsonObject.getString(USERNAME);
-    UserDTO user = null;
-
-    try {
-      user = Controller.getInstance().getUser(username);
-    } catch (NoSuchElementException e) {
-      ctx.status(401).result("Unauthorized");
-      e.printStackTrace();
-    }
-    if (user.getEmail() == null) {
-      //reset setPassword
-    } else {
-      try {
-        String newPassword = "1234";
-        user.setPassword(newPassword);
-        Controller.getInstance().updateUser(user);
-        Controller.getInstance().getUser(user.getUsername());
-        Shared.sendMail("Your new setPassword", "Your new setPassword is: " + newPassword, user.getEmail());
-      } catch (MessagingException | NoSuchElementException e) {
-        e.printStackTrace();
-      }
-    }
-
-    ctx.status(401).result("Unauthorized - Wrong setPassword");
   };
 
   private static Bruger getUserInBrugerAuthorization(String username, String password) {

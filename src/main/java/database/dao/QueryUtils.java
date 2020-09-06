@@ -1,4 +1,4 @@
-package database.utils;
+package database.dao;
 
 import com.mongodb.WriteResult;
 import database.exceptions.NoModificationException;

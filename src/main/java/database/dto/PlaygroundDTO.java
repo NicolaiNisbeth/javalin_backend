@@ -44,7 +44,20 @@ public class PlaygroundDTO {
   private Set<EventDTO> events = new HashSet<>();
   private Set<MessageDTO> messages = new HashSet<>();
 
-  private PlaygroundDTO() {
+  private PlaygroundDTO(Builder builder) {
+    this.id = builder._id;
+    this.name = builder.name;
+    this.imagePath = builder.imagePath;
+    this.toiletPossibilities = builder.toiletPossibilities;
+    this.hasSoccerField = builder.hasSoccerField;
+    this.streetName = builder.streetName;
+    this.streetNumber = builder.streetNumber;
+    this.commune = builder.commune;
+    this.zipCode = builder.zipCode;
+    this.assignedPedagogue = builder.assignedPedagogue;
+    this.events = builder.events;
+    this.imagePath = builder.imageText;
+    this.descriptionText = builder.descriptionText;
   }
 
   public boolean isHasSoccerField() {
@@ -334,22 +347,8 @@ public class PlaygroundDTO {
     }
 
     public PlaygroundDTO build() {
-      //Here we create the actual playground object, which is always in a fully initialised state when it's returned.
-      PlaygroundDTO playground = new PlaygroundDTO();  //Since the builder is in the class, we can invoke its private constructor.
-      playground.id = this._id;
-      playground.name = this.name;
-      playground.imagePath = this.imagePath;
-      playground.toiletPossibilities = this.toiletPossibilities;
-      playground.hasSoccerField = this.hasSoccerField;
-      playground.streetName = this.streetName;
-      playground.streetNumber = this.streetNumber;
-      playground.commune = this.commune;
-      playground.zipCode = this.zipCode;
-      playground.assignedPedagogue = this.assignedPedagogue;
-      playground.events = this.events;
-      playground.imageText = this.imageText;
-      playground.descriptionText = this.descriptionText;
-      return playground;
+
+      return new PlaygroundDTO(this);
     }
   }
 }

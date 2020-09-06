@@ -9,7 +9,7 @@ import database.dto.MessageDTO;
 import database.dto.PlaygroundDTO;
 import database.dto.UserDTO;
 import database.exceptions.NoModificationException;
-import database.utils.QueryUtils;
+import database.dao.QueryUtils;
 import org.bson.types.ObjectId;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
